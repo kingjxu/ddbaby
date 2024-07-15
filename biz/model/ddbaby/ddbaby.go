@@ -8,20 +8,212 @@ import (
 	"github.com/apache/thrift/lib/go/thrift"
 )
 
+type BaseResp struct {
+	StatusMessage string `thrift:"StatusMessage,1" form:"StatusMessage" json:"StatusMessage" query:"StatusMessage"`
+	StatusCode    int32  `thrift:"StatusCode,2" form:"StatusCode" json:"StatusCode" query:"StatusCode"`
+}
+
+func NewBaseResp() *BaseResp {
+	return &BaseResp{}
+}
+
+func (p *BaseResp) GetStatusMessage() (v string) {
+	return p.StatusMessage
+}
+
+func (p *BaseResp) GetStatusCode() (v int32) {
+	return p.StatusCode
+}
+
+var fieldIDToName_BaseResp = map[int16]string{
+	1: "StatusMessage",
+	2: "StatusCode",
+}
+
+func (p *BaseResp) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.I32 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_BaseResp[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *BaseResp) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.StatusMessage = v
+	}
+	return nil
+}
+
+func (p *BaseResp) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI32(); err != nil {
+		return err
+	} else {
+		p.StatusCode = v
+	}
+	return nil
+}
+
+func (p *BaseResp) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("BaseResp"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *BaseResp) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("StatusMessage", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.StatusMessage); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *BaseResp) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("StatusCode", thrift.I32, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI32(p.StatusCode); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *BaseResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("BaseResp(%+v)", *p)
+}
+
 type HelloReq struct {
-	Name string `thrift:"Name,1" json:"Name" query:"name"`
+	Name *string `thrift:"Name,1,optional" json:"Name,omitempty" query:"name"`
 }
 
 func NewHelloReq() *HelloReq {
 	return &HelloReq{}
 }
 
+var HelloReq_Name_DEFAULT string
+
 func (p *HelloReq) GetName() (v string) {
-	return p.Name
+	if !p.IsSetName() {
+		return HelloReq_Name_DEFAULT
+	}
+	return *p.Name
 }
 
 var fieldIDToName_HelloReq = map[int16]string{
 	1: "Name",
+}
+
+func (p *HelloReq) IsSetName() bool {
+	return p.Name != nil
 }
 
 func (p *HelloReq) Read(iprot thrift.TProtocol) (err error) {
@@ -87,7 +279,7 @@ func (p *HelloReq) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Name = v
+		p.Name = &v
 	}
 	return nil
 }
@@ -122,14 +314,16 @@ WriteStructEndError:
 }
 
 func (p *HelloReq) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Name", thrift.STRING, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Name); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetName() {
+		if err = oprot.WriteFieldBegin("Name", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Name); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -146,19 +340,28 @@ func (p *HelloReq) String() string {
 }
 
 type HelloResp struct {
-	RespBody string `thrift:"RespBody,1" form:"RespBody" json:"RespBody" query:"RespBody"`
+	RespBody *string `thrift:"RespBody,1,optional" form:"RespBody" json:"RespBody,omitempty" query:"RespBody"`
 }
 
 func NewHelloResp() *HelloResp {
 	return &HelloResp{}
 }
 
+var HelloResp_RespBody_DEFAULT string
+
 func (p *HelloResp) GetRespBody() (v string) {
-	return p.RespBody
+	if !p.IsSetRespBody() {
+		return HelloResp_RespBody_DEFAULT
+	}
+	return *p.RespBody
 }
 
 var fieldIDToName_HelloResp = map[int16]string{
 	1: "RespBody",
+}
+
+func (p *HelloResp) IsSetRespBody() bool {
+	return p.RespBody != nil
 }
 
 func (p *HelloResp) Read(iprot thrift.TProtocol) (err error) {
@@ -224,7 +427,7 @@ func (p *HelloResp) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.RespBody = v
+		p.RespBody = &v
 	}
 	return nil
 }
@@ -259,14 +462,16 @@ WriteStructEndError:
 }
 
 func (p *HelloResp) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("RespBody", thrift.STRING, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.RespBody); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetRespBody() {
+		if err = oprot.WriteFieldBegin("RespBody", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.RespBody); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -283,19 +488,28 @@ func (p *HelloResp) String() string {
 }
 
 type DreamExplainReq struct {
-	Dream string `thrift:"Dream,1" json:"Dream" query:"dream"`
+	Dream *string `thrift:"Dream,1,optional" json:"Dream,omitempty" query:"dream"`
 }
 
 func NewDreamExplainReq() *DreamExplainReq {
 	return &DreamExplainReq{}
 }
 
+var DreamExplainReq_Dream_DEFAULT string
+
 func (p *DreamExplainReq) GetDream() (v string) {
-	return p.Dream
+	if !p.IsSetDream() {
+		return DreamExplainReq_Dream_DEFAULT
+	}
+	return *p.Dream
 }
 
 var fieldIDToName_DreamExplainReq = map[int16]string{
 	1: "Dream",
+}
+
+func (p *DreamExplainReq) IsSetDream() bool {
+	return p.Dream != nil
 }
 
 func (p *DreamExplainReq) Read(iprot thrift.TProtocol) (err error) {
@@ -361,7 +575,7 @@ func (p *DreamExplainReq) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Dream = v
+		p.Dream = &v
 	}
 	return nil
 }
@@ -396,14 +610,16 @@ WriteStructEndError:
 }
 
 func (p *DreamExplainReq) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Dream", thrift.STRING, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Dream); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetDream() {
+		if err = oprot.WriteFieldBegin("Dream", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Dream); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -420,25 +636,58 @@ func (p *DreamExplainReq) String() string {
 }
 
 type DreamExplainResp struct {
-	DreamID string `thrift:"DreamID,1" form:"DreamID" json:"DreamID" query:"DreamID"`
-	Explain string `thrift:"Explain,2" form:"Explain" json:"Explain" query:"Explain"`
+	ReqID    *string   `thrift:"ReqID,1,optional" form:"ReqID" json:"ReqID,omitempty" query:"ReqID"`
+	Explain  *string   `thrift:"Explain,2,optional" form:"Explain" json:"Explain,omitempty" query:"Explain"`
+	BaseResp *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
 }
 
 func NewDreamExplainResp() *DreamExplainResp {
 	return &DreamExplainResp{}
 }
 
-func (p *DreamExplainResp) GetDreamID() (v string) {
-	return p.DreamID
+var DreamExplainResp_ReqID_DEFAULT string
+
+func (p *DreamExplainResp) GetReqID() (v string) {
+	if !p.IsSetReqID() {
+		return DreamExplainResp_ReqID_DEFAULT
+	}
+	return *p.ReqID
 }
 
+var DreamExplainResp_Explain_DEFAULT string
+
 func (p *DreamExplainResp) GetExplain() (v string) {
-	return p.Explain
+	if !p.IsSetExplain() {
+		return DreamExplainResp_Explain_DEFAULT
+	}
+	return *p.Explain
+}
+
+var DreamExplainResp_BaseResp_DEFAULT *BaseResp
+
+func (p *DreamExplainResp) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return DreamExplainResp_BaseResp_DEFAULT
+	}
+	return p.BaseResp
 }
 
 var fieldIDToName_DreamExplainResp = map[int16]string{
-	1: "DreamID",
-	2: "Explain",
+	1:   "ReqID",
+	2:   "Explain",
+	255: "BaseResp",
+}
+
+func (p *DreamExplainResp) IsSetReqID() bool {
+	return p.ReqID != nil
+}
+
+func (p *DreamExplainResp) IsSetExplain() bool {
+	return p.Explain != nil
+}
+
+func (p *DreamExplainResp) IsSetBaseResp() bool {
+	return p.BaseResp != nil
 }
 
 func (p *DreamExplainResp) Read(iprot thrift.TProtocol) (err error) {
@@ -480,6 +729,16 @@ func (p *DreamExplainResp) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -514,7 +773,7 @@ func (p *DreamExplainResp) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.DreamID = v
+		p.ReqID = &v
 	}
 	return nil
 }
@@ -523,7 +782,15 @@ func (p *DreamExplainResp) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Explain = v
+		p.Explain = &v
+	}
+	return nil
+}
+
+func (p *DreamExplainResp) ReadField255(iprot thrift.TProtocol) error {
+	p.BaseResp = NewBaseResp()
+	if err := p.BaseResp.Read(iprot); err != nil {
+		return err
 	}
 	return nil
 }
@@ -540,6 +807,10 @@ func (p *DreamExplainResp) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
 			goto WriteFieldError
 		}
 
@@ -562,14 +833,16 @@ WriteStructEndError:
 }
 
 func (p *DreamExplainResp) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("DreamID", thrift.STRING, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.DreamID); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetReqID() {
+		if err = oprot.WriteFieldBegin("ReqID", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.ReqID); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -579,10 +852,29 @@ WriteFieldEndError:
 }
 
 func (p *DreamExplainResp) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Explain", thrift.STRING, 2); err != nil {
+	if p.IsSetExplain() {
+		if err = oprot.WriteFieldBegin("Explain", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Explain); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *DreamExplainResp) writeField255(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("BaseResp", thrift.STRUCT, 255); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Explain); err != nil {
+	if err := p.BaseResp.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -590,9 +882,9 @@ func (p *DreamExplainResp) writeField2(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
 func (p *DreamExplainResp) String() string {

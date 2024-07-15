@@ -1,19 +1,25 @@
 namespace go ddbaby
 
+struct BaseResp {
+    1: string StatusMessage;
+    2: i32 StatusCode;
+}
 struct HelloReq {
-    1: string Name (api.query="name");
+    1: optional string Name (api.query="name");
 }
 
 struct HelloResp {
-    1: string RespBody;
+    1: optional string RespBody;
 }
 
 struct DreamExplainReq {
-    1: string Dream (api.query="dream");
+    1: optional string Dream (api.query="dream");
 }
 struct DreamExplainResp {
-    1: string DreamID;
-    2: string Explain;
+    1: optional string ReqID;
+    2: optional string Explain;
+
+    255: BaseResp BaseResp;
 }
 
 service DDBabyService {

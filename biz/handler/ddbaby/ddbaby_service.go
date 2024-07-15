@@ -36,8 +36,7 @@ func DreamExplain(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-
-	resp := new(ddbaby.DreamExplainResp)
+	resp, _ := NewDreamExplainHandler(&req).Handle(ctx)
 
 	c.JSON(consts.StatusOK, resp)
 }
