@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	"github.com/kingjxu/ddbaby/service"
+	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,7 +28,7 @@ func (h *DreamExplainHandler) check() error {
 }
 
 func (h *DreamExplainHandler) Handle(ctx context.Context) (*ddbaby.DreamExplainResp, error) {
-	logrus.WithContext(ctx).Infof("[DreamExplainHandler] req:%v", h.req)
+	logrus.WithContext(ctx).Infof("[DreamExplainHandler] req:%v", util.ToJSON(h.req))
 	if err := h.check(); err != nil {
 		logrus.WithContext(ctx).Errorf("[DreamExplainHandler] check err:%v", err)
 		return h.newResp(ctx, -1, "param err"), nil
@@ -35,7 +36,7 @@ func (h *DreamExplainHandler) Handle(ctx context.Context) (*ddbaby.DreamExplainR
 	content, err := service.GetDreamExplain(ctx, h.req.GetDream())
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[DreamExplainHandler] get dream explain err:%v", err)
-		return h.newResp(ctx, -1, "get dream explain err"), nil
+		return h.newResp(ctx, -2, "get dream explain err"), nil
 	}
 	h.Explain = content
 	return h.newResp(ctx, 0, ""), nil
