@@ -17,6 +17,9 @@ import (
 func Register(r *server.Hertz) {
 
 	root := r.Group("/", rootMw()...)
-	root.GET("/dream_explain", append(_dreamexplainMw(), ddbaby.DreamExplain)...)
 	root.GET("/hello", append(_hellomethodMw(), ddbaby.HelloMethod)...)
+	{
+		_lyxz := root.Group("/lyxz", _lyxzMw()...)
+		_lyxz.GET("/dream_explain", append(_dreamexplainMw(), ddbaby.DreamExplain)...)
+	}
 }

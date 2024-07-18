@@ -24,5 +24,5 @@ struct DreamExplainResp {
 
 service DDBabyService {
     HelloResp HelloMethod(1: HelloReq req) (api.get="/hello");
-    DreamExplainResp DreamExplain(1: DreamExplainReq req) (api.get="/dream_explain");
+    DreamExplainResp DreamExplain(1: DreamExplainReq req) (api.get="/lyxz/dream_explain");
 }
