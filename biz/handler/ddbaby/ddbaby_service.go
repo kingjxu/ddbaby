@@ -52,7 +52,7 @@ func PickName(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(ddbaby.PickNameResp)
+	resp, _ := NewPickNameHandler(&req).Handle(ctx)
 
 	c.JSON(consts.StatusOK, resp)
 }
