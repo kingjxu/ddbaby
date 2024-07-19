@@ -23,10 +23,10 @@ struct DreamExplainResp {
 }
 
 struct PickNameReq {
-    1: optional string FamilyName (api.query="family_name");
-    2: optional string Gender (api.query="gender");
-    3: optional i32 NameLen (api.query="name_len");
-    4: optional string Remark (api.query="remark");
+    1: optional string FamilyName (api.query="family_name"); // 姓氏
+    2: optional string Gender (api.query="gender"); // 性别
+    3: optional i32 NameLen (api.query="name_len"); // 名字长度
+    4: optional string Remark (api.query="remark"); // 备注
 
 }
 struct PickNameResp {
