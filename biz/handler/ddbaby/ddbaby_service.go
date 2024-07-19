@@ -40,3 +40,35 @@ func DreamExplain(ctx context.Context, c *app.RequestContext) {
 
 	c.JSON(consts.StatusOK, resp)
 }
+
+// PickName .
+// @router /lyxz/pick_name [GET]
+func PickName(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req ddbaby.PickNameReq
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(ddbaby.PickNameResp)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// NameFortune .
+// @router /lyxz/name_fortune [GET]
+func NameFortune(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req ddbaby.NameFortuneReq
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp, _ := NewNameFortuneHandler(&req).Handle(ctx)
+
+	c.JSON(consts.StatusOK, resp)
+}

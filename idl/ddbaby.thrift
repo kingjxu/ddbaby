@@ -25,7 +25,7 @@ struct DreamExplainResp {
 struct PickNameReq {
     1: optional string FamilyName (api.query="family_name");
     2: optional string Gender (api.query="gender");
-    3: optional string NameLen (api.query="name_len");
+    3: optional i32 NameLen (api.query="name_len");
     4: optional string Remark (api.query="remark");
 
 }

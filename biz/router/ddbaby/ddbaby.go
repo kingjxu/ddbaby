@@ -21,5 +21,7 @@ func Register(r *server.Hertz) {
 	{
 		_lyxz := root.Group("/lyxz", _lyxzMw()...)
 		_lyxz.GET("/dream_explain", append(_dreamexplainMw(), ddbaby.DreamExplain)...)
+		_lyxz.GET("/name_fortune", append(_namefortuneMw(), ddbaby.NameFortune)...)
+		_lyxz.GET("/pick_name", append(_picknameMw(), ddbaby.PickName)...)
 	}
 }

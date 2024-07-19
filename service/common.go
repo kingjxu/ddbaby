@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
+	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
@@ -35,7 +36,7 @@ func GetCozeHttpRequest() *http.Request {
 	req.Header.Add("Accept", "*/*")
 	req.Header.Add("Host", "api.coze.cn")
 	req.Header.Add("Connection", "keep-alive")
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", CozeToken))
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", _const.CozeToken))
 	return req
 }
 

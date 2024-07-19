@@ -25,3 +25,13 @@ func _lyxzMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _namefortuneMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _picknameMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
