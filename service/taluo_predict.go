@@ -16,7 +16,7 @@ func TaLuoPredict(ctx context.Context, query string) (string, error) {
 	logrus.WithContext(ctx).Infof("[TaLuoPredict] query:%v", query)
 	botParam := &BotReqParam{
 		ConversationId: fmt.Sprintf("%v", time.Now().UnixNano()),
-		BotId:          _const.PickNameBotID,
+		BotId:          _const.TaLuoPredictBotID,
 		User:           fmt.Sprintf("%v", time.Now().Unix()),
 		Query:          query,
 		Stream:         false,
