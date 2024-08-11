@@ -84,7 +84,7 @@ func TaLuoPredict(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(ddbaby.TaLuoPredictResp)
+	resp, _ := NewTaLuoPredictHandler(&req).Handle(ctx)
 
 	c.JSON(consts.StatusOK, resp)
 }
