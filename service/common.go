@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	jsoniter "github.com/json-iterator/go"
 	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/sirupsen/logrus"
@@ -44,27 +45,33 @@ func ProcessBotResp(ctx context.Context, req *http.Request) (*BotResp, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
+		hlog.CtxInfof(ctx, "[GetDreamExplain] get coze response err:%v", err)
 		logrus.WithContext(ctx).Errorf("[GetDreamExplain] get coze response err:%v", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
+		hlog.CtxInfof(ctx, "[ProcessBotResp] io.ReadAll err:%v", err)
 		logrus.WithContext(ctx).Errorf("[ProcessBotResp] io.ReadAll err:%v", err)
 		return nil, err
 	}
+	hlog.CtxInfof(ctx, "[ProcessBotResp] respBody:%v", string(respBody))
 	logrus.WithContext(ctx).Infof("[ProcessBotResp] respBody:%v", string(respBody))
 	botResp := &BotResp{}
 	err = jsoniter.Unmarshal(respBody, botResp)
 	if err != nil {
+		hlog.CtxInfof(ctx, "[ProcessBotResp] jsoniter.Unmarshal failed err:%v,botReps:%v", err, string(respBody))
 		logrus.WithContext(ctx).Errorf("[ProcessBotResp] jsoniter.Unmarshal failed err:%v,botReps:%v", err, string(respBody))
 		return nil, err
 	}
 	if botResp.Code != 0 {
+		hlog.CtxInfof(ctx, "[ProcessBotResp] botResp.Code%v,msg:%v", botResp.Code, botResp.Msg)
 		logrus.WithContext(ctx).Errorf("[ProcessBotResp] botResp.Code%v,msg:%v", botResp.Code, botResp.Msg)
 		return nil, fmt.Errorf("code:%v,msg:%v", botResp.Code, botResp.Msg)
 	}
 	if len(botResp.Messages) == 0 {
+		hlog.CtxInfof(ctx, "[ProcessBotResp] botResp.Messages is empty")
 		logrus.WithContext(ctx).Errorf("[ProcessBotResp] botResp.Messages is empty")
 		return nil, fmt.Errorf("botResp.Messages is empty")
 	}

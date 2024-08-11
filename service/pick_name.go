@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	jsoniter "github.com/json-iterator/go"
 	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/sirupsen/logrus"
@@ -33,6 +34,7 @@ func PickName(ctx context.Context, param PickNameParam) (string, error) {
 	req.Body = io.NopCloser(strings.NewReader(body))
 	botResp, err := ProcessBotResp(ctx, req)
 	if err != nil {
+		hlog.CtxInfof(ctx, "[PickName] get coze response err:%v", err)
 		logrus.WithContext(ctx).Errorf("[PickName] get coze response err:%v", err)
 		return "", err
 	}

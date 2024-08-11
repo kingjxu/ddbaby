@@ -4,9 +4,13 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 func main() {
+	logger := NewLogger()
+	hlog.SetLogger(logger)
+
 	h := server.Default()
 
 	register(h)

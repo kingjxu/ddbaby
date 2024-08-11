@@ -8,6 +8,7 @@ require (
 	github.com/apache/thrift v0.0.0-00010101000000-000000000000
 	github.com/bytedance/sonic v1.11.9
 	github.com/cloudwego/hertz v0.9.1
+	github.com/hertz-contrib/logger/logrus v1.0.1
 	github.com/json-iterator/go v1.1.12
 	github.com/sirupsen/logrus v1.9.3
 )
@@ -34,4 +35,5 @@ require (
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 )
