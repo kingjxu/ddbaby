@@ -35,3 +35,8 @@ func _picknameMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _taluopredictMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

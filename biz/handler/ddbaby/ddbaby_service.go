@@ -72,3 +72,19 @@ func NameFortune(ctx context.Context, c *app.RequestContext) {
 
 	c.JSON(consts.StatusOK, resp)
 }
+
+// TaLuoPredict .
+// @router /lyxz/taluo_predict [GET]
+func TaLuoPredict(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req ddbaby.TaLuoPredictReq
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(ddbaby.TaLuoPredictResp)
+
+	c.JSON(consts.StatusOK, resp)
+}

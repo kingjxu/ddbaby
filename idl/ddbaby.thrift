@@ -47,6 +47,16 @@ struct NameFortuneResp {
     255: BaseResp BaseResp;
 }
 
+struct TaLuoPredictReq {
+    1: optional string Query (api.query="query");
+
+}
+struct TaLuoPredictResp {
+    1: optional string ReqID;
+    2: optional string Explain;
+
+    255: BaseResp BaseResp;
+}
 
 
 service DDBabyService {
@@ -54,4 +64,5 @@ service DDBabyService {
     DreamExplainResp DreamExplain(1: DreamExplainReq req) (api.get="/lyxz/dream_explain");
     PickNameResp PickName(1: PickNameReq req) (api.get="/lyxz/pick_name");
     NameFortuneResp NameFortune(1: NameFortuneReq req) (api.get="/lyxz/name_fortune");
+    TaLuoPredictResp TaLuoPredict(1:TaLuoPredictReq req) (api.get="/lyxz/taluo_predict");
 }

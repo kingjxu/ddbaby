@@ -23,5 +23,6 @@ func Register(r *server.Hertz) {
 		_lyxz.GET("/dream_explain", append(_dreamexplainMw(), ddbaby.DreamExplain)...)
 		_lyxz.GET("/name_fortune", append(_namefortuneMw(), ddbaby.NameFortune)...)
 		_lyxz.GET("/pick_name", append(_picknameMw(), ddbaby.PickName)...)
+		_lyxz.GET("/taluo_predict", append(_taluopredictMw(), ddbaby.TaLuoPredict)...)
 	}
 }

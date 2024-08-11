@@ -895,10 +895,14 @@ func (p *DreamExplainResp) String() string {
 }
 
 type PickNameReq struct {
+	// 姓氏
 	FamilyName *string `thrift:"FamilyName,1,optional" json:"FamilyName,omitempty" query:"family_name"`
-	Gender     *string `thrift:"Gender,2,optional" json:"Gender,omitempty" query:"gender"`
-	NameLen    *int32  `thrift:"NameLen,3,optional" json:"NameLen,omitempty" query:"name_len"`
-	Remark     *string `thrift:"Remark,4,optional" json:"Remark,omitempty" query:"remark"`
+	// 性别
+	Gender *string `thrift:"Gender,2,optional" json:"Gender,omitempty" query:"gender"`
+	// 名字长度
+	NameLen *int32 `thrift:"NameLen,3,optional" json:"NameLen,omitempty" query:"name_len"`
+	// 备注
+	Remark *string `thrift:"Remark,4,optional" json:"Remark,omitempty" query:"remark"`
 }
 
 func NewPickNameReq() *PickNameReq {
@@ -1879,6 +1883,413 @@ func (p *NameFortuneResp) String() string {
 	return fmt.Sprintf("NameFortuneResp(%+v)", *p)
 }
 
+type TaLuoPredictReq struct {
+	Query *string `thrift:"Query,1,optional" json:"Query,omitempty" query:"query"`
+}
+
+func NewTaLuoPredictReq() *TaLuoPredictReq {
+	return &TaLuoPredictReq{}
+}
+
+var TaLuoPredictReq_Query_DEFAULT string
+
+func (p *TaLuoPredictReq) GetQuery() (v string) {
+	if !p.IsSetQuery() {
+		return TaLuoPredictReq_Query_DEFAULT
+	}
+	return *p.Query
+}
+
+var fieldIDToName_TaLuoPredictReq = map[int16]string{
+	1: "Query",
+}
+
+func (p *TaLuoPredictReq) IsSetQuery() bool {
+	return p.Query != nil
+}
+
+func (p *TaLuoPredictReq) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_TaLuoPredictReq[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *TaLuoPredictReq) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Query = &v
+	}
+	return nil
+}
+
+func (p *TaLuoPredictReq) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("TaLuoPredictReq"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *TaLuoPredictReq) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetQuery() {
+		if err = oprot.WriteFieldBegin("Query", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Query); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *TaLuoPredictReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TaLuoPredictReq(%+v)", *p)
+}
+
+type TaLuoPredictResp struct {
+	ReqID    *string   `thrift:"ReqID,1,optional" form:"ReqID" json:"ReqID,omitempty" query:"ReqID"`
+	Explain  *string   `thrift:"Explain,2,optional" form:"Explain" json:"Explain,omitempty" query:"Explain"`
+	BaseResp *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+}
+
+func NewTaLuoPredictResp() *TaLuoPredictResp {
+	return &TaLuoPredictResp{}
+}
+
+var TaLuoPredictResp_ReqID_DEFAULT string
+
+func (p *TaLuoPredictResp) GetReqID() (v string) {
+	if !p.IsSetReqID() {
+		return TaLuoPredictResp_ReqID_DEFAULT
+	}
+	return *p.ReqID
+}
+
+var TaLuoPredictResp_Explain_DEFAULT string
+
+func (p *TaLuoPredictResp) GetExplain() (v string) {
+	if !p.IsSetExplain() {
+		return TaLuoPredictResp_Explain_DEFAULT
+	}
+	return *p.Explain
+}
+
+var TaLuoPredictResp_BaseResp_DEFAULT *BaseResp
+
+func (p *TaLuoPredictResp) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return TaLuoPredictResp_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+
+var fieldIDToName_TaLuoPredictResp = map[int16]string{
+	1:   "ReqID",
+	2:   "Explain",
+	255: "BaseResp",
+}
+
+func (p *TaLuoPredictResp) IsSetReqID() bool {
+	return p.ReqID != nil
+}
+
+func (p *TaLuoPredictResp) IsSetExplain() bool {
+	return p.Explain != nil
+}
+
+func (p *TaLuoPredictResp) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *TaLuoPredictResp) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_TaLuoPredictResp[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *TaLuoPredictResp) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.ReqID = &v
+	}
+	return nil
+}
+
+func (p *TaLuoPredictResp) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Explain = &v
+	}
+	return nil
+}
+
+func (p *TaLuoPredictResp) ReadField255(iprot thrift.TProtocol) error {
+	p.BaseResp = NewBaseResp()
+	if err := p.BaseResp.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *TaLuoPredictResp) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("TaLuoPredictResp"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *TaLuoPredictResp) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetReqID() {
+		if err = oprot.WriteFieldBegin("ReqID", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.ReqID); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *TaLuoPredictResp) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetExplain() {
+		if err = oprot.WriteFieldBegin("Explain", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Explain); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *TaLuoPredictResp) writeField255(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("BaseResp", thrift.STRUCT, 255); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.BaseResp.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *TaLuoPredictResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TaLuoPredictResp(%+v)", *p)
+}
+
 type DDBabyService interface {
 	HelloMethod(ctx context.Context, req *HelloReq) (r *HelloResp, err error)
 
@@ -1887,6 +2298,8 @@ type DDBabyService interface {
 	PickName(ctx context.Context, req *PickNameReq) (r *PickNameResp, err error)
 
 	NameFortune(ctx context.Context, req *NameFortuneReq) (r *NameFortuneResp, err error)
+
+	TaLuoPredict(ctx context.Context, req *TaLuoPredictReq) (r *TaLuoPredictResp, err error)
 }
 
 type DDBabyServiceClient struct {
@@ -1951,6 +2364,15 @@ func (p *DDBabyServiceClient) NameFortune(ctx context.Context, req *NameFortuneR
 	}
 	return _result.GetSuccess(), nil
 }
+func (p *DDBabyServiceClient) TaLuoPredict(ctx context.Context, req *TaLuoPredictReq) (r *TaLuoPredictResp, err error) {
+	var _args DDBabyServiceTaLuoPredictArgs
+	_args.Req = req
+	var _result DDBabyServiceTaLuoPredictResult
+	if err = p.Client_().Call(ctx, "TaLuoPredict", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
 
 type DDBabyServiceProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
@@ -1976,6 +2398,7 @@ func NewDDBabyServiceProcessor(handler DDBabyService) *DDBabyServiceProcessor {
 	self.AddToProcessorMap("DreamExplain", &dDBabyServiceProcessorDreamExplain{handler: handler})
 	self.AddToProcessorMap("PickName", &dDBabyServiceProcessorPickName{handler: handler})
 	self.AddToProcessorMap("NameFortune", &dDBabyServiceProcessorNameFortune{handler: handler})
+	self.AddToProcessorMap("TaLuoPredict", &dDBabyServiceProcessorTaLuoPredict{handler: handler})
 	return self
 }
 func (p *DDBabyServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -2171,6 +2594,54 @@ func (p *dDBabyServiceProcessorNameFortune) Process(ctx context.Context, seqId i
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("NameFortune", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type dDBabyServiceProcessorTaLuoPredict struct {
+	handler DDBabyService
+}
+
+func (p *dDBabyServiceProcessorTaLuoPredict) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := DDBabyServiceTaLuoPredictArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("TaLuoPredict", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := DDBabyServiceTaLuoPredictResult{}
+	var retval *TaLuoPredictResp
+	if retval, err2 = p.handler.TaLuoPredict(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing TaLuoPredict: "+err2.Error())
+		oprot.WriteMessageBegin("TaLuoPredict", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("TaLuoPredict", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -3354,4 +3825,296 @@ func (p *DDBabyServiceNameFortuneResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("DDBabyServiceNameFortuneResult(%+v)", *p)
+}
+
+type DDBabyServiceTaLuoPredictArgs struct {
+	Req *TaLuoPredictReq `thrift:"req,1"`
+}
+
+func NewDDBabyServiceTaLuoPredictArgs() *DDBabyServiceTaLuoPredictArgs {
+	return &DDBabyServiceTaLuoPredictArgs{}
+}
+
+var DDBabyServiceTaLuoPredictArgs_Req_DEFAULT *TaLuoPredictReq
+
+func (p *DDBabyServiceTaLuoPredictArgs) GetReq() (v *TaLuoPredictReq) {
+	if !p.IsSetReq() {
+		return DDBabyServiceTaLuoPredictArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_DDBabyServiceTaLuoPredictArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *DDBabyServiceTaLuoPredictArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *DDBabyServiceTaLuoPredictArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DDBabyServiceTaLuoPredictArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DDBabyServiceTaLuoPredictArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = NewTaLuoPredictReq()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *DDBabyServiceTaLuoPredictArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("TaLuoPredict_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DDBabyServiceTaLuoPredictArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *DDBabyServiceTaLuoPredictArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DDBabyServiceTaLuoPredictArgs(%+v)", *p)
+}
+
+type DDBabyServiceTaLuoPredictResult struct {
+	Success *TaLuoPredictResp `thrift:"success,0,optional"`
+}
+
+func NewDDBabyServiceTaLuoPredictResult() *DDBabyServiceTaLuoPredictResult {
+	return &DDBabyServiceTaLuoPredictResult{}
+}
+
+var DDBabyServiceTaLuoPredictResult_Success_DEFAULT *TaLuoPredictResp
+
+func (p *DDBabyServiceTaLuoPredictResult) GetSuccess() (v *TaLuoPredictResp) {
+	if !p.IsSetSuccess() {
+		return DDBabyServiceTaLuoPredictResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_DDBabyServiceTaLuoPredictResult = map[int16]string{
+	0: "success",
+}
+
+func (p *DDBabyServiceTaLuoPredictResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *DDBabyServiceTaLuoPredictResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DDBabyServiceTaLuoPredictResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DDBabyServiceTaLuoPredictResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = NewTaLuoPredictResp()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *DDBabyServiceTaLuoPredictResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("TaLuoPredict_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DDBabyServiceTaLuoPredictResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *DDBabyServiceTaLuoPredictResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DDBabyServiceTaLuoPredictResult(%+v)", *p)
 }
