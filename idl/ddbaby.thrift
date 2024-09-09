@@ -58,6 +58,19 @@ struct TaLuoPredictResp {
     255: BaseResp BaseResp;
 }
 
+struct HealthEvaluateQuestionItem {
+    1: optional string QuestionID;
+    2: optional string Content;
+    3: optional list<string> Options;
+}
+struct HealthEvaluateQuestionsReq {
+    1: optional string CatetoryName (api.query="catetory_name");
+}
+struct HealthEvaluateQuestionsResp {
+    1: optional list<HealthEvaluateQuestionItem> Questions;
+
+    255: BaseResp BaseResp;
+}
 
 service DDBabyService {
     HelloResp HelloMethod(1: HelloReq req) (api.get="/hello");
@@ -65,4 +78,7 @@ service DDBabyService {
     PickNameResp PickName(1: PickNameReq req) (api.get="/lyxz/pick_name");
     NameFortuneResp NameFortune(1: NameFortuneReq req) (api.get="/lyxz/name_fortune");
     TaLuoPredictResp TaLuoPredict(1:TaLuoPredictReq req) (api.get="/lyxz/taluo_predict");
+
+    HealthEvaluateQuestionsResp HealthEvaluateQuestions(1:HealthEvaluateQuestionsReq req) (api.get="/health/questions")
+
 }
