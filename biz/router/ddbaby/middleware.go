@@ -40,3 +40,13 @@ func _taluopredictMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _healthMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _healthevaluatequestionsMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

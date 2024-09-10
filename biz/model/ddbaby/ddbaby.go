@@ -2290,6 +2290,658 @@ func (p *TaLuoPredictResp) String() string {
 	return fmt.Sprintf("TaLuoPredictResp(%+v)", *p)
 }
 
+type HealthEvaluateQuestionItem struct {
+	QuestionID *int64   `thrift:"QuestionID,1,optional" form:"QuestionID" json:"QuestionID,omitempty" query:"QuestionID"`
+	Content    *string  `thrift:"Content,2,optional" form:"Content" json:"Content,omitempty" query:"Content"`
+	Options    []string `thrift:"Options,3,optional" form:"Options" json:"Options,omitempty" query:"Options"`
+}
+
+func NewHealthEvaluateQuestionItem() *HealthEvaluateQuestionItem {
+	return &HealthEvaluateQuestionItem{}
+}
+
+var HealthEvaluateQuestionItem_QuestionID_DEFAULT int64
+
+func (p *HealthEvaluateQuestionItem) GetQuestionID() (v int64) {
+	if !p.IsSetQuestionID() {
+		return HealthEvaluateQuestionItem_QuestionID_DEFAULT
+	}
+	return *p.QuestionID
+}
+
+var HealthEvaluateQuestionItem_Content_DEFAULT string
+
+func (p *HealthEvaluateQuestionItem) GetContent() (v string) {
+	if !p.IsSetContent() {
+		return HealthEvaluateQuestionItem_Content_DEFAULT
+	}
+	return *p.Content
+}
+
+var HealthEvaluateQuestionItem_Options_DEFAULT []string
+
+func (p *HealthEvaluateQuestionItem) GetOptions() (v []string) {
+	if !p.IsSetOptions() {
+		return HealthEvaluateQuestionItem_Options_DEFAULT
+	}
+	return p.Options
+}
+
+var fieldIDToName_HealthEvaluateQuestionItem = map[int16]string{
+	1: "QuestionID",
+	2: "Content",
+	3: "Options",
+}
+
+func (p *HealthEvaluateQuestionItem) IsSetQuestionID() bool {
+	return p.QuestionID != nil
+}
+
+func (p *HealthEvaluateQuestionItem) IsSetContent() bool {
+	return p.Content != nil
+}
+
+func (p *HealthEvaluateQuestionItem) IsSetOptions() bool {
+	return p.Options != nil
+}
+
+func (p *HealthEvaluateQuestionItem) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 3:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_HealthEvaluateQuestionItem[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *HealthEvaluateQuestionItem) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.QuestionID = &v
+	}
+	return nil
+}
+
+func (p *HealthEvaluateQuestionItem) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Content = &v
+	}
+	return nil
+}
+
+func (p *HealthEvaluateQuestionItem) ReadField3(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Options = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Options = append(p.Options, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *HealthEvaluateQuestionItem) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("HealthEvaluateQuestionItem"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *HealthEvaluateQuestionItem) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetQuestionID() {
+		if err = oprot.WriteFieldBegin("QuestionID", thrift.I64, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.QuestionID); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *HealthEvaluateQuestionItem) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetContent() {
+		if err = oprot.WriteFieldBegin("Content", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Content); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *HealthEvaluateQuestionItem) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetOptions() {
+		if err = oprot.WriteFieldBegin("Options", thrift.LIST, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Options)); err != nil {
+			return err
+		}
+		for _, v := range p.Options {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *HealthEvaluateQuestionItem) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("HealthEvaluateQuestionItem(%+v)", *p)
+}
+
+type HealthEvaluateQuestionsReq struct {
+	QuestionType *string `thrift:"QuestionType,1,optional" json:"QuestionType,omitempty" query:"question_type"`
+}
+
+func NewHealthEvaluateQuestionsReq() *HealthEvaluateQuestionsReq {
+	return &HealthEvaluateQuestionsReq{}
+}
+
+var HealthEvaluateQuestionsReq_QuestionType_DEFAULT string
+
+func (p *HealthEvaluateQuestionsReq) GetQuestionType() (v string) {
+	if !p.IsSetQuestionType() {
+		return HealthEvaluateQuestionsReq_QuestionType_DEFAULT
+	}
+	return *p.QuestionType
+}
+
+var fieldIDToName_HealthEvaluateQuestionsReq = map[int16]string{
+	1: "QuestionType",
+}
+
+func (p *HealthEvaluateQuestionsReq) IsSetQuestionType() bool {
+	return p.QuestionType != nil
+}
+
+func (p *HealthEvaluateQuestionsReq) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_HealthEvaluateQuestionsReq[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *HealthEvaluateQuestionsReq) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.QuestionType = &v
+	}
+	return nil
+}
+
+func (p *HealthEvaluateQuestionsReq) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("HealthEvaluateQuestionsReq"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *HealthEvaluateQuestionsReq) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetQuestionType() {
+		if err = oprot.WriteFieldBegin("QuestionType", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.QuestionType); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *HealthEvaluateQuestionsReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("HealthEvaluateQuestionsReq(%+v)", *p)
+}
+
+type HealthEvaluateQuestionsResp struct {
+	Questions []*HealthEvaluateQuestionItem `thrift:"Questions,1,optional" form:"Questions" json:"Questions,omitempty" query:"Questions"`
+	BaseResp  *BaseResp                     `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+}
+
+func NewHealthEvaluateQuestionsResp() *HealthEvaluateQuestionsResp {
+	return &HealthEvaluateQuestionsResp{}
+}
+
+var HealthEvaluateQuestionsResp_Questions_DEFAULT []*HealthEvaluateQuestionItem
+
+func (p *HealthEvaluateQuestionsResp) GetQuestions() (v []*HealthEvaluateQuestionItem) {
+	if !p.IsSetQuestions() {
+		return HealthEvaluateQuestionsResp_Questions_DEFAULT
+	}
+	return p.Questions
+}
+
+var HealthEvaluateQuestionsResp_BaseResp_DEFAULT *BaseResp
+
+func (p *HealthEvaluateQuestionsResp) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return HealthEvaluateQuestionsResp_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+
+var fieldIDToName_HealthEvaluateQuestionsResp = map[int16]string{
+	1:   "Questions",
+	255: "BaseResp",
+}
+
+func (p *HealthEvaluateQuestionsResp) IsSetQuestions() bool {
+	return p.Questions != nil
+}
+
+func (p *HealthEvaluateQuestionsResp) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *HealthEvaluateQuestionsResp) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_HealthEvaluateQuestionsResp[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *HealthEvaluateQuestionsResp) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Questions = make([]*HealthEvaluateQuestionItem, 0, size)
+	for i := 0; i < size; i++ {
+		_elem := NewHealthEvaluateQuestionItem()
+		if err := _elem.Read(iprot); err != nil {
+			return err
+		}
+
+		p.Questions = append(p.Questions, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *HealthEvaluateQuestionsResp) ReadField255(iprot thrift.TProtocol) error {
+	p.BaseResp = NewBaseResp()
+	if err := p.BaseResp.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *HealthEvaluateQuestionsResp) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("HealthEvaluateQuestionsResp"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *HealthEvaluateQuestionsResp) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetQuestions() {
+		if err = oprot.WriteFieldBegin("Questions", thrift.LIST, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Questions)); err != nil {
+			return err
+		}
+		for _, v := range p.Questions {
+			if err := v.Write(oprot); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *HealthEvaluateQuestionsResp) writeField255(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("BaseResp", thrift.STRUCT, 255); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.BaseResp.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *HealthEvaluateQuestionsResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("HealthEvaluateQuestionsResp(%+v)", *p)
+}
+
 type DDBabyService interface {
 	HelloMethod(ctx context.Context, req *HelloReq) (r *HelloResp, err error)
 
@@ -2300,6 +2952,8 @@ type DDBabyService interface {
 	NameFortune(ctx context.Context, req *NameFortuneReq) (r *NameFortuneResp, err error)
 
 	TaLuoPredict(ctx context.Context, req *TaLuoPredictReq) (r *TaLuoPredictResp, err error)
+
+	HealthEvaluateQuestions(ctx context.Context, req *HealthEvaluateQuestionsReq) (r *HealthEvaluateQuestionsResp, err error)
 }
 
 type DDBabyServiceClient struct {
@@ -2373,6 +3027,15 @@ func (p *DDBabyServiceClient) TaLuoPredict(ctx context.Context, req *TaLuoPredic
 	}
 	return _result.GetSuccess(), nil
 }
+func (p *DDBabyServiceClient) HealthEvaluateQuestions(ctx context.Context, req *HealthEvaluateQuestionsReq) (r *HealthEvaluateQuestionsResp, err error) {
+	var _args DDBabyServiceHealthEvaluateQuestionsArgs
+	_args.Req = req
+	var _result DDBabyServiceHealthEvaluateQuestionsResult
+	if err = p.Client_().Call(ctx, "HealthEvaluateQuestions", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
 
 type DDBabyServiceProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
@@ -2399,6 +3062,7 @@ func NewDDBabyServiceProcessor(handler DDBabyService) *DDBabyServiceProcessor {
 	self.AddToProcessorMap("PickName", &dDBabyServiceProcessorPickName{handler: handler})
 	self.AddToProcessorMap("NameFortune", &dDBabyServiceProcessorNameFortune{handler: handler})
 	self.AddToProcessorMap("TaLuoPredict", &dDBabyServiceProcessorTaLuoPredict{handler: handler})
+	self.AddToProcessorMap("HealthEvaluateQuestions", &dDBabyServiceProcessorHealthEvaluateQuestions{handler: handler})
 	return self
 }
 func (p *DDBabyServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -2642,6 +3306,54 @@ func (p *dDBabyServiceProcessorTaLuoPredict) Process(ctx context.Context, seqId 
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("TaLuoPredict", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type dDBabyServiceProcessorHealthEvaluateQuestions struct {
+	handler DDBabyService
+}
+
+func (p *dDBabyServiceProcessorHealthEvaluateQuestions) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := DDBabyServiceHealthEvaluateQuestionsArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("HealthEvaluateQuestions", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := DDBabyServiceHealthEvaluateQuestionsResult{}
+	var retval *HealthEvaluateQuestionsResp
+	if retval, err2 = p.handler.HealthEvaluateQuestions(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing HealthEvaluateQuestions: "+err2.Error())
+		oprot.WriteMessageBegin("HealthEvaluateQuestions", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("HealthEvaluateQuestions", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -4117,4 +4829,296 @@ func (p *DDBabyServiceTaLuoPredictResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("DDBabyServiceTaLuoPredictResult(%+v)", *p)
+}
+
+type DDBabyServiceHealthEvaluateQuestionsArgs struct {
+	Req *HealthEvaluateQuestionsReq `thrift:"req,1"`
+}
+
+func NewDDBabyServiceHealthEvaluateQuestionsArgs() *DDBabyServiceHealthEvaluateQuestionsArgs {
+	return &DDBabyServiceHealthEvaluateQuestionsArgs{}
+}
+
+var DDBabyServiceHealthEvaluateQuestionsArgs_Req_DEFAULT *HealthEvaluateQuestionsReq
+
+func (p *DDBabyServiceHealthEvaluateQuestionsArgs) GetReq() (v *HealthEvaluateQuestionsReq) {
+	if !p.IsSetReq() {
+		return DDBabyServiceHealthEvaluateQuestionsArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_DDBabyServiceHealthEvaluateQuestionsArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *DDBabyServiceHealthEvaluateQuestionsArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *DDBabyServiceHealthEvaluateQuestionsArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DDBabyServiceHealthEvaluateQuestionsArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DDBabyServiceHealthEvaluateQuestionsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = NewHealthEvaluateQuestionsReq()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *DDBabyServiceHealthEvaluateQuestionsArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("HealthEvaluateQuestions_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DDBabyServiceHealthEvaluateQuestionsArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *DDBabyServiceHealthEvaluateQuestionsArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DDBabyServiceHealthEvaluateQuestionsArgs(%+v)", *p)
+}
+
+type DDBabyServiceHealthEvaluateQuestionsResult struct {
+	Success *HealthEvaluateQuestionsResp `thrift:"success,0,optional"`
+}
+
+func NewDDBabyServiceHealthEvaluateQuestionsResult() *DDBabyServiceHealthEvaluateQuestionsResult {
+	return &DDBabyServiceHealthEvaluateQuestionsResult{}
+}
+
+var DDBabyServiceHealthEvaluateQuestionsResult_Success_DEFAULT *HealthEvaluateQuestionsResp
+
+func (p *DDBabyServiceHealthEvaluateQuestionsResult) GetSuccess() (v *HealthEvaluateQuestionsResp) {
+	if !p.IsSetSuccess() {
+		return DDBabyServiceHealthEvaluateQuestionsResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_DDBabyServiceHealthEvaluateQuestionsResult = map[int16]string{
+	0: "success",
+}
+
+func (p *DDBabyServiceHealthEvaluateQuestionsResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *DDBabyServiceHealthEvaluateQuestionsResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DDBabyServiceHealthEvaluateQuestionsResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DDBabyServiceHealthEvaluateQuestionsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = NewHealthEvaluateQuestionsResp()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *DDBabyServiceHealthEvaluateQuestionsResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("HealthEvaluateQuestions_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DDBabyServiceHealthEvaluateQuestionsResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *DDBabyServiceHealthEvaluateQuestionsResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DDBabyServiceHealthEvaluateQuestionsResult(%+v)", *p)
 }

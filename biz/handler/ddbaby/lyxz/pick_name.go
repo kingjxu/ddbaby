@@ -1,4 +1,4 @@
-package ddbaby
+package lyxz
 
 import (
 	"context"
@@ -9,31 +9,36 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type NameFortuneHandler struct {
-	req     *ddbaby.NameFortuneReq
+type PickNameHandler struct {
+	req     *ddbaby.PickNameReq
 	Explain string
 }
 
-func NewNameFortuneHandler(req *ddbaby.NameFortuneReq) *NameFortuneHandler {
-	return &NameFortuneHandler{
+func NewPickNameHandler(req *ddbaby.PickNameReq) *PickNameHandler {
+	return &PickNameHandler{
 		req: req,
 	}
 }
 
-func (h *NameFortuneHandler) check() error {
-	if h.req.GetName() == "" {
-		return errors.New("dream is empty")
+func (h *PickNameHandler) check() error {
+	if h.req.GetFamilyName() == "" {
+		return errors.New("family name is empty")
 	}
 	return nil
 }
 
-func (h *NameFortuneHandler) Handle(ctx context.Context) (*ddbaby.DreamExplainResp, error) {
+func (h *PickNameHandler) Handle(ctx context.Context) (*ddbaby.DreamExplainResp, error) {
 	logrus.WithContext(ctx).Infof("[NameFortuneHandler] req:%v", util.ToJSON(h.req))
 	if err := h.check(); err != nil {
 		logrus.WithContext(ctx).Errorf("[NameFortuneHandler] check err:%v", err)
 		return h.newResp(ctx, -1, "param err"), nil
 	}
-	content, err := service.GetNameFortune(ctx, h.req.GetName())
+	content, err := service.PickName(ctx, service.PickNameParam{
+		FamilyName: h.req.GetFamilyName(),
+		Gender:     h.req.GetGender(),
+		NameLen:    int(h.req.GetNameLen()),
+		Remark:     h.req.Remark,
+	})
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[NameFortuneHandler] get name fortune err:%v", err)
 		return h.newResp(ctx, -2, "get name fortune err"), nil
@@ -42,7 +47,7 @@ func (h *NameFortuneHandler) Handle(ctx context.Context) (*ddbaby.DreamExplainRe
 	return h.newResp(ctx, 0, ""), nil
 }
 
-func (h *NameFortuneHandler) newResp(ctx context.Context, code int32, msg string) *ddbaby.DreamExplainResp {
+func (h *PickNameHandler) newResp(ctx context.Context, code int32, msg string) *ddbaby.DreamExplainResp {
 	resp := &ddbaby.DreamExplainResp{
 		BaseResp: &ddbaby.BaseResp{
 			StatusMessage: msg,

@@ -59,12 +59,12 @@ struct TaLuoPredictResp {
 }
 
 struct HealthEvaluateQuestionItem {
-    1: optional string QuestionID;
+    1: optional i64 QuestionID;
     2: optional string Content;
     3: optional list<string> Options;
 }
 struct HealthEvaluateQuestionsReq {
-    1: optional string CatetoryName (api.query="catetory_name");
+    1: optional string QuestionType (api.query="question_type");
 }
 struct HealthEvaluateQuestionsResp {
     1: optional list<HealthEvaluateQuestionItem> Questions;

@@ -19,6 +19,10 @@ func Register(r *server.Hertz) {
 	root := r.Group("/", rootMw()...)
 	root.GET("/hello", append(_hellomethodMw(), ddbaby.HelloMethod)...)
 	{
+		_health := root.Group("/health", _healthMw()...)
+		_health.GET("/questions", append(_healthevaluatequestionsMw(), ddbaby.HealthEvaluateQuestions)...)
+	}
+	{
 		_lyxz := root.Group("/lyxz", _lyxzMw()...)
 		_lyxz.GET("/dream_explain", append(_dreamexplainMw(), ddbaby.DreamExplain)...)
 		_lyxz.GET("/name_fortune", append(_namefortuneMw(), ddbaby.NameFortune)...)

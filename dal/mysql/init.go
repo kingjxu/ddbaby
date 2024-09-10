@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"context"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -20,4 +21,8 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func GetDB(ctx context.Context) *gorm.DB {
+	return DB.WithContext(ctx).Debug()
 }

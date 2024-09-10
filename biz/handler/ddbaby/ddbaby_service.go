@@ -4,9 +4,10 @@ package ddbaby
 
 import (
 	"context"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/kingjxu/ddbaby/biz/handler/ddbaby/health"
+	"github.com/kingjxu/ddbaby/biz/handler/ddbaby/lyxz"
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
 )
 
@@ -36,7 +37,7 @@ func DreamExplain(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-	resp, _ := NewDreamExplainHandler(&req).Handle(ctx)
+	resp, _ := lyxz.NewDreamExplainHandler(&req).Handle(ctx)
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -52,7 +53,7 @@ func PickName(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp, _ := NewPickNameHandler(&req).Handle(ctx)
+	resp, _ := lyxz.NewPickNameHandler(&req).Handle(ctx)
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -68,7 +69,7 @@ func NameFortune(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp, _ := NewNameFortuneHandler(&req).Handle(ctx)
+	resp, _ := lyxz.NewNameFortuneHandler(&req).Handle(ctx)
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -84,7 +85,23 @@ func TaLuoPredict(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp, _ := NewTaLuoPredictHandler(&req).Handle(ctx)
+	resp, _ := lyxz.NewTaLuoPredictHandler(&req).Handle(ctx)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// HealthEvaluateQuestions .
+// @router /health/questions [GET]
+func HealthEvaluateQuestions(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req ddbaby.HealthEvaluateQuestionsReq
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp, _ := health.NewHealthQuestionsHandler(&req).Handle(ctx)
 
 	c.JSON(consts.StatusOK, resp)
 }
