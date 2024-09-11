@@ -16,7 +16,7 @@ type HealthEvaluationQuestions struct {
 }
 
 func (*HealthEvaluationQuestions) TableName() string {
-	return "health_evaluation_questions"
+	return "health_questions"
 }
 
 func GetQuestionsByType(ctx context.Context, questionType string) ([]*HealthEvaluationQuestions, error) {
