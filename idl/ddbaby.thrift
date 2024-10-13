@@ -72,6 +72,22 @@ struct HealthEvaluateQuestionsResp {
     255: BaseResp BaseResp;
 }
 
+struct HealthCreateOrderReq{
+    1: optional string ProductID (api.query="product_id");
+}
+struct HealthCreateOrderResp {
+    1: optional string OrderID;
+    2: optional string PrepayID;
+    255: BaseResp BaseResp;
+}
+struct HealthDeliveryReq{
+    1: optional string ProductID (api.query="product_id");
+}
+struct HealthDeliveryResp {
+    1: optional string OrderID;
+    2: optional string PrepayID;
+    255: BaseResp BaseResp;
+}
 service DDBabyService {
     HelloResp HelloMethod(1: HelloReq req) (api.get="/hello");
     DreamExplainResp DreamExplain(1: DreamExplainReq req) (api.get="/lyxz/dream_explain");
@@ -80,5 +96,6 @@ service DDBabyService {
     TaLuoPredictResp TaLuoPredict(1:TaLuoPredictReq req) (api.get="/lyxz/taluo_predict");
 
     HealthEvaluateQuestionsResp HealthEvaluateQuestions(1:HealthEvaluateQuestionsReq req) (api.get="/health/questions")
+    HealthCreateOrderResp HealthCreateOrder(1:HealthCreateOrderReq req) (api.post="/health/create_order")
 
 }
