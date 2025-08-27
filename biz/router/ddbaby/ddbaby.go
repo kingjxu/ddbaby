@@ -4,7 +4,7 @@ package ddbaby
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
-	ddbaby "github.com/kingjxu/ddbaby/biz/handler/ddbaby"
+	handler "github.com/kingjxu/ddbaby/biz/handler"
 )
 
 /*
@@ -17,16 +17,21 @@ import (
 func Register(r *server.Hertz) {
 
 	root := r.Group("/", rootMw()...)
-	root.GET("/hello", append(_hellomethodMw(), ddbaby.HelloMethod)...)
+	root.GET("/hello", append(_hellomethodMw(), handler.HelloMethod)...)
 	{
 		_health := root.Group("/health", _healthMw()...)
-		_health.GET("/questions", append(_healthevaluatequestionsMw(), ddbaby.HealthEvaluateQuestions)...)
+		_health.POST("/create_order", append(_healthcreateorderMw(), handler.HealthCreateOrder)...)
+		_health.GET("/questions", append(_healthevaluatequestionsMw(), handler.HealthEvaluateQuestions)...)
+	}
+	{
+		_jk := root.Group("/jk", _jkMw()...)
+		_jk.GET("/qo_list", append(_getjkqolistMw(), handler.GetJkQoList)...)
 	}
 	{
 		_lyxz := root.Group("/lyxz", _lyxzMw()...)
-		_lyxz.GET("/dream_explain", append(_dreamexplainMw(), ddbaby.DreamExplain)...)
-		_lyxz.GET("/name_fortune", append(_namefortuneMw(), ddbaby.NameFortune)...)
-		_lyxz.GET("/pick_name", append(_picknameMw(), ddbaby.PickName)...)
-		_lyxz.GET("/taluo_predict", append(_taluopredictMw(), ddbaby.TaLuoPredict)...)
+		_lyxz.GET("/dream_explain", append(_dreamexplainMw(), handler.DreamExplain)...)
+		_lyxz.GET("/name_fortune", append(_namefortuneMw(), handler.NameFortune)...)
+		_lyxz.GET("/pick_name", append(_picknameMw(), handler.PickName)...)
+		_lyxz.GET("/taluo_predict", append(_taluopredictMw(), handler.TaLuoPredict)...)
 	}
 }

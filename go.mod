@@ -10,6 +10,7 @@ require (
 	github.com/cloudwego/hertz v0.9.1
 	github.com/json-iterator/go v1.1.12
 	github.com/sirupsen/logrus v1.9.3
+	github.com/wechatpay-apiv3/wechatpay-go v0.2.20
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.11
 )
@@ -36,7 +37,6 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	github.com/wechatpay-apiv3/wechatpay-go v0.2.20 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.14.0 // indirect

@@ -88,6 +88,30 @@ struct HealthDeliveryResp {
     2: optional string PrepayID;
     255: BaseResp BaseResp;
 }
+
+struct JkQoItem {
+    1: optional string Question;
+    2: optional list<string> Options;
+    3: optional string IsGenderQo;
+    4: optional string IsAgeQo;
+}
+struct GetJkQoListReq {
+    1: optional string QoType (api.query="qo_type");
+    2: optional string NeedPic (api.query="need_pic");
+}
+
+struct GetJkQoListResp {
+    1: optional string Title;
+    2: optional string Pic;
+    3: optional i32 QoCnt;
+    4: optional i32 ExpectCompleteTime;
+    5: optional list<JkQoItem> Qo;
+    6: optional string Tips;
+    7: optional i32 ParticipantCount;
+
+    255: BaseResp BaseResp;
+}
+
 service DDBabyService {
     HelloResp HelloMethod(1: HelloReq req) (api.get="/hello");
     DreamExplainResp DreamExplain(1: DreamExplainReq req) (api.get="/lyxz/dream_explain");
@@ -98,4 +122,5 @@ service DDBabyService {
     HealthEvaluateQuestionsResp HealthEvaluateQuestions(1:HealthEvaluateQuestionsReq req) (api.get="/health/questions")
     HealthCreateOrderResp HealthCreateOrder(1:HealthCreateOrderReq req) (api.post="/health/create_order")
 
+    GetJkQoListResp GetJkQoList(1:GetJkQoListReq req) (api.get="/jk/qo_list")
 }

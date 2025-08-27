@@ -50,3 +50,18 @@ func _healthevaluatequestionsMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _healthcreateorderMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _jkMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getjkqolistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
