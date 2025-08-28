@@ -4,6 +4,10 @@ package handler
 
 import (
 	"context"
+	"errors"
+	"github.com/kingjxu/ddbaby/service"
+	"github.com/kingjxu/ddbaby/util"
+	"github.com/sirupsen/logrus"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -21,7 +25,56 @@ func GetJkQoList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(ddbaby.GetJkQoListResp)
+	resp, _ := NewJkQoListHandlerHandler(&req).Handle(ctx)
 
 	c.JSON(consts.StatusOK, resp)
+}
+
+type JkQoListHandler struct {
+	req  *ddbaby.GetJkQoListReq
+	resp *ddbaby.GetJkQoListResp
+}
+
+func NewJkQoListHandlerHandler(req *ddbaby.GetJkQoListReq) *JkQoListHandler {
+	return &JkQoListHandler{
+		req:  req,
+		resp: &ddbaby.GetJkQoListResp{},
+	}
+}
+
+func (h *JkQoListHandler) check() error {
+	if h.req.GetQoType() == "" {
+		return errors.New("qo_type is empty")
+	}
+	return nil
+}
+
+func (h *JkQoListHandler) Handle(ctx context.Context) (*ddbaby.GetJkQoListResp, error) {
+	logrus.WithContext(ctx).Infof("[JkQoListHandler] req:%v", util.ToJSON(h.req))
+	if err := h.check(); err != nil {
+		logrus.WithContext(ctx).Errorf("[JkQoListHandler] check err:%v", err)
+		return h.newResp(ctx, -1, "param err"), nil
+	}
+	jkQo, err := service.GetJkQoInfo(ctx, h.req.GetQoType())
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("[JkQoListHandler] service.GetJkQoInfo err:%v", err)
+		return h.newResp(ctx, -1, "param err"), nil
+	}
+	for _, qo := range jkQo {
+		h.resp.Qo = append(h.resp.Qo, &ddbaby.JkQoItem{
+			Question: &qo.Question,
+			Options:  qo.Options,
+		})
+	}
+	return h.resp, nil
+}
+
+func (h *JkQoListHandler) newResp(ctx context.Context, code int32, msg string) *ddbaby.GetJkQoListResp {
+	resp := &ddbaby.GetJkQoListResp{
+		BaseResp: &ddbaby.BaseResp{
+			StatusMessage: msg,
+			StatusCode:    code,
+		},
+	}
+	return resp
 }
