@@ -90,24 +90,24 @@ struct HealthDeliveryResp {
 }
 
 struct JkQoItem {
-    1: optional string Question;
-    2: optional list<string> Options;
-    3: optional string IsGenderQo;
-    4: optional string IsAgeQo;
+    1: optional string question;
+    2: optional list<string> options;
+    3: optional bool is_gender_qo;
+    4: optional bool Is_age_qo;
 }
 struct GetJkQoListReq {
-    1: optional string QoType (api.query="qo_type");
-    2: optional string NeedPic (api.query="need_pic");
+    1: optional string qo_type (api.query="qo_type");
+    2: optional string need_pic (api.query="need_pic");
 }
 
 struct GetJkQoListResp {
-    1: optional string Title;
-    2: optional string Pic;
-    3: optional i32 QoCnt;
-    4: optional i32 ExpectCompleteTime;
-    5: optional list<JkQoItem> Qo;
-    6: optional string Tips;
-    7: optional i32 ParticipantCount;
+    1: optional string title;
+    2: optional string pic;
+    3: optional i32 qo_cnt;
+    4: optional i32 expect_complete_time;
+    5: optional list<JkQoItem> qo;
+    6: optional string tips;
+    7: optional i32 participant_count;
 
     255: BaseResp BaseResp;
 }

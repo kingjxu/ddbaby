@@ -8,6 +8,7 @@ import (
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
+	"strings"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -61,9 +62,18 @@ func (h *JkQoListHandler) Handle(ctx context.Context) (*ddbaby.GetJkQoListResp, 
 		return h.newResp(ctx, -1, "param err"), nil
 	}
 	for _, qo := range jkQo {
+		isAgeQo, isGenderQo := false, false
+		if strings.Contains(qo.Question, "年龄") {
+			isAgeQo = true
+		}
+		if strings.Contains(qo.Question, "性别") {
+			isGenderQo = true
+		}
 		h.resp.Qo = append(h.resp.Qo, &ddbaby.JkQoItem{
-			Question: &qo.Question,
-			Options:  qo.Options,
+			Question:   &qo.Question,
+			Options:    util.UnmarshalString[[]string](qo.Options),
+			IsAgeQo:    util.Ptr(isAgeQo),
+			IsGenderQo: util.Ptr(isGenderQo),
 		})
 	}
 	return h.resp, nil
