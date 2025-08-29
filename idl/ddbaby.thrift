@@ -93,7 +93,7 @@ struct JkQoItem {
     1: optional string question;
     2: optional list<string> options;
     3: optional bool is_gender_qo;
-    4: optional bool Is_age_qo;
+    4: optional bool is_age_qo;
 }
 struct GetJkQoListReq {
     1: optional string qo_type (api.query="qo_type");

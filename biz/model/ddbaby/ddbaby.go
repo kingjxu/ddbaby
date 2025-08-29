@@ -818,10 +818,10 @@ func (p *HealthDeliveryResp) String() string {
 }
 
 type JkQoItem struct {
-	Question   *string  `thrift:"Question,1,optional" form:"Question" json:"Question,omitempty" query:"Question"`
-	Options    []string `thrift:"Options,2,optional" form:"Options" json:"Options,omitempty" query:"Options"`
-	IsGenderQo *string  `thrift:"IsGenderQo,3,optional" form:"IsGenderQo" json:"IsGenderQo,omitempty" query:"IsGenderQo"`
-	IsAgeQo    *string  `thrift:"IsAgeQo,4,optional" form:"IsAgeQo" json:"IsAgeQo,omitempty" query:"IsAgeQo"`
+	Question   *string  `thrift:"question,1,optional" form:"question" json:"question,omitempty" query:"question"`
+	Options    []string `thrift:"options,2,optional" form:"options" json:"options,omitempty" query:"options"`
+	IsGenderQo *bool    `thrift:"is_gender_qo,3,optional" form:"is_gender_qo" json:"is_gender_qo,omitempty" query:"is_gender_qo"`
+	IsAgeQo    *bool    `thrift:"Is_age_qo,4,optional" form:"Is_age_qo" json:"Is_age_qo,omitempty" query:"Is_age_qo"`
 }
 
 func NewJkQoItem() *JkQoItem {
@@ -849,18 +849,18 @@ func (p *JkQoItem) GetOptions() (v []string) {
 	return p.Options
 }
 
-var JkQoItem_IsGenderQo_DEFAULT string
+var JkQoItem_IsGenderQo_DEFAULT bool
 
-func (p *JkQoItem) GetIsGenderQo() (v string) {
+func (p *JkQoItem) GetIsGenderQo() (v bool) {
 	if !p.IsSetIsGenderQo() {
 		return JkQoItem_IsGenderQo_DEFAULT
 	}
 	return *p.IsGenderQo
 }
 
-var JkQoItem_IsAgeQo_DEFAULT string
+var JkQoItem_IsAgeQo_DEFAULT bool
 
-func (p *JkQoItem) GetIsAgeQo() (v string) {
+func (p *JkQoItem) GetIsAgeQo() (v bool) {
 	if !p.IsSetIsAgeQo() {
 		return JkQoItem_IsAgeQo_DEFAULT
 	}
@@ -891,8 +891,8 @@ func (p *JkQoItem) String() string {
 }
 
 type GetJkQoListReq struct {
-	QoType  *string `thrift:"QoType,1,optional" json:"QoType,omitempty" query:"qo_type"`
-	NeedPic *string `thrift:"NeedPic,2,optional" json:"NeedPic,omitempty" query:"need_pic"`
+	QoType  *string `thrift:"qo_type,1,optional" json:"qo_type,omitempty" query:"qo_type"`
+	NeedPic *string `thrift:"need_pic,2,optional" json:"need_pic,omitempty" query:"need_pic"`
 }
 
 func NewGetJkQoListReq() *GetJkQoListReq {
@@ -936,13 +936,13 @@ func (p *GetJkQoListReq) String() string {
 }
 
 type GetJkQoListResp struct {
-	Title              *string     `thrift:"Title,1,optional" form:"Title" json:"Title,omitempty" query:"Title"`
-	Pic                *string     `thrift:"Pic,2,optional" form:"Pic" json:"Pic,omitempty" query:"Pic"`
-	QoCnt              *int32      `thrift:"QoCnt,3,optional" form:"QoCnt" json:"QoCnt,omitempty" query:"QoCnt"`
-	ExpectCompleteTime *int32      `thrift:"ExpectCompleteTime,4,optional" form:"ExpectCompleteTime" json:"ExpectCompleteTime,omitempty" query:"ExpectCompleteTime"`
-	Qo                 []*JkQoItem `thrift:"Qo,5,optional" form:"Qo" json:"Qo,omitempty" query:"Qo"`
-	Tips               *string     `thrift:"Tips,6,optional" form:"Tips" json:"Tips,omitempty" query:"Tips"`
-	ParticipantCount   *int32      `thrift:"ParticipantCount,7,optional" form:"ParticipantCount" json:"ParticipantCount,omitempty" query:"ParticipantCount"`
+	Title              *string     `thrift:"title,1,optional" form:"title" json:"title,omitempty" query:"title"`
+	Pic                *string     `thrift:"pic,2,optional" form:"pic" json:"pic,omitempty" query:"pic"`
+	QoCnt              *int32      `thrift:"qo_cnt,3,optional" form:"qo_cnt" json:"qo_cnt,omitempty" query:"qo_cnt"`
+	ExpectCompleteTime *int32      `thrift:"expect_complete_time,4,optional" form:"expect_complete_time" json:"expect_complete_time,omitempty" query:"expect_complete_time"`
+	Qo                 []*JkQoItem `thrift:"qo,5,optional" form:"qo" json:"qo,omitempty" query:"qo"`
+	Tips               *string     `thrift:"tips,6,optional" form:"tips" json:"tips,omitempty" query:"tips"`
+	ParticipantCount   *int32      `thrift:"participant_count,7,optional" form:"participant_count" json:"participant_count,omitempty" query:"participant_count"`
 	BaseResp           *BaseResp   `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
 }
 
