@@ -821,7 +821,7 @@ type JkQoItem struct {
 	Question   *string  `thrift:"question,1,optional" form:"question" json:"question,omitempty" query:"question"`
 	Options    []string `thrift:"options,2,optional" form:"options" json:"options,omitempty" query:"options"`
 	IsGenderQo *bool    `thrift:"is_gender_qo,3,optional" form:"is_gender_qo" json:"is_gender_qo,omitempty" query:"is_gender_qo"`
-	IsAgeQo    *bool    `thrift:"Is_age_qo,4,optional" form:"Is_age_qo" json:"Is_age_qo,omitempty" query:"Is_age_qo"`
+	IsAgeQo    *bool    `thrift:"is_age_qo,4,optional" form:"is_age_qo" json:"is_age_qo,omitempty" query:"is_age_qo"`
 }
 
 func NewJkQoItem() *JkQoItem {

@@ -75,6 +75,7 @@ func (h *JkQoListHandler) Handle(ctx context.Context) (*ddbaby.GetJkQoListResp, 
 			IsAgeQo:    util.Ptr(isAgeQo),
 			IsGenderQo: util.Ptr(isGenderQo),
 		})
+		h.resp.QoCnt = util.Ptr(int32(len(h.resp.Qo)))
 	}
 	return h.resp, nil
 }

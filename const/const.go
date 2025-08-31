@@ -7,3 +7,8 @@ const (
 	PickNameBotID     = "7392946548130955275"
 	TaLuoPredictBotID = "7401724843219419187"
 )
+
+var JkType2Title = map[string]string{
+	"gxy": "高血压自测评估",
+	"cw":  "肠胃自测评估",
+}
