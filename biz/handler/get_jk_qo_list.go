@@ -69,9 +69,11 @@ func (h *JkQoListHandler) Handle(ctx context.Context) (*ddbaby.GetJkQoListResp, 
 	h.resp.QoCnt = util.Ptr(int32(len(h.resp.Qo)))
 	h.resp.ExpectCompleteTime = util.Ptr(int32(1))
 	h.resp.Title = util.Ptr(constdef.JkType2Title[h.req.GetQoType()])
-	h.resp.Pic = util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/gxt.png")
 	h.resp.Tips = util.Ptr("你的评测已完成，支付完成后查看评测结果。")
 	h.resp.ParticipantCount = util.Ptr(int32(11382))
+	if h.req.GetNeedPic() == true {
+		h.resp.Pic = util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/gxt.png")
+	}
 
 	return h.resp, nil
 }

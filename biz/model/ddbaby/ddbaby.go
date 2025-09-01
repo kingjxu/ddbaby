@@ -906,7 +906,7 @@ func (p *JkQoItem) String() string {
 
 type GetJkQoListReq struct {
 	QoType  *string `thrift:"qo_type,1,optional" json:"qo_type,omitempty" query:"qo_type"`
-	NeedPic *string `thrift:"need_pic,2,optional" json:"need_pic,omitempty" query:"need_pic"`
+	NeedPic *bool   `thrift:"need_pic,2,optional" json:"need_pic,omitempty" query:"need_pic"`
 }
 
 func NewGetJkQoListReq() *GetJkQoListReq {
@@ -925,9 +925,9 @@ func (p *GetJkQoListReq) GetQoType() (v string) {
 	return *p.QoType
 }
 
-var GetJkQoListReq_NeedPic_DEFAULT string
+var GetJkQoListReq_NeedPic_DEFAULT bool
 
-func (p *GetJkQoListReq) GetNeedPic() (v string) {
+func (p *GetJkQoListReq) GetNeedPic() (v bool) {
 	if !p.IsSetNeedPic() {
 		return GetJkQoListReq_NeedPic_DEFAULT
 	}

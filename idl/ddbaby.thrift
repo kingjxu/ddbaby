@@ -98,7 +98,7 @@ struct JkQoItem {
 }
 struct GetJkQoListReq {
     1: optional string qo_type (api.query="qo_type");
-    2: optional string need_pic (api.query="need_pic");
+    2: optional bool need_pic (api.query="need_pic");
 }
 
 struct GetJkQoListResp {
