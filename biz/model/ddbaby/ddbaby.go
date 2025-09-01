@@ -818,10 +818,11 @@ func (p *HealthDeliveryResp) String() string {
 }
 
 type JkQoItem struct {
-	Question   *string  `thrift:"question,1,optional" form:"question" json:"question,omitempty" query:"question"`
-	Options    []string `thrift:"options,2,optional" form:"options" json:"options,omitempty" query:"options"`
-	IsGenderQo *bool    `thrift:"is_gender_qo,3,optional" form:"is_gender_qo" json:"is_gender_qo,omitempty" query:"is_gender_qo"`
-	IsAgeQo    *bool    `thrift:"is_age_qo,4,optional" form:"is_age_qo" json:"is_age_qo,omitempty" query:"is_age_qo"`
+	ID         *int64   `thrift:"id,1,optional" form:"id" json:"id,omitempty" query:"id"`
+	Question   *string  `thrift:"question,2,optional" form:"question" json:"question,omitempty" query:"question"`
+	Options    []string `thrift:"options,3,optional" form:"options" json:"options,omitempty" query:"options"`
+	IsGenderQo *bool    `thrift:"is_gender_qo,4,optional" form:"is_gender_qo" json:"is_gender_qo,omitempty" query:"is_gender_qo"`
+	IsAgeQo    *bool    `thrift:"is_age_qo,5,optional" form:"is_age_qo" json:"is_age_qo,omitempty" query:"is_age_qo"`
 }
 
 func NewJkQoItem() *JkQoItem {
@@ -829,6 +830,15 @@ func NewJkQoItem() *JkQoItem {
 }
 
 func (p *JkQoItem) InitDefault() {
+}
+
+var JkQoItem_ID_DEFAULT int64
+
+func (p *JkQoItem) GetID() (v int64) {
+	if !p.IsSetID() {
+		return JkQoItem_ID_DEFAULT
+	}
+	return *p.ID
 }
 
 var JkQoItem_Question_DEFAULT string
@@ -865,6 +875,10 @@ func (p *JkQoItem) GetIsAgeQo() (v bool) {
 		return JkQoItem_IsAgeQo_DEFAULT
 	}
 	return *p.IsAgeQo
+}
+
+func (p *JkQoItem) IsSetID() bool {
+	return p.ID != nil
 }
 
 func (p *JkQoItem) IsSetQuestion() bool {

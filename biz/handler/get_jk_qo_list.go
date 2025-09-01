@@ -9,7 +9,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	constdef "github.com/kingjxu/ddbaby/const"
-	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 )
@@ -55,18 +54,20 @@ func (h *JkQoListHandler) Handle(ctx context.Context) (*ddbaby.GetJkQoListResp, 
 		logrus.WithContext(ctx).Errorf("[JkQoListHandler] check err:%v", err)
 		return h.newResp(ctx, -1, "param err"), nil
 	}
-	jkQo, err := service.GetJkQoInfo(ctx, h.req.GetQoType())
-	if err != nil {
-		logrus.WithContext(ctx).Errorf("[JkQoListHandler] service.GetJkQoInfo err:%v", err)
-		return h.newResp(ctx, -1, "param err"), nil
-	}
-	for _, qo := range jkQo {
-		h.resp.Qo = append(h.resp.Qo, &ddbaby.JkQoItem{
-			Question: &qo.Question,
-			Options:  util.UnmarshalString[[]string](qo.Options),
-		})
-	}
+	/*	jkQo, err := service.GetJkQoInfo(ctx, h.req.GetQoType())
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("[JkQoListHandler] service.GetJkQoInfo err:%v", err)
+			return h.newResp(ctx, -1, "param err"), nil
+		}
+		for _, qo := range jkQo {
+			h.resp.Qo = append(h.resp.Qo, &ddbaby.JkQoItem{
+				Question: &qo.Question,
+				Options:  util.UnmarshalString[[]string](qo.Options),
+			})
+		}*/
+	h.resp.Qo = constdef.Question2Options[h.req.GetQoType()]
 	h.resp.QoCnt = util.Ptr(int32(len(h.resp.Qo)))
+	h.resp.ExpectCompleteTime = util.Ptr(int32(1))
 	h.resp.Title = util.Ptr(constdef.JkType2Title[h.req.GetQoType()])
 	h.resp.Pic = util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/gxt.png")
 	h.resp.Tips = util.Ptr("你的评测已完成，支付完成后查看评测结果。")
