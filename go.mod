@@ -5,12 +5,11 @@ go 1.20
 replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 
 require (
-	github.com/apache/thrift v0.0.0-00010101000000-000000000000
 	github.com/bytedance/sonic v1.11.9
 	github.com/cloudwego/hertz v0.9.1
 	github.com/json-iterator/go v1.1.12
 	github.com/sirupsen/logrus v1.9.3
-	github.com/wechatpay-apiv3/wechatpay-go v0.2.20
+	github.com/wechatpay-apiv3/wechatpay-go v0.2.21
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.11
 )

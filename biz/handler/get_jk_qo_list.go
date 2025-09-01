@@ -5,14 +5,13 @@ package handler
 import (
 	"context"
 	"errors"
-	"github.com/kingjxu/ddbaby/service"
-	"github.com/kingjxu/ddbaby/util"
-	"github.com/sirupsen/logrus"
-	"strings"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
+	constdef "github.com/kingjxu/ddbaby/const"
+	"github.com/kingjxu/ddbaby/service"
+	"github.com/kingjxu/ddbaby/util"
+	"github.com/sirupsen/logrus"
 )
 
 // GetJkQoList .
@@ -62,21 +61,17 @@ func (h *JkQoListHandler) Handle(ctx context.Context) (*ddbaby.GetJkQoListResp, 
 		return h.newResp(ctx, -1, "param err"), nil
 	}
 	for _, qo := range jkQo {
-		isAgeQo, isGenderQo := false, false
-		if strings.Contains(qo.Question, "年龄") {
-			isAgeQo = true
-		}
-		if strings.Contains(qo.Question, "性别") {
-			isGenderQo = true
-		}
 		h.resp.Qo = append(h.resp.Qo, &ddbaby.JkQoItem{
-			Question:   &qo.Question,
-			Options:    util.UnmarshalString[[]string](qo.Options),
-			IsAgeQo:    util.Ptr(isAgeQo),
-			IsGenderQo: util.Ptr(isGenderQo),
+			Question: &qo.Question,
+			Options:  util.UnmarshalString[[]string](qo.Options),
 		})
-		h.resp.QoCnt = util.Ptr(int32(len(h.resp.Qo)))
 	}
+	h.resp.QoCnt = util.Ptr(int32(len(h.resp.Qo)))
+	h.resp.Title = util.Ptr(constdef.JkType2Title[h.req.GetQoType()])
+	h.resp.Pic = util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/gxt.png")
+	h.resp.Tips = util.Ptr("你的评测已完成，支付完成后查看评测结果。")
+	h.resp.ParticipantCount = util.Ptr(int32(11382))
+
 	return h.resp, nil
 }
 
