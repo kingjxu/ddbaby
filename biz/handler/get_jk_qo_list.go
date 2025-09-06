@@ -54,17 +54,6 @@ func (h *JkQoListHandler) Handle(ctx context.Context) (*ddbaby.GetJkQoListResp, 
 		logrus.WithContext(ctx).Errorf("[JkQoListHandler] check err:%v", err)
 		return h.newResp(ctx, -1, "param err"), nil
 	}
-	/*	jkQo, err := service.GetJkQoInfo(ctx, h.req.GetQoType())
-		if err != nil {
-			logrus.WithContext(ctx).Errorf("[JkQoListHandler] service.GetJkQoInfo err:%v", err)
-			return h.newResp(ctx, -1, "param err"), nil
-		}
-		for _, qo := range jkQo {
-			h.resp.Qo = append(h.resp.Qo, &ddbaby.JkQoItem{
-				Question: &qo.Question,
-				Options:  util.UnmarshalString[[]string](qo.Options),
-			})
-		}*/
 	h.resp.Qo = constdef.Question2Options[h.req.GetQoType()]
 	h.resp.QoCnt = util.Ptr(int32(len(h.resp.Qo)))
 	h.resp.ExpectCompleteTime = util.Ptr(int32(1))

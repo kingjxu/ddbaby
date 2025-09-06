@@ -10,12 +10,13 @@ import (
 	"time"
 )
 
+var (
+	mchID                      string = "1689220293"                               // 木一橙科技商户号(早期)
+	mchCertificateSerialNumber string = "1E0D7FDB591F09356CD1FAC75EBC398C03D11A9F" // 商户证书序列号
+	mchAPIv3Key                string = "abcdefghijklmnopqrstuvwxyz123456"         // 商户APIv3密钥 自己设置的32位key
+)
+
 func CreateOrder() string {
-	var (
-		mchID                      string = "190000****"                               // 商户号
-		mchCertificateSerialNumber string = "3775************************************" // 商户证书序列号
-		mchAPIv3Key                string = "2ab9****************************"         // 商户APIv3密钥
-	)
 
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
@@ -44,20 +45,6 @@ func CreateOrder() string {
 			Attach:      core.String("自定义数据说明"),
 		},
 	)
-	result, err := svc.CloseOrder(ctx,
-		h5.CloseOrderRequest{
-			OutTradeNo: core.String("OutTradeNo_example"),
-			Mchid:      core.String("1230000109"),
-		},
-	)
-
-	if err != nil {
-		// 处理错误
-		log.Printf("call CloseOrder err:%s", err)
-	} else {
-		// 处理返回结果
-		log.Printf("status=%d", result.Response.StatusCode)
-	}
 
 	return "123"
 }
