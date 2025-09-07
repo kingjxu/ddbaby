@@ -818,11 +818,9 @@ func (p *HealthDeliveryResp) String() string {
 }
 
 type JkQoItem struct {
-	ID         *int64   `thrift:"id,1,optional" form:"id" json:"id,omitempty" query:"id"`
-	Question   *string  `thrift:"question,2,optional" form:"question" json:"question,omitempty" query:"question"`
-	Options    []string `thrift:"options,3,optional" form:"options" json:"options,omitempty" query:"options"`
-	IsGenderQo *bool    `thrift:"is_gender_qo,4,optional" form:"is_gender_qo" json:"is_gender_qo,omitempty" query:"is_gender_qo"`
-	IsAgeQo    *bool    `thrift:"is_age_qo,5,optional" form:"is_age_qo" json:"is_age_qo,omitempty" query:"is_age_qo"`
+	ID       *int64   `thrift:"id,1,optional" form:"id" json:"id,omitempty" query:"id"`
+	Question *string  `thrift:"question,2,optional" form:"question" json:"question,omitempty" query:"question"`
+	Options  []string `thrift:"options,3,optional" form:"options" json:"options,omitempty" query:"options"`
 }
 
 func NewJkQoItem() *JkQoItem {
@@ -859,24 +857,6 @@ func (p *JkQoItem) GetOptions() (v []string) {
 	return p.Options
 }
 
-var JkQoItem_IsGenderQo_DEFAULT bool
-
-func (p *JkQoItem) GetIsGenderQo() (v bool) {
-	if !p.IsSetIsGenderQo() {
-		return JkQoItem_IsGenderQo_DEFAULT
-	}
-	return *p.IsGenderQo
-}
-
-var JkQoItem_IsAgeQo_DEFAULT bool
-
-func (p *JkQoItem) GetIsAgeQo() (v bool) {
-	if !p.IsSetIsAgeQo() {
-		return JkQoItem_IsAgeQo_DEFAULT
-	}
-	return *p.IsAgeQo
-}
-
 func (p *JkQoItem) IsSetID() bool {
 	return p.ID != nil
 }
@@ -887,14 +867,6 @@ func (p *JkQoItem) IsSetQuestion() bool {
 
 func (p *JkQoItem) IsSetOptions() bool {
 	return p.Options != nil
-}
-
-func (p *JkQoItem) IsSetIsGenderQo() bool {
-	return p.IsGenderQo != nil
-}
-
-func (p *JkQoItem) IsSetIsAgeQo() bool {
-	return p.IsAgeQo != nil
 }
 
 func (p *JkQoItem) String() string {
@@ -1078,6 +1050,329 @@ func (p *GetJkQoListResp) String() string {
 	return fmt.Sprintf("GetJkQoListResp(%+v)", *p)
 }
 
+type QAItem struct {
+	Question *string `thrift:"question,1,optional" form:"question" json:"question,omitempty" query:"question"`
+	Answer   *string `thrift:"answer,2,optional" form:"answer" json:"answer,omitempty" query:"answer"`
+}
+
+func NewQAItem() *QAItem {
+	return &QAItem{}
+}
+
+func (p *QAItem) InitDefault() {
+}
+
+var QAItem_Question_DEFAULT string
+
+func (p *QAItem) GetQuestion() (v string) {
+	if !p.IsSetQuestion() {
+		return QAItem_Question_DEFAULT
+	}
+	return *p.Question
+}
+
+var QAItem_Answer_DEFAULT string
+
+func (p *QAItem) GetAnswer() (v string) {
+	if !p.IsSetAnswer() {
+		return QAItem_Answer_DEFAULT
+	}
+	return *p.Answer
+}
+
+func (p *QAItem) IsSetQuestion() bool {
+	return p.Question != nil
+}
+
+func (p *QAItem) IsSetAnswer() bool {
+	return p.Answer != nil
+}
+
+func (p *QAItem) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QAItem(%+v)", *p)
+}
+
+type JkCreateOrderReq struct {
+	UserID  *string   `thrift:"user_id,1,optional" json:"user_id,omitempty" query:"user_id"`
+	QoType  *string   `thrift:"qo_type,2,optional" json:"qo_type,omitempty" query:"qo_type"`
+	AqItems []*QAItem `thrift:"aq_items,3,optional" json:"aq_items,omitempty" query:"qa_items"`
+	Seq     *int32    `thrift:"seq,4,optional" json:"seq,omitempty" query:"seq"`
+}
+
+func NewJkCreateOrderReq() *JkCreateOrderReq {
+	return &JkCreateOrderReq{}
+}
+
+func (p *JkCreateOrderReq) InitDefault() {
+}
+
+var JkCreateOrderReq_UserID_DEFAULT string
+
+func (p *JkCreateOrderReq) GetUserID() (v string) {
+	if !p.IsSetUserID() {
+		return JkCreateOrderReq_UserID_DEFAULT
+	}
+	return *p.UserID
+}
+
+var JkCreateOrderReq_QoType_DEFAULT string
+
+func (p *JkCreateOrderReq) GetQoType() (v string) {
+	if !p.IsSetQoType() {
+		return JkCreateOrderReq_QoType_DEFAULT
+	}
+	return *p.QoType
+}
+
+var JkCreateOrderReq_AqItems_DEFAULT []*QAItem
+
+func (p *JkCreateOrderReq) GetAqItems() (v []*QAItem) {
+	if !p.IsSetAqItems() {
+		return JkCreateOrderReq_AqItems_DEFAULT
+	}
+	return p.AqItems
+}
+
+var JkCreateOrderReq_Seq_DEFAULT int32
+
+func (p *JkCreateOrderReq) GetSeq() (v int32) {
+	if !p.IsSetSeq() {
+		return JkCreateOrderReq_Seq_DEFAULT
+	}
+	return *p.Seq
+}
+
+func (p *JkCreateOrderReq) IsSetUserID() bool {
+	return p.UserID != nil
+}
+
+func (p *JkCreateOrderReq) IsSetQoType() bool {
+	return p.QoType != nil
+}
+
+func (p *JkCreateOrderReq) IsSetAqItems() bool {
+	return p.AqItems != nil
+}
+
+func (p *JkCreateOrderReq) IsSetSeq() bool {
+	return p.Seq != nil
+}
+
+func (p *JkCreateOrderReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("JkCreateOrderReq(%+v)", *p)
+}
+
+type JkCreateOrderResp struct {
+	OrderID  *string   `thrift:"order_id,1,optional" form:"order_id" json:"order_id,omitempty" query:"order_id"`
+	BaseResp *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+}
+
+func NewJkCreateOrderResp() *JkCreateOrderResp {
+	return &JkCreateOrderResp{}
+}
+
+func (p *JkCreateOrderResp) InitDefault() {
+}
+
+var JkCreateOrderResp_OrderID_DEFAULT string
+
+func (p *JkCreateOrderResp) GetOrderID() (v string) {
+	if !p.IsSetOrderID() {
+		return JkCreateOrderResp_OrderID_DEFAULT
+	}
+	return *p.OrderID
+}
+
+var JkCreateOrderResp_BaseResp_DEFAULT *BaseResp
+
+func (p *JkCreateOrderResp) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return JkCreateOrderResp_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+
+func (p *JkCreateOrderResp) IsSetOrderID() bool {
+	return p.OrderID != nil
+}
+
+func (p *JkCreateOrderResp) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *JkCreateOrderResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("JkCreateOrderResp(%+v)", *p)
+}
+
+type GetOrderInfoReq struct {
+	OrderID *string `thrift:"order_id,1,optional" json:"order_id,omitempty" query:"user_id"`
+}
+
+func NewGetOrderInfoReq() *GetOrderInfoReq {
+	return &GetOrderInfoReq{}
+}
+
+func (p *GetOrderInfoReq) InitDefault() {
+}
+
+var GetOrderInfoReq_OrderID_DEFAULT string
+
+func (p *GetOrderInfoReq) GetOrderID() (v string) {
+	if !p.IsSetOrderID() {
+		return GetOrderInfoReq_OrderID_DEFAULT
+	}
+	return *p.OrderID
+}
+
+func (p *GetOrderInfoReq) IsSetOrderID() bool {
+	return p.OrderID != nil
+}
+
+func (p *GetOrderInfoReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetOrderInfoReq(%+v)", *p)
+}
+
+type GetOrderInfoResp struct {
+	OrderID     *string   `thrift:"order_id,1,optional" form:"order_id" json:"order_id,omitempty" query:"order_id"`
+	UserID      *string   `thrift:"user_id,2,optional" form:"user_id" json:"user_id,omitempty" query:"user_id"`
+	ProductName *string   `thrift:"product_name,3,optional" form:"product_name" json:"product_name,omitempty" query:"product_name"`
+	Amount      *int32    `thrift:"amount,4,optional" form:"amount" json:"amount,omitempty" query:"amount"`
+	Status      *int32    `thrift:"status,5,optional" form:"status" json:"status,omitempty" query:"status"`
+	Seq         *int32    `thrift:"seq,6,optional" form:"seq" json:"seq,omitempty" query:"seq"`
+	CreateTime  *int64    `thrift:"create_time,7,optional" form:"create_time" json:"create_time,omitempty" query:"create_time"`
+	BaseResp    *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+}
+
+func NewGetOrderInfoResp() *GetOrderInfoResp {
+	return &GetOrderInfoResp{}
+}
+
+func (p *GetOrderInfoResp) InitDefault() {
+}
+
+var GetOrderInfoResp_OrderID_DEFAULT string
+
+func (p *GetOrderInfoResp) GetOrderID() (v string) {
+	if !p.IsSetOrderID() {
+		return GetOrderInfoResp_OrderID_DEFAULT
+	}
+	return *p.OrderID
+}
+
+var GetOrderInfoResp_UserID_DEFAULT string
+
+func (p *GetOrderInfoResp) GetUserID() (v string) {
+	if !p.IsSetUserID() {
+		return GetOrderInfoResp_UserID_DEFAULT
+	}
+	return *p.UserID
+}
+
+var GetOrderInfoResp_ProductName_DEFAULT string
+
+func (p *GetOrderInfoResp) GetProductName() (v string) {
+	if !p.IsSetProductName() {
+		return GetOrderInfoResp_ProductName_DEFAULT
+	}
+	return *p.ProductName
+}
+
+var GetOrderInfoResp_Amount_DEFAULT int32
+
+func (p *GetOrderInfoResp) GetAmount() (v int32) {
+	if !p.IsSetAmount() {
+		return GetOrderInfoResp_Amount_DEFAULT
+	}
+	return *p.Amount
+}
+
+var GetOrderInfoResp_Status_DEFAULT int32
+
+func (p *GetOrderInfoResp) GetStatus() (v int32) {
+	if !p.IsSetStatus() {
+		return GetOrderInfoResp_Status_DEFAULT
+	}
+	return *p.Status
+}
+
+var GetOrderInfoResp_Seq_DEFAULT int32
+
+func (p *GetOrderInfoResp) GetSeq() (v int32) {
+	if !p.IsSetSeq() {
+		return GetOrderInfoResp_Seq_DEFAULT
+	}
+	return *p.Seq
+}
+
+var GetOrderInfoResp_CreateTime_DEFAULT int64
+
+func (p *GetOrderInfoResp) GetCreateTime() (v int64) {
+	if !p.IsSetCreateTime() {
+		return GetOrderInfoResp_CreateTime_DEFAULT
+	}
+	return *p.CreateTime
+}
+
+var GetOrderInfoResp_BaseResp_DEFAULT *BaseResp
+
+func (p *GetOrderInfoResp) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return GetOrderInfoResp_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+
+func (p *GetOrderInfoResp) IsSetOrderID() bool {
+	return p.OrderID != nil
+}
+
+func (p *GetOrderInfoResp) IsSetUserID() bool {
+	return p.UserID != nil
+}
+
+func (p *GetOrderInfoResp) IsSetProductName() bool {
+	return p.ProductName != nil
+}
+
+func (p *GetOrderInfoResp) IsSetAmount() bool {
+	return p.Amount != nil
+}
+
+func (p *GetOrderInfoResp) IsSetStatus() bool {
+	return p.Status != nil
+}
+
+func (p *GetOrderInfoResp) IsSetSeq() bool {
+	return p.Seq != nil
+}
+
+func (p *GetOrderInfoResp) IsSetCreateTime() bool {
+	return p.CreateTime != nil
+}
+
+func (p *GetOrderInfoResp) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *GetOrderInfoResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetOrderInfoResp(%+v)", *p)
+}
+
 type DDBabyService interface {
 	HelloMethod(ctx context.Context, req *HelloReq) (r *HelloResp, err error)
 
@@ -1094,4 +1389,8 @@ type DDBabyService interface {
 	HealthCreateOrder(ctx context.Context, req *HealthCreateOrderReq) (r *HealthCreateOrderResp, err error)
 
 	GetJkQoList(ctx context.Context, req *GetJkQoListReq) (r *GetJkQoListResp, err error)
+
+	JkCreateOrder(ctx context.Context, req *JkCreateOrderReq) (r *JkCreateOrderResp, err error)
+
+	GetOrderInfo(ctx context.Context, req *GetOrderInfoReq) (r *GetOrderInfoResp, err error)
 }

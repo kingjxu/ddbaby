@@ -65,3 +65,13 @@ func _getjkqolistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _jkcreateorderMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getorderinfoMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

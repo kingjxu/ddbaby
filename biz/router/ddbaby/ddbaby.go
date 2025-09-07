@@ -25,6 +25,8 @@ func Register(r *server.Hertz) {
 	}
 	{
 		_jk := root.Group("/jk", _jkMw()...)
+		_jk.POST("/create_order", append(_jkcreateorderMw(), handler.JkCreateOrder)...)
+		_jk.GET("/order_info", append(_getorderinfoMw(), handler.GetOrderInfo)...)
 		_jk.GET("/qo_list", append(_getjkqolistMw(), handler.GetJkQoList)...)
 	}
 	{
