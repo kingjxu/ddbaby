@@ -14,6 +14,7 @@ type JkOrder struct {
 	UserID     string    `gorm:"column:user_id;NOT NULL"`                               // 用户id
 	Amount     int       `gorm:"column:amount;NOT NULL"`                                // 金额:单位分
 	Status     int       `gorm:"column:status;NOT NULL"`                                // 支付状态：10待支付,20已支付,30已退款
+	Seq        int       `gorm:"column:seq;NOT NULL"`                                   // 支付的次序
 	WxOpenID   string    `gorm:"column:wx_open_id;NOT NULL"`                            // 微信id
 	WxOrderID  string    `gorm:"column:wx_order_id;NOT NULL"`                           // 微信订单id
 	CreateTime time.Time `gorm:"column:create_time;default:CURRENT_TIMESTAMP;NOT NULL"` // 创建时间
