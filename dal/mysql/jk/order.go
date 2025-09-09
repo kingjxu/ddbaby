@@ -10,7 +10,7 @@ import (
 type JkOrder struct {
 	ID         uint64    `gorm:"column:id;primary_key;AUTO_INCREMENT"`                  // 自增ID
 	JkType     string    `gorm:"column:jk_type;NOT NULL"`                               // 健康问题类型
-	OrderID    uint64    `gorm:"column:order_id;NOT NULL"`                              // 订单id
+	OrderID    string    `gorm:"column:order_id;NOT NULL"`                              // 订单id
 	UserID     string    `gorm:"column:user_id;NOT NULL"`                               // 用户id
 	Amount     int       `gorm:"column:amount;NOT NULL"`                                // 金额:单位分
 	Status     int       `gorm:"column:status;NOT NULL"`                                // 支付状态：10待支付,20已支付,30已退款

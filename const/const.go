@@ -13,10 +13,19 @@ const (
 	TaLuoPredictBotID = "7401724843219419187"
 )
 
+const (
+	JKWXPayNotifyUrl = "  " // 支付回调地址
+)
+
 var JkType2Title = map[string]string{
 	"gxt": "高血糖症状自测评估",
 	"gxy": "高血压症状自测评估",
 	"cw":  "肠胃症状自测评估",
+}
+
+var Seq2Amount = map[int32]int32{
+	1: 2999,
+	2: 1499,
 }
 
 var Question2Options = map[string][]*ddbaby.JkQoItem{

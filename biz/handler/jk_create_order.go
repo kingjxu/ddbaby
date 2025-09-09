@@ -4,6 +4,10 @@ package handler
 
 import (
 	"context"
+	"errors"
+	"github.com/kingjxu/ddbaby/service"
+	"github.com/kingjxu/ddbaby/util"
+	"github.com/sirupsen/logrus"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -21,7 +25,58 @@ func JkCreateOrder(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(ddbaby.JkCreateOrderResp)
+	resp, _ := NewJkCreateOrderHandlerHandler(&req).Handle(ctx)
 
 	c.JSON(consts.StatusOK, resp)
+}
+
+type JkCreateOrderHandler struct {
+	req  *ddbaby.JkCreateOrderReq
+	resp *ddbaby.JkCreateOrderResp
+}
+
+func NewJkCreateOrderHandlerHandler(req *ddbaby.JkCreateOrderReq) *JkCreateOrderHandler {
+	return &JkCreateOrderHandler{
+		req:  req,
+		resp: &ddbaby.JkCreateOrderResp{},
+	}
+}
+
+func (h *JkCreateOrderHandler) check() error {
+	if h.req.GetQoType() == "" {
+		return errors.New("qo_type is empty")
+	}
+	if h.req.GetSeq() == 0 {
+		return errors.New("seq is empty")
+	}
+	if len(h.req.GetAqItems()) == 0 {
+		return errors.New("aq_items is empty")
+	}
+	return nil
+}
+
+func (h *JkCreateOrderHandler) Handle(ctx context.Context) (*ddbaby.JkCreateOrderResp, error) {
+	logrus.WithContext(ctx).Infof("[JkCreateOrderHandler] req:%v", util.ToJSON(h.req))
+	if err := h.check(); err != nil {
+		logrus.WithContext(ctx).Errorf("[JkCreateOrderHandler] check err:%v", err)
+		return h.newResp(ctx, -1, "param err"), nil
+	}
+	h5Url, orderID, err := service.CreateOrder(ctx, h.req)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("[JkCreateOrderHandler] service.CreateOrder err:%v", err)
+		return h.newResp(ctx, -1, "wx prepay err"), nil
+	}
+	h.resp.H5URL = util.Ptr(h5Url)
+	h.resp.OrderID = util.Ptr(orderID)
+	return h.resp, nil
+}
+
+func (h *JkCreateOrderHandler) newResp(ctx context.Context, code int32, msg string) *ddbaby.JkCreateOrderResp {
+	resp := &ddbaby.JkCreateOrderResp{
+		BaseResp: &ddbaby.BaseResp{
+			StatusMessage: msg,
+			StatusCode:    code,
+		},
+	}
+	return resp
 }

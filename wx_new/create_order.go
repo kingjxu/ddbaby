@@ -2,6 +2,7 @@ package wx_new
 
 import (
 	"context"
+	"github.com/sirupsen/logrus"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/h5"
 	"time"
@@ -14,10 +15,10 @@ type CreateOrderParam struct {
 	Title      string
 }
 
-func CreateOrder(ctx context.Context, param CreateOrderParam) string {
+func Prepay(ctx context.Context, param CreateOrderParam) (string, error) {
 	svc := h5.H5ApiService{Client: client}
 
-	_, _, _ = svc.Prepay(ctx,
+	resp, _, err := svc.Prepay(ctx,
 		h5.PrepayRequest{
 			Appid:       core.String(appID), //灵运先知
 			Mchid:       core.String(mchID),
@@ -31,5 +32,13 @@ func CreateOrder(ctx context.Context, param CreateOrderParam) string {
 			},
 		},
 	)
-	return "123"
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("[CreateOrder] svc.Prepay  err:%v", err)
+		return "", err
+	}
+	jumpUrl := ""
+	if resp.H5Url != nil {
+		jumpUrl = *resp.H5Url
+	}
+	return jumpUrl, nil
 }
