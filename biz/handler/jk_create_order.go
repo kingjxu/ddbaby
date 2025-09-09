@@ -66,7 +66,7 @@ func (h *JkCreateOrderHandler) Handle(ctx context.Context) (*ddbaby.JkCreateOrde
 		logrus.WithContext(ctx).Errorf("[JkCreateOrderHandler] service.CreateOrder err:%v", err)
 		return h.newResp(ctx, -1, "wx prepay err"), nil
 	}
-	h.resp.H5URL = util.Ptr(h5Url)
+	h.resp.PayURL = util.Ptr(h5Url)
 	h.resp.OrderID = util.Ptr(orderID)
 	return h.resp, nil
 }

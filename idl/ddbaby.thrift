@@ -124,7 +124,7 @@ struct JkCreateOrderReq {
 
 struct JkCreateOrderResp {
     1: optional string order_id;
-    2: optional string h5_url;
+    2: optional string pay_url;
 
     255: BaseResp BaseResp;
 }

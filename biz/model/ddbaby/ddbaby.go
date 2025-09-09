@@ -1170,7 +1170,7 @@ func (p *JkCreateOrderReq) String() string {
 
 type JkCreateOrderResp struct {
 	OrderID  *string   `thrift:"order_id,1,optional" form:"order_id" json:"order_id,omitempty" query:"order_id"`
-	H5URL    *string   `thrift:"h5_url,2,optional" form:"h5_url" json:"h5_url,omitempty" query:"h5_url"`
+	PayURL   *string   `thrift:"pay_url,2,optional" form:"pay_url" json:"pay_url,omitempty" query:"pay_url"`
 	BaseResp *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
 }
 
@@ -1190,13 +1190,13 @@ func (p *JkCreateOrderResp) GetOrderID() (v string) {
 	return *p.OrderID
 }
 
-var JkCreateOrderResp_H5URL_DEFAULT string
+var JkCreateOrderResp_PayURL_DEFAULT string
 
-func (p *JkCreateOrderResp) GetH5URL() (v string) {
-	if !p.IsSetH5URL() {
-		return JkCreateOrderResp_H5URL_DEFAULT
+func (p *JkCreateOrderResp) GetPayURL() (v string) {
+	if !p.IsSetPayURL() {
+		return JkCreateOrderResp_PayURL_DEFAULT
 	}
-	return *p.H5URL
+	return *p.PayURL
 }
 
 var JkCreateOrderResp_BaseResp_DEFAULT *BaseResp
@@ -1212,8 +1212,8 @@ func (p *JkCreateOrderResp) IsSetOrderID() bool {
 	return p.OrderID != nil
 }
 
-func (p *JkCreateOrderResp) IsSetH5URL() bool {
-	return p.H5URL != nil
+func (p *JkCreateOrderResp) IsSetPayURL() bool {
+	return p.PayURL != nil
 }
 
 func (p *JkCreateOrderResp) IsSetBaseResp() bool {
