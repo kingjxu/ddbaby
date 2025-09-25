@@ -14,7 +14,7 @@ const (
 )
 
 const (
-	JKWXPayNotifyUrl = "  " // 支付回调地址
+	JKWXPayNotifyUrl = "" // 支付回调地址
 )
 
 var JkType2Title = map[string]string{
