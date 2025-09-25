@@ -4,6 +4,9 @@ import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/downloader"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/notify"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -14,6 +17,7 @@ var (
 	mchCertificateSerialNumber string = "3A6A38912678D0419688132A011203C444D6C19A" // 商户证书序列号，申请证书后在平台直接查看
 	mchAPIv3Key                string = "abcdefghijklmnopqrstuvwxyz123456"         // 商户APIv3密钥 自己设置的32位key
 	client                     *core.Client
+	handler                    *notify.Handler
 )
 
 func init() {
@@ -34,4 +38,20 @@ func init() {
 		hlog.Fatalf("new wechat pay client err:%s", err)
 		panic(err)
 	}
+
+	// 1. 使用 `RegisterDownloaderWithPrivateKey` 注册下载器
+	err = downloader.MgrInstance().RegisterDownloaderWithPrivateKey(ctx, mchPrivateKey, mchCertificateSerialNumber, mchID, mchAPIv3Key)
+	if err != nil {
+		hlog.Fatalf("downloader.MgrInstance().RegisterDownloaderWithPrivateKey err:%s", err)
+		panic(err)
+	}
+	// 2. 获取商户号对应的微信支付平台证书访问器
+	certificateVisitor := downloader.MgrInstance().GetCertificateVisitor(mchID)
+	// 3. 使用证书访问器初始化 `notify.Handler`
+	handler, err = notify.NewRSANotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(certificateVisitor))
+	if err != nil {
+		hlog.Fatalf("notify.NewRSANotifyHandler err:%s", err)
+		panic(err)
+	}
+
 }

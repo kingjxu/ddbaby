@@ -145,6 +145,17 @@ struct GetOrderInfoResp {
     255: BaseResp BaseResp;
 }
 
+
+struct PayCallbackReq  {
+    1: optional string order_id (api.query="user_id");
+}
+
+struct PayCallbackResp {
+    1: optional string code;
+    2: optional string message;
+
+}
+
 service DDBabyService {
     HelloResp HelloMethod(1: HelloReq req) (api.get="/hello");
     DreamExplainResp DreamExplain(1: DreamExplainReq req) (api.get="/lyxz/dream_explain");
@@ -158,4 +169,5 @@ service DDBabyService {
     GetJkQoListResp GetJkQoList(1:GetJkQoListReq req) (api.get="/jk/qo_list")
     JkCreateOrderResp JkCreateOrder(1:JkCreateOrderReq req) (api.post="/jk/create_order")
     GetOrderInfoResp GetOrderInfo(1:GetOrderInfoReq req) (api.get="/jk/order_info")
+    PayCallbackResp PayCallback(1:PayCallbackReq req) (api.post="/jk/pay_callback")
 }

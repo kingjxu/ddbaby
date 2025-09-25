@@ -24,7 +24,6 @@ func JkCreateOrder(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-
 	resp, _ := NewJkCreateOrderHandlerHandler(&req).Handle(ctx)
 
 	c.JSON(consts.StatusOK, resp)
