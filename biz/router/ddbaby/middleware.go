@@ -75,3 +75,8 @@ func _getorderinfoMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _paycallbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

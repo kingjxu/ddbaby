@@ -1387,6 +1387,82 @@ func (p *GetOrderInfoResp) String() string {
 	return fmt.Sprintf("GetOrderInfoResp(%+v)", *p)
 }
 
+type PayCallbackReq struct {
+	OrderID *string `thrift:"order_id,1,optional" json:"order_id,omitempty" query:"user_id"`
+}
+
+func NewPayCallbackReq() *PayCallbackReq {
+	return &PayCallbackReq{}
+}
+
+func (p *PayCallbackReq) InitDefault() {
+}
+
+var PayCallbackReq_OrderID_DEFAULT string
+
+func (p *PayCallbackReq) GetOrderID() (v string) {
+	if !p.IsSetOrderID() {
+		return PayCallbackReq_OrderID_DEFAULT
+	}
+	return *p.OrderID
+}
+
+func (p *PayCallbackReq) IsSetOrderID() bool {
+	return p.OrderID != nil
+}
+
+func (p *PayCallbackReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("PayCallbackReq(%+v)", *p)
+}
+
+type PayCallbackResp struct {
+	Code    *string `thrift:"code,1,optional" form:"code" json:"code,omitempty" query:"code"`
+	Message *string `thrift:"message,2,optional" form:"message" json:"message,omitempty" query:"message"`
+}
+
+func NewPayCallbackResp() *PayCallbackResp {
+	return &PayCallbackResp{}
+}
+
+func (p *PayCallbackResp) InitDefault() {
+}
+
+var PayCallbackResp_Code_DEFAULT string
+
+func (p *PayCallbackResp) GetCode() (v string) {
+	if !p.IsSetCode() {
+		return PayCallbackResp_Code_DEFAULT
+	}
+	return *p.Code
+}
+
+var PayCallbackResp_Message_DEFAULT string
+
+func (p *PayCallbackResp) GetMessage() (v string) {
+	if !p.IsSetMessage() {
+		return PayCallbackResp_Message_DEFAULT
+	}
+	return *p.Message
+}
+
+func (p *PayCallbackResp) IsSetCode() bool {
+	return p.Code != nil
+}
+
+func (p *PayCallbackResp) IsSetMessage() bool {
+	return p.Message != nil
+}
+
+func (p *PayCallbackResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("PayCallbackResp(%+v)", *p)
+}
+
 type DDBabyService interface {
 	HelloMethod(ctx context.Context, req *HelloReq) (r *HelloResp, err error)
 
@@ -1407,4 +1483,6 @@ type DDBabyService interface {
 	JkCreateOrder(ctx context.Context, req *JkCreateOrderReq) (r *JkCreateOrderResp, err error)
 
 	GetOrderInfo(ctx context.Context, req *GetOrderInfoReq) (r *GetOrderInfoResp, err error)
+
+	PayCallback(ctx context.Context, req *PayCallbackReq) (r *PayCallbackResp, err error)
 }
