@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var dsn = "root:t4s?/uI7k0t4@tcp(127.0.0.1:3306)/health?charset=utf8&parseTime=True&loc=Local"
+var dsn = "root:xujin123@tcp(127.0.0.1:3306)/health?charset=utf8&parseTime=True&loc=Local"
 
 var DB *gorm.DB
 
