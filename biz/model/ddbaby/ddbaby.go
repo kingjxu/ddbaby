@@ -1098,7 +1098,7 @@ func (p *QAItem) String() string {
 type JkCreateOrderReq struct {
 	UserID  *string   `thrift:"user_id,1,optional" json:"user_id,omitempty" query:"user_id"`
 	QoType  *string   `thrift:"qo_type,2,optional" json:"qo_type,omitempty" query:"qo_type"`
-	AqItems []*QAItem `thrift:"aq_items,3,optional" json:"aq_items,omitempty" query:"qa_items"`
+	QaItems []*QAItem `thrift:"qa_items,3,optional" json:"qa_items,omitempty" query:"qa_items"`
 	Seq     *int32    `thrift:"seq,4,optional" json:"seq,omitempty" query:"seq"`
 }
 
@@ -1127,13 +1127,13 @@ func (p *JkCreateOrderReq) GetQoType() (v string) {
 	return *p.QoType
 }
 
-var JkCreateOrderReq_AqItems_DEFAULT []*QAItem
+var JkCreateOrderReq_QaItems_DEFAULT []*QAItem
 
-func (p *JkCreateOrderReq) GetAqItems() (v []*QAItem) {
-	if !p.IsSetAqItems() {
-		return JkCreateOrderReq_AqItems_DEFAULT
+func (p *JkCreateOrderReq) GetQaItems() (v []*QAItem) {
+	if !p.IsSetQaItems() {
+		return JkCreateOrderReq_QaItems_DEFAULT
 	}
-	return p.AqItems
+	return p.QaItems
 }
 
 var JkCreateOrderReq_Seq_DEFAULT int32
@@ -1153,8 +1153,8 @@ func (p *JkCreateOrderReq) IsSetQoType() bool {
 	return p.QoType != nil
 }
 
-func (p *JkCreateOrderReq) IsSetAqItems() bool {
-	return p.AqItems != nil
+func (p *JkCreateOrderReq) IsSetQaItems() bool {
+	return p.QaItems != nil
 }
 
 func (p *JkCreateOrderReq) IsSetSeq() bool {
