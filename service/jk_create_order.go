@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func CreateOrder(ctx context.Context, param *ddbaby.JkCreateOrderReq) (string, string, error) {
+func CreateOrder(ctx context.Context, param *ddbaby.JkCreateOrderReq, clientIP string) (string, string, error) {
 	orderID := fmt.Sprintf("E%v", time.Now().UnixMicro())
 	amount := _const.Seq2Amount[param.GetSeq()]
 	// 微信下单
@@ -36,6 +36,7 @@ func CreateOrder(ctx context.Context, param *ddbaby.JkCreateOrderReq) (string, s
 		Title:      _const.JkType2Title[param.GetQoType()],
 		Amount:     int(amount),
 		NotifyURL:  _const.JKWXPayNotifyUrl,
+		ClientIP:   clientIP,
 	})
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[CreateOrder] wx_new.Prepay  err:%v", err)

@@ -24,20 +24,22 @@ func JkCreateOrder(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-	resp, _ := NewJkCreateOrderHandlerHandler(&req).Handle(ctx)
+	resp, _ := NewJkCreateOrderHandlerHandler(&req, c.ClientIP()).Handle(ctx)
 
 	c.JSON(consts.StatusOK, resp)
 }
 
 type JkCreateOrderHandler struct {
-	req  *ddbaby.JkCreateOrderReq
-	resp *ddbaby.JkCreateOrderResp
+	req      *ddbaby.JkCreateOrderReq
+	clientIP string
+	resp     *ddbaby.JkCreateOrderResp
 }
 
-func NewJkCreateOrderHandlerHandler(req *ddbaby.JkCreateOrderReq) *JkCreateOrderHandler {
+func NewJkCreateOrderHandlerHandler(req *ddbaby.JkCreateOrderReq, clientIP string) *JkCreateOrderHandler {
 	return &JkCreateOrderHandler{
-		req:  req,
-		resp: &ddbaby.JkCreateOrderResp{},
+		req:      req,
+		clientIP: clientIP,
+		resp:     &ddbaby.JkCreateOrderResp{},
 	}
 }
 
@@ -60,7 +62,7 @@ func (h *JkCreateOrderHandler) Handle(ctx context.Context) (*ddbaby.JkCreateOrde
 		logrus.WithContext(ctx).Errorf("[JkCreateOrderHandler] check err:%v", err)
 		return h.newResp(ctx, -1, "param err"), nil
 	}
-	h5Url, orderID, err := service.CreateOrder(ctx, h.req)
+	h5Url, orderID, err := service.CreateOrder(ctx, h.req, h.clientIP)
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[JkCreateOrderHandler] service.CreateOrder err:%v", err)
 		return h.newResp(ctx, -1, "wx prepay err"), nil

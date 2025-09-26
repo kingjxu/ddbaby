@@ -2,6 +2,7 @@ package wx_new
 
 import (
 	"context"
+	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/h5"
@@ -13,6 +14,7 @@ type CreateOrderParam struct {
 	Amount     int
 	NotifyURL  string
 	Title      string
+	ClientIP   string
 }
 
 func Prepay(ctx context.Context, param CreateOrderParam) (string, error) {
@@ -29,6 +31,12 @@ func Prepay(ctx context.Context, param CreateOrderParam) (string, error) {
 			Amount: &h5.Amount{
 				Currency: core.String("CNY"),
 				Total:    core.Int64(int64(param.Amount)),
+			},
+			SceneInfo: &h5.SceneInfo{
+				PayerClientIp: util.Ptr(param.ClientIP),
+				H5Info: &h5.H5Info{
+					Type: util.Ptr("Android"),
+				},
 			},
 		},
 	)
