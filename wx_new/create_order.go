@@ -38,12 +38,13 @@ func Prepay(ctx context.Context, param CreateOrderParam) (string, error) {
 			},
 		},
 	}
-	resp, _, err := svc.Prepay(ctx, payReq)
-	logrus.WithContext(ctx).Infof("[CreateOrder] svc.Prepay  req:%v", util.MarshalString())
+	logrus.WithContext(ctx).Infof("[CreateOrder] svc.Prepay  req:%v", util.MarshalString(payReq))
+	resp, res, err := svc.Prepay(ctx, payReq)
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[CreateOrder] svc.Prepay  err:%v", err)
 		return "", err
 	}
+	logrus.WithContext(ctx).Infof("[CreateOrder] svc.Prepay  resp:%v,result:%v", util.MarshalString(resp), util.MarshalString(res))
 	jumpUrl := ""
 	if resp.H5Url != nil {
 		jumpUrl = *resp.H5Url
