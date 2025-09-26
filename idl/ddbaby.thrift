@@ -118,7 +118,7 @@ struct QAItem {
 struct JkCreateOrderReq {
     1: optional string user_id (api.query="user_id");
     2: optional string qo_type (api.query="qo_type");
-    3: optional list<QAItem> aq_items (api.query="qa_items");
+    3: optional list<QAItem> qa_items (api.query="qa_items");
     4: optional i32 seq (api.query="seq");
 }
 
