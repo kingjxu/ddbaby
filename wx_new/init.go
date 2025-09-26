@@ -23,7 +23,7 @@ var (
 func init() {
 	var err error
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
-	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("../conf/apiclient_key.pem")
+	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/usr/local/webserver/kingjxu/ddbaby/conf/apiclient_key.pem")
 	if err != nil {
 		hlog.Fatal("load merchant private key error")
 		panic(err)
