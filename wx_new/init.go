@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	appID                      string = "wxfa03f168f6c928c7"                       //灵运先知
+	appID                      string = "ww7e6919f510223ec1"                       //"wxfa03f168f6c928c7"                       //灵运先知
 	mchID                      string = "1728342204"                               // 木一橙科技商户号(最新的)
 	mchCertificateSerialNumber string = "3A6A38912678D0419688132A011203C444D6C19A" // 商户证书序列号，申请证书后在平台直接查看
 	mchAPIv3Key                string = "abcdefghijklmnopqrstuvwxyz123456"         // 商户APIv3密钥 自己设置的32位key
