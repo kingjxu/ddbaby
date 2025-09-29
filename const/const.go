@@ -24,8 +24,8 @@ var JkType2Title = map[string]string{
 }
 
 var Seq2Amount = map[int32]int32{
-	1: 2999,
-	2: 1499,
+	1: 5,
+	2: 2,
 }
 
 var Question2Options = map[string][]*ddbaby.JkQoItem{
