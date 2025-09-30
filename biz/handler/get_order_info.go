@@ -5,6 +5,7 @@ package handler
 import (
 	"context"
 	"errors"
+	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
@@ -68,6 +69,8 @@ func (h *GetOrderInfoHandler) Handle(ctx context.Context) (*ddbaby.GetOrderInfoR
 	h.resp.Seq = util.Ptr(int32(orderInfo.Seq))
 	h.resp.CreateTime = util.Ptr(orderInfo.CreateTime.Unix())
 	h.resp.Amount = util.Ptr(int32(orderInfo.Amount))
+	h.resp.NextAmount = util.Ptr(_const.Seq2Amount[int32(orderInfo.Seq+1)])
+	h.resp.JumpURL = util.Ptr("https://work.weixin.qq.com/ca/cawcde1469cf4f6a58")
 	return h.resp, nil
 }
 

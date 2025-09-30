@@ -1266,6 +1266,8 @@ type GetOrderInfoResp struct {
 	Status      *int32    `thrift:"status,5,optional" form:"status" json:"status,omitempty" query:"status"`
 	Seq         *int32    `thrift:"seq,6,optional" form:"seq" json:"seq,omitempty" query:"seq"`
 	CreateTime  *int64    `thrift:"create_time,7,optional" form:"create_time" json:"create_time,omitempty" query:"create_time"`
+	NextAmount  *int32    `thrift:"next_amount,8,optional" form:"next_amount" json:"next_amount,omitempty" query:"next_amount"`
+	JumpURL     *string   `thrift:"jump_url,50,optional" form:"jump_url" json:"jump_url,omitempty" query:"jump_url"`
 	BaseResp    *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
 }
 
@@ -1339,6 +1341,24 @@ func (p *GetOrderInfoResp) GetCreateTime() (v int64) {
 	return *p.CreateTime
 }
 
+var GetOrderInfoResp_NextAmount_DEFAULT int32
+
+func (p *GetOrderInfoResp) GetNextAmount() (v int32) {
+	if !p.IsSetNextAmount() {
+		return GetOrderInfoResp_NextAmount_DEFAULT
+	}
+	return *p.NextAmount
+}
+
+var GetOrderInfoResp_JumpURL_DEFAULT string
+
+func (p *GetOrderInfoResp) GetJumpURL() (v string) {
+	if !p.IsSetJumpURL() {
+		return GetOrderInfoResp_JumpURL_DEFAULT
+	}
+	return *p.JumpURL
+}
+
 var GetOrderInfoResp_BaseResp_DEFAULT *BaseResp
 
 func (p *GetOrderInfoResp) GetBaseResp() (v *BaseResp) {
@@ -1374,6 +1394,14 @@ func (p *GetOrderInfoResp) IsSetSeq() bool {
 
 func (p *GetOrderInfoResp) IsSetCreateTime() bool {
 	return p.CreateTime != nil
+}
+
+func (p *GetOrderInfoResp) IsSetNextAmount() bool {
+	return p.NextAmount != nil
+}
+
+func (p *GetOrderInfoResp) IsSetJumpURL() bool {
+	return p.JumpURL != nil
 }
 
 func (p *GetOrderInfoResp) IsSetBaseResp() bool {
