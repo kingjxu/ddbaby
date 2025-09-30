@@ -35,7 +35,7 @@ func Prepay(ctx context.Context, param CreateOrderParam) (string, error) {
 		SceneInfo: &h5.SceneInfo{
 			PayerClientIp: util.Ptr(param.CommonParam.ClientIP),
 			H5Info: &h5.H5Info{
-				Type: util.Ptr("iOS"),
+				Type: util.Ptr(param.CommonParam.Platform),
 			},
 		},
 	}
