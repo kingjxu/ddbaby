@@ -28,3 +28,7 @@ func (m *JkOrder) TableName() string {
 func CreateOrder(ctx context.Context, order *JkOrder) error {
 	return mysql.GetDB(ctx).Create(order).Error
 }
+
+func UpdateOrderPaySuccess(ctx context.Context, orderID string) error {
+	return mysql.GetDB(ctx).Model(&JkOrder{}).Where("order_id = ?", orderID).Update("status", 20).Error
+}
