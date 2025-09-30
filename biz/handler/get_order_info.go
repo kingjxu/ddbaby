@@ -4,6 +4,10 @@ package handler
 
 import (
 	"context"
+	"errors"
+	"github.com/kingjxu/ddbaby/service"
+	"github.com/kingjxu/ddbaby/util"
+	"github.com/sirupsen/logrus"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -24,4 +28,55 @@ func GetOrderInfo(ctx context.Context, c *app.RequestContext) {
 	resp := new(ddbaby.GetOrderInfoResp)
 
 	c.JSON(consts.StatusOK, resp)
+}
+
+type GetOrderInfoHandler struct {
+	req *ddbaby.GetOrderInfoReq
+
+	resp *ddbaby.GetOrderInfoResp
+}
+
+func NewGetOrderInfoHandler(req *ddbaby.GetOrderInfoReq) *GetOrderInfoHandler {
+	return &GetOrderInfoHandler{
+		req:  req,
+		resp: &ddbaby.GetOrderInfoResp{},
+	}
+}
+
+func (h *GetOrderInfoHandler) check() error {
+	if h.req.GetOrderID() == "" {
+		return errors.New("order_id is empty")
+	}
+	return nil
+}
+
+func (h *GetOrderInfoHandler) Handle(ctx context.Context) (*ddbaby.GetOrderInfoResp, error) {
+	logrus.WithContext(ctx).Infof("[GetOrderInfoHandler] req:%v", util.ToJSON(h.req))
+	if err := h.check(); err != nil {
+		logrus.WithContext(ctx).Errorf("[GetOrderInfoHandler] check err:%v", err)
+		return h.newResp(ctx, -1, "param err"), nil
+	}
+	orderInfo, err := service.GetOrderInfo(ctx, h.req.GetOrderID())
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("[GetOrderInfoHandler] service.CreateOrder err:%v", err)
+		return h.newResp(ctx, -1, "get_order_info_err"), nil
+	}
+	h.resp.OrderID = util.Ptr(orderInfo.OrderID)
+	h.resp.UserID = util.Ptr(orderInfo.UserID)
+	h.resp.ProductName = util.Ptr(orderInfo.JkType)
+	h.resp.Status = util.Ptr(int32(orderInfo.Status))
+	h.resp.Seq = util.Ptr(int32(orderInfo.Seq))
+	h.resp.CreateTime = util.Ptr(orderInfo.CreateTime.Unix())
+	h.resp.Amount = util.Ptr(int32(orderInfo.Amount))
+	return h.resp, nil
+}
+
+func (h *GetOrderInfoHandler) newResp(ctx context.Context, code int32, msg string) *ddbaby.GetOrderInfoResp {
+	resp := &ddbaby.GetOrderInfoResp{
+		BaseResp: &ddbaby.BaseResp{
+			StatusMessage: msg,
+			StatusCode:    code,
+		},
+	}
+	return resp
 }

@@ -32,3 +32,10 @@ func CreateOrder(ctx context.Context, order *JkOrder) error {
 func UpdateOrderPaySuccess(ctx context.Context, orderID string) error {
 	return mysql.GetDB(ctx).Model(&JkOrder{}).Where("order_id = ?", orderID).Update("status", 20).Error
 }
+
+func GetOrderByOrderID(ctx context.Context, orderID string) (*JkOrder, error) {
+	var order *JkOrder
+	err := mysql.GetDB(ctx).Where("order_id = ?", orderID).First(&order).Error
+	return order, err
+
+}
