@@ -5,6 +5,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"github.com/kingjxu/ddbaby/model"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
@@ -24,23 +25,27 @@ func JkCreateOrder(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-
-	resp, _ := NewJkCreateOrderHandlerHandler(&req, c.ClientIP()).Handle(ctx)
+	platform := c.Request.Header.Get("device_platform")
+	resp, _ := NewJkCreateOrderHandlerHandler(&req, &model.CommonParam{
+		ClientIP: c.ClientIP(),
+		Platform: platform,
+	}).Handle(ctx)
 	logrus.WithContext(ctx).Infof("resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
 }
 
 type JkCreateOrderHandler struct {
-	req      *ddbaby.JkCreateOrderReq
-	clientIP string
-	resp     *ddbaby.JkCreateOrderResp
+	req *ddbaby.JkCreateOrderReq
+
+	commonParam *model.CommonParam
+	resp        *ddbaby.JkCreateOrderResp
 }
 
-func NewJkCreateOrderHandlerHandler(req *ddbaby.JkCreateOrderReq, clientIP string) *JkCreateOrderHandler {
+func NewJkCreateOrderHandlerHandler(req *ddbaby.JkCreateOrderReq, param *model.CommonParam) *JkCreateOrderHandler {
 	return &JkCreateOrderHandler{
-		req:      req,
-		clientIP: clientIP,
-		resp:     &ddbaby.JkCreateOrderResp{},
+		req:         req,
+		commonParam: param,
+		resp:        &ddbaby.JkCreateOrderResp{},
 	}
 }
 
@@ -63,7 +68,7 @@ func (h *JkCreateOrderHandler) Handle(ctx context.Context) (*ddbaby.JkCreateOrde
 		logrus.WithContext(ctx).Errorf("[JkCreateOrderHandler] check err:%v", err)
 		return h.newResp(ctx, -1, "param err"), nil
 	}
-	h5Url, orderID, err := service.CreateOrder(ctx, h.req, h.clientIP)
+	h5Url, orderID, err := service.CreateOrder(ctx, h.req, h.commonParam)
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[JkCreateOrderHandler] service.CreateOrder err:%v", err)
 		return h.newResp(ctx, -1, "wx prepay err"), nil

@@ -2,6 +2,7 @@ package wx_new
 
 import (
 	"context"
+	"github.com/kingjxu/ddbaby/model"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
@@ -10,11 +11,11 @@ import (
 )
 
 type CreateOrderParam struct {
-	OutTradeNo string
-	Amount     int
-	NotifyURL  string
-	Title      string
-	ClientIP   string
+	OutTradeNo  string
+	Amount      int
+	NotifyURL   string
+	Title       string
+	CommonParam *model.CommonParam
 }
 
 func Prepay(ctx context.Context, param CreateOrderParam) (string, error) {
@@ -32,7 +33,7 @@ func Prepay(ctx context.Context, param CreateOrderParam) (string, error) {
 			Total:    core.Int64(int64(param.Amount)),
 		},
 		SceneInfo: &h5.SceneInfo{
-			PayerClientIp: util.Ptr(param.ClientIP),
+			PayerClientIp: util.Ptr(param.CommonParam.ClientIP),
 			H5Info: &h5.H5Info{
 				Type: util.Ptr("iOS"),
 			},
