@@ -25,7 +25,7 @@ func JkCreateOrder(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-	logrus.WithContext(ctx).Infof("header:%v", util.ToJSON(c.Request.Header.RawHeaders()))
+	logrus.WithContext(ctx).Infof("header:%v", util.ToJSON(string(c.Request.Header.RawHeaders())))
 	platform := c.Request.Header.Get("device_platform")
 	resp, _ := NewJkCreateOrderHandlerHandler(&req, &model.CommonParam{
 		ClientIP: c.ClientIP(),
