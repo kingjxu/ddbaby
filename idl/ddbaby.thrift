@@ -143,7 +143,7 @@ struct GetOrderInfoResp {
     7: optional i64 create_time;
     8: optional i32 next_amount;
 
-    50: optional jump_url;
+    50: optional string jump_url;
     255: BaseResp BaseResp;
 }
 
