@@ -26,7 +26,7 @@ func JkCreateOrder(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp, _ := NewJkCreateOrderHandlerHandler(&req, c.ClientIP()).Handle(ctx)
-
+	logrus.WithContext(ctx).Infof("resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
 }
 
