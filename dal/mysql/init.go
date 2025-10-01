@@ -11,7 +11,7 @@ var dsn = "root:xujin123@tcp(127.0.0.1:3306)/health?charset=utf8&parseTime=True&
 
 var DB *gorm.DB
 
-func Init() {
+func init() {
 	var err error
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,
