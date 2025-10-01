@@ -26,8 +26,8 @@ func GetOrderInfo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(ddbaby.GetOrderInfoResp)
-
+	resp, _ := NewGetOrderInfoHandler(&req).Handle(ctx)
+	logrus.WithContext(ctx).Infof("GetOrderInfo resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -52,7 +52,7 @@ func (h *GetOrderInfoHandler) check() error {
 }
 
 func (h *GetOrderInfoHandler) Handle(ctx context.Context) (*ddbaby.GetOrderInfoResp, error) {
-	logrus.WithContext(ctx).Infof("[GetOrderInfoHandler] req:%v", util.ToJSON(h.req))
+	logrus.WithContext(ctx).Infof("[GetOrderInfoHandler] req:%+v", util.ToJSON(h.req))
 	if err := h.check(); err != nil {
 		logrus.WithContext(ctx).Errorf("[GetOrderInfoHandler] check err:%v", err)
 		return h.newResp(ctx, -1, "param err"), nil

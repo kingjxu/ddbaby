@@ -32,7 +32,7 @@ func PayCallback(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp, _ := NewJkPayCallbackHandlerHandler(httpReq).Handle(ctx)
-
+	logrus.WithContext(ctx).Infof("PayCallback resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
 }
 

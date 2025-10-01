@@ -25,7 +25,7 @@ func GetJkQoList(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp, _ := NewJkQoListHandlerHandler(&req).Handle(ctx)
-
+	logrus.WithContext(ctx).Infof("GetJkQoList resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
 }
 
