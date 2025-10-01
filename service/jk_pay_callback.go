@@ -16,7 +16,7 @@ func PayCallback(ctx context.Context, req *http.Request) error {
 		return fmt.Errorf("NotifyCallback err: %v", err)
 	}
 	logrus.WithContext(ctx).Infof("trans:%+v", util.ToJSON(trans))
-	err = jk.UpdateOrderPaySuccess(ctx, *trans.OutTradeNo)
+	err = jk.UpdateOrderPaySuccess(ctx, *trans.OutTradeNo, *trans.Payer.Openid, *trans.TransactionId)
 	if err != nil {
 		return fmt.Errorf("UpdateOrderPaySuccess err:%v", err)
 	}
