@@ -1228,7 +1228,7 @@ func (p *JkCreateOrderResp) String() string {
 }
 
 type GetOrderInfoReq struct {
-	OrderID *string `thrift:"order_id,1,optional" json:"order_id,omitempty" query:"user_id"`
+	OrderID *string `thrift:"order_id,1,optional" json:"order_id,omitempty" query:"order_id"`
 }
 
 func NewGetOrderInfoReq() *GetOrderInfoReq {

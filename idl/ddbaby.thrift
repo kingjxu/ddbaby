@@ -130,7 +130,7 @@ struct JkCreateOrderResp {
 }
 
 struct GetOrderInfoReq  {
-    1: optional string order_id (api.query="user_id");
+    1: optional string order_id (api.query="order_id");
 }
 
 struct GetOrderInfoResp {

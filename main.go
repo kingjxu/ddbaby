@@ -4,12 +4,9 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
-	"github.com/kingjxu/ddbaby/dal"
 )
 
 func main() {
-	dal.Init()
-
 	h := server.Default()
 
 	register(h)
