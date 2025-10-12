@@ -16,7 +16,7 @@ func GetOrderInfo(ctx context.Context, orderId string) (*jk.JkOrder, error) {
 	if jkOrder.Status == 20 {
 		return jkOrder, nil
 	}
-	if wx_new.IsOrderPaySuccess(ctx, jkOrder.WxOrderID) {
+	if wx_new.IsOrderPaySuccess(ctx, orderId) {
 		logrus.WithContext(ctx).Infof("order %v pay success", jkOrder.OrderID)
 		jkOrder.Status = 20
 	}
