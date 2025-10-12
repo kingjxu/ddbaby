@@ -27,6 +27,7 @@ func GetOrderInfo(ctx context.Context, orderId string) (*jk.JkOrder, error) {
 		}
 
 		if jkOrder.Status == 10 {
+			logrus.WithContext(ctx).Infof("order %v pay failed,i:%v", jkOrder.OrderID, i)
 			time.Sleep(time.Second * 2)
 			continue
 		}
