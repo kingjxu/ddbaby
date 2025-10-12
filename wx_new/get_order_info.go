@@ -7,16 +7,17 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/h5"
 )
 
-func IsOrderPaySuccess(ctx context.Context, transactionID string) bool {
+func IsOrderPaySuccess(ctx context.Context, outTradNo string) bool {
 	svc := h5.H5ApiService{Client: client}
-	trans, _, err := svc.QueryOrderById(ctx, h5.QueryOrderByIdRequest{
-		TransactionId: util.Ptr(transactionID),
-		Mchid:         util.Ptr(mchID),
-	})
+	req := h5.QueryOrderByOutTradeNoRequest{
+		OutTradeNo: util.Ptr(outTradNo),
+		Mchid:      util.Ptr(mchID),
+	}
+	trans, _, err := svc.QueryOrderByOutTradeNo(ctx, req)
 	if err != nil || trans == nil {
-		logrus.WithContext(ctx).Errorf("GetOrderInfo failed, err:%+v", err)
+		logrus.WithContext(ctx).Errorf("GetOrderInfo failed, req:%v,err:%+v", util.ToJSON(req), err)
 		return false
 	}
-	logrus.WithContext(ctx).Infof("GetOrderInfo resp:%v", util.ToJSON(trans))
+	logrus.WithContext(ctx).Infof("GetOrderInfo,req:%v, resp:%v", util.ToJSON(req), util.ToJSON(trans))
 	return *trans.TradeState == "SUCCESS"
 }
