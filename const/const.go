@@ -106,4 +106,82 @@ var Question2Options = map[string][]*ddbaby.JkQoItem{
 			Options:  []string{"没有", "有时", "经常"},
 		},
 	},
+
+	"cw": {
+		{
+			ID:       util.Ptr(int64(1)),
+			Question: util.Ptr("你的性别"),
+			Options:  []string{"男", "女"},
+		},
+		{
+			ID:       util.Ptr(int64(2)),
+			Question: util.Ptr("你的年龄"),
+			Options:  []string{"小于45岁", "45-65岁", "65岁以上"},
+		},
+		{
+			ID:       util.Ptr(int64(3)),
+			Question: util.Ptr("是否经常感到腹痛、腹泻、腹胀"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+		{
+			ID:       util.Ptr(int64(4)),
+			Question: util.Ptr("是否有便秘的问题"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+		{
+			ID:       util.Ptr(int64(5)),
+			Question: util.Ptr("是否时常觉得恶心，甚至伴有呕吐"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+		{
+			ID:       util.Ptr(int64(6)),
+			Question: util.Ptr("是否经常出现反酸的现象"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+		{
+			ID:       util.Ptr(int64(7)),
+			Question: util.Ptr("是否经常食欲不振，吃什么都没胃口"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+		{
+			ID:       util.Ptr(int64(8)),
+			Question: util.Ptr("是否有烧心的感觉"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+		{
+			ID:       util.Ptr(int64(9)),
+			Question: util.Ptr("是否吃完东西后感到胃痛、胃胀"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+		{
+			ID:       util.Ptr(int64(10)),
+			Question: util.Ptr("是否有肠鸣的现象"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+		{
+			ID:       util.Ptr(int64(11)),
+			Question: util.Ptr("是否有排便不规律的问题，或排便时有腹痛的感觉"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+		{
+			ID:       util.Ptr(int64(12)),
+			Question: util.Ptr("是否有大便带血的现象"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+		{
+			ID:       util.Ptr(int64(13)),
+			Question: util.Ptr("是否经常觉得口臭，特别是早晨起床的时候"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+		{
+			ID:       util.Ptr(int64(14)),
+			Question: util.Ptr("是否经常吃辛辣等重口味食物"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+		{
+			ID:       util.Ptr(int64(15)),
+			Question: util.Ptr("是否正在接受肠胃治疗方案"),
+			Options:  []string{"没有", "有时", "经常"},
+		},
+	},
 }
