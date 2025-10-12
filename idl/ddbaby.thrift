@@ -120,6 +120,7 @@ struct JkCreateOrderReq {
     2: optional string qo_type (api.query="qo_type");
     3: optional list<QAItem> qa_items (api.query="qa_items");
     4: optional i32 seq (api.query="seq");
+    5: optional string order_id  (api.query="order_id");
 }
 
 struct JkCreateOrderResp {

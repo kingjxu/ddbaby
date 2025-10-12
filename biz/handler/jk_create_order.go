@@ -59,8 +59,8 @@ func (h *JkCreateOrderHandler) check() error {
 	if h.req.GetSeq() == 0 {
 		return errors.New("seq is empty")
 	}
-	if len(h.req.GetQaItems()) == 0 {
-		return errors.New("aq_items is empty")
+	if len(h.req.GetQaItems()) == 0 && h.req.GetOrderID() == "" {
+		return errors.New("aq_items is empty and order_id is empty")
 	}
 	return nil
 }
