@@ -53,11 +53,11 @@ func NewJkCreateOrderHandlerHandler(req *ddbaby.JkCreateOrderReq, param *model.C
 }
 
 func (h *JkCreateOrderHandler) check() error {
-	if h.req.GetQoType() == "" {
-		return errors.New("qo_type is empty")
+	if h.req.GetQoType() == "" && h.req.GetOrderID() == "" {
+		return errors.New("qo_type is empty and qo_id is empty")
 	}
-	if h.req.GetSeq() == 0 {
-		return errors.New("seq is empty")
+	if h.req.GetSeq() == 0 && h.req.GetOrderID() == "" {
+		return errors.New("seq is empty and order id is empty")
 	}
 	if len(h.req.GetQaItems()) == 0 && h.req.GetOrderID() == "" {
 		return errors.New("aq_items is empty and order_id is empty")
