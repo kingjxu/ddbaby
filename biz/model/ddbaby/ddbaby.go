@@ -929,6 +929,7 @@ type GetJkQoListResp struct {
 	Qo                 []*JkQoItem `thrift:"qo,5,optional" form:"qo" json:"qo,omitempty" query:"qo"`
 	Tips               *string     `thrift:"tips,6,optional" form:"tips" json:"tips,omitempty" query:"tips"`
 	ParticipantCount   *int32      `thrift:"participant_count,7,optional" form:"participant_count" json:"participant_count,omitempty" query:"participant_count"`
+	Toast              *string     `thrift:"toast,8,optional" form:"toast" json:"toast,omitempty" query:"toast"`
 	BaseResp           *BaseResp   `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
 }
 
@@ -1002,6 +1003,15 @@ func (p *GetJkQoListResp) GetParticipantCount() (v int32) {
 	return *p.ParticipantCount
 }
 
+var GetJkQoListResp_Toast_DEFAULT string
+
+func (p *GetJkQoListResp) GetToast() (v string) {
+	if !p.IsSetToast() {
+		return GetJkQoListResp_Toast_DEFAULT
+	}
+	return *p.Toast
+}
+
 var GetJkQoListResp_BaseResp_DEFAULT *BaseResp
 
 func (p *GetJkQoListResp) GetBaseResp() (v *BaseResp) {
@@ -1037,6 +1047,10 @@ func (p *GetJkQoListResp) IsSetTips() bool {
 
 func (p *GetJkQoListResp) IsSetParticipantCount() bool {
 	return p.ParticipantCount != nil
+}
+
+func (p *GetJkQoListResp) IsSetToast() bool {
+	return p.Toast != nil
 }
 
 func (p *GetJkQoListResp) IsSetBaseResp() bool {

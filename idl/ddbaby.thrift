@@ -107,6 +107,7 @@ struct GetJkQoListResp {
     5: optional list<JkQoItem> qo;
     6: optional string tips;
     7: optional i32 participant_count;
+    8: optional string toast;
 
     255: BaseResp BaseResp;
 }
