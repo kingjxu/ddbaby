@@ -22,7 +22,9 @@ func CreateOrder(ctx context.Context, param *ddbaby.JkCreateOrderReq, commonPara
 		param.QaItems = util.UnmarshalString[[]*ddbaby.QAItem](order.QaItems)
 		param.QoType = util.Ptr(order.JkType)
 		param.UserID = util.Ptr(order.UserID)
-		param.Seq = util.Ptr(int32(order.Seq) + 1)
+		if param.Seq == nil {
+			param.Seq = util.Ptr(int32(order.Seq) + 1)
+		}
 	}
 	orderID := fmt.Sprintf("E%v", time.Now().UnixMicro())
 	amount := _const.Seq2Amount[param.GetSeq()]
