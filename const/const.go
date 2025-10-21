@@ -23,6 +23,12 @@ var JkType2Title = map[string]string{
 	"cw":  "肠胃症状自测评估",
 }
 
+var JkType2Pic = map[string]string{
+	"gxt": "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/gxt.png",
+	"gxy": "高血压症状自测评估",
+	"cw":  "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/cw.png",
+}
+
 var Seq2Amount = map[int32]int32{
 	1: 2,
 	2: 1,

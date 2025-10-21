@@ -62,7 +62,7 @@ func (h *JkQoListHandler) Handle(ctx context.Context) (*ddbaby.GetJkQoListResp, 
 	h.resp.ParticipantCount = util.Ptr(int32(11382))
 	h.resp.Toast = util.Ptr("请完成该题的答案选择")
 	if h.req.GetNeedPic() == true {
-		h.resp.Pic = util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/gxt.png")
+		h.resp.Pic = util.Ptr(constdef.JkType2Pic[h.req.GetQoType()])
 	}
 
 	return h.resp, nil
