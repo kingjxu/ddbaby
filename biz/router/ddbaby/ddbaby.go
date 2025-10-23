@@ -37,4 +37,8 @@ func Register(r *server.Hertz) {
 		_lyxz.GET("/pick_name", append(_picknameMw(), handler.PickName)...)
 		_lyxz.GET("/taluo_predict", append(_taluopredictMw(), handler.TaLuoPredict)...)
 	}
+	{
+		_wechat := root.Group("/wechat", _wechatMw()...)
+		_wechat.POST("/add_custom", append(_wechataddcustomcallbackMw(), handler.WechatAddCustomCallback)...)
+	}
 }

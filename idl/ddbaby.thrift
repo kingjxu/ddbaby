@@ -160,6 +160,14 @@ struct PayCallbackResp {
 
 }
 
+struct WechatAddCustomCallbackReq {
+
+}
+
+struct WechatAddCustomCallbackResp {
+
+}
+
 service DDBabyService {
     HelloResp HelloMethod(1: HelloReq req) (api.get="/hello");
     DreamExplainResp DreamExplain(1: DreamExplainReq req) (api.get="/lyxz/dream_explain");
@@ -174,4 +182,10 @@ service DDBabyService {
     JkCreateOrderResp JkCreateOrder(1:JkCreateOrderReq req) (api.post="/jk/create_order")
     GetOrderInfoResp GetOrderInfo(1:GetOrderInfoReq req) (api.get="/jk/order_info")
     PayCallbackResp PayCallback(1:PayCallbackReq req) (api.post="/jk/pay_callback")
+
+
+    WechatAddCustomCallbackResp WechatAddCustomCallback(1:WechatAddCustomCallbackReq req) (api.post="/wechat/add_custom")
+
+
+
 }

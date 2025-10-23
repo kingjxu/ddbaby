@@ -1533,6 +1533,40 @@ func (p *PayCallbackResp) String() string {
 	return fmt.Sprintf("PayCallbackResp(%+v)", *p)
 }
 
+type WechatAddCustomCallbackReq struct {
+}
+
+func NewWechatAddCustomCallbackReq() *WechatAddCustomCallbackReq {
+	return &WechatAddCustomCallbackReq{}
+}
+
+func (p *WechatAddCustomCallbackReq) InitDefault() {
+}
+
+func (p *WechatAddCustomCallbackReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("WechatAddCustomCallbackReq(%+v)", *p)
+}
+
+type WechatAddCustomCallbackResp struct {
+}
+
+func NewWechatAddCustomCallbackResp() *WechatAddCustomCallbackResp {
+	return &WechatAddCustomCallbackResp{}
+}
+
+func (p *WechatAddCustomCallbackResp) InitDefault() {
+}
+
+func (p *WechatAddCustomCallbackResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("WechatAddCustomCallbackResp(%+v)", *p)
+}
+
 type DDBabyService interface {
 	HelloMethod(ctx context.Context, req *HelloReq) (r *HelloResp, err error)
 
@@ -1555,4 +1589,6 @@ type DDBabyService interface {
 	GetOrderInfo(ctx context.Context, req *GetOrderInfoReq) (r *GetOrderInfoResp, err error)
 
 	PayCallback(ctx context.Context, req *PayCallbackReq) (r *PayCallbackResp, err error)
+
+	WechatAddCustomCallback(ctx context.Context, req *WechatAddCustomCallbackReq) (r *WechatAddCustomCallbackResp, err error)
 }

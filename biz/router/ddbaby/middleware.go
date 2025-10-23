@@ -80,3 +80,13 @@ func _paycallbackMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _wechatMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _wechataddcustomcallbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
