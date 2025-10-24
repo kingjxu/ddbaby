@@ -165,7 +165,8 @@ struct WechatAddCustomCallbackReq {
 }
 
 struct WechatAddCustomCallbackResp {
-
+     1: optional string code;
+     2: optional string message;
 }
 
 service DDBabyService {

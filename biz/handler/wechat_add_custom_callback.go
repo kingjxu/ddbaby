@@ -4,6 +4,8 @@ package handler
 
 import (
 	"context"
+	"github.com/kingjxu/ddbaby/util"
+	"github.com/sirupsen/logrus"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -22,6 +24,6 @@ func WechatAddCustomCallback(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(ddbaby.WechatAddCustomCallbackResp)
-
+	logrus.WithContext(ctx).Infof("WechatAddCustomCallback resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
 }
