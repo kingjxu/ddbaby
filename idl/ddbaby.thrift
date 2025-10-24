@@ -107,7 +107,7 @@ struct GetJkQoListResp {
     5: optional list<JkQoItem> qo;
     6: optional string tips;
     7: optional i32 participant_count;
-    8: optional string toast;
+    8: optional string professor_url;
 
     255: BaseResp BaseResp;
 }
@@ -127,7 +127,7 @@ struct JkCreateOrderReq {
 struct JkCreateOrderResp {
     1: optional string order_id;
     2: optional string pay_url;
-
+    3: optional string professor_url;
     255: BaseResp BaseResp;
 }
 
@@ -145,7 +145,7 @@ struct GetOrderInfoResp {
     7: optional i64 create_time;
     8: optional i32 next_amount;
     9: optional list<QAItem> qa_items;
-    50: optional string jump_url;
+    50: optional string professor_url;
     255: BaseResp BaseResp;
 }
 
@@ -184,10 +184,6 @@ service DDBabyService {
     GetOrderInfoResp GetOrderInfo(1:GetOrderInfoReq req) (api.get="/jk/order_info")
     PayCallbackResp PayCallback(1:PayCallbackReq req) (api.post="/jk/pay_callback")
 
-
-    WechatAddCustomCallbackResp WechatAddCustomCallback(1:WechatAddCustomCallbackReq req) (api.post="/wechat/add_custom")
     WechatAddCustomCallbackResp WechatAddCustomCallback(1:WechatAddCustomCallbackReq req) (api.get="/wechat/add_custom")
-
-
 
 }
