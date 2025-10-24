@@ -929,7 +929,7 @@ type GetJkQoListResp struct {
 	Qo                 []*JkQoItem `thrift:"qo,5,optional" form:"qo" json:"qo,omitempty" query:"qo"`
 	Tips               *string     `thrift:"tips,6,optional" form:"tips" json:"tips,omitempty" query:"tips"`
 	ParticipantCount   *int32      `thrift:"participant_count,7,optional" form:"participant_count" json:"participant_count,omitempty" query:"participant_count"`
-	Toast              *string     `thrift:"toast,8,optional" form:"toast" json:"toast,omitempty" query:"toast"`
+	ProfessorURL       *string     `thrift:"professor_url,8,optional" form:"professor_url" json:"professor_url,omitempty" query:"professor_url"`
 	BaseResp           *BaseResp   `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
 }
 
@@ -1003,13 +1003,13 @@ func (p *GetJkQoListResp) GetParticipantCount() (v int32) {
 	return *p.ParticipantCount
 }
 
-var GetJkQoListResp_Toast_DEFAULT string
+var GetJkQoListResp_ProfessorURL_DEFAULT string
 
-func (p *GetJkQoListResp) GetToast() (v string) {
-	if !p.IsSetToast() {
-		return GetJkQoListResp_Toast_DEFAULT
+func (p *GetJkQoListResp) GetProfessorURL() (v string) {
+	if !p.IsSetProfessorURL() {
+		return GetJkQoListResp_ProfessorURL_DEFAULT
 	}
-	return *p.Toast
+	return *p.ProfessorURL
 }
 
 var GetJkQoListResp_BaseResp_DEFAULT *BaseResp
@@ -1049,8 +1049,8 @@ func (p *GetJkQoListResp) IsSetParticipantCount() bool {
 	return p.ParticipantCount != nil
 }
 
-func (p *GetJkQoListResp) IsSetToast() bool {
-	return p.Toast != nil
+func (p *GetJkQoListResp) IsSetProfessorURL() bool {
+	return p.ProfessorURL != nil
 }
 
 func (p *GetJkQoListResp) IsSetBaseResp() bool {
@@ -1197,9 +1197,10 @@ func (p *JkCreateOrderReq) String() string {
 }
 
 type JkCreateOrderResp struct {
-	OrderID  *string   `thrift:"order_id,1,optional" form:"order_id" json:"order_id,omitempty" query:"order_id"`
-	PayURL   *string   `thrift:"pay_url,2,optional" form:"pay_url" json:"pay_url,omitempty" query:"pay_url"`
-	BaseResp *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+	OrderID      *string   `thrift:"order_id,1,optional" form:"order_id" json:"order_id,omitempty" query:"order_id"`
+	PayURL       *string   `thrift:"pay_url,2,optional" form:"pay_url" json:"pay_url,omitempty" query:"pay_url"`
+	ProfessorURL *string   `thrift:"professor_url,3,optional" form:"professor_url" json:"professor_url,omitempty" query:"professor_url"`
+	BaseResp     *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
 }
 
 func NewJkCreateOrderResp() *JkCreateOrderResp {
@@ -1227,6 +1228,15 @@ func (p *JkCreateOrderResp) GetPayURL() (v string) {
 	return *p.PayURL
 }
 
+var JkCreateOrderResp_ProfessorURL_DEFAULT string
+
+func (p *JkCreateOrderResp) GetProfessorURL() (v string) {
+	if !p.IsSetProfessorURL() {
+		return JkCreateOrderResp_ProfessorURL_DEFAULT
+	}
+	return *p.ProfessorURL
+}
+
 var JkCreateOrderResp_BaseResp_DEFAULT *BaseResp
 
 func (p *JkCreateOrderResp) GetBaseResp() (v *BaseResp) {
@@ -1242,6 +1252,10 @@ func (p *JkCreateOrderResp) IsSetOrderID() bool {
 
 func (p *JkCreateOrderResp) IsSetPayURL() bool {
 	return p.PayURL != nil
+}
+
+func (p *JkCreateOrderResp) IsSetProfessorURL() bool {
+	return p.ProfessorURL != nil
 }
 
 func (p *JkCreateOrderResp) IsSetBaseResp() bool {
@@ -1287,17 +1301,17 @@ func (p *GetOrderInfoReq) String() string {
 }
 
 type GetOrderInfoResp struct {
-	OrderID     *string   `thrift:"order_id,1,optional" form:"order_id" json:"order_id,omitempty" query:"order_id"`
-	UserID      *string   `thrift:"user_id,2,optional" form:"user_id" json:"user_id,omitempty" query:"user_id"`
-	ProductName *string   `thrift:"product_name,3,optional" form:"product_name" json:"product_name,omitempty" query:"product_name"`
-	Amount      *int32    `thrift:"amount,4,optional" form:"amount" json:"amount,omitempty" query:"amount"`
-	Status      *int32    `thrift:"status,5,optional" form:"status" json:"status,omitempty" query:"status"`
-	Seq         *int32    `thrift:"seq,6,optional" form:"seq" json:"seq,omitempty" query:"seq"`
-	CreateTime  *int64    `thrift:"create_time,7,optional" form:"create_time" json:"create_time,omitempty" query:"create_time"`
-	NextAmount  *int32    `thrift:"next_amount,8,optional" form:"next_amount" json:"next_amount,omitempty" query:"next_amount"`
-	QaItems     []*QAItem `thrift:"qa_items,9,optional" form:"qa_items" json:"qa_items,omitempty" query:"qa_items"`
-	JumpURL     *string   `thrift:"jump_url,50,optional" form:"jump_url" json:"jump_url,omitempty" query:"jump_url"`
-	BaseResp    *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+	OrderID      *string   `thrift:"order_id,1,optional" form:"order_id" json:"order_id,omitempty" query:"order_id"`
+	UserID       *string   `thrift:"user_id,2,optional" form:"user_id" json:"user_id,omitempty" query:"user_id"`
+	ProductName  *string   `thrift:"product_name,3,optional" form:"product_name" json:"product_name,omitempty" query:"product_name"`
+	Amount       *int32    `thrift:"amount,4,optional" form:"amount" json:"amount,omitempty" query:"amount"`
+	Status       *int32    `thrift:"status,5,optional" form:"status" json:"status,omitempty" query:"status"`
+	Seq          *int32    `thrift:"seq,6,optional" form:"seq" json:"seq,omitempty" query:"seq"`
+	CreateTime   *int64    `thrift:"create_time,7,optional" form:"create_time" json:"create_time,omitempty" query:"create_time"`
+	NextAmount   *int32    `thrift:"next_amount,8,optional" form:"next_amount" json:"next_amount,omitempty" query:"next_amount"`
+	QaItems      []*QAItem `thrift:"qa_items,9,optional" form:"qa_items" json:"qa_items,omitempty" query:"qa_items"`
+	ProfessorURL *string   `thrift:"professor_url,50,optional" form:"professor_url" json:"professor_url,omitempty" query:"professor_url"`
+	BaseResp     *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
 }
 
 func NewGetOrderInfoResp() *GetOrderInfoResp {
@@ -1388,13 +1402,13 @@ func (p *GetOrderInfoResp) GetQaItems() (v []*QAItem) {
 	return p.QaItems
 }
 
-var GetOrderInfoResp_JumpURL_DEFAULT string
+var GetOrderInfoResp_ProfessorURL_DEFAULT string
 
-func (p *GetOrderInfoResp) GetJumpURL() (v string) {
-	if !p.IsSetJumpURL() {
-		return GetOrderInfoResp_JumpURL_DEFAULT
+func (p *GetOrderInfoResp) GetProfessorURL() (v string) {
+	if !p.IsSetProfessorURL() {
+		return GetOrderInfoResp_ProfessorURL_DEFAULT
 	}
-	return *p.JumpURL
+	return *p.ProfessorURL
 }
 
 var GetOrderInfoResp_BaseResp_DEFAULT *BaseResp
@@ -1442,8 +1456,8 @@ func (p *GetOrderInfoResp) IsSetQaItems() bool {
 	return p.QaItems != nil
 }
 
-func (p *GetOrderInfoResp) IsSetJumpURL() bool {
-	return p.JumpURL != nil
+func (p *GetOrderInfoResp) IsSetProfessorURL() bool {
+	return p.ProfessorURL != nil
 }
 
 func (p *GetOrderInfoResp) IsSetBaseResp() bool {

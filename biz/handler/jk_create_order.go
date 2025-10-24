@@ -78,6 +78,7 @@ func (h *JkCreateOrderHandler) Handle(ctx context.Context) (*ddbaby.JkCreateOrde
 	}
 	h.resp.PayURL = util.Ptr(h5Url + "&redirect_url=" + url.QueryEscape(fmt.Sprintf("http://ddbaby.site/qa-form/dist/index.html#/pages/pay/index?order_id=%v", orderID)))
 	h.resp.OrderID = util.Ptr(orderID)
+	h.resp.ProfessorURL = util.Ptr("https://work.weixin.qq.com/ca/cawcde1469cf4f6a58")
 	return h.resp, nil
 }
 
