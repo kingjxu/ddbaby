@@ -1308,7 +1308,7 @@ type GetOrderInfoResp struct {
 	Status       *int32    `thrift:"status,5,optional" form:"status" json:"status,omitempty" query:"status"`
 	Seq          *int32    `thrift:"seq,6,optional" form:"seq" json:"seq,omitempty" query:"seq"`
 	CreateTime   *int64    `thrift:"create_time,7,optional" form:"create_time" json:"create_time,omitempty" query:"create_time"`
-	NextAmount   *int32    `thrift:"next_amount,8,optional" form:"next_amount" json:"next_amount,omitempty" query:"next_amount"`
+	PriceOff     *int32    `thrift:"price_off,8,optional" form:"price_off" json:"price_off,omitempty" query:"price_off"`
 	QaItems      []*QAItem `thrift:"qa_items,9,optional" form:"qa_items" json:"qa_items,omitempty" query:"qa_items"`
 	ProfessorURL *string   `thrift:"professor_url,50,optional" form:"professor_url" json:"professor_url,omitempty" query:"professor_url"`
 	BaseResp     *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
@@ -1384,13 +1384,13 @@ func (p *GetOrderInfoResp) GetCreateTime() (v int64) {
 	return *p.CreateTime
 }
 
-var GetOrderInfoResp_NextAmount_DEFAULT int32
+var GetOrderInfoResp_PriceOff_DEFAULT int32
 
-func (p *GetOrderInfoResp) GetNextAmount() (v int32) {
-	if !p.IsSetNextAmount() {
-		return GetOrderInfoResp_NextAmount_DEFAULT
+func (p *GetOrderInfoResp) GetPriceOff() (v int32) {
+	if !p.IsSetPriceOff() {
+		return GetOrderInfoResp_PriceOff_DEFAULT
 	}
-	return *p.NextAmount
+	return *p.PriceOff
 }
 
 var GetOrderInfoResp_QaItems_DEFAULT []*QAItem
@@ -1448,8 +1448,8 @@ func (p *GetOrderInfoResp) IsSetCreateTime() bool {
 	return p.CreateTime != nil
 }
 
-func (p *GetOrderInfoResp) IsSetNextAmount() bool {
-	return p.NextAmount != nil
+func (p *GetOrderInfoResp) IsSetPriceOff() bool {
+	return p.PriceOff != nil
 }
 
 func (p *GetOrderInfoResp) IsSetQaItems() bool {
