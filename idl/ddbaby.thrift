@@ -186,6 +186,7 @@ service DDBabyService {
 
 
     WechatAddCustomCallbackResp WechatAddCustomCallback(1:WechatAddCustomCallbackReq req) (api.post="/wechat/add_custom")
+    WechatAddCustomCallbackResp WechatAddCustomCallback(1:WechatAddCustomCallbackReq req) (api.get="/wechat/add_custom")
 
 
 
