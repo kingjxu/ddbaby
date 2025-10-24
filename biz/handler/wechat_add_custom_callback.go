@@ -24,6 +24,7 @@ func WechatAddCustomCallback(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(ddbaby.WechatAddCustomCallbackResp)
+	resp.Message = util.Ptr("success")
 	logrus.WithContext(ctx).Infof("WechatAddCustomCallback resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
 }

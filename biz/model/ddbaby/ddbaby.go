@@ -1551,6 +1551,8 @@ func (p *WechatAddCustomCallbackReq) String() string {
 }
 
 type WechatAddCustomCallbackResp struct {
+	Code    *string `thrift:"code,1,optional" form:"code" json:"code,omitempty" query:"code"`
+	Message *string `thrift:"message,2,optional" form:"message" json:"message,omitempty" query:"message"`
 }
 
 func NewWechatAddCustomCallbackResp() *WechatAddCustomCallbackResp {
@@ -1558,6 +1560,32 @@ func NewWechatAddCustomCallbackResp() *WechatAddCustomCallbackResp {
 }
 
 func (p *WechatAddCustomCallbackResp) InitDefault() {
+}
+
+var WechatAddCustomCallbackResp_Code_DEFAULT string
+
+func (p *WechatAddCustomCallbackResp) GetCode() (v string) {
+	if !p.IsSetCode() {
+		return WechatAddCustomCallbackResp_Code_DEFAULT
+	}
+	return *p.Code
+}
+
+var WechatAddCustomCallbackResp_Message_DEFAULT string
+
+func (p *WechatAddCustomCallbackResp) GetMessage() (v string) {
+	if !p.IsSetMessage() {
+		return WechatAddCustomCallbackResp_Message_DEFAULT
+	}
+	return *p.Message
+}
+
+func (p *WechatAddCustomCallbackResp) IsSetCode() bool {
+	return p.Code != nil
+}
+
+func (p *WechatAddCustomCallbackResp) IsSetMessage() bool {
+	return p.Message != nil
 }
 
 func (p *WechatAddCustomCallbackResp) String() string {
