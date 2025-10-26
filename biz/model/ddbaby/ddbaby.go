@@ -1115,6 +1115,7 @@ type JkCreateOrderReq struct {
 	QaItems []*QAItem `thrift:"qa_items,3,optional" json:"qa_items,omitempty" query:"qa_items"`
 	Seq     *int32    `thrift:"seq,4,optional" json:"seq,omitempty" query:"seq"`
 	OrderID *string   `thrift:"order_id,5,optional" json:"order_id,omitempty" query:"order_id"`
+	BdVid   *string   `thrift:"bd_vid,100,optional" json:"bd_vid,omitempty" query:"order_id"`
 }
 
 func NewJkCreateOrderReq() *JkCreateOrderReq {
@@ -1169,6 +1170,15 @@ func (p *JkCreateOrderReq) GetOrderID() (v string) {
 	return *p.OrderID
 }
 
+var JkCreateOrderReq_BdVid_DEFAULT string
+
+func (p *JkCreateOrderReq) GetBdVid() (v string) {
+	if !p.IsSetBdVid() {
+		return JkCreateOrderReq_BdVid_DEFAULT
+	}
+	return *p.BdVid
+}
+
 func (p *JkCreateOrderReq) IsSetUserID() bool {
 	return p.UserID != nil
 }
@@ -1187,6 +1197,10 @@ func (p *JkCreateOrderReq) IsSetSeq() bool {
 
 func (p *JkCreateOrderReq) IsSetOrderID() bool {
 	return p.OrderID != nil
+}
+
+func (p *JkCreateOrderReq) IsSetBdVid() bool {
+	return p.BdVid != nil
 }
 
 func (p *JkCreateOrderReq) String() string {
