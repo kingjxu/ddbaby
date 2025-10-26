@@ -5,6 +5,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
@@ -12,6 +13,7 @@ import (
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
+	"net/url"
 )
 
 // JkCreateOrder .
@@ -73,7 +75,7 @@ func (h *JkCreateOrderHandler) Handle(ctx context.Context) (*ddbaby.JkCreateOrde
 		logrus.WithContext(ctx).Errorf("[JkCreateOrderHandler] service.CreateOrder err:%v", err)
 		return h.newResp(ctx, -1, "wx prepay err"), nil
 	}
-	//	h.resp.PayURL = util.Ptr(h5Url + "&redirect_url=" + url.QueryEscape(fmt.Sprintf("http://ddbaby.site/qa-form/dist/index.html#/pages/pay/index?order_id=%v", orderID)))
+	h.resp.PayURL = util.Ptr(h5Url + "&redirect_url=" + url.QueryEscape(fmt.Sprintf("http://ddbaby.site/dist/#/test/checkorder?order_id=%v", orderID)))
 	h.resp.PayURL = util.Ptr(h5Url)
 	h.resp.OrderID = util.Ptr(orderID)
 	h.resp.ProfessorURL = util.Ptr("https://work.weixin.qq.com/ca/cawcde1469cf4f6a58")
