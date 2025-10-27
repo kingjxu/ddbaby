@@ -20,6 +20,7 @@ type JkOrder struct {
 	CreateTime time.Time `gorm:"column:create_time;default:CURRENT_TIMESTAMP;NOT NULL"` // 创建时间
 	UpdateTime time.Time `gorm:"column:update_time;default:CURRENT_TIMESTAMP;NOT NULL"` // 更新时间
 	QaItems    string    `gorm:"column:qa_items;NOT NULL"`                              // 用户的问答
+	BdVid      string    `gorm:"column:bd_vid;NOT NULL"`                                // 百度投放标识
 }
 
 func (m *JkOrder) TableName() string {
