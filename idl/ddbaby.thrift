@@ -162,11 +162,14 @@ struct PayCallbackResp {
 
 }
 
-struct WechatAddCustomCallbackReq {
-
+struct WechatCallbackMsgReq {
+    1: optional string  msg_signature (api.query="msg_signature");
+    2: optional string  timestamp (api.query="timestamp");
+    3: optional string  nonce (api.query="nonce");
+    4: optional string  echostr (api.query="echostr");
 }
 
-struct WechatAddCustomCallbackResp {
+struct WechatCallbackMsgResp {
      1: optional string code;
      2: optional string message;
 }
@@ -186,6 +189,6 @@ service DDBabyService {
     GetOrderInfoResp GetOrderInfo(1:GetOrderInfoReq req) (api.get="/jk/order_info")
     PayCallbackResp PayCallback(1:PayCallbackReq req) (api.post="/jk/pay_callback")
 
-    WechatAddCustomCallbackResp WechatAddCustomCallback(1:WechatAddCustomCallbackReq req) (api.get="/wechat/msg")
+    WechatCallbackMsgResp WechatCallbackMsg(1:WechatCallbackMsgReq req) (api.get="/wechat/callback_msg")
 
 }

@@ -90,3 +90,8 @@ func _wechataddcustomcallbackMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _wechatcallbackmsgMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

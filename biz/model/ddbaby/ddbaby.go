@@ -1561,66 +1561,122 @@ func (p *PayCallbackResp) String() string {
 	return fmt.Sprintf("PayCallbackResp(%+v)", *p)
 }
 
-type WechatAddCustomCallbackReq struct {
+type WechatCallbackMsgReq struct {
+	MsgSignature *string `thrift:"msg_signature,1,optional" json:"msg_signature,omitempty" query:"msg_signature"`
+	Timestamp    *string `thrift:"timestamp,2,optional" json:"timestamp,omitempty" query:"timestamp"`
+	Nonce        *string `thrift:"nonce,3,optional" json:"nonce,omitempty" query:"nonce"`
+	Echostr      *string `thrift:"echostr,4,optional" json:"echostr,omitempty" query:"echostr"`
 }
 
-func NewWechatAddCustomCallbackReq() *WechatAddCustomCallbackReq {
-	return &WechatAddCustomCallbackReq{}
+func NewWechatCallbackMsgReq() *WechatCallbackMsgReq {
+	return &WechatCallbackMsgReq{}
 }
 
-func (p *WechatAddCustomCallbackReq) InitDefault() {
+func (p *WechatCallbackMsgReq) InitDefault() {
 }
 
-func (p *WechatAddCustomCallbackReq) String() string {
+var WechatCallbackMsgReq_MsgSignature_DEFAULT string
+
+func (p *WechatCallbackMsgReq) GetMsgSignature() (v string) {
+	if !p.IsSetMsgSignature() {
+		return WechatCallbackMsgReq_MsgSignature_DEFAULT
+	}
+	return *p.MsgSignature
+}
+
+var WechatCallbackMsgReq_Timestamp_DEFAULT string
+
+func (p *WechatCallbackMsgReq) GetTimestamp() (v string) {
+	if !p.IsSetTimestamp() {
+		return WechatCallbackMsgReq_Timestamp_DEFAULT
+	}
+	return *p.Timestamp
+}
+
+var WechatCallbackMsgReq_Nonce_DEFAULT string
+
+func (p *WechatCallbackMsgReq) GetNonce() (v string) {
+	if !p.IsSetNonce() {
+		return WechatCallbackMsgReq_Nonce_DEFAULT
+	}
+	return *p.Nonce
+}
+
+var WechatCallbackMsgReq_Echostr_DEFAULT string
+
+func (p *WechatCallbackMsgReq) GetEchostr() (v string) {
+	if !p.IsSetEchostr() {
+		return WechatCallbackMsgReq_Echostr_DEFAULT
+	}
+	return *p.Echostr
+}
+
+func (p *WechatCallbackMsgReq) IsSetMsgSignature() bool {
+	return p.MsgSignature != nil
+}
+
+func (p *WechatCallbackMsgReq) IsSetTimestamp() bool {
+	return p.Timestamp != nil
+}
+
+func (p *WechatCallbackMsgReq) IsSetNonce() bool {
+	return p.Nonce != nil
+}
+
+func (p *WechatCallbackMsgReq) IsSetEchostr() bool {
+	return p.Echostr != nil
+}
+
+func (p *WechatCallbackMsgReq) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("WechatAddCustomCallbackReq(%+v)", *p)
+	return fmt.Sprintf("WechatCallbackMsgReq(%+v)", *p)
 }
 
-type WechatAddCustomCallbackResp struct {
+type WechatCallbackMsgResp struct {
 	Code    *string `thrift:"code,1,optional" form:"code" json:"code,omitempty" query:"code"`
 	Message *string `thrift:"message,2,optional" form:"message" json:"message,omitempty" query:"message"`
 }
 
-func NewWechatAddCustomCallbackResp() *WechatAddCustomCallbackResp {
-	return &WechatAddCustomCallbackResp{}
+func NewWechatCallbackMsgResp() *WechatCallbackMsgResp {
+	return &WechatCallbackMsgResp{}
 }
 
-func (p *WechatAddCustomCallbackResp) InitDefault() {
+func (p *WechatCallbackMsgResp) InitDefault() {
 }
 
-var WechatAddCustomCallbackResp_Code_DEFAULT string
+var WechatCallbackMsgResp_Code_DEFAULT string
 
-func (p *WechatAddCustomCallbackResp) GetCode() (v string) {
+func (p *WechatCallbackMsgResp) GetCode() (v string) {
 	if !p.IsSetCode() {
-		return WechatAddCustomCallbackResp_Code_DEFAULT
+		return WechatCallbackMsgResp_Code_DEFAULT
 	}
 	return *p.Code
 }
 
-var WechatAddCustomCallbackResp_Message_DEFAULT string
+var WechatCallbackMsgResp_Message_DEFAULT string
 
-func (p *WechatAddCustomCallbackResp) GetMessage() (v string) {
+func (p *WechatCallbackMsgResp) GetMessage() (v string) {
 	if !p.IsSetMessage() {
-		return WechatAddCustomCallbackResp_Message_DEFAULT
+		return WechatCallbackMsgResp_Message_DEFAULT
 	}
 	return *p.Message
 }
 
-func (p *WechatAddCustomCallbackResp) IsSetCode() bool {
+func (p *WechatCallbackMsgResp) IsSetCode() bool {
 	return p.Code != nil
 }
 
-func (p *WechatAddCustomCallbackResp) IsSetMessage() bool {
+func (p *WechatCallbackMsgResp) IsSetMessage() bool {
 	return p.Message != nil
 }
 
-func (p *WechatAddCustomCallbackResp) String() string {
+func (p *WechatCallbackMsgResp) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("WechatAddCustomCallbackResp(%+v)", *p)
+	return fmt.Sprintf("WechatCallbackMsgResp(%+v)", *p)
 }
 
 type DDBabyService interface {
@@ -1646,5 +1702,5 @@ type DDBabyService interface {
 
 	PayCallback(ctx context.Context, req *PayCallbackReq) (r *PayCallbackResp, err error)
 
-	WechatAddCustomCallback(ctx context.Context, req *WechatAddCustomCallbackReq) (r *WechatAddCustomCallbackResp, err error)
+	WechatCallbackMsg(ctx context.Context, req *WechatCallbackMsgReq) (r *WechatCallbackMsgResp, err error)
 }
