@@ -123,7 +123,7 @@ struct JkCreateOrderReq {
     4: optional i32 seq (api.query="seq");
     5: optional string order_id  (api.query="order_id");
 
-    100: optional string bd_vid (api.query="order_id");
+    100: optional string bd_vid (api.query="bd_vid");
 }
 
 struct JkCreateOrderResp {
