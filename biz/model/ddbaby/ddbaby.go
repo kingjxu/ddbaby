@@ -1115,7 +1115,7 @@ type JkCreateOrderReq struct {
 	QaItems []*QAItem `thrift:"qa_items,3,optional" json:"qa_items,omitempty" query:"qa_items"`
 	Seq     *int32    `thrift:"seq,4,optional" json:"seq,omitempty" query:"seq"`
 	OrderID *string   `thrift:"order_id,5,optional" json:"order_id,omitempty" query:"order_id"`
-	BdVid   *string   `thrift:"bd_vid,100,optional" json:"bd_vid,omitempty" query:"order_id"`
+	BdVid   *string   `thrift:"bd_vid,100,optional" json:"bd_vid,omitempty" query:"bd_vid"`
 }
 
 func NewJkCreateOrderReq() *JkCreateOrderReq {
