@@ -186,6 +186,6 @@ service DDBabyService {
     GetOrderInfoResp GetOrderInfo(1:GetOrderInfoReq req) (api.get="/jk/order_info")
     PayCallbackResp PayCallback(1:PayCallbackReq req) (api.post="/jk/pay_callback")
 
-    WechatAddCustomCallbackResp WechatAddCustomCallback(1:WechatAddCustomCallbackReq req) (api.get="/wechat/add_custom")
+    WechatAddCustomCallbackResp WechatAddCustomCallback(1:WechatAddCustomCallbackReq req) (api.get="/wechat/msg")
 
 }
