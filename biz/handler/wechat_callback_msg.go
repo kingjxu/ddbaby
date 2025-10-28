@@ -67,6 +67,7 @@ func (h *WechatCallbackMsgHandler) Handle(ctx context.Context) {
 		logrus.WithContext(ctx).Errorf("ReadAll err:%v", err)
 		return
 	}
+	logrus.WithContext(ctx).Infof("WechatCallbackMsgHandler body:%v", string(body))
 	wxcpt := wxbizjsonmsgcrypt.NewWXBizMsgCrypt(token, encodingAeskey, receiverId, wxbizjsonmsgcrypt.JsonType)
 	msg, cryptErr := wxcpt.DecryptMsg(req.GetMsgSignature(), req.GetTimestamp(), req.GetNonce(), body)
 	if cryptErr != nil {
