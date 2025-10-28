@@ -4,10 +4,13 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
 	"github.com/kingjxu/ddbaby/json_callback/wxbizjsonmsgcrypt"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
+	"io"
+	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -30,23 +33,46 @@ func WechatCallbackMsg(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-	logrus.WithContext(ctx).Infof("WechatCallbackMsg req:%v", util.ToJSON(req))
-	wxcpt := wxbizjsonmsgcrypt.NewWXBizMsgCrypt(token, encodingAeskey, receiverId, wxbizjsonmsgcrypt.JsonType)
-	data, cryptErr := wxcpt.VerifyURL(req.GetMsgSignature(), req.GetTimestamp(), req.GetNonce(), req.GetEchostr())
-	if cryptErr != nil {
-		logrus.WithContext(ctx).Errorf("VerifyURL errCode:%v,errMsg:%v", cryptErr.ErrCode, cryptErr.ErrMsg)
-		c.String(consts.StatusBadRequest, cryptErr.ErrMsg)
-		return
-	}
-	logrus.WithContext(ctx).Infof("VerifyURL data:%v", string(data))
-	//resp := new(ddbaby.WechatCallbackMsgResp)
-	httpWrite := adaptor.GetCompatResponseWriter(&c.Response)
-	count, err := httpWrite.Write(data)
+	httpReq, err := adaptor.GetCompatRequest(&c.Request)
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("http write err:%v", err)
+		logrus.WithContext(ctx).Errorf("GetCompatRequest err:%v", err)
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-	logrus.WithContext(ctx).Infof("http write count:%d", count)
-	//	c.JSON(consts.StatusOK, data)
+	NewWechatCallbackMsgHandler(httpReq, &req).Handle(ctx)
+	c.JSON(consts.StatusOK, "")
+}
+
+type WechatCallbackMsgHandler struct {
+	httpReq *http.Request
+	req     *ddbaby.WechatCallbackMsgReq
+	resp    *http.Response
+}
+
+func NewWechatCallbackMsgHandler(httpReq *http.Request, req *ddbaby.WechatCallbackMsgReq) *WechatCallbackMsgHandler {
+	return &WechatCallbackMsgHandler{
+		req:     req,
+		httpReq: httpReq,
+	}
+}
+
+func (h *WechatCallbackMsgHandler) check() error {
+	return nil
+}
+func (h *WechatCallbackMsgHandler) Handle(ctx context.Context) {
+	req := h.req
+	logrus.WithContext(ctx).Infof("WechatCallbackMsgHandler req:%v", util.ToJSON(req))
+	body, err := io.ReadAll(h.httpReq.Body)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("ReadAll err:%v", err)
+		return
+	}
+	wxcpt := wxbizjsonmsgcrypt.NewWXBizMsgCrypt(token, encodingAeskey, receiverId, wxbizjsonmsgcrypt.JsonType)
+	msg, cryptErr := wxcpt.DecryptMsg(req.GetMsgSignature(), req.GetTimestamp(), req.GetNonce(), body)
+	if cryptErr != nil {
+		logrus.WithContext(ctx).Errorf("DecryptMsg code:%v,msg:%v", cryptErr.ErrCode, cryptErr.ErrMsg)
+		return
+	}
+
+	logrus.WithContext(ctx).Infof("WechatCallbackMsgHandler msg:%v", util.ToJSON(msg))
 }
