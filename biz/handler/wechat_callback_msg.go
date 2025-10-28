@@ -4,6 +4,7 @@ package handler
 
 import (
 	"context"
+	"github.com/cloudwego/hertz/pkg/common/adaptor"
 	"github.com/kingjxu/ddbaby/json_callback/wxbizjsonmsgcrypt"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
@@ -39,5 +40,13 @@ func WechatCallbackMsg(ctx context.Context, c *app.RequestContext) {
 	}
 	logrus.WithContext(ctx).Infof("VerifyURL data:%v", string(data))
 	//resp := new(ddbaby.WechatCallbackMsgResp)
-	c.JSON(consts.StatusOK, data)
+	httpWrite := adaptor.GetCompatResponseWriter(&c.Response)
+	count, err := httpWrite.Write(data)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("http write err:%v", err)
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+	logrus.WithContext(ctx).Infof("http write count:%d", count)
+	//	c.JSON(consts.StatusOK, data)
 }
