@@ -147,6 +147,8 @@ struct GetOrderInfoResp {
     7: optional i64 create_time;
     8: optional i32 price_off;
     9: optional list<QAItem> qa_items;
+    10: optional string risk_level;
+
     50: optional string professor_url;
     255: BaseResp BaseResp;
 }

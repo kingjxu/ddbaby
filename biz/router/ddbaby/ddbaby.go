@@ -40,6 +40,5 @@ func Register(r *server.Hertz) {
 	{
 		_wechat := root.Group("/wechat", _wechatMw()...)
 		_wechat.GET("/callback_msg", append(_wechatcallbackmsgMw(), handler.WechatCallbackMsg)...)
-		_wechat.POST("/callback_msg", append(_wechatcallbackmsgMw(), handler.WechatCallbackMsg)...)
 	}
 }

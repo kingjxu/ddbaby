@@ -1324,6 +1324,7 @@ type GetOrderInfoResp struct {
 	CreateTime   *int64    `thrift:"create_time,7,optional" form:"create_time" json:"create_time,omitempty" query:"create_time"`
 	PriceOff     *int32    `thrift:"price_off,8,optional" form:"price_off" json:"price_off,omitempty" query:"price_off"`
 	QaItems      []*QAItem `thrift:"qa_items,9,optional" form:"qa_items" json:"qa_items,omitempty" query:"qa_items"`
+	RiskLevel    *string   `thrift:"risk_level,10,optional" form:"risk_level" json:"risk_level,omitempty" query:"risk_level"`
 	ProfessorURL *string   `thrift:"professor_url,50,optional" form:"professor_url" json:"professor_url,omitempty" query:"professor_url"`
 	BaseResp     *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
 }
@@ -1416,6 +1417,15 @@ func (p *GetOrderInfoResp) GetQaItems() (v []*QAItem) {
 	return p.QaItems
 }
 
+var GetOrderInfoResp_RiskLevel_DEFAULT string
+
+func (p *GetOrderInfoResp) GetRiskLevel() (v string) {
+	if !p.IsSetRiskLevel() {
+		return GetOrderInfoResp_RiskLevel_DEFAULT
+	}
+	return *p.RiskLevel
+}
+
 var GetOrderInfoResp_ProfessorURL_DEFAULT string
 
 func (p *GetOrderInfoResp) GetProfessorURL() (v string) {
@@ -1468,6 +1478,10 @@ func (p *GetOrderInfoResp) IsSetPriceOff() bool {
 
 func (p *GetOrderInfoResp) IsSetQaItems() bool {
 	return p.QaItems != nil
+}
+
+func (p *GetOrderInfoResp) IsSetRiskLevel() bool {
+	return p.RiskLevel != nil
 }
 
 func (p *GetOrderInfoResp) IsSetProfessorURL() bool {
