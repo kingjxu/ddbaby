@@ -4,7 +4,6 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
 	"github.com/kingjxu/ddbaby/json_callback/wxbizjsonmsgcrypt"
 	"github.com/kingjxu/ddbaby/util"
