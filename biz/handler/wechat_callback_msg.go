@@ -5,6 +5,7 @@ package handler
 import (
 	"context"
 	"github.com/kingjxu/ddbaby/json_callback/wxbizjsonmsgcrypt"
+	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -28,6 +29,7 @@ func WechatCallbackMsg(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	logrus.WithContext(ctx).Infof("WechatCallbackMsg req:%v", util.ToJSON(req))
 	wxcpt := wxbizjsonmsgcrypt.NewWXBizMsgCrypt(token, encodingAeskey, receiverId, wxbizjsonmsgcrypt.JsonType)
 	data, cryptErr := wxcpt.VerifyURL(req.GetMsgSignature(), req.GetTimestamp(), req.GetNonce(), req.GetEchostr())
 	if cryptErr != nil {
