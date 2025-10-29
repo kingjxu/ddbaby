@@ -5,7 +5,7 @@ package handler
 import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
-	"github.com/kingjxu/ddbaby/json_callback/wxbizjsonmsgcrypt"
+	"github.com/kingjxu/ddbaby/json_callback/wxbizmsgcrypt"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 	"io"
@@ -67,7 +67,7 @@ func (h *WechatCallbackMsgHandler) Handle(ctx context.Context) {
 		return
 	}
 	logrus.WithContext(ctx).Infof("WechatCallbackMsgHandler body:%v", string(body))
-	wxcpt := wxbizjsonmsgcrypt.NewWXBizMsgCrypt(token, encodingAeskey, receiverId, wxbizjsonmsgcrypt.JsonType)
+	wxcpt := wxbizmsgcrypt.NewWXBizMsgCrypt(token, encodingAeskey, receiverId, wxbizmsgcrypt.XmlType)
 	msg, cryptErr := wxcpt.DecryptMsg(req.GetMsgSignature(), req.GetTimestamp(), req.GetNonce(), body)
 	if cryptErr != nil {
 		logrus.WithContext(ctx).Errorf("DecryptMsg code:%v,msg:%v", cryptErr.ErrCode, cryptErr.ErrMsg)

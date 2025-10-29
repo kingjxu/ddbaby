@@ -1,12 +1,36 @@
-# weworkapi_cplusplus
-official lib of wework api https://work.weixin.qq.com/api/doc
+## weworkapi_golang
 
-# 注意事项
+weworkapi_golang 是为了简化开发者对企业微信API接口的使用而设计的，API调用加解密库之golang版本 
 
-* 1.回调sdk json版本
+## Usage
 
-* 2.wxbizjsonmsgcrypt.go文件中声明并实现了WXBizJsonMsgCrypt类，提供用户接入企业微信的三个接口。sample.go文件提供了如何使用这三个接口的示例。
+将本项目下载到你的目录，既可直接引用相关文件  
+详细使用方法参考[sample.go](https://github.com/sbzhu/weworkapi_golang/blob/master/sample.go)代码
 
-* 3.WXBizJsonMsgCrypt类封装了VerifyURL, DecryptMsg, EncryptMsg三个接口，分别用于开发者验证回调url，收到用户回复消息的解密以及开发者回复消息的加密过程。使用方法可以参考sample.go文件。
+## About
 
-* 4.加解密协议请参考企业微信官方文档。
+**本库仅做示范用，并不保证完全无bug**
+
+作者会不定期更新本库，但不保证与官方API接口文档同步，因此一切以[官方文档](https://work.weixin.qq.com/api/doc)为准。
+
+更多来自个人开发者的其它语言的库推荐：
+
+python:
+
+* https://github.com/sbzhu/weworkapi_python  abelzhu@tencent.com(企业微信团队)
+
+ruby:
+
+* https://github.com/mycolorway/wework  MyColorway(个人开发者)
+
+php:
+
+* https://github.com/sbzhu/weworkapi_php  abelzhu@tencent.com; xiqunpan@tencent.com(企业微信团队)
+
+golang: 
+
+* https://github.com/sbzhu/weworkapi_golang  ryanjelin@tencent.com(企业微信团队)
+* https://github.com/doubliekill/EnterpriseWechatSDK  1006401052yh@gmail.com(个人开发者)
+
+## Contact us
+ryanjelin@tencent.com  
