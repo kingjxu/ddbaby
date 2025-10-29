@@ -4,6 +4,7 @@ package handler
 
 import (
 	"context"
+	"encoding/xml"
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/kingjxu/ddbaby/wework_callback/wxbizmsgcrypt"
@@ -48,6 +49,19 @@ type WechatCallbackMsgHandler struct {
 	resp    *http.Response
 }
 
+type MsgContent struct {
+	ToUserName   string `xml:"ToUserName"`
+	FromUserName string `xml:"FromUserName"`
+	CreateTime   string `xml:"CreateTime"`
+	MsgType      string `xml:"MsgType"`
+	Event        string `xml:"Event"`
+	ChangeType   string `xml:"ChangeType"`
+	UserID       string `xml:"UserID"`
+	ExternalUser string `xml:"ExternalUserID"`
+	State        string `xml:"State"`
+	WelcomeCode  string `xml:"WelcomeCode"`
+}
+
 func NewWechatCallbackMsgHandler(httpReq *http.Request, req *ddbaby.WechatCallbackMsgReq) *WechatCallbackMsgHandler {
 	return &WechatCallbackMsgHandler{
 		req:     req,
@@ -74,5 +88,11 @@ func (h *WechatCallbackMsgHandler) Handle(ctx context.Context) {
 		return
 	}
 
-	logrus.WithContext(ctx).Infof("WechatCallbackMsgHandler msg:%v", string(msg))
+	msgContent := MsgContent{}
+	err = xml.Unmarshal(msg, &msgContent)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("Unmarshal msg err:%v", err)
+		return
+	}
+	logrus.WithContext(ctx).Infof("WechatCallbackMsgHandler msgContent:%v", msgContent)
 }
