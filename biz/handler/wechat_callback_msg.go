@@ -5,8 +5,8 @@ package handler
 import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
-	"github.com/kingjxu/ddbaby/json_callback/wxbizmsgcrypt"
 	"github.com/kingjxu/ddbaby/util"
+	"github.com/kingjxu/ddbaby/wework_callback/wxbizmsgcrypt"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
