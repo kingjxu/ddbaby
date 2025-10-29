@@ -74,5 +74,5 @@ func (h *WechatCallbackMsgHandler) Handle(ctx context.Context) {
 		return
 	}
 
-	logrus.WithContext(ctx).Infof("WechatCallbackMsgHandler msg:%v", util.ToJSON(msg))
+	logrus.WithContext(ctx).Infof("WechatCallbackMsgHandler msg:%v", string(msg))
 }
