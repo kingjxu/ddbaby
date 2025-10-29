@@ -3,8 +3,10 @@
 package handler
 
 import (
+	"bytes"
 	"context"
 	"encoding/xml"
+	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/kingjxu/ddbaby/wework_callback/wxbizmsgcrypt"
@@ -57,7 +59,7 @@ type MsgContent struct {
 	Event        string `xml:"Event" json:"Event"`
 	ChangeType   string `xml:"ChangeType" json:"ChangeType"`
 	UserID       string `xml:"UserID" json:"UserID"`
-	ExternalUser string `xml:"ExternalUserID" json:"ExternalUserID"` // 注意原字段名与 XML 标签一致，JSON 标签保持对应
+	ExternalUser string `xml:"ExternalUserID" json:"ExternalUserID"`
 	State        string `xml:"State" json:"State"`
 	WelcomeCode  string `xml:"WelcomeCode" json:"WelcomeCode"`
 }
@@ -95,4 +97,37 @@ func (h *WechatCallbackMsgHandler) Handle(ctx context.Context) {
 		return
 	}
 	logrus.WithContext(ctx).Infof("WechatCallbackMsgHandler msgContent:%v", util.ToJSON(msgContent))
+	if msgContent.ChangeType != "add_external_contact" { // 添加外部联系人
+		return
+	}
+	h.sendWxMsg(ctx, fmt.Sprintf("客户进线啦,用户微信ID %v", msgContent.ExternalUser))
+}
+
+type WeWorkMsgText struct {
+	Content       string   `json:"content"`
+	MentionedList []string `json:"mentioned_list"`
+}
+type WeWorkMsg struct {
+	MsgType string        `json:"msgtype"`
+	Text    WeWorkMsgText `json:"text"`
+}
+
+const (
+	robotUrl    = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=c8bb229b-5ecc-49e4-8ea0-5c7896226c11"
+	contentType = "application/json"
+)
+
+func (h *WechatCallbackMsgHandler) sendWxMsg(ctx context.Context, content string) {
+	weWorkMsg := WeWorkMsg{
+		MsgType: "text",
+		Text: WeWorkMsgText{
+			Content:       content,
+			MentionedList: []string{"@all"},
+		},
+	}
+	_, err := http.Post(robotUrl, contentType, bytes.NewBuffer([]byte(util.ToJSON(weWorkMsg))))
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("SendWxMsg err:%v", err)
+	}
+	return
 }
