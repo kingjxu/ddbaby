@@ -100,7 +100,7 @@ func (h *WechatCallbackMsgHandler) Handle(ctx context.Context) {
 	if msgContent.ChangeType != "add_external_contact" { // 添加外部联系人
 		return
 	}
-	h.sendWxMsg(ctx, fmt.Sprintf("客户进线啦,用户微信ID %v", msgContent.ExternalUser))
+	h.sendWxMsg(ctx, fmt.Sprintf("客户进线啦，用户微信ID %v", msgContent.ExternalUser))
 }
 
 type WeWorkMsgText struct {
