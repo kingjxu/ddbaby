@@ -50,16 +50,16 @@ type WechatCallbackMsgHandler struct {
 }
 
 type MsgContent struct {
-	ToUserName   string `xml:"ToUserName"`
-	FromUserName string `xml:"FromUserName"`
-	CreateTime   string `xml:"CreateTime"`
-	MsgType      string `xml:"MsgType"`
-	Event        string `xml:"Event"`
-	ChangeType   string `xml:"ChangeType"`
-	UserID       string `xml:"UserID"`
-	ExternalUser string `xml:"ExternalUserID"`
-	State        string `xml:"State"`
-	WelcomeCode  string `xml:"WelcomeCode"`
+	ToUserName   string `xml:"ToUserName" json:"ToUserName"`
+	FromUserName string `xml:"FromUserName" json:"FromUserName"`
+	CreateTime   string `xml:"CreateTime" json:"CreateTime"`
+	MsgType      string `xml:"MsgType" json:"MsgType"`
+	Event        string `xml:"Event" json:"Event"`
+	ChangeType   string `xml:"ChangeType" json:"ChangeType"`
+	UserID       string `xml:"UserID" json:"UserID"`
+	ExternalUser string `xml:"ExternalUserID" json:"ExternalUserID"` // 注意原字段名与 XML 标签一致，JSON 标签保持对应
+	State        string `xml:"State" json:"State"`
+	WelcomeCode  string `xml:"WelcomeCode" json:"WelcomeCode"`
 }
 
 func NewWechatCallbackMsgHandler(httpReq *http.Request, req *ddbaby.WechatCallbackMsgReq) *WechatCallbackMsgHandler {
@@ -94,5 +94,5 @@ func (h *WechatCallbackMsgHandler) Handle(ctx context.Context) {
 		logrus.WithContext(ctx).Errorf("Unmarshal msg err:%v", err)
 		return
 	}
-	logrus.WithContext(ctx).Infof("WechatCallbackMsgHandler msgContent:%v", msgContent)
+	logrus.WithContext(ctx).Infof("WechatCallbackMsgHandler msgContent:%v", util.ToJSON(msgContent))
 }
