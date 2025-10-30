@@ -21,6 +21,7 @@ type JkOrder struct {
 	UpdateTime time.Time `gorm:"column:update_time;default:CURRENT_TIMESTAMP;NOT NULL"` // 更新时间
 	QaItems    string    `gorm:"column:qa_items;NOT NULL"`                              // 用户的问答
 	BdVid      string    `gorm:"column:bd_vid;NOT NULL"`                                // 百度投放标识
+	RiskLevel  string    `gorm:"column:risk_level;"`                                    // 风险等级
 }
 
 func (m *JkOrder) TableName() string {

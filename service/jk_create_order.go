@@ -26,18 +26,20 @@ func CreateOrder(ctx context.Context, param *ddbaby.JkCreateOrderReq, commonPara
 			param.Seq = util.Ptr(int32(order.Seq) + 1)
 		}
 	}
+
 	orderID := fmt.Sprintf("E%v", time.Now().UnixMicro())
 	amount := _const.Seq2Amount[param.GetSeq()]
 	// 微信下单
 	err := jk.CreateOrder(ctx, &jk.JkOrder{
-		JkType:  param.GetQoType(),
-		UserID:  param.GetUserID(),
-		OrderID: orderID,
-		Amount:  int(amount),
-		Status:  10,
-		Seq:     int(param.GetSeq()),
-		QaItems: util.ToJSON(param.GetQaItems()),
-		BdVid:   util.ToJSON(param.GetBdVid()),
+		JkType:    param.GetQoType(),
+		UserID:    param.GetUserID(),
+		OrderID:   orderID,
+		Amount:    int(amount),
+		Status:    10,
+		Seq:       int(param.GetSeq()),
+		QaItems:   util.ToJSON(param.GetQaItems()),
+		BdVid:     util.ToJSON(param.GetBdVid()),
+		RiskLevel: getRiskLevel(ctx, param.GetQaItems()),
 	})
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[CreateOrder] jk.CreateOrder err:%v", err)
@@ -59,4 +61,24 @@ func CreateOrder(ctx context.Context, param *ddbaby.JkCreateOrderReq, commonPara
 		return "", "", err
 	}
 	return h5Url, orderID, nil
+}
+
+func getRiskLevel(ctx context.Context, items []*ddbaby.QAItem) string {
+	score := 0
+	for _, item := range items {
+		if item.GetAnswer() == "有时" {
+			score += 5
+		} else if item.GetAnswer() == "经常" {
+			score += 10
+		}
+	}
+	riskLevel := "低风险"
+	if score > 10 && score <= 50 {
+		riskLevel = "中风险"
+	} else if score > 50 {
+		riskLevel = "高风险"
+	}
+
+	logrus.WithContext(ctx).Infof("[getRiskLevel] score:%v,riskLevel:%v", score, riskLevel)
+	return riskLevel
 }
