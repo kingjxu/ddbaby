@@ -56,7 +56,7 @@ func (h *JkQoListHandler) Handle(ctx context.Context) (*ddbaby.GetJkQoListResp, 
 	}
 	h.resp.Qo = constdef.Question2Options[h.req.GetQoType()]
 	h.resp.QoCnt = util.Ptr(int32(len(h.resp.Qo)))
-	h.resp.ExpectCompleteTime = util.Ptr(int32(1))
+	h.resp.ExpectCompleteTime = util.Ptr(int32(len(h.resp.Qo)/20) + 1)
 	h.resp.Title = util.Ptr(constdef.JkType2Title[h.req.GetQoType()])
 	h.resp.Tips = util.Ptr("你的评测已完成，支付完成后查看评测结果。")
 	h.resp.ParticipantCount = util.Ptr(int32(11382))
