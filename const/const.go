@@ -13,6 +13,8 @@ const (
 	TaLuoPredictBotID = "7401724843219419187"
 
 	BaiduUploadUrl = "https://ocpc.baidu.com/ocpcapi/api/uploadConvertData"
+
+	ProfessorUrl = "https://work.weixin.qq.com/ca/cawcde2a866722fe78"
 )
 
 const (

@@ -60,7 +60,7 @@ func (h *JkQoListHandler) Handle(ctx context.Context) (*ddbaby.GetJkQoListResp, 
 	h.resp.Title = util.Ptr(constdef.JkType2Title[h.req.GetQoType()])
 	h.resp.Tips = util.Ptr("你的评测已完成，支付完成后查看评测结果。")
 	h.resp.ParticipantCount = util.Ptr(int32(11382))
-	h.resp.ProfessorURL = util.Ptr("https://work.weixin.qq.com/ca/cawcde1469cf4f6a58")
+	h.resp.ProfessorURL = util.Ptr(constdef.ProfessorUrl)
 	if h.req.GetNeedPic() == true {
 		h.resp.Pic = util.Ptr(constdef.JkType2Pic[h.req.GetQoType()])
 	}
