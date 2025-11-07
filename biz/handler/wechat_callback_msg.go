@@ -8,6 +8,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
+	constdef "github.com/kingjxu/ddbaby/const"
+	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/kingjxu/ddbaby/wework_callback/wxbizmsgcrypt"
 	"github.com/sirupsen/logrus"
@@ -100,7 +102,44 @@ func (h *WechatCallbackMsgHandler) Handle(ctx context.Context) {
 	if msgContent.ChangeType != "add_external_contact" { // 添加外部联系人
 		return
 	}
+	h.upload2Baidu(ctx, msgContent.ExternalUser)
 	h.sendWxMsg(ctx, fmt.Sprintf("客户进线啦，加微员工 %v ; 用户微信ID %v", msgContent.UserID, msgContent.ExternalUser))
+}
+
+type BaiduUploadParam struct {
+	Token           string                      `json:"token"`
+	ConversionTypes []BaiduUploadConversionType `json:"conversionTypes"`
+}
+
+type BaiduUploadConversionType struct {
+	LogidUrl string `json:"logidUrl"`
+	NewType  int    `json:"newType"`
+}
+
+func (h *WechatCallbackMsgHandler) upload2Baidu(ctx context.Context, wxID string) {
+	orderInfo, err := service.GetOrderInfoByWxID(ctx, wxID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("GetOrderInfoByWxID err:%v", err)
+		return
+	}
+	if orderInfo == nil {
+		logrus.WithContext(ctx).Errorf("orderInfo == nil")
+		return
+	}
+	logrus.WithContext(ctx).Infof("orderInfo:%v", util.ToJSON(orderInfo))
+	// 上传到百度
+	logidUrl := "http://ddbaby.site/dist/#/test?qo_type=cw&need_pic=false&bd_vid=" + orderInfo.BdVid
+	param := BaiduUploadParam{
+		Token: token,
+		ConversionTypes: []BaiduUploadConversionType{
+			{
+				LogidUrl: logidUrl,
+				NewType:  79,
+			},
+		},
+	}
+
+	http.Post(constdef.BaiduUploadUrl, "application/json", bytes.NewBuffer([]byte(util.ToJSON(param))))
 }
 
 type WeWorkMsgText struct {

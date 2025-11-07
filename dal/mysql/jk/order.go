@@ -47,3 +47,9 @@ func GetOrderByOrderID(ctx context.Context, orderID string) (*JkOrder, error) {
 	return order, err
 
 }
+
+func GetLatestOrderByWxID(ctx context.Context, wxID string) (*JkOrder, error) {
+	var order *JkOrder
+	err := mysql.GetDB(ctx).Where("wx_open_id = ? order by create_time desc", wxID).First(&order).Error
+	return order, err
+}

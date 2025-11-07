@@ -11,6 +11,8 @@ const (
 	NameFortuneBotID  = "7392945320009400347"
 	PickNameBotID     = "7392946548130955275"
 	TaLuoPredictBotID = "7401724843219419187"
+
+	BaiduUploadUrl = "https://ocpc.baidu.com/ocpcapi/api/uploadConvertData"
 )
 
 const (
