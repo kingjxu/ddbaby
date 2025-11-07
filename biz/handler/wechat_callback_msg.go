@@ -8,8 +8,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
-	constdef "github.com/kingjxu/ddbaby/const"
-	"github.com/kingjxu/ddbaby/model"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/kingjxu/ddbaby/wework_callback/wxbizmsgcrypt"
@@ -118,19 +116,7 @@ func (h *WechatCallbackMsgHandler) upload2Baidu(ctx context.Context, wxID string
 		return
 	}
 	logrus.WithContext(ctx).Infof("orderInfo:%v", util.ToJSON(orderInfo))
-	// 上传到百度
-	logidUrl := "http://ddbaby.site/dist/#/test?qo_type=cw&need_pic=false&bd_vid=" + orderInfo.BdVid
-	param := model.BaiduUploadParam{
-		Token: token,
-		ConversionTypes: []model.BaiduUploadConversionType{
-			{
-				LogidUrl: logidUrl,
-				NewType:  79,
-			},
-		},
-	}
-
-	http.Post(constdef.BaiduUploadUrl, "application/json", bytes.NewBuffer([]byte(util.ToJSON(param))))
+	service.Upload2Baidu(ctx, orderInfo)
 }
 
 type WeWorkMsgText struct {

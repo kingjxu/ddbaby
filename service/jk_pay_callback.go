@@ -20,5 +20,12 @@ func PayCallback(ctx context.Context, req *http.Request) error {
 	if err != nil {
 		return fmt.Errorf("UpdateOrderPaySuccess err:%v", err)
 	}
+
+	orderInfo, err := jk.GetOrderByOrderID(ctx, *trans.OutTradeNo)
+	if err != nil || orderInfo == nil {
+		logrus.Errorf("GetOrderByOrderID err:%v,orderInfo:%v", err, util.ToJSON(orderInfo))
+		return nil
+	}
+	Upload2Baidu(ctx, orderInfo)
 	return nil
 }
