@@ -16,6 +16,11 @@ const (
 )
 
 const (
+	CTypePurchaseService = 10
+	CTypeAddWechat       = 79
+)
+
+const (
 	JKWXPayNotifyUrl = "https://ddbaby.site/jk/pay_callback" // 支付回调地址
 )
 

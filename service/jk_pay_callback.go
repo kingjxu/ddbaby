@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	constdef "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/dal/mysql/jk"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/kingjxu/ddbaby/wx_new"
@@ -26,6 +27,6 @@ func PayCallback(ctx context.Context, req *http.Request) error {
 		logrus.Errorf("GetOrderByOrderID err:%v,orderInfo:%v", err, util.ToJSON(orderInfo))
 		return nil
 	}
-	Upload2Baidu(ctx, orderInfo)
+	Upload2Baidu(ctx, orderInfo, constdef.CTypePurchaseService)
 	return nil
 }

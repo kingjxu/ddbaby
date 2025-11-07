@@ -24,7 +24,7 @@ type BaiduUploadConversionType struct {
 	NewType  int    `json:"newType"`
 }
 
-func Upload2Baidu(ctx context.Context, orderInfo *jk.JkOrder) {
+func Upload2Baidu(ctx context.Context, orderInfo *jk.JkOrder, cType int) {
 	// 上传到百度
 	logidUrl := "http://ddbaby.site/dist/#/test?qo_type=cw&need_pic=false&bd_vid=" + orderInfo.BdVid
 	param := BaiduUploadParam{
@@ -32,11 +32,11 @@ func Upload2Baidu(ctx context.Context, orderInfo *jk.JkOrder) {
 		ConversionTypes: []BaiduUploadConversionType{
 			{
 				LogidUrl: logidUrl,
-				NewType:  79,
+				NewType:  cType,
 			},
 		},
 	}
-
+	logrus.WithContext(ctx).Infof("Upload2Baidu param:%v", util.ToJSON(param))
 	_, err := http.Post(constdef.BaiduUploadUrl, "application/json", bytes.NewBuffer([]byte(util.ToJSON(param))))
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("Post err:%v", err)
