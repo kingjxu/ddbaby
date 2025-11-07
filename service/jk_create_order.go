@@ -38,7 +38,7 @@ func CreateOrder(ctx context.Context, param *ddbaby.JkCreateOrderReq, commonPara
 		Status:    10,
 		Seq:       int(param.GetSeq()),
 		QaItems:   util.ToJSON(param.GetQaItems()),
-		BdVid:     util.ToJSON(param.GetBdVid()),
+		BdVid:     param.GetBdVid(),
 		RiskLevel: getRiskLevel(ctx, param.GetQaItems()),
 	})
 	if err != nil {
