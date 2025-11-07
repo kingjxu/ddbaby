@@ -30,3 +30,11 @@ func GetOrderInfoByWxID(ctx context.Context, wxID string) (*jk.JkOrder, error) {
 	}
 	return jkOrder, nil
 }
+
+func GetLatestOrderInfo(ctx context.Context) (*jk.JkOrder, error) {
+	jkOrder, err := jk.GetLatestOrderInfo(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("GetLatestOrderInfo err:%w", err)
+	}
+	return jkOrder, nil
+}

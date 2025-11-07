@@ -112,12 +112,15 @@ func (h *WechatCallbackMsgHandler) upload2Baidu(ctx context.Context, wxID string
 		logrus.WithContext(ctx).Errorf("GetOrderInfoByWxID err:%v", err)
 		return
 	}
-	if orderInfo == nil {
-		logrus.WithContext(ctx).Errorf("orderInfo == nil")
+	logrus.WithContext(ctx).Infof("GetOrderInfoByWxID orderInfo:%v", util.ToJSON(orderInfo))
+	if orderInfo != nil {
+		logrus.WithContext(ctx).Infof("orderInfo:%v", util.ToJSON(orderInfo))
+		service.Upload2Baidu(ctx, orderInfo, constdef.CTypeAddWechat)
 		return
 	}
-	logrus.WithContext(ctx).Infof("orderInfo:%v", util.ToJSON(orderInfo))
-	service.Upload2Baidu(ctx, orderInfo, constdef.CTypeAddWechat)
+
+	service.GetLatestOrderInfo(ctx)
+
 }
 
 type WeWorkMsgText struct {

@@ -2,7 +2,9 @@ package jk
 
 import (
 	"context"
+	"errors"
 	"github.com/kingjxu/ddbaby/dal/mysql"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -51,11 +53,20 @@ func GetOrderByOrderID(ctx context.Context, orderID string) (*JkOrder, error) {
 func GetLatestOrderByWxID(ctx context.Context, wxID string) (*JkOrder, error) {
 	var order []*JkOrder
 	err := mysql.GetDB(ctx).Where("wx_open_id = ? order by id desc", wxID).Find(&order).Error
-	if err != nil {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 	if len(order) == 0 {
 		return nil, nil
+	}
+	return order[0], nil
+}
+
+func GetLatestOrderInfo(ctx context.Context) (*JkOrder, error) {
+	var order []*JkOrder
+	err := mysql.GetDB(ctx).Order("id DESC").Limit(1).Find(&order).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
 	}
 	return order[0], nil
 }
