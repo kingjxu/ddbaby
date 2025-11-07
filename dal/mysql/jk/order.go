@@ -49,7 +49,13 @@ func GetOrderByOrderID(ctx context.Context, orderID string) (*JkOrder, error) {
 }
 
 func GetLatestOrderByWxID(ctx context.Context, wxID string) (*JkOrder, error) {
-	var order *JkOrder
-	err := mysql.GetDB(ctx).Where("wx_open_id = ? order by create_time desc", wxID).First(&order).Error
-	return order, err
+	var order []*JkOrder
+	err := mysql.GetDB(ctx).Where("wx_open_id = ? order by id desc", wxID).Find(&order).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(order) == 0 {
+		return nil, nil
+	}
+	return order[0], nil
 }
