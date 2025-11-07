@@ -119,8 +119,14 @@ func (h *WechatCallbackMsgHandler) upload2Baidu(ctx context.Context, wxID string
 		return
 	}
 
-	service.GetLatestOrderInfo(ctx)
+	orderInfo, err = service.GetLatestOrderInfo(ctx)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("GetLatestOrderInfo err:%v", err)
+		return
+	}
 
+	logrus.WithContext(ctx).Infof("GetLatestOrderInfo orderInfo:%v", util.ToJSON(orderInfo))
+	service.Upload2Baidu(ctx, orderInfo, constdef.CTypeAddWechat)
 }
 
 type WeWorkMsgText struct {
