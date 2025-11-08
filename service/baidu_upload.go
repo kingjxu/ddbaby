@@ -25,6 +25,9 @@ type BaiduUploadConversionType struct {
 }
 
 func Upload2Baidu(ctx context.Context, orderInfo *jk.JkOrder, cType int) {
+	if orderInfo == nil || orderInfo.BdVid == "" {
+		return
+	}
 	// 上传到百度
 	logidUrl := "http://ddbaby.site/dist/#/test?qo_type=cw&need_pic=false&bd_vid=" + orderInfo.BdVid
 	param := BaiduUploadParam{
