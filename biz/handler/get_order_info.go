@@ -69,7 +69,7 @@ func (h *GetOrderInfoHandler) Handle(ctx context.Context) (*ddbaby.GetOrderInfoR
 	h.resp.Seq = util.Ptr(int32(orderInfo.Seq))
 	h.resp.CreateTime = util.Ptr(orderInfo.CreateTime.Unix())
 	h.resp.Amount = util.Ptr(int32(orderInfo.Amount))
-	h.resp.PriceOff = util.Ptr(constdef.Seq2Amount[int32(orderInfo.Seq+1)])
+	h.resp.PriceOff = util.Ptr(int32(1000))
 	h.resp.QaItems = util.UnmarshalString[[]*ddbaby.QAItem](orderInfo.QaItems)
 	h.resp.ProfessorURL = util.Ptr(constdef.ProfessorUrl)
 	h.resp.RiskLevel = util.Ptr(orderInfo.RiskLevel)

@@ -40,8 +40,8 @@ var JkType2Pic = map[string]string{
 }
 
 var Seq2Amount = map[int32]int32{
-	1: 2,
-	2: 1,
+	1: 1999,
+	2: 999,
 }
 
 var Question2Options = map[string][]*ddbaby.JkQoItem{
