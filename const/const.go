@@ -19,6 +19,7 @@ const (
 
 const (
 	CTypeSubmit          = 3
+	CTypeClick           = 5
 	CTypePurchaseService = 10
 	CTypeAddWechat       = 79
 )

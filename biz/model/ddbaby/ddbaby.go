@@ -879,6 +879,7 @@ func (p *JkQoItem) String() string {
 type GetJkQoListReq struct {
 	QoType  *string `thrift:"qo_type,1,optional" json:"qo_type,omitempty" query:"qo_type"`
 	NeedPic *bool   `thrift:"need_pic,2,optional" json:"need_pic,omitempty" query:"need_pic"`
+	BdVid   *string `thrift:"bd_vid,3,optional" json:"bd_vid,omitempty" query:"bd_vid"`
 }
 
 func NewGetJkQoListReq() *GetJkQoListReq {
@@ -906,12 +907,25 @@ func (p *GetJkQoListReq) GetNeedPic() (v bool) {
 	return *p.NeedPic
 }
 
+var GetJkQoListReq_BdVid_DEFAULT string
+
+func (p *GetJkQoListReq) GetBdVid() (v string) {
+	if !p.IsSetBdVid() {
+		return GetJkQoListReq_BdVid_DEFAULT
+	}
+	return *p.BdVid
+}
+
 func (p *GetJkQoListReq) IsSetQoType() bool {
 	return p.QoType != nil
 }
 
 func (p *GetJkQoListReq) IsSetNeedPic() bool {
 	return p.NeedPic != nil
+}
+
+func (p *GetJkQoListReq) IsSetBdVid() bool {
+	return p.BdVid != nil
 }
 
 func (p *GetJkQoListReq) String() string {

@@ -9,6 +9,8 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	constdef "github.com/kingjxu/ddbaby/const"
+	"github.com/kingjxu/ddbaby/dal/mysql/jk"
+	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 )
@@ -64,7 +66,7 @@ func (h *JkQoListHandler) Handle(ctx context.Context) (*ddbaby.GetJkQoListResp, 
 	if h.req.GetNeedPic() == true {
 		h.resp.Pic = util.Ptr(constdef.JkType2Pic[h.req.GetQoType()])
 	}
-
+	service.Upload2Baidu(ctx, &jk.JkOrder{BdVid: h.req.GetBdVid()}, constdef.CTypeSubmit)
 	return h.resp, nil
 }
 
