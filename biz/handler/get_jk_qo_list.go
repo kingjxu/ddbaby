@@ -66,7 +66,7 @@ func (h *JkQoListHandler) Handle(ctx context.Context) (*ddbaby.GetJkQoListResp, 
 	if h.req.GetNeedPic() == true {
 		h.resp.Pic = util.Ptr(constdef.JkType2Pic[h.req.GetQoType()])
 	}
-	service.Upload2Baidu(ctx, &jk.JkOrder{BdVid: h.req.GetBdVid()}, constdef.CTypeSubmit)
+	service.Upload2Baidu(ctx, &jk.JkOrder{BdVid: h.req.GetBdVid()}, constdef.CTypeClick)
 	return h.resp, nil
 }
 
