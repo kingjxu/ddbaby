@@ -35,8 +35,8 @@ var JkType2Title = map[string]string{
 
 var JkType2Pic = map[string]string{
 	"gxt": "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/gxt.png",
-	"gxy": "高血压症状自测评估",
 	"cw":  "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/cw.png",
+	"jf":  "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/jf.png",
 }
 
 var Seq2Amount = map[int32]int32{
