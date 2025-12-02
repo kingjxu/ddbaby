@@ -880,6 +880,7 @@ type GetJkQoListReq struct {
 	QoType  *string `thrift:"qo_type,1,optional" json:"qo_type,omitempty" query:"qo_type"`
 	NeedPic *bool   `thrift:"need_pic,2,optional" json:"need_pic,omitempty" query:"need_pic"`
 	BdVid   *string `thrift:"bd_vid,3,optional" json:"bd_vid,omitempty" query:"bd_vid"`
+	AccVer  *string `thrift:"acc_ver,4,optional" json:"acc_ver,omitempty" query:"acc_ver"`
 }
 
 func NewGetJkQoListReq() *GetJkQoListReq {
@@ -916,6 +917,15 @@ func (p *GetJkQoListReq) GetBdVid() (v string) {
 	return *p.BdVid
 }
 
+var GetJkQoListReq_AccVer_DEFAULT string
+
+func (p *GetJkQoListReq) GetAccVer() (v string) {
+	if !p.IsSetAccVer() {
+		return GetJkQoListReq_AccVer_DEFAULT
+	}
+	return *p.AccVer
+}
+
 func (p *GetJkQoListReq) IsSetQoType() bool {
 	return p.QoType != nil
 }
@@ -926,6 +936,10 @@ func (p *GetJkQoListReq) IsSetNeedPic() bool {
 
 func (p *GetJkQoListReq) IsSetBdVid() bool {
 	return p.BdVid != nil
+}
+
+func (p *GetJkQoListReq) IsSetAccVer() bool {
+	return p.AccVer != nil
 }
 
 func (p *GetJkQoListReq) String() string {
@@ -1130,6 +1144,7 @@ type JkCreateOrderReq struct {
 	Seq     *int32    `thrift:"seq,4,optional" json:"seq,omitempty" query:"seq"`
 	OrderID *string   `thrift:"order_id,5,optional" json:"order_id,omitempty" query:"order_id"`
 	BdVid   *string   `thrift:"bd_vid,100,optional" json:"bd_vid,omitempty" query:"bd_vid"`
+	AccVer  *string   `thrift:"acc_ver,101,optional" json:"acc_ver,omitempty" query:"acc_ver"`
 }
 
 func NewJkCreateOrderReq() *JkCreateOrderReq {
@@ -1193,6 +1208,15 @@ func (p *JkCreateOrderReq) GetBdVid() (v string) {
 	return *p.BdVid
 }
 
+var JkCreateOrderReq_AccVer_DEFAULT string
+
+func (p *JkCreateOrderReq) GetAccVer() (v string) {
+	if !p.IsSetAccVer() {
+		return JkCreateOrderReq_AccVer_DEFAULT
+	}
+	return *p.AccVer
+}
+
 func (p *JkCreateOrderReq) IsSetUserID() bool {
 	return p.UserID != nil
 }
@@ -1215,6 +1239,10 @@ func (p *JkCreateOrderReq) IsSetOrderID() bool {
 
 func (p *JkCreateOrderReq) IsSetBdVid() bool {
 	return p.BdVid != nil
+}
+
+func (p *JkCreateOrderReq) IsSetAccVer() bool {
+	return p.AccVer != nil
 }
 
 func (p *JkCreateOrderReq) String() string {

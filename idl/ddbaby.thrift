@@ -98,6 +98,7 @@ struct GetJkQoListReq {
     1: optional string qo_type (api.query="qo_type");
     2: optional bool need_pic (api.query="need_pic");
     3: optional string bd_vid (api.query="bd_vid");
+    4: optional string acc_ver (api.query="acc_ver");
 }
 
 struct GetJkQoListResp {
@@ -125,6 +126,7 @@ struct JkCreateOrderReq {
     5: optional string order_id  (api.query="order_id");
 
     100: optional string bd_vid (api.query="bd_vid");
+    101: optional string acc_ver (api.query="acc_ver");
 }
 
 struct JkCreateOrderResp {

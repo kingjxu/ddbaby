@@ -40,6 +40,7 @@ func CreateOrder(ctx context.Context, param *ddbaby.JkCreateOrderReq, commonPara
 		QaItems:   util.ToJSON(param.GetQaItems()),
 		BdVid:     param.GetBdVid(),
 		RiskLevel: getRiskLevel(ctx, param.GetQaItems()),
+		Version:   param.GetAccVer(),
 	})
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[CreateOrder] jk.CreateOrder err:%v", err)

@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	baiduUploadToken = "MKCzXyRkVWpwDQmWdp1HpTdVnwzLJ3gb@ICs46ZiSjLJNuiHJIq77IdrI4DxCNoU8"
+	baiduUploadToken   = "MKCzXyRkVWpwDQmWdp1HpTdVnwzLJ3gb@ICs46ZiSjLJNuiHJIq77IdrI4DxCNoU8"
+	baiduUploadTokenV2 = "u8Z19dRU7IEinN6IuA3T3UEEmj0RScAV@UGdU1JtuMz9y2Qqrdm24CWW9wfW8jME7"
 )
 
 type BaiduUploadParam struct {
@@ -28,10 +29,14 @@ func Upload2Baidu(ctx context.Context, orderInfo *jk.JkOrder, cType int) {
 	if orderInfo == nil || orderInfo.BdVid == "" {
 		return
 	}
+	token := baiduUploadToken
+	if orderInfo.Version == "v2" {
+		token = baiduUploadTokenV2
+	}
 	// 上传到百度
 	logidUrl := "http://ddbaby.site/dist/#/test?qo_type=cw&need_pic=false&bd_vid=" + orderInfo.BdVid
 	param := BaiduUploadParam{
-		Token: baiduUploadToken,
+		Token: token,
 		ConversionTypes: []BaiduUploadConversionType{
 			{
 				LogidUrl: logidUrl,
