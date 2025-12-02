@@ -31,6 +31,7 @@ var JkType2Title = map[string]string{
 	"gxt": "高血糖症状自测评估",
 	"gxy": "高血压症状自测评估",
 	"cw":  "肠胃症状自测评估",
+	"jf":  "减肥症状自测评估",
 }
 
 var JkType2Pic = map[string]string{
