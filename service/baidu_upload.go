@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"context"
+	"fmt"
 	constdef "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/dal/mysql/jk"
 	"github.com/kingjxu/ddbaby/util"
@@ -25,10 +26,24 @@ type BaiduUploadConversionType struct {
 	NewType  int    `json:"newType"`
 }
 
+var bdVidCTypeMap map[string]bool
+
+func init() {
+	bdVidCTypeMap = make(map[string]bool)
+}
+func buildBdVidCTypeKey(bdVid string, cType int) string {
+	return fmt.Sprintf("%v_%v", bdVid, cType)
+}
+
 func Upload2Baidu(ctx context.Context, orderInfo *jk.JkOrder, cType int) {
 	if orderInfo == nil || orderInfo.BdVid == "" {
 		return
 	}
+	if bdVidCTypeMap[buildBdVidCTypeKey(orderInfo.BdVid, cType)] {
+		logrus.WithContext(ctx).Infof("bd_vid exist, bd_vid:%v,cType:%v", orderInfo.BdVid, cType)
+		return
+	}
+	bdVidCTypeMap[buildBdVidCTypeKey(orderInfo.BdVid, cType)] = true
 	token := baiduUploadToken
 	if orderInfo.Version == "v2" {
 		token = baiduUploadTokenV2
