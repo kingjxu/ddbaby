@@ -36,6 +36,10 @@ func buildBdVidCTypeKey(bdVid string, cType int) string {
 }
 
 func Upload2Baidu(ctx context.Context, orderInfo *jk.JkOrder, cType int) {
+	if cType != constdef.CTypePurchaseService && cType != constdef.CTypeAddWechat {
+		logrus.WithContext(ctx).Infof("not purchase or add wechat  bd_vid:%v,cType:%v", orderInfo.BdVid, cType)
+		return
+	}
 	if orderInfo == nil || orderInfo.BdVid == "" {
 		return
 	}
