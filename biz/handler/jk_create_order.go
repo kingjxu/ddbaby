@@ -77,11 +77,15 @@ func (h *JkCreateOrderHandler) Handle(ctx context.Context) (*ddbaby.JkCreateOrde
 		logrus.WithContext(ctx).Errorf("[JkCreateOrderHandler] service.CreateOrder err:%v", err)
 		return h.newResp(ctx, -1, "wx prepay err"), nil
 	}
+	cType := constdef.CTypeSubmit
+	if h.req.GetAccVer() == "v2" {
+		cType = constdef.CTypeAddWechat
+	}
 	service.Upload2Baidu(ctx, &jk.JkOrder{
 		OrderID: orderID,
 		Version: h.req.GetAccVer(),
 		BdVid:   h.req.GetBdVid(),
-	}, /*constdef.CTypeSubmit*/ constdef.CTypeAddWechat)
+	}, cType)
 	h.resp.PayURL = util.Ptr(h5Url + "&redirect_url=" + url.QueryEscape(fmt.Sprintf("http://ddbaby.site/dist/#/test/checkorder?order_id=%v", orderID)))
 	h.resp.OrderID = util.Ptr(orderID)
 	h.resp.ProfessorURL = util.Ptr(constdef.ProfessorUrl)
