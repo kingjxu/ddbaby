@@ -49,11 +49,13 @@ func Upload2Baidu(ctx context.Context, orderInfo *jk.JkOrder, cType int) {
 	}
 	bdVidCTypeMap[buildBdVidCTypeKey(orderInfo.BdVid, cType)] = true
 	token := baiduUploadToken
+	logidUrl := "http://ddbaby.site/dist/#/test?qo_type=cw&need_pic=false"
 	if orderInfo.Version == "v2" {
 		token = baiduUploadTokenV2
+		logidUrl = logidUrl + "&acc_ver=v2"
 	}
 	// 上传到百度
-	logidUrl := "http://ddbaby.site/dist/#/test?qo_type=cw&need_pic=false&bd_vid=" + orderInfo.BdVid
+	logidUrl = logidUrl + "&bd_vid=" + orderInfo.BdVid
 	param := BaiduUploadParam{
 		Token: token,
 		ConversionTypes: []BaiduUploadConversionType{
