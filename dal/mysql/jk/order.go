@@ -32,7 +32,7 @@ func (m *JkOrder) TableName() string {
 }
 
 func CreateOrder(ctx context.Context, order *JkOrder) error {
-	return mysql.GetDB(ctx).Create(order).Error
+	return mysql.GetDB(ctx).Debug().Create(order).Error
 }
 
 func UpdateOrderPaySuccess(ctx context.Context, orderID, openID, wxTransID string) error {
@@ -41,19 +41,19 @@ func UpdateOrderPaySuccess(ctx context.Context, orderID, openID, wxTransID strin
 		"wx_order_id": wxTransID,
 		"status":      20,
 	}
-	return mysql.GetDB(ctx).Model(&JkOrder{}).Where("order_id = ?", orderID).Updates(updates).Error
+	return mysql.GetDB(ctx).Debug().Model(&JkOrder{}).Where("order_id = ?", orderID).Updates(updates).Error
 }
 
 func GetOrderByOrderID(ctx context.Context, orderID string) (*JkOrder, error) {
 	var order *JkOrder
-	err := mysql.GetDB(ctx).Where("order_id = ?", orderID).First(&order).Error
+	err := mysql.GetDB(ctx).Debug().Where("order_id = ?", orderID).First(&order).Error
 	return order, err
 
 }
 
 func GetLatestOrderByWxID(ctx context.Context, wxID string) (*JkOrder, error) {
 	var order []*JkOrder
-	err := mysql.GetDB(ctx).Where("wx_open_id = ? order by id desc", wxID).Find(&order).Error
+	err := mysql.GetDB(ctx).Debug().Where("wx_open_id = ? order by id desc", wxID).Find(&order).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func GetLatestOrderByWxID(ctx context.Context, wxID string) (*JkOrder, error) {
 
 func GetLatestOrderInfo(ctx context.Context) (*JkOrder, error) {
 	var order []*JkOrder
-	err := mysql.GetDB(ctx).Order("id DESC").Limit(1).Find(&order).Error
+	err := mysql.GetDB(ctx).Debug().Order("id DESC").Limit(1).Find(&order).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}

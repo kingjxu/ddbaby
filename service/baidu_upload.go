@@ -43,6 +43,7 @@ func Upload2Baidu(ctx context.Context, orderInfo *jk.JkOrder, cType int) {
 	if orderInfo == nil || orderInfo.BdVid == "" {
 		return
 	}
+	
 	if bdVidCTypeMap[buildBdVidCTypeKey(orderInfo.BdVid, cType)] {
 		logrus.WithContext(ctx).Infof("bd_vid exist, bd_vid:%v,cType:%v", orderInfo.BdVid, cType)
 		return
