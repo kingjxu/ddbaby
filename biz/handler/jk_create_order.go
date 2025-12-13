@@ -81,7 +81,7 @@ func (h *JkCreateOrderHandler) Handle(ctx context.Context) (*ddbaby.JkCreateOrde
 		OrderID: orderID,
 		Version: h.req.GetAccVer(),
 		BdVid:   h.req.GetBdVid(),
-	}, constdef.CTypeSubmit)
+	}, /*constdef.CTypeSubmit*/ constdef.CTypeAddWechat)
 	h.resp.PayURL = util.Ptr(h5Url + "&redirect_url=" + url.QueryEscape(fmt.Sprintf("http://ddbaby.site/dist/#/test/checkorder?order_id=%v", orderID)))
 	h.resp.OrderID = util.Ptr(orderID)
 	h.resp.ProfessorURL = util.Ptr(constdef.ProfessorUrl)
