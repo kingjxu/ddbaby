@@ -78,9 +78,6 @@ func (h *JkCreateOrderHandler) Handle(ctx context.Context) (*ddbaby.JkCreateOrde
 		return h.newResp(ctx, -1, "wx prepay err"), nil
 	}
 	cType := constdef.CTypeSubmit
-	if h.req.GetAccVer() == "v2" {
-		cType = constdef.CTypeAddWechat
-	}
 	service.Upload2Baidu(ctx, &jk.JkOrder{
 		OrderID: orderID,
 		Version: h.req.GetAccVer(),
