@@ -179,6 +179,29 @@ struct WechatCallbackMsgResp {
      2: optional string message;
 }
 
+
+struct OddsItem {
+    1: optional string text,  // 赔率描述（如"胜"、"1:0"、"0球"）
+    2: optional double odds,  // 赔率数值（支持小数）
+}
+
+struct MatchInfo {
+    1: optional string host_team,  // 主队名称
+    2: optional string host_icon,  // 主队图标链接
+    3: optional string guest_team, // 客队名称
+    4: optional string guest_icon, // 客队图标链接
+    5: optional map<string, list<OddsItem>> bet_type,  // 该场比赛的所有投注类型及赔率
+}
+
+struct GetMatchListReq {
+}
+
+struct GetMatchListResp {
+    1: optional string code;
+    2: optional string message;
+    3: optional map<string, list<MatchInfo>> match_list;
+}
+
 service DDBabyService {
     HelloResp HelloMethod(1: HelloReq req) (api.get="/hello");
     DreamExplainResp DreamExplain(1: DreamExplainReq req) (api.get="/lyxz/dream_explain");
@@ -195,5 +218,8 @@ service DDBabyService {
     PayCallbackResp PayCallback(1:PayCallbackReq req) (api.post="/jk/pay_callback")
 
     WechatCallbackMsgResp WechatCallbackMsg(1:WechatCallbackMsgReq req) (api.get="/wechat/callback_msg")
+
+
+    GetMatchListResp GetMatchList(1:GetMatchListReq req) (api.get="/world_cup/match_list")
 
 }
