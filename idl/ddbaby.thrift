@@ -197,9 +197,8 @@ struct GetMatchListReq {
 }
 
 struct GetMatchListResp {
-    1: optional string code;
-    2: optional string message;
-    3: optional map<string, list<MatchInfo>> match_list;
+    1: optional map<string, list<MatchInfo>> match_list;
+    255: BaseResp BaseResp;
 }
 
 service DDBabyService {

@@ -1735,6 +1735,207 @@ func (p *WechatCallbackMsgResp) String() string {
 	return fmt.Sprintf("WechatCallbackMsgResp(%+v)", *p)
 }
 
+type OddsItem struct {
+	// 赔率描述（如"胜"、"1:0"、"0球"）
+	Text *string `thrift:"text,1,optional" form:"text" json:"text,omitempty" query:"text"`
+	// 赔率数值（支持小数）
+	Odds *float64 `thrift:"odds,2,optional" form:"odds" json:"odds,omitempty" query:"odds"`
+}
+
+func NewOddsItem() *OddsItem {
+	return &OddsItem{}
+}
+
+func (p *OddsItem) InitDefault() {
+}
+
+var OddsItem_Text_DEFAULT string
+
+func (p *OddsItem) GetText() (v string) {
+	if !p.IsSetText() {
+		return OddsItem_Text_DEFAULT
+	}
+	return *p.Text
+}
+
+var OddsItem_Odds_DEFAULT float64
+
+func (p *OddsItem) GetOdds() (v float64) {
+	if !p.IsSetOdds() {
+		return OddsItem_Odds_DEFAULT
+	}
+	return *p.Odds
+}
+
+func (p *OddsItem) IsSetText() bool {
+	return p.Text != nil
+}
+
+func (p *OddsItem) IsSetOdds() bool {
+	return p.Odds != nil
+}
+
+func (p *OddsItem) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("OddsItem(%+v)", *p)
+}
+
+type MatchInfo struct {
+	// 主队名称
+	HostTeam *string `thrift:"host_team,1,optional" form:"host_team" json:"host_team,omitempty" query:"host_team"`
+	// 主队图标链接
+	HostIcon *string `thrift:"host_icon,2,optional" form:"host_icon" json:"host_icon,omitempty" query:"host_icon"`
+	// 客队名称
+	GuestTeam *string `thrift:"guest_team,3,optional" form:"guest_team" json:"guest_team,omitempty" query:"guest_team"`
+	// 客队图标链接
+	GuestIcon *string `thrift:"guest_icon,4,optional" form:"guest_icon" json:"guest_icon,omitempty" query:"guest_icon"`
+	// 该场比赛的所有投注类型及赔率
+	BetType map[string][]*OddsItem `thrift:"bet_type,5,optional" form:"bet_type" json:"bet_type,omitempty" query:"bet_type"`
+}
+
+func NewMatchInfo() *MatchInfo {
+	return &MatchInfo{}
+}
+
+func (p *MatchInfo) InitDefault() {
+}
+
+var MatchInfo_HostTeam_DEFAULT string
+
+func (p *MatchInfo) GetHostTeam() (v string) {
+	if !p.IsSetHostTeam() {
+		return MatchInfo_HostTeam_DEFAULT
+	}
+	return *p.HostTeam
+}
+
+var MatchInfo_HostIcon_DEFAULT string
+
+func (p *MatchInfo) GetHostIcon() (v string) {
+	if !p.IsSetHostIcon() {
+		return MatchInfo_HostIcon_DEFAULT
+	}
+	return *p.HostIcon
+}
+
+var MatchInfo_GuestTeam_DEFAULT string
+
+func (p *MatchInfo) GetGuestTeam() (v string) {
+	if !p.IsSetGuestTeam() {
+		return MatchInfo_GuestTeam_DEFAULT
+	}
+	return *p.GuestTeam
+}
+
+var MatchInfo_GuestIcon_DEFAULT string
+
+func (p *MatchInfo) GetGuestIcon() (v string) {
+	if !p.IsSetGuestIcon() {
+		return MatchInfo_GuestIcon_DEFAULT
+	}
+	return *p.GuestIcon
+}
+
+var MatchInfo_BetType_DEFAULT map[string][]*OddsItem
+
+func (p *MatchInfo) GetBetType() (v map[string][]*OddsItem) {
+	if !p.IsSetBetType() {
+		return MatchInfo_BetType_DEFAULT
+	}
+	return p.BetType
+}
+
+func (p *MatchInfo) IsSetHostTeam() bool {
+	return p.HostTeam != nil
+}
+
+func (p *MatchInfo) IsSetHostIcon() bool {
+	return p.HostIcon != nil
+}
+
+func (p *MatchInfo) IsSetGuestTeam() bool {
+	return p.GuestTeam != nil
+}
+
+func (p *MatchInfo) IsSetGuestIcon() bool {
+	return p.GuestIcon != nil
+}
+
+func (p *MatchInfo) IsSetBetType() bool {
+	return p.BetType != nil
+}
+
+func (p *MatchInfo) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("MatchInfo(%+v)", *p)
+}
+
+type GetMatchListReq struct {
+}
+
+func NewGetMatchListReq() *GetMatchListReq {
+	return &GetMatchListReq{}
+}
+
+func (p *GetMatchListReq) InitDefault() {
+}
+
+func (p *GetMatchListReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetMatchListReq(%+v)", *p)
+}
+
+type GetMatchListResp struct {
+	MatchList map[string][]*MatchInfo `thrift:"match_list,1,optional" form:"match_list" json:"match_list,omitempty" query:"match_list"`
+	BaseResp  *BaseResp               `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+}
+
+func NewGetMatchListResp() *GetMatchListResp {
+	return &GetMatchListResp{}
+}
+
+func (p *GetMatchListResp) InitDefault() {
+}
+
+var GetMatchListResp_MatchList_DEFAULT map[string][]*MatchInfo
+
+func (p *GetMatchListResp) GetMatchList() (v map[string][]*MatchInfo) {
+	if !p.IsSetMatchList() {
+		return GetMatchListResp_MatchList_DEFAULT
+	}
+	return p.MatchList
+}
+
+var GetMatchListResp_BaseResp_DEFAULT *BaseResp
+
+func (p *GetMatchListResp) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return GetMatchListResp_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+
+func (p *GetMatchListResp) IsSetMatchList() bool {
+	return p.MatchList != nil
+}
+
+func (p *GetMatchListResp) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *GetMatchListResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetMatchListResp(%+v)", *p)
+}
+
 type DDBabyService interface {
 	HelloMethod(ctx context.Context, req *HelloReq) (r *HelloResp, err error)
 
@@ -1759,4 +1960,6 @@ type DDBabyService interface {
 	PayCallback(ctx context.Context, req *PayCallbackReq) (r *PayCallbackResp, err error)
 
 	WechatCallbackMsg(ctx context.Context, req *WechatCallbackMsgReq) (r *WechatCallbackMsgResp, err error)
+
+	GetMatchList(ctx context.Context, req *GetMatchListReq) (r *GetMatchListResp, err error)
 }

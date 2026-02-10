@@ -95,3 +95,13 @@ func _wechatcallbackmsgMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _world_cupMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getmatchlistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

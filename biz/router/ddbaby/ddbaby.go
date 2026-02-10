@@ -41,4 +41,8 @@ func Register(r *server.Hertz) {
 		_wechat := root.Group("/wechat", _wechatMw()...)
 		_wechat.GET("/callback_msg", append(_wechatcallbackmsgMw(), handler.WechatCallbackMsg)...)
 	}
+	{
+		_world_cup := root.Group("/world_cup", _world_cupMw()...)
+		_world_cup.GET("/match_list", append(_getmatchlistMw(), handler.GetMatchList)...)
+	}
 }
