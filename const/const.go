@@ -50,3 +50,16 @@ var Question2Options = map[string][]*ddbaby.JkQoItem{
 	"jf":  jf,
 	"cw":  cw,
 }
+
+const (
+	AmericaIcon   = "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/america.png"
+	AustraliaIcon = "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/australia.png"
+	JapanIcon     = "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/japan.png"
+	CroatiaIcon   = "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/croatia.png"
+	ArgentinaIcon = "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/argentina.png"
+	FrenchIcon    = "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/french.png"
+	KoreaIcon     = "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/koria.png"
+	MexicoIcon    = "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/moxco.png"
+	PorlandIcon   = "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/porland.png"
+	SwissIcon     = "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/swiss.png"
+)

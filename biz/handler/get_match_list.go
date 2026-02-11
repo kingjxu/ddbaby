@@ -4,6 +4,7 @@ package handler
 
 import (
 	"context"
+	constdef "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 
@@ -69,9 +70,9 @@ func (h *GetMatchListHandler) newResp(ctx context.Context, code int32, msg strin
 var matchList = map[string][]*ddbaby.MatchInfo{
 	"20260701": {{
 		HostTeam:  util.Ptr("美国"),
-		HostIcon:  util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/america.png"),
+		HostIcon:  util.Ptr(constdef.AmericaIcon),
 		GuestTeam: util.Ptr("日本"),
-		GuestIcon: util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/japan.png"),
+		GuestIcon: util.Ptr(constdef.JapanIcon),
 		BetType: map[string][]*ddbaby.OddsItem{
 			"胜负": {
 				{
@@ -288,9 +289,9 @@ var matchList = map[string][]*ddbaby.MatchInfo{
 		},
 	}, {
 		HostTeam:  util.Ptr("澳大利亚"),
-		HostIcon:  util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/australia.png"),
+		HostIcon:  util.Ptr(constdef.AustraliaIcon),
 		GuestTeam: util.Ptr("克罗地亚"),
-		GuestIcon: util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/croatia.png"),
+		GuestIcon: util.Ptr(constdef.CroatiaIcon),
 		BetType: map[string][]*ddbaby.OddsItem{
 			"胜负": {
 				{
@@ -508,9 +509,9 @@ var matchList = map[string][]*ddbaby.MatchInfo{
 	}},
 	"20260702": {{
 		HostTeam:  util.Ptr("美国"),
-		HostIcon:  util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/america.png"),
+		HostIcon:  util.Ptr(constdef.AmericaIcon),
 		GuestTeam: util.Ptr("澳大利亚"),
-		GuestIcon: util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/australia.png"),
+		GuestIcon: util.Ptr(constdef.AustraliaIcon),
 		BetType: map[string][]*ddbaby.OddsItem{
 			"胜负": {
 				{
@@ -727,9 +728,1329 @@ var matchList = map[string][]*ddbaby.MatchInfo{
 		},
 	}, {
 		HostTeam:  util.Ptr("日本"),
-		HostIcon:  util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/japan.png"),
+		HostIcon:  util.Ptr(constdef.JapanIcon),
 		GuestTeam: util.Ptr("克罗地亚"),
-		GuestIcon: util.Ptr("https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/croatia.png"),
+		GuestIcon: util.Ptr(constdef.CroatiaIcon),
+		BetType: map[string][]*ddbaby.OddsItem{
+			"胜负": {
+				{
+					Text: util.Ptr("胜"),
+					Odds: util.Ptr(1.41),
+				},
+				{
+					Text: util.Ptr("平"),
+					Odds: util.Ptr(2.5),
+				},
+				{
+					Text: util.Ptr("负"),
+					Odds: util.Ptr(3.5),
+				},
+			},
+			"比分": {
+				{
+					Text: util.Ptr("1:0"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("2:0"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("2:1"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("3:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("3:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("3:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("4:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("4:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("4:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("5:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("5:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("5:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("胜其它"),
+					Odds: util.Ptr(8.5),
+				},
+				{
+					Text: util.Ptr("0:0"),
+					Odds: util.Ptr(1.0),
+				},
+				{
+					Text: util.Ptr("1:1"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("2:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("3:3"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("平其它"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:1"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("0:2"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("0:3"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("0:4"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:3"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:3"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:4"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:4"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:4"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:5"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:5"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:5"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("负其它"),
+					Odds: util.Ptr(8.5),
+				},
+			},
+			"总进球": {
+				{
+					Text: util.Ptr("0球"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("1球"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("2球"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("3球"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("4球"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("5球"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("6球"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("7球"),
+					Odds: util.Ptr(8.0),
+				},
+			},
+			"半全场": {
+				{
+					Text: util.Ptr("胜胜"),
+					Odds: util.Ptr(2.0),
+				},
+				{
+					Text: util.Ptr("胜平"),
+					Odds: util.Ptr(3.0),
+				},
+				{
+					Text: util.Ptr("胜负"),
+					Odds: util.Ptr(3.0),
+				},
+				{
+					Text: util.Ptr("平胜"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("平平"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("平负"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负胜"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负平"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负负"),
+					Odds: util.Ptr(4.0),
+				},
+			},
+		},
+	}},
+	"20260703": {{
+		HostTeam:  util.Ptr("阿根廷"),
+		HostIcon:  util.Ptr(constdef.ArgentinaIcon),
+		GuestTeam: util.Ptr("瑞士"),
+		GuestIcon: util.Ptr(constdef.SwissIcon),
+		BetType: map[string][]*ddbaby.OddsItem{
+			"胜负": {
+				{
+					Text: util.Ptr("胜"),
+					Odds: util.Ptr(1.41),
+				},
+				{
+					Text: util.Ptr("平"),
+					Odds: util.Ptr(2.5),
+				},
+				{
+					Text: util.Ptr("负"),
+					Odds: util.Ptr(3.5),
+				},
+			},
+			"比分": {
+				{
+					Text: util.Ptr("1:0"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("2:0"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("2:1"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("3:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("3:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("3:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("4:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("4:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("4:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("5:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("5:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("5:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("胜其它"),
+					Odds: util.Ptr(8.5),
+				},
+				{
+					Text: util.Ptr("0:0"),
+					Odds: util.Ptr(1.0),
+				},
+				{
+					Text: util.Ptr("1:1"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("2:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("3:3"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("平其它"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:1"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("0:2"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("0:3"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("0:4"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:3"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:3"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:4"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:4"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:4"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:5"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:5"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:5"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("负其它"),
+					Odds: util.Ptr(8.5),
+				},
+			},
+			"总进球": {
+				{
+					Text: util.Ptr("0球"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("1球"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("2球"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("3球"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("4球"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("5球"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("6球"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("7球"),
+					Odds: util.Ptr(8.0),
+				},
+			},
+			"半全场": {
+				{
+					Text: util.Ptr("胜胜"),
+					Odds: util.Ptr(2.0),
+				},
+				{
+					Text: util.Ptr("胜平"),
+					Odds: util.Ptr(3.0),
+				},
+				{
+					Text: util.Ptr("胜负"),
+					Odds: util.Ptr(3.0),
+				},
+				{
+					Text: util.Ptr("平胜"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("平平"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("平负"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负胜"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负平"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负负"),
+					Odds: util.Ptr(4.0),
+				},
+			},
+		},
+	}},
+	"20260704": {{
+		HostTeam:  util.Ptr("法国"),
+		HostIcon:  util.Ptr(constdef.FrenchIcon),
+		GuestTeam: util.Ptr("波兰"),
+		GuestIcon: util.Ptr(constdef.PorlandIcon),
+		BetType: map[string][]*ddbaby.OddsItem{
+			"胜负": {
+				{
+					Text: util.Ptr("胜"),
+					Odds: util.Ptr(1.41),
+				},
+				{
+					Text: util.Ptr("平"),
+					Odds: util.Ptr(2.5),
+				},
+				{
+					Text: util.Ptr("负"),
+					Odds: util.Ptr(3.5),
+				},
+			},
+			"比分": {
+				{
+					Text: util.Ptr("1:0"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("2:0"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("2:1"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("3:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("3:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("3:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("4:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("4:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("4:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("5:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("5:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("5:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("胜其它"),
+					Odds: util.Ptr(8.5),
+				},
+				{
+					Text: util.Ptr("0:0"),
+					Odds: util.Ptr(1.0),
+				},
+				{
+					Text: util.Ptr("1:1"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("2:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("3:3"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("平其它"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:1"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("0:2"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("0:3"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("0:4"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:3"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:3"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:4"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:4"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:4"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:5"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:5"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:5"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("负其它"),
+					Odds: util.Ptr(8.5),
+				},
+			},
+			"总进球": {
+				{
+					Text: util.Ptr("0球"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("1球"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("2球"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("3球"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("4球"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("5球"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("6球"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("7球"),
+					Odds: util.Ptr(8.0),
+				},
+			},
+			"半全场": {
+				{
+					Text: util.Ptr("胜胜"),
+					Odds: util.Ptr(2.0),
+				},
+				{
+					Text: util.Ptr("胜平"),
+					Odds: util.Ptr(3.0),
+				},
+				{
+					Text: util.Ptr("胜负"),
+					Odds: util.Ptr(3.0),
+				},
+				{
+					Text: util.Ptr("平胜"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("平平"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("平负"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负胜"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负平"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负负"),
+					Odds: util.Ptr(4.0),
+				},
+			},
+		},
+	}},
+	"20260705": {{
+		HostTeam:  util.Ptr("法国"),
+		HostIcon:  util.Ptr(constdef.FrenchIcon),
+		GuestTeam: util.Ptr("美国"),
+		GuestIcon: util.Ptr(constdef.AmericaIcon),
+		BetType: map[string][]*ddbaby.OddsItem{
+			"胜负": {
+				{
+					Text: util.Ptr("胜"),
+					Odds: util.Ptr(1.41),
+				},
+				{
+					Text: util.Ptr("平"),
+					Odds: util.Ptr(2.5),
+				},
+				{
+					Text: util.Ptr("负"),
+					Odds: util.Ptr(3.5),
+				},
+			},
+			"比分": {
+				{
+					Text: util.Ptr("1:0"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("2:0"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("2:1"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("3:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("3:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("3:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("4:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("4:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("4:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("5:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("5:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("5:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("胜其它"),
+					Odds: util.Ptr(8.5),
+				},
+				{
+					Text: util.Ptr("0:0"),
+					Odds: util.Ptr(1.0),
+				},
+				{
+					Text: util.Ptr("1:1"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("2:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("3:3"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("平其它"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:1"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("0:2"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("0:3"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("0:4"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:3"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:3"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:4"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:4"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:4"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:5"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:5"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:5"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("负其它"),
+					Odds: util.Ptr(8.5),
+				},
+			},
+			"总进球": {
+				{
+					Text: util.Ptr("0球"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("1球"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("2球"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("3球"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("4球"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("5球"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("6球"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("7球"),
+					Odds: util.Ptr(8.0),
+				},
+			},
+			"半全场": {
+				{
+					Text: util.Ptr("胜胜"),
+					Odds: util.Ptr(2.0),
+				},
+				{
+					Text: util.Ptr("胜平"),
+					Odds: util.Ptr(3.0),
+				},
+				{
+					Text: util.Ptr("胜负"),
+					Odds: util.Ptr(3.0),
+				},
+				{
+					Text: util.Ptr("平胜"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("平平"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("平负"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负胜"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负平"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负负"),
+					Odds: util.Ptr(4.0),
+				},
+			},
+		},
+	}},
+	"20260706": {{
+		HostTeam:  util.Ptr("法国"),
+		HostIcon:  util.Ptr(constdef.FrenchIcon),
+		GuestTeam: util.Ptr("日本"),
+		GuestIcon: util.Ptr(constdef.JapanIcon),
+		BetType: map[string][]*ddbaby.OddsItem{
+			"胜负": {
+				{
+					Text: util.Ptr("胜"),
+					Odds: util.Ptr(1.41),
+				},
+				{
+					Text: util.Ptr("平"),
+					Odds: util.Ptr(2.5),
+				},
+				{
+					Text: util.Ptr("负"),
+					Odds: util.Ptr(3.5),
+				},
+			},
+			"比分": {
+				{
+					Text: util.Ptr("1:0"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("2:0"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("2:1"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("3:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("3:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("3:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("4:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("4:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("4:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("5:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("5:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("5:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("胜其它"),
+					Odds: util.Ptr(8.5),
+				},
+				{
+					Text: util.Ptr("0:0"),
+					Odds: util.Ptr(1.0),
+				},
+				{
+					Text: util.Ptr("1:1"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("2:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("3:3"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("平其它"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:1"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("0:2"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("0:3"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("0:4"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:3"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:3"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:4"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:4"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:4"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:5"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:5"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:5"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("负其它"),
+					Odds: util.Ptr(8.5),
+				},
+			},
+			"总进球": {
+				{
+					Text: util.Ptr("0球"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("1球"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("2球"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("3球"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("4球"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("5球"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("6球"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("7球"),
+					Odds: util.Ptr(8.0),
+				},
+			},
+			"半全场": {
+				{
+					Text: util.Ptr("胜胜"),
+					Odds: util.Ptr(2.0),
+				},
+				{
+					Text: util.Ptr("胜平"),
+					Odds: util.Ptr(3.0),
+				},
+				{
+					Text: util.Ptr("胜负"),
+					Odds: util.Ptr(3.0),
+				},
+				{
+					Text: util.Ptr("平胜"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("平平"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("平负"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负胜"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负平"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负负"),
+					Odds: util.Ptr(4.0),
+				},
+			},
+		},
+	}},
+	"20260709": {{
+		HostTeam:  util.Ptr("韩国"),
+		HostIcon:  util.Ptr(constdef.KoreaIcon),
+		GuestTeam: util.Ptr("美国"),
+		GuestIcon: util.Ptr(constdef.AmericaIcon),
+		BetType: map[string][]*ddbaby.OddsItem{
+			"胜负": {
+				{
+					Text: util.Ptr("胜"),
+					Odds: util.Ptr(1.41),
+				},
+				{
+					Text: util.Ptr("平"),
+					Odds: util.Ptr(2.5),
+				},
+				{
+					Text: util.Ptr("负"),
+					Odds: util.Ptr(3.5),
+				},
+			},
+			"比分": {
+				{
+					Text: util.Ptr("1:0"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("2:0"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("2:1"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("3:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("3:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("3:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("4:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("4:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("4:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("5:0"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("5:1"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("5:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("胜其它"),
+					Odds: util.Ptr(8.5),
+				},
+				{
+					Text: util.Ptr("0:0"),
+					Odds: util.Ptr(1.0),
+				},
+				{
+					Text: util.Ptr("1:1"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("2:2"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("3:3"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("平其它"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:1"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("0:2"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("0:3"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("0:4"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:3"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:3"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:4"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:4"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:4"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("0:5"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("1:5"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("2:5"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("负其它"),
+					Odds: util.Ptr(8.5),
+				},
+			},
+			"总进球": {
+				{
+					Text: util.Ptr("0球"),
+					Odds: util.Ptr(5.0),
+				},
+				{
+					Text: util.Ptr("1球"),
+					Odds: util.Ptr(5.70),
+				},
+				{
+					Text: util.Ptr("2球"),
+					Odds: util.Ptr(6.0),
+				},
+				{
+					Text: util.Ptr("3球"),
+					Odds: util.Ptr(6.5),
+				},
+				{
+					Text: util.Ptr("4球"),
+					Odds: util.Ptr(7.0),
+				},
+				{
+					Text: util.Ptr("5球"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("6球"),
+					Odds: util.Ptr(8.0),
+				},
+				{
+					Text: util.Ptr("7球"),
+					Odds: util.Ptr(8.0),
+				},
+			},
+			"半全场": {
+				{
+					Text: util.Ptr("胜胜"),
+					Odds: util.Ptr(2.0),
+				},
+				{
+					Text: util.Ptr("胜平"),
+					Odds: util.Ptr(3.0),
+				},
+				{
+					Text: util.Ptr("胜负"),
+					Odds: util.Ptr(3.0),
+				},
+				{
+					Text: util.Ptr("平胜"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("平平"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("平负"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负胜"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负平"),
+					Odds: util.Ptr(4.0),
+				},
+				{
+					Text: util.Ptr("负负"),
+					Odds: util.Ptr(4.0),
+				},
+			},
+		},
+	}},
+	"20260710": {{
+		HostTeam:  util.Ptr("克罗地亚"),
+		HostIcon:  util.Ptr(constdef.CroatiaIcon),
+		GuestTeam: util.Ptr("美国"),
+		GuestIcon: util.Ptr(constdef.AmericaIcon),
 		BetType: map[string][]*ddbaby.OddsItem{
 			"胜负": {
 				{
