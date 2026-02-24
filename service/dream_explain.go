@@ -75,8 +75,9 @@ func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32,
 }
 
 func GetTexasPokerDecisionV2(ctx context.Context, images []string) (string, int32, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
 	authCli := coze.NewTokenAuth(_const.CozeTokenV3)
-
 	cozeCli := coze.NewCozeAPI(authCli, coze.WithBaseURL("https://api.coze.cn"))
 	var messageObject []*coze.MessageObjectString
 	for _, image := range images {
