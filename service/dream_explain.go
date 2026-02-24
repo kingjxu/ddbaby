@@ -101,6 +101,7 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string) (string, int3
 		return "", 0, err
 	}
 	defer resp.Close()
+	content := ""
 	for {
 		event, err := resp.Recv()
 		if errors.Is(err, io.EOF) {
@@ -110,8 +111,15 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string) (string, int3
 			logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] cozeCli.Chat.Stream.Recv err:%v", err)
 			return "", 0, err
 		}
+		if event.Event == coze.ChatEventConversationMessageDelta && event.Message.Role == coze.MessageRoleAssistant {
+			content += event.Message.Content
+		}
+		if event.Event == coze.ChatEventConversationChatCompleted {
+			break
+		}
 		logrus.WithContext(ctx).Infof("[GetTexasPokerDecision] msg:%v,event:%v", util.ToJSON(event.Message), util.ToJSON(event))
 	}
-
-	return "", 0, nil
+	logrus.WithContext(ctx).Infof("[GetTexasPokerDecision] finalcontent:%v", content)
+	decision := util.UnmarshalString[TexasPokerDecision](content)
+	return decision.Action, decision.BetSize, nil
 }
