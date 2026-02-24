@@ -42,7 +42,7 @@ func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32,
 	req := GetCozeHttpRequestV3()
 	botParam := &BotReqParamV3{
 		BotId:  _const.TexasPokerDecisionBotID,
-		UseId:  fmt.Sprintf("%v", time.Now().Unix()),
+		UserId: fmt.Sprintf("%v", time.Now().Unix()),
 		Stream: false,
 	}
 	var botContent []BotContent
