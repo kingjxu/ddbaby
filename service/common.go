@@ -25,7 +25,7 @@ type AdditionalMessage struct {
 }
 type BotReqParamV3 struct {
 	BotId              string              `json:"bot_id"`
-	User               string              `json:"user"`
+	User               string              `json:"user_id"`
 	Stream             bool                `json:"stream"`
 	AdditionalMessages []AdditionalMessage `json:"additional_messages"`
 }
