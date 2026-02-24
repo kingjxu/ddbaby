@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/coze-dev/coze-go"
@@ -76,7 +77,7 @@ func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32,
 func GetTexasPokerDecisionV2(ctx context.Context, images []string) (string, int32, error) {
 	authCli := coze.NewTokenAuth(_const.CozeTokenV3)
 
-	cozeCli := coze.NewCozeAPI(authCli, coze.WithBaseURL("https://api.coze.cn/"))
+	cozeCli := coze.NewCozeAPI(authCli, coze.WithBaseURL("https://api.coze.cn"))
 	var messageObject []*coze.MessageObjectString
 	for _, image := range images {
 		messageObject = append(messageObject, &coze.MessageObjectString{
@@ -99,11 +100,17 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string) (string, int3
 		return "", 0, err
 	}
 	defer resp.Close()
-	event, err := resp.Recv()
-	if err != nil {
-		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] cozeCli.Chat.Stream.Recv err:%v", err)
-		return "", 0, err
+	for {
+		event, err := resp.Recv()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] cozeCli.Chat.Stream.Recv err:%v", err)
+			return "", 0, err
+		}
+		logrus.WithContext(ctx).Infof("[GetTexasPokerDecision] msg:%v,event:%v", util.ToJSON(event.Message), util.ToJSON(event))
 	}
-	logrus.WithContext(ctx).Infof("[GetTexasPokerDecision] msg:%v,event:%v", util.ToJSON(event.Message), util.ToJSON(event))
+
 	return "", 0, nil
 }
