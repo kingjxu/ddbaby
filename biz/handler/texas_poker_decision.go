@@ -25,8 +25,7 @@ func TexasPokerDecision(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(ddbaby.TexasPokerDecisionResp)
-
+	resp, _ := NewTexasPokerDecisionHandler(&req).Handle(ctx)
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -49,29 +48,30 @@ func (h *TexasPokerDecisionHandler) check() error {
 	return nil
 }
 
-func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.DreamExplainResp, error) {
-	logrus.WithContext(ctx).Infof("[DreamExplainHandler] req:%v", util.ToJSON(h.req))
+func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerDecisionResp, error) {
+	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] req:%v", util.ToJSON(h.req))
 	if err := h.check(); err != nil {
-		logrus.WithContext(ctx).Errorf("[DreamExplainHandler] check err:%v", err)
+		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] check err:%v", err)
 		return h.newResp(ctx, -1, "param err"), nil
 	}
-	content, err := service.GetDreamExplain(ctx, h.req.GetDream())
+	action, betSize, err := service.GetTexasPokerDecision(ctx, h.req.GetImages())
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("[DreamExplainHandler] get dream explain err:%v", err)
-		return h.newResp(ctx, -2, "get dream explain err"), nil
+		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.GetTexasPokerDecision err:%v", err)
+		return h.newResp(ctx, -2, "get decision err"), nil
 	}
-	h.Explain = content
+	h.Action = action
+	h.BetSize = betSize
 	return h.newResp(ctx, 0, ""), nil
 }
 
-func (h *TexasPokerDecisionHandler) newResp(ctx context.Context, code int32, msg string) *ddbaby.DreamExplainResp {
-	resp := &ddbaby.DreamExplainResp{
+func (h *TexasPokerDecisionHandler) newResp(ctx context.Context, code int32, msg string) *ddbaby.TexasPokerDecisionResp {
+	resp := &ddbaby.TexasPokerDecisionResp{
 		BaseResp: &ddbaby.BaseResp{
 			StatusMessage: msg,
 			StatusCode:    code,
 		},
 	}
-	resp.Explain = &h.Explain
-
+	resp.Action = &h.Action
+	resp.BetSize = &h.BetSize
 	return resp
 }

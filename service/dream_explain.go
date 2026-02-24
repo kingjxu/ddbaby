@@ -33,6 +33,11 @@ func GetDreamExplain(ctx context.Context, dream string) (string, error) {
 	return botResp.Messages[0].Content, nil
 }
 
+type TexasPokerDecision struct {
+	Action  string `json:"action"`
+	BetSize int32  `json:"bet_size"`
+}
+
 func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32, error) {
 	req := GetCozeHttpRequestV3()
 	botParam := &BotReqParamV3{
@@ -57,11 +62,12 @@ func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32,
 
 	body := util.ToJSON(botParam)
 	req.Body = io.NopCloser(strings.NewReader(body))
-	botResp, err := ProcessBotResp(ctx, req)
+	botRespData, err := ProcessBotRespV3(ctx, req)
 	if err != nil {
 		hlog.CtxInfof(ctx, "[GetDreamExplain] get coze response err:%v", err)
 		logrus.WithContext(ctx).Errorf("[GetDreamExplain] get coze response err:%v", err)
-		return "", err
+		return "", 0, err
 	}
-	return botResp.Messages[0].Content, nil
+	decision := util.UnmarshalString[TexasPokerDecision](botRespData.Content)
+	return decision.Action, decision.BetSize, nil
 }
