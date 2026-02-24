@@ -58,6 +58,17 @@ struct TaLuoPredictResp {
     255: BaseResp BaseResp;
 }
 
+struct TexasPokerDecisionReq {
+    1: optional list<string> Images (api.query="images");
+}
+struct TexasPokerDecisionResp {
+    1: optional string Action;
+    2: optional i32 BetSize;
+
+    255: BaseResp BaseResp;
+}
+
+
 struct HealthEvaluateQuestionItem {
     1: optional i64 QuestionID;
     2: optional string Content;
@@ -207,6 +218,9 @@ service DDBabyService {
     PickNameResp PickName(1: PickNameReq req) (api.get="/lyxz/pick_name");
     NameFortuneResp NameFortune(1: NameFortuneReq req) (api.get="/lyxz/name_fortune");
     TaLuoPredictResp TaLuoPredict(1:TaLuoPredictReq req) (api.get="/lyxz/taluo_predict");
+    TexasPokerDecisionResp TexasPokerDecision(1:TexasPokerDecisionReq req) (api.post="/lyxz/gto_decision");
+
+
 
     HealthEvaluateQuestionsResp HealthEvaluateQuestions(1:HealthEvaluateQuestionsReq req) (api.get="/health/questions")
     HealthCreateOrderResp HealthCreateOrder(1:HealthCreateOrderReq req) (api.post="/health/create_order")

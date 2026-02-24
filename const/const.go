@@ -5,7 +5,10 @@ import (
 )
 
 const (
-	CozeToken         = "pat_0ZCXIT2NguHJWbGYvr5SsU85onSnjIZlfZkkjw3Kl21SI4IpSkLsJr5pXYq30pC2"
+	CozeToken               = "pat_0ZCXIT2NguHJWbGYvr5SsU85onSnjIZlfZkkjw3Kl21SI4IpSkLsJr5pXYq30pC2"
+	CozeTokenV3             = "pat_mMTlTpTxQfkAZPkTKpAs56CYN0y1MQ5NwXUelWnFO0OiEz89g0Q7M4Eaev7fvP7G"
+	TexasPokerDecisionBotID = "7610274786891579407"
+
 	DreamExplainBotID = "7391123436175343616"
 	NameFortuneBotID  = "7392945320009400347"
 	PickNameBotID     = "7392946548130955275"

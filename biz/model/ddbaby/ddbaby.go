@@ -502,6 +502,96 @@ func (p *TaLuoPredictResp) String() string {
 	return fmt.Sprintf("TaLuoPredictResp(%+v)", *p)
 }
 
+type TexasPokerDecisionReq struct {
+	Images []string `thrift:"Images,1,optional" json:"Images,omitempty" query:"images"`
+}
+
+func NewTexasPokerDecisionReq() *TexasPokerDecisionReq {
+	return &TexasPokerDecisionReq{}
+}
+
+func (p *TexasPokerDecisionReq) InitDefault() {
+}
+
+var TexasPokerDecisionReq_Images_DEFAULT []string
+
+func (p *TexasPokerDecisionReq) GetImages() (v []string) {
+	if !p.IsSetImages() {
+		return TexasPokerDecisionReq_Images_DEFAULT
+	}
+	return p.Images
+}
+
+func (p *TexasPokerDecisionReq) IsSetImages() bool {
+	return p.Images != nil
+}
+
+func (p *TexasPokerDecisionReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TexasPokerDecisionReq(%+v)", *p)
+}
+
+type TexasPokerDecisionResp struct {
+	Action   *string   `thrift:"Action,1,optional" form:"Action" json:"Action,omitempty" query:"Action"`
+	BetSize  *int32    `thrift:"BetSize,2,optional" form:"BetSize" json:"BetSize,omitempty" query:"BetSize"`
+	BaseResp *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+}
+
+func NewTexasPokerDecisionResp() *TexasPokerDecisionResp {
+	return &TexasPokerDecisionResp{}
+}
+
+func (p *TexasPokerDecisionResp) InitDefault() {
+}
+
+var TexasPokerDecisionResp_Action_DEFAULT string
+
+func (p *TexasPokerDecisionResp) GetAction() (v string) {
+	if !p.IsSetAction() {
+		return TexasPokerDecisionResp_Action_DEFAULT
+	}
+	return *p.Action
+}
+
+var TexasPokerDecisionResp_BetSize_DEFAULT int32
+
+func (p *TexasPokerDecisionResp) GetBetSize() (v int32) {
+	if !p.IsSetBetSize() {
+		return TexasPokerDecisionResp_BetSize_DEFAULT
+	}
+	return *p.BetSize
+}
+
+var TexasPokerDecisionResp_BaseResp_DEFAULT *BaseResp
+
+func (p *TexasPokerDecisionResp) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return TexasPokerDecisionResp_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+
+func (p *TexasPokerDecisionResp) IsSetAction() bool {
+	return p.Action != nil
+}
+
+func (p *TexasPokerDecisionResp) IsSetBetSize() bool {
+	return p.BetSize != nil
+}
+
+func (p *TexasPokerDecisionResp) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *TexasPokerDecisionResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TexasPokerDecisionResp(%+v)", *p)
+}
+
 type HealthEvaluateQuestionItem struct {
 	QuestionID *int64   `thrift:"QuestionID,1,optional" form:"QuestionID" json:"QuestionID,omitempty" query:"QuestionID"`
 	Content    *string  `thrift:"Content,2,optional" form:"Content" json:"Content,omitempty" query:"Content"`
@@ -1946,6 +2036,8 @@ type DDBabyService interface {
 	NameFortune(ctx context.Context, req *NameFortuneReq) (r *NameFortuneResp, err error)
 
 	TaLuoPredict(ctx context.Context, req *TaLuoPredictReq) (r *TaLuoPredictResp, err error)
+
+	TexasPokerDecision(ctx context.Context, req *TexasPokerDecisionReq) (r *TexasPokerDecisionResp, err error)
 
 	HealthEvaluateQuestions(ctx context.Context, req *HealthEvaluateQuestionsReq) (r *HealthEvaluateQuestionsResp, err error)
 
