@@ -51,7 +51,14 @@ func GetCozeHttpRequestV3() *http.Request {
 	return req
 }
 func ProcessBotRespV3(ctx context.Context, req *http.Request) (*BotRespV3Data, error) {
-	logrus.WithContext(ctx).Infof("[ProcessBotRespV3] req:%v", util.ToJSON(req))
+	logrus.WithContext(ctx).Infof("[ProcessBotRespV3] req:%v,header:%v", util.ToJSON(req), req.Header)
+	reqBody, err := io.ReadAll(req.Body)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("[ProcessBotRespV3] io.ReadAll err:%v", err)
+		return nil, err
+	}
+	logrus.WithContext(ctx).Infof("[ProcessBotRespV3] reqBody:%v", string(reqBody))
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
