@@ -7,6 +7,7 @@ replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 require (
 	github.com/bytedance/sonic v1.11.9
 	github.com/cloudwego/hertz v0.9.1
+	github.com/coze-dev/coze-go v0.0.0-20251217090046-c70184300a2f
 	github.com/json-iterator/go v1.1.12
 	github.com/sirupsen/logrus v1.9.3
 	github.com/wechatpay-apiv3/wechatpay-go v0.2.21
@@ -21,7 +22,6 @@ require (
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/cloudwego/netpoll v0.6.0 // indirect
-	github.com/coze-dev/coze-go v0.0.0-20251217090046-c70184300a2f // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
