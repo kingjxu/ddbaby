@@ -54,7 +54,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] check err:%v", err)
 		return h.newResp(ctx, -1, "param err"), nil
 	}
-	action, betSize, err := service.GetTexasPokerDecision(ctx, h.req.GetImages())
+	action, betSize, err := service.GetTexasPokerDecisionV2(ctx, h.req.GetImages())
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.GetTexasPokerDecision err:%v", err)
 		return h.newResp(ctx, -2, "get decision err"), nil
