@@ -114,7 +114,7 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string) (string, int3
 		if event.Event == coze.ChatEventConversationMessageDelta && event.Message.Role == coze.MessageRoleAssistant {
 			content += event.Message.Content
 		}
-		if event.Event == coze.ChatEventConversationChatCompleted {
+		if event.Event == coze.ChatEventConversationMessageCompleted {
 			break
 		}
 		logrus.WithContext(ctx).Infof("[GetTexasPokerDecision] msg:%v,event:%v", util.ToJSON(event.Message), util.ToJSON(event))
