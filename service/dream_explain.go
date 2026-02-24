@@ -61,11 +61,11 @@ func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32,
 	}
 
 	body := util.ToJSON(botParam)
+	logrus.WithContext(ctx).Infof("[GetTexasPokerDecision] botBody:%v", body)
 	req.Body = io.NopCloser(strings.NewReader(body))
 	botRespData, err := ProcessBotRespV3(ctx, req)
 	if err != nil {
-		hlog.CtxInfof(ctx, "[GetDreamExplain] get coze response err:%v", err)
-		logrus.WithContext(ctx).Errorf("[GetDreamExplain] get coze response err:%v", err)
+		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] get coze response err:%v", err)
 		return "", 0, err
 	}
 	decision := util.UnmarshalString[TexasPokerDecision](botRespData.Content)
