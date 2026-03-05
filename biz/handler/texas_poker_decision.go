@@ -5,6 +5,7 @@ package handler
 import (
 	"context"
 	"errors"
+	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
@@ -24,7 +25,7 @@ func TexasPokerDecision(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-
+	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] origin req:%v", string(c.Request.Body()))
 	resp, _ := NewTexasPokerDecisionHandler(&req).Handle(ctx)
 	c.JSON(consts.StatusOK, resp)
 }
@@ -54,7 +55,19 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] check err:%v", err)
 		return h.newResp(ctx, -1, "param err"), nil
 	}
-	action, betSize, err := service.GetTexasPokerDecisionV2(ctx, h.req.GetImages())
+	images := h.req.GetImages()
+	imageType := _const.ImageTypeUrl
+	if len(images) >= 512 { // 图片的二进制数据
+		imageIDs, err := service.UploadImages(ctx, images)
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.UploadImage err:%v", err)
+			return h.newResp(ctx, -2, "upload image err"), nil
+		}
+		imageType = _const.ImageTypeFileID
+		images = imageIDs
+	}
+
+	action, betSize, err := service.GetTexasPokerDecisionV2(ctx, images, imageType)
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.GetTexasPokerDecision err:%v", err)
 		return h.newResp(ctx, -2, "get decision err"), nil

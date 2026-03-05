@@ -15,6 +15,12 @@ import (
 	"time"
 )
 
+var cozeCli coze.CozeAPI
+
+func init() {
+	authCli := coze.NewTokenAuth(_const.CozeTokenV3)
+	cozeCli = coze.NewCozeAPI(authCli, coze.WithBaseURL("https://api.coze.cn"))
+}
 func GetDreamExplain(ctx context.Context, dream string) (string, error) {
 	req := GetCozeHttpRequest()
 	botParam := &BotReqParam{
@@ -74,18 +80,22 @@ func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32,
 	return decision.Action, decision.BetSize, nil
 }
 
-func GetTexasPokerDecisionV2(ctx context.Context, images []string) (string, int32, error) {
+func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType string) (string, int32, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
-	authCli := coze.NewTokenAuth(_const.CozeTokenV3)
-	cozeCli := coze.NewCozeAPI(authCli, coze.WithBaseURL("https://api.coze.cn"))
 	var messageObject []*coze.MessageObjectString
 	for _, image := range images {
-		messageObject = append(messageObject, &coze.MessageObjectString{
-			Type:    "image",
-			FileURL: image,
-		})
+		objectString := &coze.MessageObjectString{
+			Type: "image",
+		}
+		if imageType == _const.ImageTypeFileID {
+			objectString.FileID = image
+		} else {
+			objectString.FileURL = image
+		}
+		messageObject = append(messageObject, objectString)
 	}
+
 	req := &coze.CreateChatsReq{
 		BotID:  _const.TexasPokerDecisionBotID,
 		UserID: fmt.Sprintf("%v", time.Now().Unix()),
@@ -94,7 +104,6 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string) (string, int3
 			coze.BuildUserQuestionObjects(messageObject, nil),
 		},
 	}
-
 	resp, err := cozeCli.Chat.Stream(ctx, req)
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] cozeCli.Chat.Stream err:%v", err)
@@ -122,4 +131,20 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string) (string, int3
 	logrus.WithContext(ctx).Infof("[GetTexasPokerDecision] finalcontent:%v", content)
 	decision := util.UnmarshalString[TexasPokerDecision](content)
 	return decision.Action, decision.BetSize, nil
+}
+
+func UploadImages(ctx context.Context, images []string) ([]string, error) {
+	imageIDs := make([]string, 0)
+	for _, image := range images {
+		resp, err := cozeCli.Files.Upload(ctx, &coze.UploadFilesReq{
+			File: coze.NewUploadFile(strings.NewReader(image), fmt.Sprintf("%v.jpg", time.Now().UnixNano())),
+		})
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("[UploadImage] cozeCli.Files.Upload err:%v", err)
+			return nil, err
+		}
+		logrus.WithContext(ctx).Infof("[UploadImage] resp:%v", util.ToJSON(resp))
+		imageIDs = append(imageIDs, resp.FileInfo.ID)
+	}
+	return imageIDs, nil
 }

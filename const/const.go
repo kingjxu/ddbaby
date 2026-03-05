@@ -66,3 +66,8 @@ const (
 	PorlandIcon   = "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/porland.png"
 	SwissIcon     = "https://lf3-static.bytednsdoc.com/obj/eden-cn/qeeh7upqbe/swiss.png"
 )
+
+const (
+	ImageTypeFileID = "file_id"
+	ImageTypeUrl    = "file_url"
+)
