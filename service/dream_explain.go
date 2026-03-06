@@ -135,7 +135,13 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 
 func UploadImages(ctx context.Context, images []string) ([]string, error) {
 	imageIDs := make([]string, 0)
-	for _, image := range images {
+	for index, image := range images {
+		imageType := util.DetectImageType([]byte(image))
+		if imageType == util.ImageTypeUnknown {
+			logrus.WithContext(ctx).Errorf("[UploadImage] unknown image type:%v", imageType)
+			return nil, fmt.Errorf("unknown image type:%v", imageType)
+		}
+		logrus.WithContext(ctx).Infof("[UploadImage] upload image index:%v,type:%v", index, imageType)
 		resp, err := cozeCli.Files.Upload(ctx, &coze.UploadFilesReq{
 			File: coze.NewUploadFile(strings.NewReader(image), fmt.Sprintf("%v.jpg", time.Now().UnixNano())),
 		})
