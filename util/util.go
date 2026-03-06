@@ -51,3 +51,12 @@ func UnmarshalString[T any](str string) T {
 	_ = sonic.UnmarshalString(str, &res)
 	return res
 }
+
+func Contains[T comparable](s []T, e T) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}

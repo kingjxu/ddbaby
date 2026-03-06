@@ -132,11 +132,11 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 	}
 	logrus.WithContext(ctx).Infof("[GetTexasPokerDecision] finalcontent:%v", content)
 	decision := util.UnmarshalString[TexasPokerDecision](content)
-	if !slices.Contains(_const.TexasPokerStageAll, decision.Stage) {
+	if !util.Contains(_const.TexasPokerStageAll, decision.Stage) {
 		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] unknown stage:%v", decision.Stage)
 		return "", 0, nil
 	}
-	if !slices.Contains(_const.TexasPokerActionAll, decision.Action) {
+	if !util.Contains(_const.TexasPokerActionAll, decision.Action) {
 		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] unknown action:%v", decision.Action)
 		return "", 0, nil
 	}
