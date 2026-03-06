@@ -71,3 +71,31 @@ const (
 	ImageTypeFileID = "file_id"
 	ImageTypeUrl    = "file_url"
 )
+
+const (
+	TexasPokerStagePreflop = "preflop"
+	TexasPokerStageFlop    = "flop"
+	TexasPokerStageTurn    = "turn"
+	TexasPokerStageRiver   = "river"
+
+	TexasPokerActionFold  = "fold"
+	TexasPokerActionCheck = "check"
+	TexasPokerActionCall  = "call"
+	TexasPokerActionBet   = "bet"
+	TexasPokerActionRaise = "raise"
+)
+
+var TexasPokerStageAll = []string{
+	TexasPokerStagePreflop,
+	TexasPokerStageFlop,
+	TexasPokerStageTurn,
+	TexasPokerStageRiver,
+}
+
+var TexasPokerActionAll = []string{
+	TexasPokerActionFold,
+	TexasPokerActionCheck,
+	TexasPokerActionCall,
+	TexasPokerActionBet,
+	TexasPokerActionRaise,
+}

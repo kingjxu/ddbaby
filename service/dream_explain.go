@@ -11,6 +11,7 @@ import (
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 	"io"
+	"slices"
 	"strings"
 	"time"
 )
@@ -42,6 +43,7 @@ func GetDreamExplain(ctx context.Context, dream string) (string, error) {
 }
 
 type TexasPokerDecision struct {
+	Stage   string `json:"stage"`
 	Action  string `json:"action"`
 	BetSize int32  `json:"bet_size"`
 }
@@ -130,6 +132,14 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 	}
 	logrus.WithContext(ctx).Infof("[GetTexasPokerDecision] finalcontent:%v", content)
 	decision := util.UnmarshalString[TexasPokerDecision](content)
+	if !slices.Contains(_const.TexasPokerStageAll, decision.Stage) {
+		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] unknown stage:%v", decision.Stage)
+		return "", 0, nil
+	}
+	if !slices.Contains(_const.TexasPokerActionAll, decision.Action) {
+		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] unknown action:%v", decision.Action)
+		return "", 0, nil
+	}
 	return decision.Action, decision.BetSize, nil
 }
 
