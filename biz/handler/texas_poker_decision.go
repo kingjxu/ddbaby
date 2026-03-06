@@ -25,7 +25,6 @@ func TexasPokerDecision(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] origin req:%v", string(c.Request.Body()))
 	resp, _ := NewTexasPokerDecisionHandler(&req).Handle(ctx)
 	c.JSON(consts.StatusOK, resp)
 }
@@ -57,7 +56,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	}
 	images := h.req.GetImages()
 	imageType := _const.ImageTypeUrl
-	if len(images) >= 512 { // 图片的二进制数据
+	if len(images[0]) > 512 { // 图片的二进制数据
 		imageIDs, err := service.UploadImages(ctx, images)
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.UploadImage err:%v", err)

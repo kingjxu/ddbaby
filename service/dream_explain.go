@@ -143,7 +143,7 @@ func UploadImages(ctx context.Context, images []string) ([]string, error) {
 			logrus.WithContext(ctx).Errorf("[UploadImage] cozeCli.Files.Upload err:%v", err)
 			return nil, err
 		}
-		logrus.WithContext(ctx).Infof("[UploadImage] resp:%v", util.ToJSON(resp))
+		logrus.WithContext(ctx).Infof("[UploadImage] imageLen:%v,resp:%v", len(image), util.ToJSON(resp))
 		imageIDs = append(imageIDs, resp.FileInfo.ID)
 	}
 	return imageIDs, nil
