@@ -49,7 +49,7 @@ func (h *TexasPokerDecisionHandler) check() error {
 }
 
 func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerDecisionResp, error) {
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] req:%v", util.ToJSON(h.req))
+	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imagesLen:%v", len(h.req.GetImages()))
 	if err := h.check(); err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] check err:%v", err)
 		return h.newResp(ctx, -1, "param err"), nil
