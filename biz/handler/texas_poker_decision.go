@@ -7,7 +7,6 @@ import (
 	"errors"
 	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/service"
-	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 
 	"github.com/cloudwego/hertz/pkg/app"
