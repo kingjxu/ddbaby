@@ -136,7 +136,7 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 func UploadImages(ctx context.Context, images []string) ([]string, error) {
 	imageIDs := make([]string, 0)
 	for index, image := range images {
-		logrus.WithContext(ctx).Infof("[UploadImages] len(image):%v", len(image))
+		logrus.WithContext(ctx).Infof("[UploadImages] len(orginImage):%v", len(image))
 		imageData, err := util.Base64Decode(image, false)
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[UploadImage] Base64Decode image err:%v", err)
@@ -147,7 +147,7 @@ func UploadImages(ctx context.Context, images []string) ([]string, error) {
 			logrus.WithContext(ctx).Errorf("[UploadImage] unknown image type:%v", imageType)
 			return nil, fmt.Errorf("unknown image type:%v", imageType)
 		}
-		logrus.WithContext(ctx).Infof("[UploadImage] upload image index:%v,type:%v,len(imageData):%v", index, imageType, len(imageData))
+		logrus.WithContext(ctx).Infof("[UploadImage] upload image index:%v,type:%v,len(realImage):%v", index, imageType, len(imageData))
 		resp, err := cozeCli.Files.Upload(ctx, &coze.UploadFilesReq{
 			File: coze.NewUploadFile(strings.NewReader(string(imageData)), fmt.Sprintf("%v.jpg", time.Now().UnixNano())),
 		})
@@ -155,7 +155,9 @@ func UploadImages(ctx context.Context, images []string) ([]string, error) {
 			logrus.WithContext(ctx).Errorf("[UploadImage] cozeCli.Files.Upload err:%v", err)
 			return nil, err
 		}
-		logrus.WithContext(ctx).Infof("[UploadImage] imageLen:%v,resp:%v", len(image), util.ToJSON(resp))
+
+		logrus.WithContext(ctx).Infof("[UploadImage] len(realImageData):%v,resp:%v", len(imageData), util.ToJSON(resp))
+		_ = util.WriteImageToFile(imageData, fmt.Sprintf("/usr/local/webserver/images/%v.jpg", resp.FileInfo.ID))
 		imageIDs = append(imageIDs, resp.FileInfo.ID)
 	}
 	return imageIDs, nil

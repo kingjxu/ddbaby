@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"os"
 )
 
 type ImageType string
@@ -85,4 +86,29 @@ func Base64Decode(input string, isURL bool) ([]byte, error) {
 		return nil, fmt.Errorf("解码失败: %w", err) // 包装错误，保留原始信息
 	}
 	return data, nil
+}
+
+func WriteImageToFile(data []byte, filePath string) error {
+	// 创建文件：
+	// os.Create 会创建文件（如果不存在），如果存在则清空内容
+	// 权限 0644 表示：所有者可读写，其他用户只读（通用文件权限）
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err // 返回创建文件的错误
+	}
+	// 延迟关闭文件，确保文件句柄被释放
+	defer file.Close()
+
+	// 将二进制数据写入文件
+	_, err = file.Write(data)
+	if err != nil {
+		return err // 返回写入数据的错误
+	}
+
+	// 强制将缓冲区数据刷入磁盘（确保数据完整写入）
+	err = file.Sync()
+	if err != nil {
+		return err
+	}
+	return nil
 }
