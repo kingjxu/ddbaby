@@ -1,5 +1,11 @@
 package util
 
+import (
+	"encoding/base64"
+	"errors"
+	"fmt"
+)
+
 type ImageType string
 
 const (
@@ -54,4 +60,29 @@ func DetectImageType(data []byte) ImageType {
 
 	// 都不匹配则为未知
 	return ImageTypeUnknown
+}
+
+// Base64Decode 通用 Base64 解码函数（支持标准/URL 模式）
+// input: Base64 编码字符串
+// isURL: 是否为 URL 安全的 Base64 编码
+// 返回：解码后的二进制数据、错误信息
+func Base64Decode(input string, isURL bool) ([]byte, error) {
+	// 空输入直接返回错误
+	if input == "" {
+		return nil, errors.New("Base64 编码字符串不能为空")
+	}
+
+	var decoder *base64.Encoding
+	if isURL {
+		decoder = base64.URLEncoding // URL 安全模式
+	} else {
+		decoder = base64.StdEncoding // 标准模式
+	}
+
+	// 执行解码（核心操作）
+	data, err := decoder.DecodeString(input)
+	if err != nil {
+		return nil, fmt.Errorf("解码失败: %w", err) // 包装错误，保留原始信息
+	}
+	return data, nil
 }
