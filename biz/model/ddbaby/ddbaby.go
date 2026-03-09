@@ -503,7 +503,8 @@ func (p *TaLuoPredictResp) String() string {
 }
 
 type TexasPokerDecisionReq struct {
-	Images []string `thrift:"Images,1,optional" json:"Images,omitempty" query:"images"`
+	Images    []string `thrift:"Images,1,optional" json:"Images,omitempty" query:"images"`
+	ImageTime *int64   `thrift:"ImageTime,2,optional" json:"ImageTime,omitempty" query:"image_time"`
 }
 
 func NewTexasPokerDecisionReq() *TexasPokerDecisionReq {
@@ -522,8 +523,21 @@ func (p *TexasPokerDecisionReq) GetImages() (v []string) {
 	return p.Images
 }
 
+var TexasPokerDecisionReq_ImageTime_DEFAULT int64
+
+func (p *TexasPokerDecisionReq) GetImageTime() (v int64) {
+	if !p.IsSetImageTime() {
+		return TexasPokerDecisionReq_ImageTime_DEFAULT
+	}
+	return *p.ImageTime
+}
+
 func (p *TexasPokerDecisionReq) IsSetImages() bool {
 	return p.Images != nil
+}
+
+func (p *TexasPokerDecisionReq) IsSetImageTime() bool {
+	return p.ImageTime != nil
 }
 
 func (p *TexasPokerDecisionReq) String() string {

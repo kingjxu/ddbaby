@@ -8,6 +8,7 @@ import (
 	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/sirupsen/logrus"
+	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -44,11 +45,14 @@ func (h *TexasPokerDecisionHandler) check() error {
 	if len(h.req.GetImages()) == 0 {
 		return errors.New("images is empty")
 	}
+	if h.req.GetImageTime() > 0 && h.req.GetImageTime() < time.Now().Unix()-4 {
+		return errors.New("image too old")
+	}
 	return nil
 }
 
 func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerDecisionResp, error) {
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imagesLen:%v", len(h.req.GetImages()))
+	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imagesLen:%v, imageTime:%v", len(h.req.GetImages()), h.req.GetImageTime())
 	if err := h.check(); err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] check err:%v", err)
 		return h.newResp(ctx, -1, "param err"), nil
