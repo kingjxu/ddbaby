@@ -129,7 +129,7 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 			break
 		}
 	}
-	logrus.WithContext(ctx).Infof("[GetTexasPokerDecision] finalcontent:%v", content)
+	logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] messageObject:%v, finalcontent:%v", util.ToJSON(messageObject), content)
 	decision := util.UnmarshalString[TexasPokerDecision](content)
 	if !util.Contains(_const.TexasPokerStageAll, decision.Stage) {
 		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] unknown stage:%v", decision.Stage)
@@ -142,6 +142,7 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 	return decision.Action, decision.BetSize, nil
 }
 
+// UploadImages 上传到coze，返回的是fileID
 func UploadImages(ctx context.Context, images []string) ([]string, error) {
 	imageIDs := make([]string, 0)
 	for index, image := range images {
@@ -170,4 +171,32 @@ func UploadImages(ctx context.Context, images []string) ([]string, error) {
 		imageIDs = append(imageIDs, resp.FileInfo.ID)
 	}
 	return imageIDs, nil
+}
+
+// UploadImagesV2 返回图片的URL
+func UploadImagesV2(ctx context.Context, images []string) ([]string, error) {
+	imageUrls := make([]string, 0)
+	for index, image := range images {
+		logrus.WithContext(ctx).Infof("[UploadImages] len(orginImage):%v", len(image))
+		imageData, err := util.Base64Decode(image, false)
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("[UploadImage] Base64Decode image err:%v", err)
+			return nil, err
+		}
+		imageType := util.DetectImageType(imageData)
+		if imageType == util.ImageTypeUnknown {
+			logrus.WithContext(ctx).Errorf("[UploadImage] unknown image type:%v", imageType)
+			return nil, fmt.Errorf("unknown image type:%v", imageType)
+		}
+		logrus.WithContext(ctx).Infof("[UploadImage] upload image index:%v,type:%v,len(realImage):%v", index, imageType, len(imageData))
+		fileName := fmt.Sprintf("%v.jpg", time.Now().UnixNano())
+		_ = util.WriteImageToFile(imageData, fmt.Sprintf("/usr/local/webserver/images/%v", fileName))
+		imageUrl, err := util.UploadImage(fileName)
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("[UploadImage] UploadImage err:%v", err)
+			return nil, err
+		}
+		imageUrls = append(imageUrls, imageUrl)
+	}
+	return imageUrls, nil
 }
