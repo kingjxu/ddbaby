@@ -189,8 +189,8 @@ func UploadImagesV2(ctx context.Context, images []string) ([]string, error) {
 			return nil, fmt.Errorf("unknown image type:%v", imageType)
 		}
 		logrus.WithContext(ctx).Infof("[UploadImage] upload image index:%v,type:%v,len(realImage):%v", index, imageType, len(imageData))
-		fileName := fmt.Sprintf("%v.jpg", time.Now().UnixNano())
-		_ = util.WriteImageToFile(imageData, fmt.Sprintf("/usr/local/webserver/images/%v", fileName))
+		fileName := fmt.Sprintf("/usr/local/webserver/images/%v.jpg", time.Now().UnixNano())
+		_ = util.WriteImageToFile(imageData, fileName)
 		imageUrl, err := util.UploadImage(fileName)
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[UploadImage] UploadImage err:%v", err)
