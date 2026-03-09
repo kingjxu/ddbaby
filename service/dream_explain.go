@@ -128,8 +128,9 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 		if event.Event == coze.ChatEventConversationMessageCompleted {
 			break
 		}
+		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] cur content:%v", content)
 	}
-	logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] messageObject:%v, finalcontent:%v", util.ToJSON(messageObject), content)
+	logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] messageObject:%v, finalcontent:%v", util.ToJSON(messageObject), resp.)
 	decision := util.UnmarshalString[TexasPokerDecision](content)
 	if !util.Contains(_const.TexasPokerStageAll, decision.Stage) {
 		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] unknown stage:%v", decision.Stage)
