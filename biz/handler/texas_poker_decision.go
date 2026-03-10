@@ -7,6 +7,7 @@ import (
 	"errors"
 	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/service"
+	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 	"time"
 
@@ -26,6 +27,7 @@ func TexasPokerDecision(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp, _ := NewTexasPokerDecisionHandler(&req).Handle(ctx)
+	logrus.WithContext(ctx).Infof("[TexasPokerDecision] resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
 }
 
