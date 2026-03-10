@@ -82,8 +82,6 @@ func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32,
 }
 
 func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType string) (string, int32, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
 	var messageObject []*coze.MessageObjectString
 	for _, image := range images {
 		objectString := &coze.MessageObjectString{
