@@ -103,6 +103,8 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 			coze.BuildUserQuestionObjects(messageObject, nil),
 		},
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] messageObject:%v", util.ToJSON(messageObject))
 	resp, err := cozeCli.Chat.Stream(ctx, req)
 	if err != nil {
@@ -126,6 +128,7 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 		if event.Event == coze.ChatEventConversationMessageCompleted {
 			break
 		}
+		logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] messageObject:%v, finalcontent:%v", util.ToJSON(messageObject), content)
 	}
 	logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] messageObject:%v, finalcontent:%v", util.ToJSON(messageObject), content)
 	decision := util.UnmarshalString[TexasPokerDecision](content)
