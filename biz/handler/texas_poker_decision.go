@@ -61,14 +61,21 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	}
 	images := h.req.GetImages()
 	imageType := _const.ImageTypeUrl
-	if len(images[0]) > 512 { // 图片的二进制数据
-		imageIDs, err := service.UploadImagesV2(ctx, images)
+	if len(images[0]) > 512 && h.req.GetImageType() == _const.ImageTypeUrl { // 图片的二进制数据
+		imageUrls, err := service.UploadImagesV2(ctx, images)
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.UploadImage err:%v", err)
 			return h.newResp(ctx, -2, "upload image err"), nil
 		}
-		//	imageType = _const.ImageTypeFileID
+		images = imageUrls
+	} else if len(images[0]) > 512 && h.req.GetImageType() == _const.ImageTypeFileID { // 图片的fileID
+		imageIDs, err := service.UploadImages(ctx, images)
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.UploadImage err:%v", err)
+			return h.newResp(ctx, -2, "upload image err"), nil
+		}
 		images = imageIDs
+		imageType = _const.ImageTypeFileID
 	}
 
 	action, betSize, err := service.GetTexasPokerDecisionV2(ctx, images, imageType)
