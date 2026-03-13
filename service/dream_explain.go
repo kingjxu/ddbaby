@@ -128,7 +128,6 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 		if event.Event == coze.ChatEventConversationMessageCompleted {
 			break
 		}
-		logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] messageObject:%v, finalcontent:%v", util.ToJSON(messageObject), content)
 	}
 	logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] messageObject:%v, finalcontent:%v", util.ToJSON(messageObject), content)
 	decision := util.UnmarshalString[TexasPokerDecision](content)
@@ -166,7 +165,7 @@ func UploadImages(ctx context.Context, images []string) ([]string, error) {
 			logrus.WithContext(ctx).Errorf("[UploadImage] cozeCli.Files.Upload err:%v", err)
 			return nil, err
 		}
-		imageUrls, err := UploadImagesV2(ctx, []string{string(imageData)})
+		imageUrls, err := UploadImagesV2(ctx, []string{image})
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[UploadImage] UploadImagesV2 err:%v", err)
 		}
