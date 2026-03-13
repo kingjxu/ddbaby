@@ -61,7 +61,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	}
 	images := h.req.GetImages()
 	imageType := _const.ImageTypeUrl
-	if len(images[0]) > 512 && h.req.GetImageType() == _const.ImageTypeUrl { // 图片的二进制数据
+	if len(images[0]) > 512 && (h.req.GetImageType() == _const.ImageTypeUrl || h.req.GetImageType() == "") { // 图片的二进制数据
 		imageUrls, err := service.UploadImagesV2(ctx, images)
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.UploadImage err:%v", err)
