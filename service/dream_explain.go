@@ -129,6 +129,7 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 			content += event.Message.Content
 			break
 		}
+		logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] curContent:%v", content)
 	}
 	logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] messageObject:%v, finalcontent:%v", util.ToJSON(messageObject), content)
 	decision := util.UnmarshalString[TexasPokerDecision](content)
