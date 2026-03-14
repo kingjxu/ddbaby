@@ -45,13 +45,6 @@ func TexasPokerDecision(ctx context.Context, imageURL string) string {
 					},
 				},
 			},
-			{
-				Union: &responses.ContentItem_Text{
-					Text: &responses.ContentItemText{
-						Type: responses.ContentItemType_input_text,
-					},
-				},
-			},
 		},
 	}
 
