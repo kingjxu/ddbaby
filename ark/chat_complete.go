@@ -49,7 +49,8 @@ func TexasPokerDecision(ctx context.Context, imageURL string) string {
 	}
 
 	resp, err := client.CreateResponses(ctx, &responses.ResponsesRequest{
-		Model: "ep-20251028100133-mj9v2",
+		Thinking: &responses.ResponsesThinking{Type: util.Ptr(responses.ThinkingType_disabled)},
+		Model:    "ep-20251028100133-mj9v2",
 		Input: &responses.ResponsesInput{
 			Union: &responses.ResponsesInput_ListValue{
 				ListValue: &responses.InputItemList{ListValue: []*responses.InputItem{
