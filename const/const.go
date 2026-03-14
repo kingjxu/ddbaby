@@ -17,6 +17,8 @@ const (
 	BaiduUploadUrl = "https://ocpc.baidu.com/ocpcapi/api/uploadConvertData"
 
 	ProfessorUrl = "https://work.weixin.qq.com/ca/cawcde2a866722fe78"
+
+	ArkApiKey = "a72ae427-50b5-4c17-866c-8c9fa9d014d4" // 火山方舟的key
 )
 
 const (

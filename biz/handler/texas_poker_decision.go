@@ -5,6 +5,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"github.com/kingjxu/ddbaby/ark"
 	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
@@ -77,12 +78,14 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		images = imageIDs
 		imageType = _const.ImageTypeFileID
 	}
-
-	action, betSize, err := service.GetTexasPokerDecisionV2(ctx, images, imageType)
-	if err != nil {
-		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.GetTexasPokerDecision err:%v", err)
-		return h.newResp(ctx, -2, "get decision err"), nil
-	}
+	ark.TexasPokerDecision(ctx, images[0])
+	action, betSize := imageType, int32(0)
+	/*
+		action, betSize, err := service.GetTexasPokerDecisionV2(ctx, images, imageType)
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.GetTexasPokerDecision err:%v", err)
+			return h.newResp(ctx, -2, "get decision err"), nil
+		}*/
 	h.Action = action
 	h.BetSize = betSize
 	return h.newResp(ctx, 0, ""), nil
