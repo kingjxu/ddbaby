@@ -72,6 +72,6 @@ func TexasPokerDecision(ctx context.Context, imageURL string) string {
 		logrus.WithContext(ctx).Errorf("client.CreateResponses failed: err=%v", err)
 		return ""
 	}
-	logrus.WithContext(ctx).Infof("response: %v", resp)
+	logrus.WithContext(ctx).Infof("response: %v", util.ToJSON(resp))
 	return ""
 }
