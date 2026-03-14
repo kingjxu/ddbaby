@@ -126,6 +126,7 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 			content += event.Message.Content
 		}
 		if event.Event == coze.ChatEventConversationMessageCompleted {
+			content += event.Message.Content
 			break
 		}
 	}
