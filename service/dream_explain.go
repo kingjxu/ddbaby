@@ -122,7 +122,6 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 			logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] cozeCli.Chat.Stream.Recv err:%v", err)
 			return "", 0, err
 		}
-		logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] event:%v, content:%v", util.ToJSON(event), content)
 		if event.Event == coze.ChatEventConversationMessageDelta && event.Message.Role == coze.MessageRoleAssistant {
 			content += event.Message.Content
 		}
