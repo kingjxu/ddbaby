@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/kingjxu/ddbaby/ark"
 	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
@@ -64,14 +63,14 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	}
 	images := h.req.GetImages()
 	imageType := _const.ImageTypeUrl
-	if len(images[0]) > 512 && (h.req.GetImageType() == _const.ImageTypeUrl || h.req.GetImageType() == "") { // 图片的二进制数据
+	if len(images[0]) > 512 && h.req.GetImageType() == _const.ImageTypeUrl { // 图片的二进制数据
 		imageUrls, err := service.UploadImagesV2(ctx, images)
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.UploadImage err:%v", err)
 			return h.newResp(ctx, "upload image err"), nil
 		}
 		images = imageUrls
-	} else if len(images[0]) > 512 && (h.req.GetImageType() == _const.ImageTypeFileID) { // 图片的fileID
+	} else if len(images[0]) > 512 && (h.req.GetImageType() == _const.ImageTypeFileID || h.req.GetImageType() == "") { // 图片的fileID
 		imageIDs, err := service.UploadImages(ctx, images)
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.UploadImage err:%v", err)
@@ -80,20 +79,23 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		images = imageIDs
 		imageType = _const.ImageTypeFileID
 	}
-	decision := util.UnmarshalString[TexasPokerDecisionV2](ark.TexasPokerDecision(ctx, images[0]))
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imageType:%v, decision:%v", imageType, util.ToJSON(decision))
-	return h.newResp(ctx, getFinalDecision(decision)), nil
+	action, BetSize, err := service.GetTexasPokerDecisionV2(ctx, images, imageType)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.GetTexasPokerDecisionV2 err:%v", err)
+		return h.newResp(ctx, "get decision err"), nil
+	}
+	return h.newResp(ctx, getFinalDecision(action, BetSize)), nil
 }
 
-func getFinalDecision(decision TexasPokerDecisionV2) string {
-	if strings.ToLower(decision.Action) == "fold" {
+func getFinalDecision(action string, BetSize int32) string {
+	if strings.ToLower(action) == "fold" {
 		return "弃牌"
-	} else if strings.ToLower(decision.Action) == "check" {
+	} else if strings.ToLower(action) == "check" {
 		return "过牌"
-	} else if strings.ToLower(decision.Action) == "bet" {
-		return fmt.Sprintf("下注 %d", decision.BetSize)
-	} else if strings.ToLower(decision.Action) == "raise" {
-		return fmt.Sprintf("加注 %d", decision.BetSize)
+	} else if strings.ToLower(action) == "bet" {
+		return fmt.Sprintf("下注 %d", BetSize)
+	} else if strings.ToLower(action) == "raise" {
+		return fmt.Sprintf("加注 %d", BetSize)
 	}
 	return ""
 }
