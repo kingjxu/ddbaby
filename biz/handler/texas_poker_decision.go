@@ -78,16 +78,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		images = imageIDs
 		imageType = _const.ImageTypeFileID
 	}
-	ark.TexasPokerDecision(ctx, images[0])
-	action, betSize := imageType, int32(0)
-	/*
-		action, betSize, err := service.GetTexasPokerDecisionV2(ctx, images, imageType)
-		if err != nil {
-			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.GetTexasPokerDecision err:%v", err)
-			return h.newResp(ctx, -2, "get decision err"), nil
-		}*/
-	h.Action = action
-	h.BetSize = betSize
+	decision := util.UnmarshalString[TexasPokerDecisionV2](ark.TexasPokerDecision(ctx, images[0]))
 	return h.newResp(ctx, 0, ""), nil
 }
 
@@ -101,4 +92,12 @@ func (h *TexasPokerDecisionHandler) newResp(ctx context.Context, code int32, msg
 	resp.Action = &h.Action
 	resp.BetSize = &h.BetSize
 	return resp
+}
+
+type TexasPokerDecisionV2 struct {
+	Stage          string `json:"stage"`
+	Action         string `json:"action"`
+	BetSize        int32  `json:"bet_size"`
+	HoleCards      string `json:"hole_cards"`
+	CommunityCards string `json:"community_cards"`
 }

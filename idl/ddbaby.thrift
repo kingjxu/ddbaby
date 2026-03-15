@@ -64,10 +64,7 @@ struct TexasPokerDecisionReq {
     3: optional string ImageType (api.query="image_type");
 }
 struct TexasPokerDecisionResp {
-    1: optional string Action;
-    2: optional i32 BetSize;
-
-    255: BaseResp BaseResp;
+    1: optional string Result;
 }
 
 
