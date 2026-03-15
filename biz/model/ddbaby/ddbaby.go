@@ -562,9 +562,7 @@ func (p *TexasPokerDecisionReq) String() string {
 }
 
 type TexasPokerDecisionResp struct {
-	Action   *string   `thrift:"Action,1,optional" form:"Action" json:"Action,omitempty" query:"Action"`
-	BetSize  *int32    `thrift:"BetSize,2,optional" form:"BetSize" json:"BetSize,omitempty" query:"BetSize"`
-	BaseResp *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+	Result *string `thrift:"Result,1,optional" form:"Result" json:"Result,omitempty" query:"Result"`
 }
 
 func NewTexasPokerDecisionResp() *TexasPokerDecisionResp {
@@ -574,43 +572,17 @@ func NewTexasPokerDecisionResp() *TexasPokerDecisionResp {
 func (p *TexasPokerDecisionResp) InitDefault() {
 }
 
-var TexasPokerDecisionResp_Action_DEFAULT string
+var TexasPokerDecisionResp_Result_DEFAULT string
 
-func (p *TexasPokerDecisionResp) GetAction() (v string) {
-	if !p.IsSetAction() {
-		return TexasPokerDecisionResp_Action_DEFAULT
+func (p *TexasPokerDecisionResp) GetResult() (v string) {
+	if !p.IsSetResult() {
+		return TexasPokerDecisionResp_Result_DEFAULT
 	}
-	return *p.Action
+	return *p.Result
 }
 
-var TexasPokerDecisionResp_BetSize_DEFAULT int32
-
-func (p *TexasPokerDecisionResp) GetBetSize() (v int32) {
-	if !p.IsSetBetSize() {
-		return TexasPokerDecisionResp_BetSize_DEFAULT
-	}
-	return *p.BetSize
-}
-
-var TexasPokerDecisionResp_BaseResp_DEFAULT *BaseResp
-
-func (p *TexasPokerDecisionResp) GetBaseResp() (v *BaseResp) {
-	if !p.IsSetBaseResp() {
-		return TexasPokerDecisionResp_BaseResp_DEFAULT
-	}
-	return p.BaseResp
-}
-
-func (p *TexasPokerDecisionResp) IsSetAction() bool {
-	return p.Action != nil
-}
-
-func (p *TexasPokerDecisionResp) IsSetBetSize() bool {
-	return p.BetSize != nil
-}
-
-func (p *TexasPokerDecisionResp) IsSetBaseResp() bool {
-	return p.BaseResp != nil
+func (p *TexasPokerDecisionResp) IsSetResult() bool {
+	return p.Result != nil
 }
 
 func (p *TexasPokerDecisionResp) String() string {

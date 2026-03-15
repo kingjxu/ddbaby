@@ -5,11 +5,13 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/kingjxu/ddbaby/ark"
 	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
+	"strings"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -58,39 +60,47 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imagesLen:%v, imageTime:%v", len(h.req.GetImages()), h.req.GetImageTime())
 	if err := h.check(); err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] check err:%v", err)
-		return h.newResp(ctx, -1, "param err"), nil
+		return h.newResp(ctx, "param err"), nil
 	}
 	images := h.req.GetImages()
 	imageType := _const.ImageTypeUrl
-	if len(images[0]) > 512 && h.req.GetImageType() == _const.ImageTypeUrl { // 图片的二进制数据
+	if len(images[0]) > 512 && (h.req.GetImageType() == _const.ImageTypeUrl || h.req.GetImageType() == "") { // 图片的二进制数据
 		imageUrls, err := service.UploadImagesV2(ctx, images)
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.UploadImage err:%v", err)
-			return h.newResp(ctx, -2, "upload image err"), nil
+			return h.newResp(ctx, "upload image err"), nil
 		}
 		images = imageUrls
-	} else if len(images[0]) > 512 && (h.req.GetImageType() == _const.ImageTypeFileID || h.req.GetImageType() == "") { // 图片的fileID
+	} else if len(images[0]) > 512 && (h.req.GetImageType() == _const.ImageTypeFileID) { // 图片的fileID
 		imageIDs, err := service.UploadImages(ctx, images)
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.UploadImage err:%v", err)
-			return h.newResp(ctx, -2, "upload image err"), nil
+			return h.newResp(ctx, "upload image err"), nil
 		}
 		images = imageIDs
 		imageType = _const.ImageTypeFileID
 	}
 	decision := util.UnmarshalString[TexasPokerDecisionV2](ark.TexasPokerDecision(ctx, images[0]))
-	return h.newResp(ctx, 0, ""), nil
+	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imageType:%v, decision:%v", imageType, util.ToJSON(decision))
+	return h.newResp(ctx, getFinalDecision(decision)), nil
 }
 
-func (h *TexasPokerDecisionHandler) newResp(ctx context.Context, code int32, msg string) *ddbaby.TexasPokerDecisionResp {
-	resp := &ddbaby.TexasPokerDecisionResp{
-		BaseResp: &ddbaby.BaseResp{
-			StatusMessage: msg,
-			StatusCode:    code,
-		},
+func getFinalDecision(decision TexasPokerDecisionV2) string {
+	if strings.ToLower(decision.Action) == "fold" {
+		return "弃牌"
+	} else if strings.ToLower(decision.Action) == "check" {
+		return "过牌"
+	} else if strings.ToLower(decision.Action) == "bet" {
+		return fmt.Sprintf("下注 %d", decision.BetSize)
+	} else if strings.ToLower(decision.Action) == "raise" {
+		return fmt.Sprintf("加注 %d", decision.BetSize)
 	}
-	resp.Action = &h.Action
-	resp.BetSize = &h.BetSize
+	return ""
+}
+func (h *TexasPokerDecisionHandler) newResp(ctx context.Context, result string) *ddbaby.TexasPokerDecisionResp {
+	resp := &ddbaby.TexasPokerDecisionResp{
+		Result: util.Ptr(result),
+	}
 	return resp
 }
 
