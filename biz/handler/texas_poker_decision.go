@@ -105,11 +105,3 @@ func (h *TexasPokerDecisionHandler) newResp(ctx context.Context, result string) 
 	}
 	return resp
 }
-
-type TexasPokerDecisionV2 struct {
-	Stage          string `json:"stage"`
-	Action         string `json:"action"`
-	BetSize        int32  `json:"bet_size"`
-	HoleCards      string `json:"hole_cards"`
-	CommunityCards string `json:"community_cards"`
-}
