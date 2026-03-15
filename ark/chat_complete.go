@@ -120,5 +120,8 @@ func TexasPokerDecision(ctx context.Context, imageURL string) string {
 		return ""
 	}
 	logrus.WithContext(ctx).Infof("response: %v", util.ToJSON(resp))
+	logrus.WithContext(ctx).Infof("resp.GetOutput()[0]: %v", util.ToJSON(resp.GetOutput()[0]))
+	logrus.WithContext(ctx).Infof("resp.GetOutput()[0].GetOutputMessage().GetContent()[0] %v", resp.GetOutput()[0].GetOutputMessage().GetContent()[0])
+
 	return resp.GetOutput()[0].GetOutputMessage().GetContent()[0].GetText().GetText()
 }
