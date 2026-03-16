@@ -42,9 +42,12 @@ func GetDreamExplain(ctx context.Context, dream string) (string, error) {
 }
 
 type TexasPokerDecision struct {
-	Stage   string `json:"stage"`
-	Action  string `json:"action"`
-	BetSize int32  `json:"bet_size"`
+	HoleCards      string `json:"hole_cards"`
+	CommunityCards string `json:"community_cards"`
+	IsMyTurn       bool   `json:"is_my_turn"`
+	Stage          string `json:"stage"`
+	Action         string `json:"action"`
+	BetSize        int32  `json:"bet_size"`
 }
 
 func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32, error) {
@@ -81,7 +84,7 @@ func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32,
 	return decision.Action, decision.BetSize, nil
 }
 
-func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType string) (string, int32, error) {
+func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType string) (*TexasPokerDecision, error) {
 	var messageObject []*coze.MessageObjectString
 	for _, image := range images {
 		objectString := &coze.MessageObjectString{
@@ -96,7 +99,7 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 	}
 
 	req := &coze.CreateChatsReq{
-		BotID:  _const.TexasPokerDecisionBotID,
+		BotID:  _const.TexasPokerDecisionBotIDV2,
 		UserID: fmt.Sprintf("%v", time.Now().Unix()),
 		Stream: util.Ptr(false),
 		Messages: []*coze.Message{
@@ -109,7 +112,7 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 	resp, err := cozeCli.Chat.Stream(ctx, req)
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] cozeCli.Chat.Stream err:%v", err)
-		return "", 0, err
+		return nil, err
 	}
 	defer resp.Close()
 	content := ""
@@ -120,7 +123,7 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 		}
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] cozeCli.Chat.Stream.Recv err:%v", err)
-			return "", 0, err
+			return nil, err
 		}
 		if event.Event == coze.ChatEventConversationMessageDelta && event.Message.Role == coze.MessageRoleAssistant {
 			content += event.Message.Content
@@ -131,16 +134,16 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 		}
 	}
 	logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] messageObject:%v, finalcontent:%v", util.ToJSON(messageObject), content)
-	decision := util.UnmarshalString[TexasPokerDecision](content)
+	decision := util.UnmarshalString[*TexasPokerDecision](content)
 	if !util.Contains(_const.TexasPokerStageAll, strings.ToLower(decision.Stage)) {
 		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] unknown stage:%v", decision.Stage)
-		return "", 0, nil
+		return nil, nil
 	}
 	if !util.Contains(_const.TexasPokerActionAll, strings.ToLower(decision.Action)) {
 		logrus.WithContext(ctx).Errorf("[GetTexasPokerDecision] unknown action:%v", decision.Action)
-		return "", 0, nil
+		return nil, nil
 	}
-	return decision.Action, decision.BetSize, nil
+	return decision, nil
 }
 
 // UploadImages 上传到coze，返回的是fileID

@@ -79,23 +79,29 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		images = imageIDs
 		imageType = _const.ImageTypeFileID
 	}
-	action, BetSize, err := service.GetTexasPokerDecisionV2(ctx, images, imageType)
+	decision, err := service.GetTexasPokerDecisionV2(ctx, images, imageType)
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.GetTexasPokerDecisionV2 err:%v", err)
 		return h.newResp(ctx, "get decision err"), nil
 	}
-	return h.newResp(ctx, getFinalDecision(action, BetSize)), nil
+	return h.newResp(ctx, getFinalDecision(decision)), nil
 }
 
-func getFinalDecision(action string, BetSize int32) string {
-	if strings.ToLower(action) == "fold" {
+func getFinalDecision(decision *service.TexasPokerDecision) string {
+	if decision == nil {
+		return ""
+	}
+	if !decision.IsMyTurn {
+		return ""
+	}
+	if strings.ToLower(decision.Action) == "fold" {
 		return "弃牌"
-	} else if strings.ToLower(action) == "check" {
+	} else if strings.ToLower(decision.Action) == "check" {
 		return "过牌"
-	} else if strings.ToLower(action) == "bet" {
-		return fmt.Sprintf("下注 %d", BetSize)
-	} else if strings.ToLower(action) == "raise" {
-		return fmt.Sprintf("加注 %d", BetSize)
+	} else if strings.ToLower(decision.Action) == "bet" {
+		return fmt.Sprintf("下注 %d", decision.BetSize)
+	} else if strings.ToLower(decision.Action) == "raise" {
+		return fmt.Sprintf("加注 %d", decision.BetSize)
 	}
 	return ""
 }
