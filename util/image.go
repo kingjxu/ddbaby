@@ -1,10 +1,14 @@
 package util
 
 import (
+	"bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"image"
 	"os"
+
+	"image/jpeg"
 )
 
 type ImageType string
@@ -111,4 +115,26 @@ func WriteImageToFile(data []byte, filePath string) error {
 		return err
 	}
 	return nil
+}
+
+func CompressJPEGFromBytes(imgData []byte, quality int) ([]byte, error) {
+	// 1. 从二进制数据解码图片
+	img, _, err := image.Decode(bytes.NewReader(imgData))
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. 创建缓冲区，把压缩后的图片写到内存
+	buf := new(bytes.Buffer)
+
+	// 3. JPEG 编码 + 压缩（核心）
+	err = jpeg.Encode(buf, img, &jpeg.Options{
+		Quality: quality, // 压缩质量
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// 4. 返回压缩后的二进制
+	return buf.Bytes(), nil
 }

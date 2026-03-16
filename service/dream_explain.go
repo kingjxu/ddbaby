@@ -132,7 +132,7 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 			content += event.Message.Content
 			break
 		}
-		logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] event:%v, curContent:%v", util.ToJSON(event), content)
+		logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] curContent:%v", content)
 	}
 	logrus.WithContext(ctx).Infof("[GetTexasPokerDecisionV2] messageObject:%v, finalcontent:%v", util.ToJSON(messageObject), content)
 	decision := util.UnmarshalString[*TexasPokerDecision](content)
@@ -157,12 +157,14 @@ func UploadImages(ctx context.Context, images []string) ([]string, error) {
 			logrus.WithContext(ctx).Errorf("[UploadImage] Base64Decode image err:%v", err)
 			return nil, err
 		}
-		imageType := util.DetectImageType(imageData)
-		if imageType == util.ImageTypeUnknown {
-			logrus.WithContext(ctx).Errorf("[UploadImage] unknown image type:%v", imageType)
-			return nil, fmt.Errorf("unknown image type:%v", imageType)
+		logrus.WithContext(ctx).Infof("[UploadImage] upload image index:%v,len(realImage):%v", index, len(imageData))
+		compressImageData, err := util.CompressJPEGFromBytes(imageData, 50)
+		if err == nil {
+			logrus.WithContext(ctx).Infof("[UploadImage] CompressJPEGFromBytes orgLen:%v,compressLen:%v", len(imageData), len(compressImageData))
+			imageData = compressImageData
+		} else {
+			logrus.WithContext(ctx).Errorf("[UploadImage] CompressJPEGFromBytes err:%v, but has no effect", err)
 		}
-		logrus.WithContext(ctx).Infof("[UploadImage] upload image index:%v,type:%v,len(realImage):%v", index, imageType, len(imageData))
 		resp, err := cozeCli.Files.Upload(ctx, &coze.UploadFilesReq{
 			File: coze.NewUploadFile(strings.NewReader(string(imageData)), fmt.Sprintf("%v.jpg", time.Now().UnixNano())),
 		})
