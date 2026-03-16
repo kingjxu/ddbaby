@@ -29,6 +29,8 @@ github.com/cloudwego/netpoll v0.6.0 h1:JRMkrA1o8k/4quxzg6Q1XM+zIhwZsyoWlq6ef+ht3
 github.com/cloudwego/netpoll v0.6.0/go.mod h1:xVefXptcyheopwNDZjDPcfU6kIjZXZ4nY550k1yH9eQ=
 github.com/coze-dev/coze-go v0.0.0-20251217090046-c70184300a2f h1:6dkvN+Po8UoxUSRACn2SS/uv7CsbOLf4Xwt8eLu1HPM=
 github.com/coze-dev/coze-go v0.0.0-20251217090046-c70184300a2f/go.mod h1:wdT5CFt/sFsWz9hna2Z7DWzUra9spx0SoX1PUZyoSB0=
+github.com/coze-dev/coze-go v0.0.0-20260303032728-01875f396c48 h1:+N+it73s+/HZvasDluRQgInXnhVvTxP1tmU0rq1HNjc=
+github.com/coze-dev/coze-go v0.0.0-20260303032728-01875f396c48/go.mod h1:wdT5CFt/sFsWz9hna2Z7DWzUra9spx0SoX1PUZyoSB0=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

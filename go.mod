@@ -7,7 +7,7 @@ replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 require (
 	github.com/bytedance/sonic v1.11.9
 	github.com/cloudwego/hertz v0.9.1
-	github.com/coze-dev/coze-go v0.0.0-20251217090046-c70184300a2f
+	github.com/coze-dev/coze-go v0.0.0-20260303032728-01875f396c48
 	github.com/json-iterator/go v1.1.12
 	github.com/sirupsen/logrus v1.9.3
 	github.com/volcengine/volcengine-go-sdk v1.2.19
