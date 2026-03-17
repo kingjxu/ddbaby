@@ -11,6 +11,7 @@ import (
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 	"io"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -19,7 +20,10 @@ var cozeCli coze.CozeAPI
 
 func init() {
 	authCli := coze.NewTokenAuth(_const.CozeTokenV3)
-	cozeCli = coze.NewCozeAPI(authCli, coze.WithBaseURL("https://api.coze.cn"))
+	httpClient := &http.Client{
+		Timeout: time.Second * 10,
+	}
+	cozeCli = coze.NewCozeAPI(authCli, coze.WithBaseURL("https://api.coze.cn"), coze.WithHttpClient(httpClient))
 }
 func GetDreamExplain(ctx context.Context, dream string) (string, error) {
 	req := GetCozeHttpRequest()
