@@ -98,6 +98,8 @@ func getFinalDecision(decision *service.TexasPokerDecision) string {
 		return "弃牌"
 	} else if strings.ToLower(decision.Action) == "check" {
 		return "过牌"
+	} else if strings.ToLower(decision.Action) == "call" {
+		return "跟注"
 	} else if strings.ToLower(decision.Action) == "bet" {
 		return fmt.Sprintf("下注 %d", decision.BetSize)
 	} else if strings.ToLower(decision.Action) == "raise" {
