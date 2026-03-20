@@ -146,7 +146,6 @@ func GetTexasPokerDecisionV2(ctx context.Context, images []string, imageType str
 func UploadImages(ctx context.Context, images []string) ([]string, error) {
 	imageIDs := make([]string, 0)
 	for index, image := range images {
-		logrus.WithContext(ctx).Infof("[UploadImages] len(orginImage):%v", len(image))
 		imageData, err := util.Base64Decode(image, false)
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[UploadImage] Base64Decode image err:%v", err)
@@ -155,7 +154,7 @@ func UploadImages(ctx context.Context, images []string) ([]string, error) {
 		logrus.WithContext(ctx).Infof("[UploadImage] upload image index:%v,len(realImage):%v", index, len(imageData))
 		compressImageData, err := util.ResizeJpegBytes(imageData, 720, 1080)
 		if err == nil {
-			logrus.WithContext(ctx).Infof("[UploadImage] ResizeJpegBytes orgLen:%v,compressLen:%v", len(imageData), len(compressImageData))
+			logrus.WithContext(ctx).Infof("[UploadImage] ResizeJpegBytes orgLen:%v,decodeLen:%v,compressLen:%v", len(image), len(imageData), len(compressImageData))
 			imageData = compressImageData
 		} else {
 			logrus.WithContext(ctx).Errorf("[UploadImage] ResizeJpegBytes err:%v, but has no effect", err)
@@ -167,15 +166,14 @@ func UploadImages(ctx context.Context, images []string) ([]string, error) {
 			logrus.WithContext(ctx).Errorf("[UploadImage] cozeCli.Files.Upload err:%v", err)
 			return nil, err
 		}
-		imageUrls, err := UploadImagesV2(ctx, []string{image})
+		imageUrls, err := UploadImagesV2(ctx, []string{string(imageData)})
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[UploadImage] UploadImagesV2 err:%v", err)
 		}
 		if len(imageUrls) > 0 {
 			logrus.WithContext(ctx).Infof("[UploadImage] upload fileID:%v,images_url:%v", resp.FileInfo.ID, imageUrls[0])
 		}
-		logrus.WithContext(ctx).Infof("[UploadImage] len(realImageData):%v,resp:%v", len(imageData), util.ToJSON(resp))
-		_ = util.WriteImageToFile(imageData, fmt.Sprintf("/usr/local/webserver/images/%v.jpg", resp.FileInfo.ID))
+		logrus.WithContext(ctx).Infof("[UploadImage] upload to coze,resp:%v", util.ToJSON(resp))
 		imageIDs = append(imageIDs, resp.FileInfo.ID)
 	}
 	return imageIDs, nil
