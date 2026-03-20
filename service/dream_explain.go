@@ -183,23 +183,23 @@ func UploadImages(ctx context.Context, images []string) ([]string, error) {
 func UploadImagesV2(ctx context.Context, images []string) ([]string, error) {
 	imageUrls := make([]string, 0)
 	for index, image := range images {
-		logrus.WithContext(ctx).Infof("[UploadImages] len(orginImage):%v", len(image))
+		logrus.WithContext(ctx).Infof("[UploadImagesV2] len(orginImage):%v", len(image))
 		imageData, err := util.Base64Decode(image, false)
 		if err != nil {
-			logrus.WithContext(ctx).Errorf("[UploadImage] Base64Decode image err:%v", err)
+			logrus.WithContext(ctx).Errorf("[UploadImagesV2] Base64Decode image err:%v", err)
 			return nil, err
 		}
 		imageType := util.DetectImageType(imageData)
 		if imageType == util.ImageTypeUnknown {
-			logrus.WithContext(ctx).Errorf("[UploadImage] unknown image type:%v", imageType)
+			logrus.WithContext(ctx).Errorf("[UploadImagesV2] unknown image type:%v", imageType)
 			return nil, fmt.Errorf("unknown image type:%v", imageType)
 		}
-		logrus.WithContext(ctx).Infof("[UploadImage] upload image index:%v,type:%v,len(realImage):%v", index, imageType, len(imageData))
+		logrus.WithContext(ctx).Infof("[UploadImagesV2] upload image index:%v,type:%v,len(realImage):%v", index, imageType, len(imageData))
 		fileName := fmt.Sprintf("/usr/local/webserver/images/%v.jpg", time.Now().UnixNano())
 		_ = util.WriteImageToFile(imageData, fileName)
 		imageUrl, err := util.UploadImage(fileName)
 		if err != nil {
-			logrus.WithContext(ctx).Errorf("[UploadImage] UploadImage err:%v", err)
+			logrus.WithContext(ctx).Errorf("[UploadImagesV2] UploadImage err:%v", err)
 			return nil, err
 		}
 		imageUrls = append(imageUrls, imageUrl)
