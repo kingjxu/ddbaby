@@ -153,12 +153,12 @@ func UploadImages(ctx context.Context, images []string) ([]string, error) {
 			return nil, err
 		}
 		logrus.WithContext(ctx).Infof("[UploadImage] upload image index:%v,len(realImage):%v", index, len(imageData))
-		compressImageData, err := util.CompressJPEGFromBytes(imageData, 50)
+		compressImageData, err := util.ResizeJpegBytes(imageData, 720, 1080)
 		if err == nil {
-			logrus.WithContext(ctx).Infof("[UploadImage] CompressJPEGFromBytes orgLen:%v,compressLen:%v", len(imageData), len(compressImageData))
+			logrus.WithContext(ctx).Infof("[UploadImage] ResizeJpegBytes orgLen:%v,compressLen:%v", len(imageData), len(compressImageData))
 			imageData = compressImageData
 		} else {
-			logrus.WithContext(ctx).Errorf("[UploadImage] CompressJPEGFromBytes err:%v, but has no effect", err)
+			logrus.WithContext(ctx).Errorf("[UploadImage] ResizeJpegBytes err:%v, but has no effect", err)
 		}
 		resp, err := cozeCli.Files.Upload(ctx, &coze.UploadFilesReq{
 			File: coze.NewUploadFile(strings.NewReader(string(imageData)), fmt.Sprintf("%v.jpg", time.Now().UnixNano())),

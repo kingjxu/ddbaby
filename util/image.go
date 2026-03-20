@@ -138,3 +138,59 @@ func CompressJPEGFromBytes(imgData []byte, quality int) ([]byte, error) {
 	// 4. 返回压缩后的二进制
 	return buf.Bytes(), nil
 }
+
+// ResizeJpegBytes
+// 输入：原始 JPEG 二进制 []byte
+// 输出：缩放后的 JPEG 二进制 []byte
+// 功能：等比缩放，完整图片，不裁剪，不变形
+func ResizeJpegBytes(original []byte, maxWidth, maxHeight int) ([]byte, error) {
+	// 1. 从二进制解码图片
+	img, _, err := image.Decode(bytes.NewReader(original))
+	if err != nil {
+		return nil, err
+	}
+
+	// 原图尺寸
+	bounds := img.Bounds()
+	origW := bounds.Dx()
+	origH := bounds.Dy()
+
+	// 2. 计算等比缩放尺寸（核心：完整显示，不裁剪）
+	newW, newH := calcProportionalSize(origW, origH, maxWidth, maxHeight)
+
+	// 3. 创建新画布
+	dst := image.NewRGBA(image.Rect(0, 0, newW, newH))
+
+	// 4. 逐像素缩放（纯标准库，真正缩放）
+	for y := 0; y < newH; y++ {
+		srcY := origH * y / newH
+		for x := 0; x < newW; x++ {
+			srcX := origW * x / newW
+			dst.Set(x, y, img.At(srcX, srcY))
+		}
+	}
+
+	// 5. 编码成 JPEG 二进制
+	buf := new(bytes.Buffer)
+	// Quality：1~100，可自行调整
+	err = jpeg.Encode(buf, dst, &jpeg.Options{Quality: 85})
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+// calcProportionalSize 等比计算宽高，保证完整显示
+func calcProportionalSize(origW, origH, maxW, maxH int) (int, int) {
+	wRatio := float64(maxW) / float64(origW)
+	hRatio := float64(maxH) / float64(origH)
+
+	// 取最小比例，确保图片完整不超出
+	ratio := wRatio
+	if hRatio < wRatio {
+		ratio = hRatio
+	}
+
+	return int(float64(origW) * ratio), int(float64(origH) * ratio)
+}
