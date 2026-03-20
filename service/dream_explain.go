@@ -166,31 +166,28 @@ func UploadImages(ctx context.Context, images []string) ([]string, error) {
 			logrus.WithContext(ctx).Errorf("[UploadImage] cozeCli.Files.Upload err:%v", err)
 			return nil, err
 		}
-		imageUrls, err := UploadImagesV2(ctx, []string{string(imageData)})
+		logrus.WithContext(ctx).Infof("[UploadImage] upload to coze,resp:%v", util.ToJSON(resp))
+		imageUrl, err := UploadImagesV2(ctx, string(imageData))
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[UploadImage] UploadImagesV2 err:%v", err)
 		}
-		if len(imageUrls) > 0 {
-			logrus.WithContext(ctx).Infof("[UploadImage] upload fileID:%v,images_url:%v", resp.FileInfo.ID, imageUrls[0])
+
+		if imageUrl != "" {
+			logrus.WithContext(ctx).Infof("[UploadImage] upload fileID:%v,images_url:%v", resp.FileInfo.ID, imageUrl)
 		}
-		logrus.WithContext(ctx).Infof("[UploadImage] upload to coze,resp:%v", util.ToJSON(resp))
 		imageIDs = append(imageIDs, resp.FileInfo.ID)
 	}
 	return imageIDs, nil
 }
 
 // UploadImagesV2 返回图片的URL
-func UploadImagesV2(ctx context.Context, images []string) ([]string, error) {
-	imageUrls := make([]string, 0)
-	for _, imageData := range images {
-		fileName := fmt.Sprintf("/usr/local/webserver/images/%v.jpg", time.Now().UnixNano())
-		_ = util.WriteImageToFile([]byte(imageData), fileName)
-		imageUrl, err := util.UploadImage(fileName)
-		if err != nil {
-			logrus.WithContext(ctx).Errorf("[UploadImagesV2] UploadImage err:%v", err)
-			return nil, err
-		}
-		imageUrls = append(imageUrls, imageUrl)
+func UploadImagesV2(ctx context.Context, imageData string) (string, error) {
+	fileName := fmt.Sprintf("/usr/local/webserver/images/%v.jpg", time.Now().UnixNano())
+	_ = util.WriteImageToFile([]byte(imageData), fileName)
+	imageUrl, err := util.UploadImage(fileName)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("[UploadImagesV2] UploadImage err:%v", err)
+		return "", err
 	}
-	return imageUrls, nil
+	return imageUrl, nil
 }
