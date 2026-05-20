@@ -88,7 +88,7 @@ func Conv2TexasGtoDecisionReq(recResult []*TexasResult) *TexasGtoDecisionReq {
 
 	return &TexasGtoDecisionReq{
 		GameType:              "no_limit_holdem",
-		NumPlayers:            8,
+		NumPlayers:            len(players),
 		CurrentPot:            currentResult.TableInfo.MainPot,
 		SbSize:                sbSize,
 		BbSize:                bbSize,
@@ -96,7 +96,6 @@ func Conv2TexasGtoDecisionReq(recResult []*TexasResult) *TexasGtoDecisionReq {
 		GameStage:             currentResult.TableInfo.Stage,
 		Players:               players,
 		CurrentPlayerPosition: currentPlayerPos,
-		RaiseRange:            []int{bbSize * 2, bbSize * 3, bbSize * 5},
 		ActionHistory:         actionHistory,
 	}
 }
@@ -194,21 +193,26 @@ func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
 	players := make([]TexasPlayer, 0)
 	currentPlayerPos := ""
 
-	// 依次给有玩家的座位分配位置名称
+	// 先创建所有玩家，不带ActionTaken
+	type playerWithInfo struct {
+		player TexasPlayer
+		info   seatInfo
+		pos    string
+	}
+	playerList := make([]playerWithInfo, 0)
+
 	for i, si := range orderedSeats {
 		position := positions[i%len(positions)]
-
 		var player TexasPlayer
 		if si.isHero {
 			player = TexasPlayer{
 				Position:  position + "-Hero",
 				HoleCards: parseCards(si.heroCards),
 				Stack:     si.stack,
+				Bet:       si.currentBet,
 				IsActive:  si.status == "active" || si.status == "allin",
 			}
-			if si.isHeroTurn {
-				currentPlayerPos = position + "-Hero"
-			}
+			currentPlayerPos = position + "-Hero"
 		} else {
 			player = TexasPlayer{
 				Position:    position,
@@ -219,21 +223,90 @@ func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
 				ActionTaken: "",
 			}
 		}
-		players = append(players, player)
+		playerList = append(playerList, playerWithInfo{player, si, position})
+	}
+
+	// 确定行动开始位置
+	var startIndex int
+	if result.TableInfo.Stage == "preflop" {
+		// preflop从BB+1开始
+		for i, pi := range playerList {
+			if pi.pos == "BB" {
+				startIndex = (i + 1) % len(playerList)
+				break
+			}
+		}
+	} else {
+		// 其他阶段从SB开始
+		for i, pi := range playerList {
+			if pi.pos == "SB" {
+				startIndex = i
+				break
+			}
+		}
+	}
+
+	// 按行动顺序处理每个玩家
+	actionOrder := make([]int, 0)
+	for i := 0; i < len(playerList); i++ {
+		actionOrder = append(actionOrder, (startIndex+i)%len(playerList))
+	}
+
+	// 处理ActionTaken
+	prevBet := 0
+	isFirst := true
+	heroProcessed := false
+
+	for _, idx := range actionOrder {
+		pi := &playerList[idx]
+
+		// 如果已经处理过hero，就停止
+		if heroProcessed {
+			break
+		}
+
+		// 检查是否是hero
+		if pi.info.isHero {
+			heroProcessed = true
+		}
+
+		// 判断ActionTaken
+		if !pi.player.IsActive {
+			pi.player.ActionTaken = "fold"
+		} else if pi.player.Bet == 0 {
+			pi.player.ActionTaken = "check"
+		} else if isFirst || (prevBet == 0 && pi.player.Bet > 0) {
+			pi.player.ActionTaken = "bet"
+		} else if pi.player.Bet == prevBet && pi.player.Bet > 0 {
+			pi.player.ActionTaken = "call"
+		} else if pi.player.Bet >= 2*prevBet {
+			pi.player.ActionTaken = "raise"
+		} else {
+			pi.player.ActionTaken = "call"
+		}
+
+		// 更新前位bet
+		if pi.player.Bet > prevBet {
+			prevBet = pi.player.Bet
+		}
+		isFirst = false
+	}
+
+	// 构建最终的players数组
+	for _, pi := range playerList {
+		players = append(players, pi.player)
 	}
 
 	return players, currentPlayerPos
 }
 
+// recResult 按照 preflop, flop, turn, river 顺序排
 func buildActionHistory(recResult []*TexasResult) []TexasActionHistory {
 	history := make([]TexasActionHistory, 0)
 	timestamp := int(0)
 
 	for _, result := range recResult {
 		stage := result.TableInfo.Stage
-		if stage == "" {
-			stage = "preflop"
-		}
 
 		action := TexasActionHistory{
 			Stage:     stage,
