@@ -61,7 +61,7 @@ struct TaLuoPredictResp {
 struct TexasPokerDecisionReq {
     1: optional list<string> Images (api.query="images");
     2: optional i64 ImageTime (api.query="image_time");
-    3: optional string ImageType (api.query="image_type");
+    3: optional string UserID (api.query="user_id");
 }
 struct TexasPokerDecisionResp {
     1: optional string Result;

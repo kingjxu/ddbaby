@@ -5,12 +5,10 @@ package handler
 import (
 	"context"
 	"errors"
-	"fmt"
-	_const "github.com/kingjxu/ddbaby/const"
+	"github.com/kingjxu/ddbaby/dal"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
-	"strings"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -58,49 +56,40 @@ func (h *TexasPokerDecisionHandler) check() error {
 func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerDecisionResp, error) {
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imagesLen:%v, imageTime:%v,imageType:%v",
 		len(h.req.GetImages()), h.req.GetImageTime(), h.req.GetImageType())
+	//1 数据校验
 	if err := h.check(); err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] check err:%v", err)
 		return h.newResp(ctx, "param err"), nil
 	}
+	//2 识别牌型
 	images := h.req.GetImages()
-	imageType := _const.ImageTypeUrl
-	if len(images[0]) > 512 { // 图片的fileID
-		imageIDs, err := service.UploadImages(ctx, images)
-		if err != nil {
-			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.UploadImage err:%v", err)
-			return h.newResp(ctx, "upload image err"), nil
-		}
-		images = imageIDs
-		imageType = _const.ImageTypeFileID
-	}
-	decision, err := service.GetTexasPokerDecisionV2(ctx, images, imageType)
+	recResult, err := service.RecognizePoker(ctx, images[0])
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.GetTexasPokerDecisionV2 err:%v", err)
+		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.RecognizePoker err:%v", err)
 		return h.newResp(ctx, "get decision err"), nil
 	}
-	return h.newResp(ctx, getFinalDecision(decision)), nil
+	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] recognize poker:%v", util.ToJSON(recResult))
+	//3 保存牌型
+	if err := dal.SaveUserData(ctx, "", recResult); err != nil {
+		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] saveUserData err:%v", err)
+		return h.newResp(ctx, "save data err"), nil
+	}
+	//4 获取最新牌型
+	latestData, err := dal.GetLastUserData(ctx, "")
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] GetLastUserData err:%v", err)
+		return h.newResp(ctx, "get last data err"), nil
+	}
+	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] latestData:%v", latestData)
+	if !recResult.HeroInfo.IsHeroTurn {
+		logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] not hero turn")
+		return h.newResp(ctx, ""), nil
+	}
+	//5 决策
+
+	return h.newResp(ctx, ""), nil
 }
 
-func getFinalDecision(decision *service.TexasPokerDecision) string {
-	if decision == nil {
-		return ""
-	}
-	if !decision.IsMyTurn {
-		return ""
-	}
-	if strings.ToLower(decision.Action) == "fold" {
-		return "弃牌"
-	} else if strings.ToLower(decision.Action) == "check" {
-		return "过牌"
-	} else if strings.ToLower(decision.Action) == "call" {
-		return "跟注"
-	} else if strings.ToLower(decision.Action) == "bet" {
-		return fmt.Sprintf("下注 %d", decision.BetSize)
-	} else if strings.ToLower(decision.Action) == "raise" {
-		return fmt.Sprintf("加注 %d", decision.BetSize)
-	}
-	return ""
-}
 func (h *TexasPokerDecisionHandler) newResp(ctx context.Context, result string) *ddbaby.TexasPokerDecisionResp {
 	resp := &ddbaby.TexasPokerDecisionResp{
 		Result: util.Ptr(result),
