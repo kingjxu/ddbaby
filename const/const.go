@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	CozeToken                 = "pat_0ZCXIT2NguHJWbGYvr5SsU85onSnjIZlfZkkjw3Kl21SI4IpSkLsJr5pXYq30pC2"
-	CozeTokenV3               = "pat_mMTlTpTxQfkAZPkTKpAs56CYN0y1MQ5NwXUelWnFO0OiEz89g0Q7M4Eaev7fvP7G"
+	CozeToken                 = ""
+	CozeTokenV3               = ""
 	TexasPokerDecisionBotID   = "7610274786891579407"
 	TexasPokerDecisionBotIDV2 = "7617102369314766889"
 
