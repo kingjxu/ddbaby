@@ -302,21 +302,217 @@ func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
 
 // recResult 按照 preflop, flop, turn, river 顺序排
 func buildActionHistory(recResult []*TexasResult) []TexasActionHistory {
+	if len(recResult) < 2 {
+		return make([]TexasActionHistory, 0)
+	}
+
 	history := make([]TexasActionHistory, 0)
 	timestamp := int(0)
 
+	getPosition := func(seat int, result *TexasResult) string {
+		const totalSeats = 8
+		positions := []string{"BTN", "SB", "BB", "UTG", "UTG+1", "MP", "MP+1", "CO"}
+
+		type seatInfo struct {
+			seat   int
+			isHero bool
+		}
+		allSeats := make([]seatInfo, 0)
+		allSeats = append(allSeats, seatInfo{seat: result.HeroInfo.Seat, isHero: true})
+		for _, villain := range result.VillainsInfo {
+			if villain.Status == "empty" || villain.Status == "waiting" {
+				continue
+			}
+			allSeats = append(allSeats, seatInfo{seat: villain.Seat, isHero: false})
+		}
+
+		orderedSeats := make([]seatInfo, 0)
+		for offset := 0; offset < totalSeats; offset++ {
+			s := result.TableInfo.ButtonSeat + offset
+			if s > totalSeats {
+				s = s - totalSeats
+			}
+			for _, si := range allSeats {
+				if si.seat == s {
+					orderedSeats = append(orderedSeats, si)
+					break
+				}
+			}
+		}
+
+		for i, si := range orderedSeats {
+			if si.seat == seat {
+				pos := positions[i%len(positions)]
+				if si.isHero {
+					return pos + "-Hero"
+				}
+				return pos
+			}
+		}
+		return "UTG"
+	}
+
+	type actionPlayer struct {
+		seat     int
+		bet      int
+		isActive bool
+	}
+
+	getActionOrderAndPlayers := func(result *TexasResult) ([]int, map[int]actionPlayer) {
+		const totalSeats = 8
+		positions := []string{"BTN", "SB", "BB", "UTG", "UTG+1", "MP", "MP+1", "CO"}
+
+		type seatInfo struct {
+			seat   int
+			pos    string
+			bet    int
+			status string
+			isHero bool
+		}
+		allSeats := make([]seatInfo, 0)
+		allSeats = append(allSeats, seatInfo{
+			seat:   result.HeroInfo.Seat,
+			bet:    result.HeroInfo.CurrentBet,
+			status: result.HeroInfo.Status,
+			isHero: true,
+		})
+		for _, villain := range result.VillainsInfo {
+			if villain.Status == "empty" || villain.Status == "waiting" {
+				continue
+			}
+			allSeats = append(allSeats, seatInfo{
+				seat:   villain.Seat,
+				bet:    villain.CurrentBet,
+				status: villain.Status,
+				isHero: false,
+			})
+		}
+
+		orderedSeats := make([]seatInfo, 0)
+		for offset := 0; offset < totalSeats; offset++ {
+			s := result.TableInfo.ButtonSeat + offset
+			if s > totalSeats {
+				s = s - totalSeats
+			}
+			for _, si := range allSeats {
+				if si.seat == s {
+					orderedSeats = append(orderedSeats, si)
+					break
+				}
+			}
+		}
+
+		for i, si := range orderedSeats {
+			si.pos = positions[i%len(positions)]
+		}
+
+		var startIndex int
+		if result.TableInfo.Stage == "preflop" {
+			for i, si := range orderedSeats {
+				if si.pos == "BB" {
+					startIndex = (i + 1) % len(orderedSeats)
+					break
+				}
+			}
+		} else {
+			for i, si := range orderedSeats {
+				if si.pos == "SB" {
+					startIndex = i
+					break
+				}
+			}
+		}
+
+		order := make([]int, 0)
+		players := make(map[int]actionPlayer)
+		for i := 0; i < len(orderedSeats); i++ {
+			idx := (startIndex + i) % len(orderedSeats)
+			si := orderedSeats[idx]
+			order = append(order, si.seat)
+			players[si.seat] = actionPlayer{
+				seat:     si.seat,
+				bet:      si.bet,
+				isActive: si.status == "active" || si.status == "allin",
+			}
+		}
+		return order, players
+	}
+
+	groupByStage := make(map[string][]*TexasResult)
 	for _, result := range recResult {
 		stage := result.TableInfo.Stage
-
-		action := TexasActionHistory{
-			Stage:     stage,
-			Position:  "BTN-Hero",
-			Action:    "call",
-			Amount:    result.HeroInfo.CurrentBet,
-			Timestamp: timestamp,
+		if stage == "" {
+			stage = "preflop"
 		}
-		history = append(history, action)
-		timestamp++
+		groupByStage[stage] = append(groupByStage[stage], result)
+	}
+
+	stages := []string{"preflop", "flop", "turn", "river"}
+	for _, stage := range stages {
+		results, ok := groupByStage[stage]
+		if !ok || len(results) < 2 {
+			continue
+		}
+
+		for i := 1; i < len(results); i++ {
+			prevResult := results[i-1]
+			currentResult := results[i]
+
+			prevOrder, prevPlayers := getActionOrderAndPlayers(prevResult)
+			currentOrder, currentPlayers := getActionOrderAndPlayers(currentResult)
+
+			prevBet := 0
+			isFirst := true
+
+			for _, seat := range currentOrder {
+				prevPlayer, prevExists := prevPlayers[seat]
+				currentPlayer, currentExists := currentPlayers[seat]
+				if !prevExists || !currentExists {
+					continue
+				}
+
+				var action string
+				var amount int
+
+				if !currentPlayer.isActive && prevPlayer.isActive {
+					action = "fold"
+					amount = 0
+				} else if currentPlayer.bet == prevPlayer.bet {
+					continue
+				} else if currentPlayer.bet > prevPlayer.bet {
+					amount = currentPlayer.bet - prevPlayer.bet
+					if isFirst || (prevBet == 0 && currentPlayer.bet > 0) {
+						action = "bet"
+					} else if currentPlayer.bet == prevBet && currentPlayer.bet > 0 {
+						action = "call"
+					} else if currentPlayer.bet >= 2*prevBet {
+						action = "raise"
+					} else {
+						action = "call"
+					}
+				} else if currentPlayer.bet == 0 && prevPlayer.bet == 0 {
+					action = "check"
+					amount = 0
+				}
+
+				if action != "" {
+					position := getPosition(seat, currentResult)
+					history = append(history, TexasActionHistory{
+						Stage:     stage,
+						Position:  position,
+						Action:    action,
+						Amount:    amount,
+						Timestamp: timestamp,
+					})
+					timestamp++
+
+					if currentPlayer.bet > prevBet {
+						prevBet = currentPlayer.bet
+					}
+					isFirst = false
+				}
+			}
+		}
 	}
 
 	return history
