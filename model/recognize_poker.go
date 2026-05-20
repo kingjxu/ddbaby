@@ -201,12 +201,10 @@ func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
 		var player TexasPlayer
 		if si.isHero {
 			player = TexasPlayer{
-				Position:    position + "-Hero",
-				HoleCards:   parseCards(si.heroCards),
-				Stack:       si.stack,
-				Bet:         si.currentBet,
-				IsActive:    si.status == "active" || si.status == "allin",
-				ActionTaken: "",
+				Position:  position + "-Hero",
+				HoleCards: parseCards(si.heroCards),
+				Stack:     si.stack,
+				IsActive:  si.status == "active" || si.status == "allin",
 			}
 			if si.isHeroTurn {
 				currentPlayerPos = position + "-Hero"
@@ -217,20 +215,11 @@ func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
 				HoleCards:   []string{"X-X", "X-X"},
 				Stack:       si.stack,
 				Bet:         si.currentBet,
-				IsActive:    si.status == "active",
+				IsActive:    si.status == "active" || si.status == "allin",
 				ActionTaken: "",
 			}
 		}
 		players = append(players, player)
-	}
-
-	if currentPlayerPos == "" {
-		for _, p := range players {
-			if strings.HasSuffix(p.Position, "-Hero") {
-				currentPlayerPos = p.Position
-				break
-			}
-		}
 	}
 
 	return players, currentPlayerPos
