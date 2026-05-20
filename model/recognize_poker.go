@@ -458,7 +458,7 @@ func buildActionHistory(recResult []*TexasResult) []TexasActionHistory {
 			prevResult := results[i-1]
 			currentResult := results[i]
 
-			prevOrder, prevPlayers := getActionOrderAndPlayers(prevResult)
+			_, prevPlayers := getActionOrderAndPlayers(prevResult)
 			currentOrder, currentPlayers := getActionOrderAndPlayers(currentResult)
 
 			prevBet := 0
