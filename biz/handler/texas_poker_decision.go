@@ -7,6 +7,7 @@ import (
 	"errors"
 	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/dal"
+	"github.com/kingjxu/ddbaby/model"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
@@ -58,23 +59,30 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imagesLen:%v, imageTime:%v,imageType:%v",
 		len(h.req.GetImages()), h.req.GetImageTime(), h.req.GetImageType())
 	//1 数据校验
-	if err := h.check(); err != nil {
+	var err error
+	if err = h.check(); err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] check err:%v", err)
 		return h.newResp(ctx, "param err"), nil
 	}
 	//2 识别牌型
 	images := h.req.GetImages()
+	var recResult *model.TexasResult
 	if h.req.GetImageType() == _const.ImageTypeUrl {
-
-	}
-	recResult, err := service.RecognizePoker(ctx, images[0])
-	if err != nil {
-		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.RecognizePoker err:%v", err)
-		return h.newResp(ctx, "get decision err"), nil
+		recResult, err = service.RecognizePokerByFilePath(ctx, images[0])
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.RecognizePokerByFilePath err:%v", err)
+			return h.newResp(ctx, "get decision err"), nil
+		}
+	} else {
+		recResult, err = service.RecognizePoker(ctx, images[0])
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.RecognizePoker err:%v", err)
+			return h.newResp(ctx, "get decision err"), nil
+		}
 	}
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] recognize poker:%v", util.ToJSON(recResult))
 	//3 保存牌型
-	if err := dal.SaveUserData(ctx, "", recResult); err != nil {
+	if err = dal.SaveUserData(ctx, "", recResult); err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] saveUserData err:%v", err)
 		return h.newResp(ctx, "save data err"), nil
 	}

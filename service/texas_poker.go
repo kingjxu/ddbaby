@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -165,8 +166,15 @@ func UploadImagesV2(ctx context.Context, imageData string) (string, error) {
 	return imageUrl, nil
 }
 
-func RecognizePokerByFilePath((ctx context.Context, filePath string) (*model.TexasResult, error)  {
-
+func RecognizePokerByFilePath(ctx context.Context, filePath string) (*model.TexasResult, error) {
+	fileData, err := os.ReadFile(filePath)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("[RecognizePokerByFilePath] os.ReadFile err:%v, filePath:%v", err, filePath)
+		return nil, err
+	}
+	
+	imageBase64 := base64.StdEncoding.EncodeToString(fileData)
+	return RecognizePoker(ctx, imageBase64)
 }
 
 func RecognizePoker(ctx context.Context, imageBase64 string) (*model.TexasResult, error) {
