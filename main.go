@@ -4,11 +4,14 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/kingjxu/ddbaby/dal/mysql"
+	"github.com/kingjxu/ddbaby/wx_new"
 )
 
 func main() {
 	h := server.Default()
-
+	mysql.Init()
+	wx_new.Init()
 	register(h)
 	h.Spin()
 }
