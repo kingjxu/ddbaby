@@ -442,7 +442,8 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 		}
 
 		// 构建action history
-		prevBet := 0
+		// 因为我们是从单个状态推断行动历史，amount直接表示该阶段的总下注
+		prevBet := 0 // 当前轮次的最高下注
 		isFirst := true
 		heroProcessed := false
 
@@ -479,10 +480,10 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 				amount = si.currentBet
 			} else if si.currentBet >= 2*prevBet {
 				action = "raise"
-				amount = si.currentBet - prevBet
+				amount = si.currentBet
 			} else {
 				action = "call"
-				amount = si.currentBet - prevBet
+				amount = si.currentBet
 			}
 
 			// 添加到history
