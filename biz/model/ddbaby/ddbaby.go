@@ -505,7 +505,8 @@ func (p *TaLuoPredictResp) String() string {
 type TexasPokerDecisionReq struct {
 	Images    []string `thrift:"Images,1,optional" json:"Images,omitempty" query:"images"`
 	ImageTime *int64   `thrift:"ImageTime,2,optional" json:"ImageTime,omitempty" query:"image_time"`
-	ImageType *string  `thrift:"ImageType,3,optional" json:"ImageType,omitempty" query:"image_type"`
+	UserID    *string  `thrift:"UserID,3,optional" json:"UserID,omitempty" query:"user_id"`
+	ImageType *string  `thrift:"ImageType,4,optional" json:"ImageType,omitempty" query:"image_type"`
 }
 
 func NewTexasPokerDecisionReq() *TexasPokerDecisionReq {
@@ -533,6 +534,15 @@ func (p *TexasPokerDecisionReq) GetImageTime() (v int64) {
 	return *p.ImageTime
 }
 
+var TexasPokerDecisionReq_UserID_DEFAULT string
+
+func (p *TexasPokerDecisionReq) GetUserID() (v string) {
+	if !p.IsSetUserID() {
+		return TexasPokerDecisionReq_UserID_DEFAULT
+	}
+	return *p.UserID
+}
+
 var TexasPokerDecisionReq_ImageType_DEFAULT string
 
 func (p *TexasPokerDecisionReq) GetImageType() (v string) {
@@ -548,6 +558,10 @@ func (p *TexasPokerDecisionReq) IsSetImages() bool {
 
 func (p *TexasPokerDecisionReq) IsSetImageTime() bool {
 	return p.ImageTime != nil
+}
+
+func (p *TexasPokerDecisionReq) IsSetUserID() bool {
+	return p.UserID != nil
 }
 
 func (p *TexasPokerDecisionReq) IsSetImageType() bool {

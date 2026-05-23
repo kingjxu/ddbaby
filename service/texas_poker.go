@@ -165,6 +165,10 @@ func UploadImagesV2(ctx context.Context, imageData string) (string, error) {
 	return imageUrl, nil
 }
 
+func RecognizePokerByFilePath((ctx context.Context, filePath string) (*model.TexasResult, error)  {
+
+}
+
 func RecognizePoker(ctx context.Context, imageBase64 string) (*model.TexasResult, error) {
 	start := time.Now()
 	// 1. 构造请求体

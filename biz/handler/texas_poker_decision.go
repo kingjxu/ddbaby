@@ -5,6 +5,7 @@ package handler
 import (
 	"context"
 	"errors"
+	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/dal"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
@@ -63,6 +64,9 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	}
 	//2 识别牌型
 	images := h.req.GetImages()
+	if h.req.GetImageType() == _const.ImageTypeUrl {
+
+	}
 	recResult, err := service.RecognizePoker(ctx, images[0])
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.RecognizePoker err:%v", err)
