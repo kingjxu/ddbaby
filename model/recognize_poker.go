@@ -1,6 +1,8 @@
 package model
 
 import (
+	"context"
+	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
 )
@@ -73,7 +75,7 @@ type TexasGtoDecisionResp struct {
 	Detail            string  `json:"detail"`
 }
 
-func Conv2TexasGtoDecisionReq(recResult []*TexasResult) *TexasGtoDecisionReq {
+func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *TexasGtoDecisionReq {
 	if len(recResult) == 0 {
 		return nil
 	}
@@ -84,7 +86,7 @@ func Conv2TexasGtoDecisionReq(recResult []*TexasResult) *TexasGtoDecisionReq {
 
 	players, currentPlayerPos := buildPlayers(currentResult)
 
-	actionHistory := buildActionHistory(recResult)
+	actionHistory := buildActionHistory(ctx, recResult)
 
 	return &TexasGtoDecisionReq{
 		GameType:              "no_limit_holdem",
@@ -301,7 +303,8 @@ func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
 }
 
 // recResult 按照 preflop, flop, turn, river 顺序排
-func buildActionHistory(recResult []*TexasResult) []TexasActionHistory {
+func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasActionHistory {
+	logrus.WithContext(ctx).Infof("[buildActionHistory] len(recResult):%v", len(recResult))
 	if len(recResult) < 2 {
 		return make([]TexasActionHistory, 0)
 	}
@@ -438,79 +441,67 @@ func buildActionHistory(recResult []*TexasResult) []TexasActionHistory {
 		return order, players
 	}
 
-	groupByStage := make(map[string][]*TexasResult)
-	for _, result := range recResult {
-		stage := result.TableInfo.Stage
+	for i := 1; i < len(recResult); i++ {
+		prevResult := recResult[i-1]
+		currentResult := recResult[i]
+
+		stage := currentResult.TableInfo.Stage
 		if stage == "" {
 			stage = "preflop"
 		}
-		groupByStage[stage] = append(groupByStage[stage], result)
-	}
 
-	stages := []string{"preflop", "flop", "turn", "river"}
-	for _, stage := range stages {
-		results, ok := groupByStage[stage]
-		if !ok || len(results) < 2 {
-			continue
-		}
+		_, prevPlayers := getActionOrderAndPlayers(prevResult)
+		currentOrder, currentPlayers := getActionOrderAndPlayers(currentResult)
 
-		for i := 1; i < len(results); i++ {
-			prevResult := results[i-1]
-			currentResult := results[i]
+		prevBet := 0
+		isFirst := true
 
-			_, prevPlayers := getActionOrderAndPlayers(prevResult)
-			currentOrder, currentPlayers := getActionOrderAndPlayers(currentResult)
+		for _, seat := range currentOrder {
+			prevPlayer, prevExists := prevPlayers[seat]
+			currentPlayer, currentExists := currentPlayers[seat]
+			if !prevExists || !currentExists {
+				continue
+			}
 
-			prevBet := 0
-			isFirst := true
+			var action string
+			var amount int
 
-			for _, seat := range currentOrder {
-				prevPlayer, prevExists := prevPlayers[seat]
-				currentPlayer, currentExists := currentPlayers[seat]
-				if !prevExists || !currentExists {
-					continue
+			if !currentPlayer.isActive && prevPlayer.isActive {
+				action = "fold"
+				amount = 0
+			} else if currentPlayer.bet == prevPlayer.bet {
+				continue
+			} else if currentPlayer.bet > prevPlayer.bet {
+				amount = currentPlayer.bet - prevPlayer.bet
+				if isFirst || (prevBet == 0 && currentPlayer.bet > 0) {
+					action = "bet"
+				} else if currentPlayer.bet == prevBet && currentPlayer.bet > 0 {
+					action = "call"
+				} else if currentPlayer.bet >= 2*prevBet {
+					action = "raise"
+				} else {
+					action = "call"
 				}
+			} else if currentPlayer.bet == 0 && prevPlayer.bet == 0 {
+				action = "check"
+				amount = 0
+			}
 
-				var action string
-				var amount int
+			if action != "" {
+				position := getPosition(seat, currentResult)
+				history = append(history, TexasActionHistory{
+					Stage:     stage,
+					Position:  position,
+					Action:    action,
+					Amount:    amount,
+					Timestamp: timestamp,
+				})
+				timestamp++
 
-				if !currentPlayer.isActive && prevPlayer.isActive {
-					action = "fold"
-					amount = 0
-				} else if currentPlayer.bet == prevPlayer.bet {
-					continue
-				} else if currentPlayer.bet > prevPlayer.bet {
-					amount = currentPlayer.bet - prevPlayer.bet
-					if isFirst || (prevBet == 0 && currentPlayer.bet > 0) {
-						action = "bet"
-					} else if currentPlayer.bet == prevBet && currentPlayer.bet > 0 {
-						action = "call"
-					} else if currentPlayer.bet >= 2*prevBet {
-						action = "raise"
-					} else {
-						action = "call"
-					}
-				} else if currentPlayer.bet == 0 && prevPlayer.bet == 0 {
-					action = "check"
-					amount = 0
+				if currentPlayer.bet > prevBet {
+					prevBet = currentPlayer.bet
 				}
-
-				if action != "" {
-					position := getPosition(seat, currentResult)
-					history = append(history, TexasActionHistory{
-						Stage:     stage,
-						Position:  position,
-						Action:    action,
-						Amount:    amount,
-						Timestamp: timestamp,
-					})
-					timestamp++
-
-					if currentPlayer.bet > prevBet {
-						prevBet = currentPlayer.bet
-					}
-					isFirst = false
-				}
+				isFirst = false
 			}
 		}
 	}

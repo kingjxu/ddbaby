@@ -98,7 +98,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		return h.newResp(ctx, ""), nil
 	}
 	//5 决策
-	resp, err := service.GtoDecision(ctx, model.Conv2TexasGtoDecisionReq(latestData))
+	resp, err := service.GtoDecision(ctx, model.Conv2TexasGtoDecisionReq(ctx, latestData))
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
 		return h.newResp(ctx, "get err"), nil
