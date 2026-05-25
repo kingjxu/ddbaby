@@ -53,6 +53,7 @@ type TexasActionHistory struct {
 	Action    string `json:"action"`
 	Amount    int    `json:"amount"`
 	Timestamp int    `json:"timestamp"`
+	Status    string
 }
 type TexasGtoDecisionReq struct {
 	GameType              string               `json:"game_type"`
@@ -87,6 +88,7 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 	players, currentPlayerPos := buildPlayers(currentResult)
 
 	actionHistory := buildActionHistory(ctx, recResult)
+	actionHistory = reviseActionHistory(actionHistory)
 
 	return &TexasGtoDecisionReq{
 		GameType:              "no_limit_holdem",
@@ -447,24 +449,13 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 
 		// 构建action history
 		// 因为我们是从单个状态推断行动历史，amount直接表示该阶段的总下注
-		prevBet := 0 // 当前轮次的最高下注
+		prevBet := 0 // 前位的下注
 		isFirst := true
-		heroProcessed := false
 
 		for _, idx := range actionOrder {
 			p := playerList[idx]
 			si := p.seatInfo
 			isActive := si.status == "active" || si.status == "allin"
-
-			// 如果已经处理过hero，就停止
-			if heroProcessed {
-				break
-			}
-
-			// 检查是否是hero
-			if si.isHero {
-				heroProcessed = true
-			}
 
 			var action string
 			var amount int
@@ -497,6 +488,7 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 				Action:    action,
 				Amount:    amount,
 				Timestamp: timestamp,
+				Status:    si.status,
 			})
 			timestamp++
 
