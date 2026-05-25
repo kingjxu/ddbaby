@@ -295,6 +295,10 @@ func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
 	return players, currentPlayerPos
 }
 
+func reviseActionHistory(history []TexasActionHistory) []TexasActionHistory {
+	return nil
+}
+
 // buildActionHistory 构建德州扑克的行动历史
 //
 // 参数:
