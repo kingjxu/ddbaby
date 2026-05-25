@@ -5,17 +5,15 @@ package handler
 import (
 	"context"
 	"errors"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/dal"
 	"github.com/kingjxu/ddbaby/model"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
-	"time"
-
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
 )
 
 // TexasPokerDecision .
@@ -48,9 +46,6 @@ func NewTexasPokerDecisionHandler(req *ddbaby.TexasPokerDecisionReq) *TexasPoker
 func (h *TexasPokerDecisionHandler) check() error {
 	if len(h.req.GetImages()) == 0 {
 		return errors.New("images is empty")
-	}
-	if h.req.GetImageTime() > 0 && h.req.GetImageTime() < time.Now().Unix()-4 {
-		return errors.New("image too old")
 	}
 	return nil
 }
