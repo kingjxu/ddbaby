@@ -298,7 +298,38 @@ func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
 }
 
 func reviseActionHistory(history []TexasActionHistory) []TexasActionHistory {
-	return nil
+	stageHistory := make(map[string][]TexasActionHistory)
+	for _, h := range history {
+		stageHistory[h.Stage] = append(stageHistory[h.Stage], h)
+	}
+
+	// 遍历每个 stage，修正下注金额
+	for stage, his := range stageHistory {
+		maxBet := 0
+		// 先找到该 stage 中 active 状态的最大下注
+		for _, h := range his {
+			if h.Status == "active" && h.Amount > maxBet {
+				maxBet = h.Amount
+			}
+		}
+		// 将该 stage 中所有 active 状态的下注都设置成最大值
+		for i, h := range his {
+			if h.Status == "active" {
+				stageHistory[stage][i].Amount = maxBet
+			}
+		}
+	}
+
+	// 按照 preflop->flop->turn->river 的顺序重新组装
+	stages := []string{"preflop", "flop", "turn", "river"}
+	result := make([]TexasActionHistory, 0)
+	for _, stage := range stages {
+		if his, ok := stageHistory[stage]; ok {
+			result = append(result, his...)
+		}
+	}
+
+	return result
 }
 
 // buildActionHistory 构建德州扑克的行动历史
