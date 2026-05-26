@@ -504,8 +504,8 @@ func (p *TaLuoPredictResp) String() string {
 
 type TexasPokerDecisionReq struct {
 	Images    []string `thrift:"Images,1,optional" json:"Images,omitempty" query:"images"`
-	ImageTime *int64   `thrift:"ImageTime,2,optional" json:"ImageTime,omitempty" query:"image_time"`
-	UserID    *string  `thrift:"UserID,3,optional" json:"UserID,omitempty" query:"user_id"`
+	Timestamp *int64   `thrift:"Timestamp,2,optional" json:"Timestamp,omitempty" query:"timestamp"`
+	UUID      *string  `thrift:"UUID,3,optional" json:"UUID,omitempty" query:"uuid"`
 	ImageType *string  `thrift:"ImageType,4,optional" json:"ImageType,omitempty" query:"image_type"`
 }
 
@@ -525,22 +525,22 @@ func (p *TexasPokerDecisionReq) GetImages() (v []string) {
 	return p.Images
 }
 
-var TexasPokerDecisionReq_ImageTime_DEFAULT int64
+var TexasPokerDecisionReq_Timestamp_DEFAULT int64
 
-func (p *TexasPokerDecisionReq) GetImageTime() (v int64) {
-	if !p.IsSetImageTime() {
-		return TexasPokerDecisionReq_ImageTime_DEFAULT
+func (p *TexasPokerDecisionReq) GetTimestamp() (v int64) {
+	if !p.IsSetTimestamp() {
+		return TexasPokerDecisionReq_Timestamp_DEFAULT
 	}
-	return *p.ImageTime
+	return *p.Timestamp
 }
 
-var TexasPokerDecisionReq_UserID_DEFAULT string
+var TexasPokerDecisionReq_UUID_DEFAULT string
 
-func (p *TexasPokerDecisionReq) GetUserID() (v string) {
-	if !p.IsSetUserID() {
-		return TexasPokerDecisionReq_UserID_DEFAULT
+func (p *TexasPokerDecisionReq) GetUUID() (v string) {
+	if !p.IsSetUUID() {
+		return TexasPokerDecisionReq_UUID_DEFAULT
 	}
-	return *p.UserID
+	return *p.UUID
 }
 
 var TexasPokerDecisionReq_ImageType_DEFAULT string
@@ -556,12 +556,12 @@ func (p *TexasPokerDecisionReq) IsSetImages() bool {
 	return p.Images != nil
 }
 
-func (p *TexasPokerDecisionReq) IsSetImageTime() bool {
-	return p.ImageTime != nil
+func (p *TexasPokerDecisionReq) IsSetTimestamp() bool {
+	return p.Timestamp != nil
 }
 
-func (p *TexasPokerDecisionReq) IsSetUserID() bool {
-	return p.UserID != nil
+func (p *TexasPokerDecisionReq) IsSetUUID() bool {
+	return p.UUID != nil
 }
 
 func (p *TexasPokerDecisionReq) IsSetImageType() bool {

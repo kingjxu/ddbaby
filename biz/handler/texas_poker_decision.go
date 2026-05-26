@@ -14,6 +14,7 @@ import (
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
+	"time"
 )
 
 // TexasPokerDecision .
@@ -27,7 +28,6 @@ func TexasPokerDecision(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	logrus.WithContext(ctx).Infof("[TexasPokerDecision] raw req:%v", string(c.Request.Body()))
 	resp, _ := NewTexasPokerDecisionHandler(&req).Handle(ctx)
 	logrus.WithContext(ctx).Infof("[TexasPokerDecision] resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
@@ -49,12 +49,18 @@ func (h *TexasPokerDecisionHandler) check() error {
 	if len(h.req.GetImages()) == 0 {
 		return errors.New("images is empty")
 	}
+	if time.Now().Unix()-h.req.GetTimestamp() > 3 { // 超过3秒，认为是过期
+		return errors.New("timestamp is expired")
+	}
+	if h.req.GetUUID() == "" {
+		return errors.New("uuid is empty")
+	}
 	return nil
 }
 
 func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerDecisionResp, error) {
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imagesLen:%v, imageTime:%v,imageType:%v",
-		len(h.req.GetImages()), h.req.GetImageTime(), h.req.GetImageType())
+	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imagesLen:%v, timestamp:%v, uuid:%v, imageType:%v",
+		len(h.req.GetImages()), time.Unix(h.req.GetTimestamp(), 0).Format(time.DateTime), h.req.GetUUID(), h.req.GetImageType())
 	//1 数据校验
 	var err error
 	if err = h.check(); err != nil {
@@ -79,12 +85,12 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	}
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] recognize poker:%v", util.ToJSON(recResult))
 	//3 保存牌型
-	if err = dal.SaveUserData(ctx, h.req.GetUserID(), recResult); err != nil {
+	if err = dal.SaveUserData(ctx, h.req.GetUUID(), recResult); err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] saveUserData err:%v", err)
 		return h.newResp(ctx, "save data err"), nil
 	}
 	//4 获取最新牌型
-	latestData, err := dal.GetLastUserData(ctx, h.req.GetUserID())
+	latestData, err := dal.GetLastUserData(ctx, h.req.GetUUID())
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] GetLastUserData err:%v", err)
 		return h.newResp(ctx, "get last data err"), nil
