@@ -2,36 +2,82 @@ package handler
 
 import (
 	"context"
+	"github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	"github.com/kingjxu/ddbaby/util"
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-
-	"github.com/kingjxu/ddbaby/biz/model/ddbaby"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestTexasPokerDecisionHandler_Handle(t *testing.T) {
-
-	t.Run("一次正常的调用", func(t *testing.T) {
+	/*	t.Run("一次正常的调用", func(t *testing.T) {
+			reqs := []*ddbaby.TexasPokerDecisionReq{
+				{
+					Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/11.jpg"},
+					ImageType: util.Ptr("file_url"),
+					UUID:      util.Ptr("123456"),
+					Timestamp: util.Ptr(time.Now().Unix()),
+				},
+				{
+					Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/22.jpg"},
+					ImageType: util.Ptr("file_url"),
+					UUID:      util.Ptr("123456"),
+					Timestamp: util.Ptr(time.Now().Unix()),
+				},
+			}
+			for _, req := range reqs {
+				handler := NewTexasPokerDecisionHandler(req)
+				_, err := handler.Handle(context.Background())
+				t.Log("--------------------------------\n")
+				t.Log("--------------------------------\n")
+				assert.NoError(t, err)
+			}
+		})
+	*/
+	t.Run("全轮次的调用", func(t *testing.T) {
 		reqs := []*ddbaby.TexasPokerDecisionReq{
 			{
-				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/111.jpg"},
+				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/1.jpg"},
 				ImageType: util.Ptr("file_url"),
-				UserID:    util.Ptr("123456"),
-				ImageTime: util.Ptr(time.Now().Unix()),
+				UUID:      util.Ptr("123456"),
+				Timestamp: util.Ptr(time.Now().Unix()),
 			},
 			{
-				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/222.jpg"},
+				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/2.jpg"},
 				ImageType: util.Ptr("file_url"),
-				UserID:    util.Ptr("123456"),
-				ImageTime: util.Ptr(time.Now().Unix()),
+				UUID:      util.Ptr("123456"),
+				Timestamp: util.Ptr(time.Now().Unix()),
+			},
+			{
+				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/3.jpg"},
+				ImageType: util.Ptr("file_url"),
+				UUID:      util.Ptr("123456"),
+				Timestamp: util.Ptr(time.Now().Unix()),
+			},
+			{
+				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/4.jpg"},
+				ImageType: util.Ptr("file_url"),
+				UUID:      util.Ptr("123456"),
+				Timestamp: util.Ptr(time.Now().Unix()),
+			},
+			{
+				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/5.jpg"},
+				ImageType: util.Ptr("file_url"),
+				UUID:      util.Ptr("123456"),
+				Timestamp: util.Ptr(time.Now().Unix()),
+			},
+			{
+				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/6.jpg"},
+				ImageType: util.Ptr("file_url"),
+				UUID:      util.Ptr("123456"),
+				Timestamp: util.Ptr(time.Now().Unix()),
 			},
 		}
-		for _, req := range reqs {
+		for i, req := range reqs {
 			handler := NewTexasPokerDecisionHandler(req)
 			_, err := handler.Handle(context.Background())
-			t.Log("--------------------------------\n")
-			t.Log("--------------------------------\n")
+			t.Logf("---------------- %d ----------------\n", i+1)
+			t.Logf("-----------------%d ----------------\n", i+1)
 			assert.NoError(t, err)
 		}
 	})

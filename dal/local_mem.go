@@ -21,8 +21,9 @@ func SaveUserData(ctx context.Context, uid string, result *model.TexasResult) er
 		userDataMap[uid] = append(userData, result)
 		return nil
 	}
-	if userData[len(userData)-1].TableInfo.Stage == result.TableInfo.Stage {
+	if userData[len(userData)-1].TableInfo.Stage == result.TableInfo.Stage { // 同阶段，更新
 		userData[len(userData)-1] = result
+		return nil
 	}
 	userDataMap[uid] = append(userData, result)
 	return nil

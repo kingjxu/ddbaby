@@ -53,7 +53,7 @@ type TexasActionHistory struct {
 	Action    string `json:"action"`
 	Amount    int    `json:"amount"`
 	Timestamp int    `json:"timestamp"`
-	Status    string
+	Status    string `json:"-"`
 }
 type TexasGtoDecisionReq struct {
 	GameType              string               `json:"game_type"`
@@ -87,8 +87,8 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 
 	players, currentPlayerPos := buildPlayers(currentResult)
 
+	recResult = reviseActionHistory(recResult)
 	actionHistory := buildActionHistory(ctx, recResult)
-	actionHistory = reviseActionHistory(actionHistory)
 
 	return &TexasGtoDecisionReq{
 		GameType:              "no_limit_holdem",
@@ -297,39 +297,28 @@ func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
 	return players, currentPlayerPos
 }
 
-func reviseActionHistory(history []TexasActionHistory) []TexasActionHistory {
-	stageHistory := make(map[string][]TexasActionHistory)
-	for _, h := range history {
-		stageHistory[h.Stage] = append(stageHistory[h.Stage], h)
+func reviseActionHistory(recResult []*TexasResult) []*TexasResult {
+	if len(recResult) < 2 {
+		return recResult
 	}
 
-	// 遍历每个 stage，修正下注金额
-	for stage, his := range stageHistory {
+	for i := 0; i < len(recResult)-1; i++ {
 		maxBet := 0
-		// 先找到该 stage 中 active 状态的最大下注
-		for _, h := range his {
-			if h.Status == "active" && h.Amount > maxBet {
-				maxBet = h.Amount
+		for _, vi := range recResult[i].VillainsInfo {
+			if vi.CurrentBet > maxBet && vi.Status == "active" {
+				maxBet = vi.CurrentBet
 			}
 		}
-		// 将该 stage 中所有 active 状态的下注都设置成最大值
-		for i, h := range his {
-			if h.Status == "active" {
-				stageHistory[stage][i].Amount = maxBet
+		for j, vi := range recResult[i].VillainsInfo {
+			if vi.Status == "active" {
+				recResult[i].VillainsInfo[j].CurrentBet = maxBet
 			}
 		}
-	}
-
-	// 按照 preflop->flop->turn->river 的顺序重新组装
-	stages := []string{"preflop", "flop", "turn", "river"}
-	result := make([]TexasActionHistory, 0)
-	for _, stage := range stages {
-		if his, ok := stageHistory[stage]; ok {
-			result = append(result, his...)
+		if recResult[i].HeroInfo.Status == "active" && recResult[i].HeroInfo.CurrentBet < maxBet {
+			recResult[i].HeroInfo.CurrentBet = maxBet
 		}
 	}
-
-	return result
+	return recResult
 }
 
 // buildActionHistory 构建德州扑克的行动历史
