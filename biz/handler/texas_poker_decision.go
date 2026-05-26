@@ -26,6 +26,8 @@ func TexasPokerDecision(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+
+	logrus.WithContext(ctx).Infof("[TexasPokerDecision] raw req:%v", string(c.Request.Body()))
 	resp, _ := NewTexasPokerDecisionHandler(&req).Handle(ctx)
 	logrus.WithContext(ctx).Infof("[TexasPokerDecision] resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
