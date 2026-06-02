@@ -5,6 +5,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
@@ -65,7 +66,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	var err error
 	if err = h.check(); err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] check err:%v", err)
-		return h.newResp(ctx, "param err"), nil
+		return h.newResp(ctx, ""), nil
 	}
 	//2 识别牌型
 	images := h.req.GetImages()
@@ -74,26 +75,29 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		recResult, err = service.RecognizePokerByFilePath(ctx, images[0])
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.RecognizePokerByFilePath err:%v", err)
-			return h.newResp(ctx, "get decision err"), nil
+			return h.newResp(ctx, ""), nil
 		}
 	} else {
 		recResult, err = service.RecognizePoker(ctx, images[0])
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.RecognizePoker err:%v", err)
-			return h.newResp(ctx, "get decision err"), nil
+			return h.newResp(ctx, ""), nil
 		}
 	}
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] recognize poker:%v", util.ToJSON(recResult))
 	//3 保存牌型
 	if err = dal.SaveUserData(ctx, h.req.GetUUID(), recResult); err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] saveUserData err:%v", err)
-		return h.newResp(ctx, "save data err"), nil
+		return h.newResp(ctx, ""), nil
 	}
 	//4 获取最新牌型
 	latestData, err := dal.GetLastUserData(ctx, h.req.GetUUID())
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] GetLastUserData err:%v", err)
-		return h.newResp(ctx, "get last data err"), nil
+		return h.newResp(ctx, ""), nil
+	}
+	if len(latestData) == 0 {
+		return h.newResp(ctx, ""), nil
 	}
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] latestData:%v", util.ToJSON(latestData))
 	if !recResult.HeroInfo.IsHeroTurn {
@@ -104,12 +108,25 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	resp, err := service.GtoDecision(ctx, model.Conv2TexasGtoDecisionReq(ctx, latestData))
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
-		return h.newResp(ctx, "get err"), nil
+		return h.newResp(ctx, ""), nil
 	}
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] resp:%v", util.ToJSON(resp))
-	return h.newResp(ctx, ""), nil
+	return h.newResp(ctx, h.getFinalAction(resp)), nil
 }
-
+func (h *TexasPokerDecisionHandler) getFinalAction(decision *model.TexasGtoDecisionResp) string {
+	if decision.Action == "check" {
+		return "过牌"
+	} else if decision.Action == "bet" {
+		return fmt.Sprintf("下注 %d", decision.RaiseSize)
+	} else if decision.Action == "call" {
+		return "跟注"
+	} else if decision.Action == "raise" {
+		return fmt.Sprintf("加注 %d", decision.RaiseSize)
+	} else if decision.Action == "fold" {
+		return "弃牌"
+	}
+	return ""
+}
 func (h *TexasPokerDecisionHandler) newResp(ctx context.Context, result string) *ddbaby.TexasPokerDecisionResp {
 	resp := &ddbaby.TexasPokerDecisionResp{
 		Result: util.Ptr(result),

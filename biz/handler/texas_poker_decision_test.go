@@ -37,37 +37,7 @@ func TestTexasPokerDecisionHandler_Handle(t *testing.T) {
 	t.Run("全轮次的调用", func(t *testing.T) {
 		reqs := []*ddbaby.TexasPokerDecisionReq{
 			{
-				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/1.jpg"},
-				ImageType: util.Ptr("file_url"),
-				UUID:      util.Ptr("123456"),
-				Timestamp: util.Ptr(time.Now().Unix()),
-			},
-			{
-				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/2.jpg"},
-				ImageType: util.Ptr("file_url"),
-				UUID:      util.Ptr("123456"),
-				Timestamp: util.Ptr(time.Now().Unix()),
-			},
-			{
-				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/3.jpg"},
-				ImageType: util.Ptr("file_url"),
-				UUID:      util.Ptr("123456"),
-				Timestamp: util.Ptr(time.Now().Unix()),
-			},
-			{
-				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/4.jpg"},
-				ImageType: util.Ptr("file_url"),
-				UUID:      util.Ptr("123456"),
-				Timestamp: util.Ptr(time.Now().Unix()),
-			},
-			{
-				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/5.jpg"},
-				ImageType: util.Ptr("file_url"),
-				UUID:      util.Ptr("123456"),
-				Timestamp: util.Ptr(time.Now().Unix()),
-			},
-			{
-				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images/6.jpg"},
+				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/poker_images_v2/k1.jpg"},
 				ImageType: util.Ptr("file_url"),
 				UUID:      util.Ptr("123456"),
 				Timestamp: util.Ptr(time.Now().Unix()),

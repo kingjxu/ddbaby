@@ -214,7 +214,7 @@ func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
 				HoleCards: parseCards(si.heroCards),
 				Stack:     si.stack,
 				Bet:       si.currentBet,
-				IsActive:  si.status == "active" || si.status == "allin",
+				IsActive:  si.status == "active" || si.status == "all_in",
 			}
 			currentPlayerPos = position + "-Hero"
 		} else {
@@ -223,7 +223,7 @@ func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
 				HoleCards:   []string{"X-X", "X-X"},
 				Stack:       si.stack,
 				Bet:         si.currentBet,
-				IsActive:    si.status == "active" || si.status == "allin",
+				IsActive:    si.status == "active" || si.status == "all_in",
 				ActionTaken: "",
 			}
 		}
