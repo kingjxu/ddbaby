@@ -50,7 +50,7 @@ func (h *TexasPokerDecisionHandler) check() error {
 	if len(h.req.GetImages()) == 0 {
 		return errors.New("images is empty")
 	}
-	if time.Now().Unix()-h.req.GetTimestamp() > 100 { // 超过3秒，认为是过期
+	if time.Now().Unix()-h.req.GetTimestamp() > 3 { // 超过3秒，认为是过期
 		return errors.New("timestamp is expired")
 	}
 	if h.req.GetUUID() == "" {
