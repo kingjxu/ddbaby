@@ -114,7 +114,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	}
 	h.HeroCard = recResult.HeroInfo.HeroCards
 	h.CommunityCards = recResult.TableInfo.CommunityCards
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] resp:%v", util.ToJSON(resp))
+	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] resp:%v, latestDataLen:%v", util.ToJSON(resp), len(latestData))
 	return h.newResp(ctx, h.getFinalAction(resp)), nil
 }
 func (h *TexasPokerDecisionHandler) getFinalAction(decision *model.TexasGtoDecisionResp) string {
