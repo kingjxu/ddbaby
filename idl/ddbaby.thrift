@@ -66,6 +66,8 @@ struct TexasPokerDecisionReq {
 }
 struct TexasPokerDecisionResp {
     1: optional string Result;
+    2: optional string HeroCard;
+    3: optional string CommunityCard;
 }
 
 

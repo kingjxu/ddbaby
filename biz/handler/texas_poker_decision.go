@@ -35,9 +35,11 @@ func TexasPokerDecision(ctx context.Context, c *app.RequestContext) {
 }
 
 type TexasPokerDecisionHandler struct {
-	req     *ddbaby.TexasPokerDecisionReq
-	Action  string
-	BetSize int32
+	req            *ddbaby.TexasPokerDecisionReq
+	Action         string
+	BetSize        int32
+	HeroCard       []string
+	CommunityCards []string
 }
 
 func NewTexasPokerDecisionHandler(req *ddbaby.TexasPokerDecisionReq) *TexasPokerDecisionHandler {
@@ -110,6 +112,8 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
+	h.HeroCard = recResult.HeroInfo.HeroCards
+	h.CommunityCards = recResult.TableInfo.CommunityCards
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] resp:%v", util.ToJSON(resp))
 	return h.newResp(ctx, h.getFinalAction(resp)), nil
 }
@@ -129,7 +133,9 @@ func (h *TexasPokerDecisionHandler) getFinalAction(decision *model.TexasGtoDecis
 }
 func (h *TexasPokerDecisionHandler) newResp(ctx context.Context, result string) *ddbaby.TexasPokerDecisionResp {
 	resp := &ddbaby.TexasPokerDecisionResp{
-		Result: util.Ptr(result),
+		Result:        util.Ptr(result),
+		HeroCard:      util.Ptr(util.ToJSON(h.HeroCard)),
+		CommunityCard: util.Ptr(util.ToJSON(h.CommunityCards)),
 	}
 	return resp
 }

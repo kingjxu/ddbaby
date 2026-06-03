@@ -576,7 +576,9 @@ func (p *TexasPokerDecisionReq) String() string {
 }
 
 type TexasPokerDecisionResp struct {
-	Result *string `thrift:"Result,1,optional" form:"Result" json:"Result,omitempty" query:"Result"`
+	Result        *string `thrift:"Result,1,optional" form:"Result" json:"Result,omitempty" query:"Result"`
+	HeroCard      *string `thrift:"HeroCard,2,optional" form:"HeroCard" json:"HeroCard,omitempty" query:"HeroCard"`
+	CommunityCard *string `thrift:"CommunityCard,3,optional" form:"CommunityCard" json:"CommunityCard,omitempty" query:"CommunityCard"`
 }
 
 func NewTexasPokerDecisionResp() *TexasPokerDecisionResp {
@@ -595,8 +597,34 @@ func (p *TexasPokerDecisionResp) GetResult() (v string) {
 	return *p.Result
 }
 
+var TexasPokerDecisionResp_HeroCard_DEFAULT string
+
+func (p *TexasPokerDecisionResp) GetHeroCard() (v string) {
+	if !p.IsSetHeroCard() {
+		return TexasPokerDecisionResp_HeroCard_DEFAULT
+	}
+	return *p.HeroCard
+}
+
+var TexasPokerDecisionResp_CommunityCard_DEFAULT string
+
+func (p *TexasPokerDecisionResp) GetCommunityCard() (v string) {
+	if !p.IsSetCommunityCard() {
+		return TexasPokerDecisionResp_CommunityCard_DEFAULT
+	}
+	return *p.CommunityCard
+}
+
 func (p *TexasPokerDecisionResp) IsSetResult() bool {
 	return p.Result != nil
+}
+
+func (p *TexasPokerDecisionResp) IsSetHeroCard() bool {
+	return p.HeroCard != nil
+}
+
+func (p *TexasPokerDecisionResp) IsSetCommunityCard() bool {
+	return p.CommunityCard != nil
 }
 
 func (p *TexasPokerDecisionResp) String() string {
