@@ -86,6 +86,8 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 			return h.newResp(ctx, ""), nil
 		}
 	}
+	h.HeroCard = recResult.HeroInfo.HeroCards
+	h.CommunityCards = recResult.TableInfo.CommunityCards
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] recognize poker:%v", util.ToJSON(recResult))
 	//3 保存牌型
 	if err = dal.SaveUserData(ctx, h.req.GetUUID(), recResult); err != nil {
@@ -112,8 +114,6 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
-	h.HeroCard = recResult.HeroInfo.HeroCards
-	h.CommunityCards = recResult.TableInfo.CommunityCards
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] resp:%v,heroCard:%v,communityCards:%v, latestDataLen:%v",
 		util.ToJSON(resp), recResult.HeroInfo.HeroCards, recResult.TableInfo.CommunityCards, len(latestData))
 	return h.newResp(ctx, h.getFinalAction(resp)), nil
