@@ -165,6 +165,15 @@ func UploadImagesV2(ctx context.Context, imageData string) (string, error) {
 	}
 	return imageUrl, nil
 }
+func WriteImageToLocalFile(ctx context.Context, base64Data string) {
+	imageData, err := util.Base64Decode(base64Data, false)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("[WriteImageToLocalFile] Base64Decode image err:%v", err)
+		return
+	}
+	fileName := fmt.Sprintf("/usr/local/webserver/images/%v.jpg", time.Now().Unix())
+	_ = util.WriteImageToFile(imageData, fileName)
+}
 
 func RecognizePokerByFilePath(ctx context.Context, filePath string) (*model.TexasResult, error) {
 	fileData, err := os.ReadFile(filePath)
@@ -172,7 +181,7 @@ func RecognizePokerByFilePath(ctx context.Context, filePath string) (*model.Texa
 		logrus.WithContext(ctx).Errorf("[RecognizePokerByFilePath] os.ReadFile err:%v, filePath:%v", err, filePath)
 		return nil, err
 	}
-	
+
 	imageBase64 := base64.StdEncoding.EncodeToString(fileData)
 	return RecognizePoker(ctx, imageBase64)
 }
