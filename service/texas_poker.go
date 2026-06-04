@@ -12,6 +12,7 @@ import (
 	"github.com/kingjxu/ddbaby/model"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
+	"image"
 	"io"
 	"net/http"
 	"os"
@@ -171,6 +172,8 @@ func WriteImageToLocalFile(ctx context.Context, base64Data string) {
 		logrus.WithContext(ctx).Errorf("[WriteImageToLocalFile] Base64Decode image err:%v", err)
 		return
 	}
+	conf, _, _ := image.DecodeConfig(bytes.NewReader(imageData))
+	logrus.WithContext(ctx).Infof("[WriteImageToLocalFile] height:%v,width:%v", conf.Height, conf.Width)
 	fileName := fmt.Sprintf("/usr/local/webserver/images/%v.jpg", time.Now().Unix())
 	_ = util.WriteImageToFile(imageData, fileName)
 }
