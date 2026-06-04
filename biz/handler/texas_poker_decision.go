@@ -62,6 +62,7 @@ func (h *TexasPokerDecisionHandler) check() error {
 }
 
 func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerDecisionResp, error) {
+	startTime := time.Now()
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imagesLen:%v, timestamp:%v, uuid:%v, imageType:%v",
 		len(h.req.GetImages()), time.Unix(h.req.GetTimestamp()/1000, 0).Format(time.DateTime), h.req.GetUUID(), h.req.GetImageType())
 	//1 数据校验
@@ -114,8 +115,8 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] resp:%v,heroCard:%v,communityCards:%v, latestDataLen:%v",
-		util.ToJSON(resp), recResult.HeroInfo.HeroCards, recResult.TableInfo.CommunityCards, len(latestData))
+	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] resp:%v,heroCard:%v,communityCards:%v, latestDataLen:%v, costTime:%v",
+		util.ToJSON(resp), recResult.HeroInfo.HeroCards, recResult.TableInfo.CommunityCards, len(latestData), time.Since(startTime).Milliseconds())
 	return h.newResp(ctx, h.getFinalAction(resp)), nil
 }
 func (h *TexasPokerDecisionHandler) getFinalAction(decision *model.TexasGtoDecisionResp) string {
