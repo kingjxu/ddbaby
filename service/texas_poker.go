@@ -174,7 +174,7 @@ func WriteImageToLocalFile(ctx context.Context, base64Data string) {
 		return
 	}
 	conf, _, _ := image.DecodeConfig(bytes.NewReader(imageData))
-	fileName := fmt.Sprintf("/usr/local/webserver/images/%v.jpg", time.Now().Unix())
+	fileName := fmt.Sprintf("/usr/local/webserver/images/%v.jpg", time.Now().Format(time.DateTime))
 	_ = util.WriteImageToFile(imageData, fileName)
 	logrus.WithContext(ctx).Infof("[WriteImageToLocalFile] height:%v,width:%v, cost %vms", conf.Height, conf.Width, time.Since(startTime).Milliseconds())
 }
