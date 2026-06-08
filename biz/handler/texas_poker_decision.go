@@ -92,6 +92,10 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	h.HeroCard = recResult.HeroInfo.HeroCards
 	h.CommunityCards = recResult.TableInfo.CommunityCards
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] recognize poker:%v", util.ToJSON(recResult))
+	if !recResult.HeroInfo.IsHeroTurn {
+		logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] not hero turn")
+		return h.newResp(ctx, ""), nil
+	}
 	//3 保存牌型
 	if err = dal.SaveUserData(ctx, h.req.GetUUID(), recResult); err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] saveUserData err:%v", err)
@@ -107,10 +111,6 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		return h.newResp(ctx, ""), nil
 	}
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] latestData:%v", util.ToJSON(latestData))
-	if !recResult.HeroInfo.IsHeroTurn {
-		logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] not hero turn")
-		return h.newResp(ctx, ""), nil
-	}
 	//5 决策
 	resp, err := service.GtoDecision(ctx, model.Conv2TexasGtoDecisionReq(ctx, latestData))
 	if err != nil {

@@ -37,7 +37,7 @@ func TestTexasPokerDecisionHandler_Handle(t *testing.T) {
 	t.Run("全轮次的调用", func(t *testing.T) {
 		reqs := []*ddbaby.TexasPokerDecisionReq{
 			{
-				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/badcase/2.jpg"},
+				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/badcase/18.jpg"},
 				ImageType: util.Ptr("file_url"),
 				UUID:      util.Ptr("123456"),
 				Timestamp: util.Ptr(time.Now().Unix() * 1000),
