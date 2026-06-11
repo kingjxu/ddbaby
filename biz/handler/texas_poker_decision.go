@@ -81,12 +81,12 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 			return h.newResp(ctx, ""), nil
 		}
 	} else {
+		go service.WriteImageToLocalFile(ctx, images[0])
 		recResult, err = service.RecognizePoker(ctx, images[0])
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.RecognizePoker err:%v", err)
 			return h.newResp(ctx, ""), nil
 		}
-		go service.WriteImageToLocalFile(ctx, images[0])
 
 	}
 	h.HeroCard = recResult.HeroInfo.HeroCards
