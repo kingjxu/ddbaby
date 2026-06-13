@@ -15,6 +15,7 @@ import (
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
+	"slices"
 	"time"
 )
 
@@ -88,6 +89,11 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 			return h.newResp(ctx, ""), nil
 		}
 
+	}
+	if recResult == nil || recResult.TableInfo.Stage == "" ||
+		!slices.Contains(_const.TexasPokerStageAll, recResult.TableInfo.Stage) {
+		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] recognize failed")
+		return h.newResp(ctx, ""), nil
 	}
 	h.HeroCard = recResult.HeroInfo.HeroCards
 	h.CommunityCards = recResult.TableInfo.CommunityCards
