@@ -452,9 +452,9 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 		// 确定行动开始位置
 		var startIndex int
 		if stage == "preflop" {
-			// preflop从BB+1开始
+			// preflop从UTG+1开始
 			for i, p := range playerList {
-				if p.pos == "BB" || p.pos == "BB-Hero" {
+				if p.pos == "UTG" || p.pos == "UTG-Hero" {
 					startIndex = (i + 1) % len(playerList)
 					break
 				}
