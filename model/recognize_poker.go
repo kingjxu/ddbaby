@@ -233,9 +233,9 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 	// 确定行动开始位置
 	var startIndex int
 	if result.TableInfo.Stage == "preflop" {
-		// preflop从BB+1开始
+		// preflop从UTG+1开始
 		for i, pi := range playerList {
-			if pi.pos == "BB" {
+			if pi.pos == "UTG" {
 				startIndex = (i + 1) % len(playerList)
 				break
 			}
@@ -276,9 +276,13 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 			pi.player.ActionTaken = "bet"
 		} else if pi.player.Bet == prevBet && pi.player.Bet > 0 {
 			pi.player.ActionTaken = "call"
-		} else if pi.player.Bet >= 2*prevBet && pi.player.Bet > bbSize*2 { // 多加了一个pi.player.Bet > bbSize*2 去打补丁
+		} else if pi.player.Bet >= int(1.6*float64(prevBet)) { // 大于1.6倍就算raise了
 			pi.player.ActionTaken = "raise"
 		} else {
+			pi.player.ActionTaken = "call"
+		}
+
+		if result.TableInfo.Stage == "preflop" && pi.player.Bet == bbSize*2 && pi.player.ActionTaken == "raise" {
 			pi.player.ActionTaken = "call"
 		}
 
