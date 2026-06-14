@@ -509,6 +509,9 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 				amount = si.currentBet
 			}
 
+			if stage == "preflop" && action == "bet" { // preflop下注时，实际是call
+				action = "call"
+			}
 			// 添加到history
 			history = append(history, TexasActionHistory{
 				Stage:     stage,
