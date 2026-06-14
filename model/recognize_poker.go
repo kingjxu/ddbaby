@@ -276,7 +276,7 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 			pi.player.ActionTaken = "bet"
 		} else if pi.player.Bet == prevBet && pi.player.Bet > 0 {
 			pi.player.ActionTaken = "call"
-		} else if pi.player.Bet >= 2*prevBet && pi.player.Bet > bbSize*2 {
+		} else if pi.player.Bet >= 2*prevBet && pi.player.Bet > bbSize*2 { // 多加了一个pi.player.Bet > bbSize*2 去打补丁
 			pi.player.ActionTaken = "raise"
 		} else {
 			pi.player.ActionTaken = "call"
