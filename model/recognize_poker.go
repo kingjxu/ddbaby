@@ -290,6 +290,10 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 			pi.player.ActionTaken = "call"
 		}
 
+		if result.TableInfo.Stage == "preflop" && pi.player.ActionTaken == "bet" { // preflop下注时，实际是call
+			pi.player.ActionTaken = "call"
+		}
+
 		// 更新前位bet
 		if pi.player.Bet > prevBet {
 			prevBet = pi.player.Bet
