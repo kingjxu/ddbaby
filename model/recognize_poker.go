@@ -98,6 +98,8 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 		CurrentPot:            currentResult.TableInfo.MainPot,
 		SbSize:                sbSize,
 		BbSize:                bbSize,
+		Ante:                  bbSize,
+		Straddle:              bbSize * 2,
 		CommunityCards:        parseCards(currentResult.TableInfo.CommunityCards),
 		GameStage:             currentResult.TableInfo.Stage,
 		Players:               players,
