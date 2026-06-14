@@ -59,6 +59,8 @@ type TexasGtoDecisionReq struct {
 	GameType              string               `json:"game_type"`
 	NumPlayers            int                  `json:"num_players"`
 	CurrentPot            int                  `json:"current_pot"`
+	Ante                  int                  `json:"ante"`
+	Straddle              int                  `json:"straddle"`
 	SbSize                int                  `json:"sb_size"`
 	BbSize                int                  `json:"bb_size"`
 	CommunityCards        []string             `json:"community_cards"`
