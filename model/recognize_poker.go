@@ -85,7 +85,7 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 
 	sbSize, bbSize := parseBlindSize(currentResult.TableInfo.BlindSize)
 
-	players, currentPlayerPos := buildPlayers(currentResult)
+	players, currentPlayerPos := buildPlayers(currentResult, bbSize)
 
 	recResult = reviseActionHistory(recResult)
 	actionHistory := buildActionHistory(ctx, recResult)
@@ -139,7 +139,7 @@ func parseBlindSize(blindSizeStr string) (int, int) {
 	return int(sbSize), int(bbSize)
 }
 
-func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
+func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 	type seatInfo struct {
 		seat       int
 		isHero     bool
@@ -276,7 +276,7 @@ func buildPlayers(result *TexasResult) ([]TexasPlayer, string) {
 			pi.player.ActionTaken = "bet"
 		} else if pi.player.Bet == prevBet && pi.player.Bet > 0 {
 			pi.player.ActionTaken = "call"
-		} else if pi.player.Bet >= 2*prevBet {
+		} else if pi.player.Bet >= 2*prevBet && pi.player.Bet > bbSize*2 {
 			pi.player.ActionTaken = "raise"
 		} else {
 			pi.player.ActionTaken = "call"
