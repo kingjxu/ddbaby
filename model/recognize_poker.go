@@ -263,8 +263,8 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 		pi := &playerList[idx]
 
 		// 检查是否是hero
-		if pi.info.isHero {
-			continue
+		if pi.info.isHero { // hero之后的不再给action_taken
+			break
 		}
 
 		// 判断ActionTaken
