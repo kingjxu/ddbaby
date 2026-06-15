@@ -89,7 +89,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		}
 
 	}
-	if recResult == nil || recResult.TableInfo.Stage == "" ||
+	if recResult == nil || recResult.TableInfo.Stage == "" || recResult.TableInfo.MainPot == 0 ||
 		!util.Contains(_const.TexasPokerStageAll, recResult.TableInfo.Stage) {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] recognize failed")
 		return h.newResp(ctx, ""), nil
