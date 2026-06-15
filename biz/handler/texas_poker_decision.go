@@ -89,6 +89,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		}
 
 	}
+	recognizeSpends := time.Since(startTime).Milliseconds()
 	if recResult == nil || recResult.TableInfo.Stage == "" || recResult.TableInfo.MainPot == 0 ||
 		!util.Contains(_const.TexasPokerStageAll, recResult.TableInfo.Stage) {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] recognize failed")
@@ -122,6 +123,10 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
+	decisionSpends := time.Since(startTime).Milliseconds()
+	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] , recognize_spends:%v, decision_spends:%v, total_spends:%v",
+		recognizeSpends, decisionSpends-recognizeSpends, decisionSpends)
+
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] resp:%v,heroCard:%v,communityCards:%v, latestDataLen:%v, costTime:%v",
 		util.ToJSON(resp), recResult.HeroInfo.HeroCards, recResult.TableInfo.CommunityCards, len(latestData), time.Since(startTime).Milliseconds())
 	return h.newResp(ctx, h.getFinalAction(resp)), nil
