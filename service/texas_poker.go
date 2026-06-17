@@ -166,7 +166,7 @@ func UploadImagesV2(ctx context.Context, imageData string) (string, error) {
 	}
 	return imageUrl, nil
 }
-func WriteImageToLocalFile(ctx context.Context, base64Data string) {
+func WriteImageToLocalFile(ctx context.Context, base64Data string, tag string) {
 	startTime := time.Now()
 	imageData, err := util.Base64Decode(base64Data, false)
 	if err != nil {
@@ -174,7 +174,7 @@ func WriteImageToLocalFile(ctx context.Context, base64Data string) {
 		return
 	}
 	conf, _, _ := image.DecodeConfig(bytes.NewReader(imageData))
-	fileName := fmt.Sprintf("/usr/local/webserver/images/%v.jpg", time.Now().Format(time.DateTime))
+	fileName := fmt.Sprintf("/usr/local/webserver/images/%v.jpg", time.Now().Format(time.DateTime)+tag)
 	_ = util.WriteImageToFile(imageData, fileName)
 	logrus.WithContext(ctx).Infof("[WriteImageToLocalFile] height:%v,width:%v, cost %vms", conf.Height, conf.Width, time.Since(startTime).Milliseconds())
 }
