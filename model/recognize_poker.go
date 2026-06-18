@@ -311,7 +311,45 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 }
 
 func reviseActionHistoryV2(history []TexasActionHistory) []TexasActionHistory {
-	return history
+	if len(history) == 0 {
+		return history
+	}
+
+	// 按 stage 分组
+	stageHistory := make(map[string][]TexasActionHistory)
+	for _, h := range history {
+		stage := h.Stage
+		if stage == "" {
+			stage = "preflop"
+		}
+		stageHistory[stage] = append(stageHistory[stage], h)
+	}
+
+	// 遍历每个 stage，找到最大 amount 并统一设置
+	for stage, his := range stageHistory {
+		// 找到该 stage 的最大 amount
+		maxAmount := 0
+		for _, h := range his {
+			if h.Amount > maxAmount {
+				maxAmount = h.Amount
+			}
+		}
+		// 将该 stage 所有条目的 amount 设置成最大值
+		for i := range his {
+			stageHistory[stage][i].Amount = maxAmount
+		}
+	}
+
+	// 按照 preflop->flop->turn->river 的顺序重新组装
+	stages := []string{"preflop", "flop", "turn", "river"}
+	result := make([]TexasActionHistory, 0)
+	for _, stage := range stages {
+		if his, ok := stageHistory[stage]; ok {
+			result = append(result, his...)
+		}
+	}
+
+	return result
 }
 
 func reviseActionHistory(recResult []*TexasResult) []*TexasResult {
