@@ -329,13 +329,16 @@ func reviseActionHistoryV2(history []TexasActionHistory) []TexasActionHistory {
 		// 找到该 stage 的最大 amount
 		maxAmount := 0
 		for _, h := range his {
-			if h.Amount > maxAmount {
+			if h.Amount > maxAmount && h.Status == "active" {
 				maxAmount = h.Amount
 			}
 		}
 		// 将该 stage 所有条目的 amount 设置成最大值
 		for i := range his {
-			stageHistory[stage][i].Amount = maxAmount
+			// 只处理 active 状态的
+			if his[i].Status == "active" {
+				stageHistory[stage][i].Amount = maxAmount
+			}
 		}
 	}
 
