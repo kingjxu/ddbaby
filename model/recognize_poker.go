@@ -89,9 +89,8 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 	sbSize, bbSize := parseBlindSize(currentResult.TableInfo.BlindSize)
 
 	players, currentPlayerPos := buildPlayers(currentResult, bbSize)
-
 	actionHistory := buildActionHistory(ctx, recResult)
-	recResult = reviseActionHistory(recResult)
+	actionHistory = reviseActionHistoryV2(actionHistory)
 
 	return &TexasGtoDecisionReq{
 		GameType:              "no_limit_holdem",
