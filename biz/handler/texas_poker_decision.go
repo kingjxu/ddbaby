@@ -82,7 +82,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		}
 	} else {
 		go service.WriteImageToLocalFile(ctx, images[0], "")
-		recResult, err = service.RecognizePoker(ctx, images[0])
+		recResult, err = service.RecognizePoker(ctx, images[0], dal.GetNeedParseAll(h.req.GetUUID()))
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.RecognizePoker err:%v", err)
 			return h.newResp(ctx, ""), nil
@@ -99,10 +99,12 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	h.CommunityCards = recResult.TableInfo.CommunityCards
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] recognize poker:%v", util.ToJSON(recResult))
 	if !recResult.HeroInfo.IsHeroTurn {
+		dal.SetNeedParseAll(h.req.GetUUID(), false) // 如果已经是非hero turn，后面非hero turn，都不需要识别
 		logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] not hero turn")
 		return h.newResp(ctx, ""), nil
 	}
 	//3 保存牌型
+	dal.SetNeedParseAll(h.req.GetUUID(), true)
 	go service.WriteImageToLocalFile(ctx, images[0], "-hero")
 	if err = dal.SaveUserData(ctx, h.req.GetUUID(), recResult); err != nil {
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] saveUserData err:%v", err)

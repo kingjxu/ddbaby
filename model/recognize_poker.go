@@ -10,6 +10,7 @@ import (
 type RecognizeRequest struct {
 	ImageBase64 string `json:"image_base64"`
 	App         string `json:"app"`
+	ParseAll    bool   `json:"parse_all"`
 }
 type TexasResult struct {
 	ReceivedAt string `json:"received_at"`

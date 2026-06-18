@@ -187,15 +187,16 @@ func RecognizePokerByFilePath(ctx context.Context, filePath string) (*model.Texa
 	}
 
 	imageBase64 := base64.StdEncoding.EncodeToString(fileData)
-	return RecognizePoker(ctx, imageBase64)
+	return RecognizePoker(ctx, imageBase64, true)
 }
 
-func RecognizePoker(ctx context.Context, imageBase64 string) (*model.TexasResult, error) {
+func RecognizePoker(ctx context.Context, imageBase64 string, parseAll bool) (*model.TexasResult, error) {
 	start := time.Now()
 	// 1. 构造请求体
 	reqData := model.RecognizeRequest{
 		ImageBase64: imageBase64,
 		App:         "poler",
+		ParseAll:    parseAll,
 	}
 
 	reqBytes, err := json.Marshal(reqData)
