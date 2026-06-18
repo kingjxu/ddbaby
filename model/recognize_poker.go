@@ -90,8 +90,8 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 
 	players, currentPlayerPos := buildPlayers(currentResult, bbSize)
 
-	recResult = reviseActionHistory(recResult)
 	actionHistory := buildActionHistory(ctx, recResult)
+	recResult = reviseActionHistory(recResult)
 
 	return &TexasGtoDecisionReq{
 		GameType:              "no_limit_holdem",
@@ -308,6 +308,10 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 	}
 
 	return players, currentPlayerPos
+}
+
+func reviseActionHistoryV2(history []TexasActionHistory) []TexasActionHistory {
+	return history
 }
 
 func reviseActionHistory(recResult []*TexasResult) []*TexasResult {
