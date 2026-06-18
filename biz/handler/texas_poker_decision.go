@@ -102,6 +102,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	if !recResult.HeroInfo.IsHeroTurn {
 		if needParseAll { // 全解析的，这个数据还得保存下来
 			_ = dal.SaveUserData(ctx, h.req.GetUUID(), recResult)
+			go service.WriteImageToLocalFile(ctx, images[0], "-decided")
 		}
 		dal.SetNeedParseAll(h.req.GetUUID(), false) // 如果已经是非hero turn，后面非hero turn，都不需要识别
 		logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] not hero turn, needParseAll:%v", needParseAll)
