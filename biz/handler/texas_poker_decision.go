@@ -93,7 +93,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	recognizeSpends := time.Since(startTime).Milliseconds()
 	if recResult == nil || recResult.TableInfo.Stage == "" || recResult.TableInfo.MainPot == 0 ||
 		!util.Contains(_const.TexasPokerStageAll, recResult.TableInfo.Stage) {
-		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] recognize failed")
+		logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] recognize not full")
 		return h.newResp(ctx, ""), nil
 	}
 	h.HeroCard = recResult.HeroInfo.HeroCards

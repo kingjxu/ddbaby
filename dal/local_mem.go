@@ -36,9 +36,10 @@ func GetLastUserData(ctx context.Context, uid string) ([]*model.TexasResult, err
 		logrus.WithContext(ctx).Errorf("user data not exist, uid: %s", uid)
 		return nil, nil
 	}
+	buttonSeat := userData[len(userData)-1].TableInfo.ButtonSeat
 	preFlopIndex := -1
 	for i := len(userData) - 1; i >= 0; i-- {
-		if userData[i].TableInfo.Stage == "preflop" {
+		if userData[i].TableInfo.ButtonSeat != buttonSeat {
 			preFlopIndex = i
 			break
 		}
