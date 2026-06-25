@@ -528,7 +528,7 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 		// 因为我们是从单个状态推断行动历史，amount直接表示该阶段的总下注
 		prevBet := 0 // 前位的下注
 		isFirst := true
-
+		hasAmount := false
 		for _, idx := range actionOrder {
 			p := playerList[idx]
 			si := p.seatInfo
@@ -541,21 +541,28 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 			if !isActive {
 				action = "fold"
 				amount = 0
-			} else if si.currentBet == 0 {
+			} else if si.currentBet == 0 && !hasAmount {
 				action = "check"
+				amount = 0
+			} else if si.currentBet == 0 && hasAmount {
+				action = "call"
 				amount = 0
 			} else if isFirst || (prevBet == 0 && si.currentBet > 0) {
 				action = "bet"
 				amount = si.currentBet
+				hasAmount = true
 			} else if si.currentBet == prevBet && si.currentBet > 0 {
 				action = "call"
 				amount = si.currentBet
+				hasAmount = true
 			} else if si.currentBet >= 2*prevBet {
 				action = "raise"
 				amount = si.currentBet
+				hasAmount = true
 			} else {
 				action = "call"
 				amount = si.currentBet
+				hasAmount = true
 			}
 
 			if stage == "preflop" && action == "bet" { // preflop下注时，实际是call

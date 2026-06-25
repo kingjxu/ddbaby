@@ -232,7 +232,7 @@ func GtoDecision(ctx context.Context, req *model.TexasGtoDecisionReq) (*model.Te
 		return nil, err
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("X-API-Key", "bXKtOF1FF83ZcEOKaKZFhrHvcYsQMUJi11ZVGs1bO54")
+	httpReq.Header.Set("X-API-Key", "5d654_tc4CvT5G5eroYfbbVTmKOky6DFTw9L1FCrpKI")
 
 	logrus.WithContext(ctx).Infof("[GtoDecision] request:%s", reqBytes)
 
