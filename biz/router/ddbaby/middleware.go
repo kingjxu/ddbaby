@@ -110,3 +110,13 @@ func _texaspokerdecisionMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _texaspokeractiveMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _texaspokeramountinfoMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

@@ -634,6 +634,186 @@ func (p *TexasPokerDecisionResp) String() string {
 	return fmt.Sprintf("TexasPokerDecisionResp(%+v)", *p)
 }
 
+type TexasPokerActiveReq struct {
+	UUID       *string `thrift:"UUID,1,optional" json:"UUID,omitempty" query:"uuid"`
+	ActiveCode *string `thrift:"active_code,2,optional" json:"active_code,omitempty" query:"active_code"`
+}
+
+func NewTexasPokerActiveReq() *TexasPokerActiveReq {
+	return &TexasPokerActiveReq{}
+}
+
+func (p *TexasPokerActiveReq) InitDefault() {
+}
+
+var TexasPokerActiveReq_UUID_DEFAULT string
+
+func (p *TexasPokerActiveReq) GetUUID() (v string) {
+	if !p.IsSetUUID() {
+		return TexasPokerActiveReq_UUID_DEFAULT
+	}
+	return *p.UUID
+}
+
+var TexasPokerActiveReq_ActiveCode_DEFAULT string
+
+func (p *TexasPokerActiveReq) GetActiveCode() (v string) {
+	if !p.IsSetActiveCode() {
+		return TexasPokerActiveReq_ActiveCode_DEFAULT
+	}
+	return *p.ActiveCode
+}
+
+func (p *TexasPokerActiveReq) IsSetUUID() bool {
+	return p.UUID != nil
+}
+
+func (p *TexasPokerActiveReq) IsSetActiveCode() bool {
+	return p.ActiveCode != nil
+}
+
+func (p *TexasPokerActiveReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TexasPokerActiveReq(%+v)", *p)
+}
+
+type TexasPokerActiveResp struct {
+	BaseResp *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+}
+
+func NewTexasPokerActiveResp() *TexasPokerActiveResp {
+	return &TexasPokerActiveResp{}
+}
+
+func (p *TexasPokerActiveResp) InitDefault() {
+}
+
+var TexasPokerActiveResp_BaseResp_DEFAULT *BaseResp
+
+func (p *TexasPokerActiveResp) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return TexasPokerActiveResp_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+
+func (p *TexasPokerActiveResp) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *TexasPokerActiveResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TexasPokerActiveResp(%+v)", *p)
+}
+
+type TexasPokerAmountInfoReq struct {
+	UUID *string `thrift:"UUID,1,optional" json:"UUID,omitempty" query:"uuid"`
+}
+
+func NewTexasPokerAmountInfoReq() *TexasPokerAmountInfoReq {
+	return &TexasPokerAmountInfoReq{}
+}
+
+func (p *TexasPokerAmountInfoReq) InitDefault() {
+}
+
+var TexasPokerAmountInfoReq_UUID_DEFAULT string
+
+func (p *TexasPokerAmountInfoReq) GetUUID() (v string) {
+	if !p.IsSetUUID() {
+		return TexasPokerAmountInfoReq_UUID_DEFAULT
+	}
+	return *p.UUID
+}
+
+func (p *TexasPokerAmountInfoReq) IsSetUUID() bool {
+	return p.UUID != nil
+}
+
+func (p *TexasPokerAmountInfoReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TexasPokerAmountInfoReq(%+v)", *p)
+}
+
+type TexasPokerAmountInfoResp struct {
+	IsValid  *bool     `thrift:"is_valid,1,optional" json:"is_valid,omitempty" query:"is_valid"`
+	Amount   *int64    `thrift:"amount,2,optional" json:"amount,omitempty" query:"amount"`
+	ExpireAt *int64    `thrift:"expire_at,3,optional" json:"expire_at,omitempty" query:"expire_at"`
+	BaseResp *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+}
+
+func NewTexasPokerAmountInfoResp() *TexasPokerAmountInfoResp {
+	return &TexasPokerAmountInfoResp{}
+}
+
+func (p *TexasPokerAmountInfoResp) InitDefault() {
+}
+
+var TexasPokerAmountInfoResp_IsValid_DEFAULT bool
+
+func (p *TexasPokerAmountInfoResp) GetIsValid() (v bool) {
+	if !p.IsSetIsValid() {
+		return TexasPokerAmountInfoResp_IsValid_DEFAULT
+	}
+	return *p.IsValid
+}
+
+var TexasPokerAmountInfoResp_Amount_DEFAULT int64
+
+func (p *TexasPokerAmountInfoResp) GetAmount() (v int64) {
+	if !p.IsSetAmount() {
+		return TexasPokerAmountInfoResp_Amount_DEFAULT
+	}
+	return *p.Amount
+}
+
+var TexasPokerAmountInfoResp_ExpireAt_DEFAULT int64
+
+func (p *TexasPokerAmountInfoResp) GetExpireAt() (v int64) {
+	if !p.IsSetExpireAt() {
+		return TexasPokerAmountInfoResp_ExpireAt_DEFAULT
+	}
+	return *p.ExpireAt
+}
+
+var TexasPokerAmountInfoResp_BaseResp_DEFAULT *BaseResp
+
+func (p *TexasPokerAmountInfoResp) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return TexasPokerAmountInfoResp_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+
+func (p *TexasPokerAmountInfoResp) IsSetIsValid() bool {
+	return p.IsValid != nil
+}
+
+func (p *TexasPokerAmountInfoResp) IsSetAmount() bool {
+	return p.Amount != nil
+}
+
+func (p *TexasPokerAmountInfoResp) IsSetExpireAt() bool {
+	return p.ExpireAt != nil
+}
+
+func (p *TexasPokerAmountInfoResp) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *TexasPokerAmountInfoResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TexasPokerAmountInfoResp(%+v)", *p)
+}
+
 type HealthEvaluateQuestionItem struct {
 	QuestionID *int64   `thrift:"QuestionID,1,optional" form:"QuestionID" json:"QuestionID,omitempty" query:"QuestionID"`
 	Content    *string  `thrift:"Content,2,optional" form:"Content" json:"Content,omitempty" query:"Content"`
@@ -2080,6 +2260,10 @@ type DDBabyService interface {
 	TaLuoPredict(ctx context.Context, req *TaLuoPredictReq) (r *TaLuoPredictResp, err error)
 
 	TexasPokerDecision(ctx context.Context, req *TexasPokerDecisionReq) (r *TexasPokerDecisionResp, err error)
+
+	TexasPokerActive(ctx context.Context, req *TexasPokerActiveReq) (r *TexasPokerActiveResp, err error)
+
+	TexasPokerAmountInfo(ctx context.Context, req *TexasPokerAmountInfoReq) (r *TexasPokerAmountInfoResp, err error)
 
 	HealthEvaluateQuestions(ctx context.Context, req *HealthEvaluateQuestionsReq) (r *HealthEvaluateQuestionsResp, err error)
 

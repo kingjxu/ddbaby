@@ -71,6 +71,25 @@ struct TexasPokerDecisionResp {
 }
 
 
+struct TexasPokerActiveReq {
+    1: optional string UUID (api.query="uuid");
+    2: optional string active_code (api.query="active_code");
+}
+struct TexasPokerActiveResp {
+    255: BaseResp BaseResp;
+}
+
+struct TexasPokerAmountInfoReq {
+    1: optional string UUID (api.query="uuid");
+}
+struct TexasPokerAmountInfoResp {
+    1: optional bool is_valid  (api.query="is_valid");
+    2: optional i64 amount  (api.query="amount");
+    3: optional i64 expire_at (api.query="expire_at");
+    255: BaseResp BaseResp;
+}
+
+
 struct HealthEvaluateQuestionItem {
     1: optional i64 QuestionID;
     2: optional string Content;
@@ -220,7 +239,10 @@ service DDBabyService {
     PickNameResp PickName(1: PickNameReq req) (api.get="/lyxz/pick_name");
     NameFortuneResp NameFortune(1: NameFortuneReq req) (api.get="/lyxz/name_fortune");
     TaLuoPredictResp TaLuoPredict(1:TaLuoPredictReq req) (api.get="/lyxz/taluo_predict");
+
     TexasPokerDecisionResp TexasPokerDecision(1:TexasPokerDecisionReq req) (api.post="/lyxz/gto_decision");
+    TexasPokerActiveResp TexasPokerActive(1:TexasPokerActiveReq req) (api.post="/lyxz/gto_active");
+    TexasPokerAmountInfoResp TexasPokerAmountInfo(1:TexasPokerAmountInfoReq req) (api.get="/lyxz/gto_amount_info");
 
 
 
