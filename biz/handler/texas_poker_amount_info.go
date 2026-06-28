@@ -5,14 +5,12 @@ package handler
 import (
 	"context"
 	"errors"
-	poker "github.com/kingjxu/ddbaby/dal/mysql/texas_poker"
-	"github.com/kingjxu/ddbaby/util"
-	"github.com/sirupsen/logrus"
-	"time"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
+	poker "github.com/kingjxu/ddbaby/dal/mysql/texas_poker"
+	"github.com/kingjxu/ddbaby/util"
+	"github.com/sirupsen/logrus"
 )
 
 // TexasPokerAmountInfo .
@@ -34,7 +32,7 @@ func TexasPokerAmountInfo(ctx context.Context, c *app.RequestContext) {
 
 type TexasPokerAmountInfoHandler struct {
 	req      *ddbaby.TexasPokerAmountInfoReq
-	isValid  bool
+	isActive bool
 	amount   int64
 	expireAt int64
 }
@@ -67,11 +65,9 @@ func (h *TexasPokerAmountInfoHandler) Handle(ctx context.Context) (*ddbaby.Texas
 	if info == nil {
 		return h.newResp(ctx, -1, "not active"), nil
 	}
+	h.isActive = true
 	h.amount = info.TotalCnt - info.InvokeCnt
 	h.expireAt = info.ExpireAt
-	if h.amount <= 0 || h.expireAt > 0 && h.expireAt < time.Now().Unix() {
-		h.isValid = false
-	}
 	return h.newResp(ctx, 0, "success"), nil
 }
 
@@ -82,7 +78,7 @@ func (h *TexasPokerAmountInfoHandler) newResp(ctx context.Context, code int32, m
 			StatusMessage: msg,
 		},
 	}
-	resp.IsValid = util.Ptr(h.isValid)
+	resp.IsActive = util.Ptr(h.isActive)
 	resp.Amount = util.Ptr(h.amount)
 	resp.ExpireAt = util.Ptr(h.expireAt)
 	return resp

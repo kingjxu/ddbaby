@@ -83,7 +83,7 @@ struct TexasPokerAmountInfoReq {
     1: optional string UUID (api.query="uuid");
 }
 struct TexasPokerAmountInfoResp {
-    1: optional bool is_valid  (api.query="is_valid");
+    1: optional bool is_active  (api.query="is_active");
     2: optional i64 amount  (api.query="amount");
     3: optional i64 expire_at (api.query="expire_at");
     255: BaseResp BaseResp;

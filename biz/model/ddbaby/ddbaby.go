@@ -742,7 +742,7 @@ func (p *TexasPokerAmountInfoReq) String() string {
 }
 
 type TexasPokerAmountInfoResp struct {
-	IsValid  *bool     `thrift:"is_valid,1,optional" json:"is_valid,omitempty" query:"is_valid"`
+	IsActive *bool     `thrift:"is_active,1,optional" json:"is_active,omitempty" query:"is_active"`
 	Amount   *int64    `thrift:"amount,2,optional" json:"amount,omitempty" query:"amount"`
 	ExpireAt *int64    `thrift:"expire_at,3,optional" json:"expire_at,omitempty" query:"expire_at"`
 	BaseResp *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
@@ -755,13 +755,13 @@ func NewTexasPokerAmountInfoResp() *TexasPokerAmountInfoResp {
 func (p *TexasPokerAmountInfoResp) InitDefault() {
 }
 
-var TexasPokerAmountInfoResp_IsValid_DEFAULT bool
+var TexasPokerAmountInfoResp_IsActive_DEFAULT bool
 
-func (p *TexasPokerAmountInfoResp) GetIsValid() (v bool) {
-	if !p.IsSetIsValid() {
-		return TexasPokerAmountInfoResp_IsValid_DEFAULT
+func (p *TexasPokerAmountInfoResp) GetIsActive() (v bool) {
+	if !p.IsSetIsActive() {
+		return TexasPokerAmountInfoResp_IsActive_DEFAULT
 	}
-	return *p.IsValid
+	return *p.IsActive
 }
 
 var TexasPokerAmountInfoResp_Amount_DEFAULT int64
@@ -791,8 +791,8 @@ func (p *TexasPokerAmountInfoResp) GetBaseResp() (v *BaseResp) {
 	return p.BaseResp
 }
 
-func (p *TexasPokerAmountInfoResp) IsSetIsValid() bool {
-	return p.IsValid != nil
+func (p *TexasPokerAmountInfoResp) IsSetIsActive() bool {
+	return p.IsActive != nil
 }
 
 func (p *TexasPokerAmountInfoResp) IsSetAmount() bool {
