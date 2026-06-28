@@ -23,6 +23,7 @@ type TexasResult struct {
 		MainPot        int      `json:"main_pot"`
 		ButtonSeat     int      `json:"button_seat"`
 		BlindSize      string   `json:"blind_size"`
+		MushroomCount  int      `json:"mushroom_count"`
 	} `json:"table_info"`
 	HeroInfo struct {
 		Seat       int      `json:"seat"`
