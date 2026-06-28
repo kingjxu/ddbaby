@@ -73,7 +73,7 @@ struct TexasPokerDecisionResp {
 
 struct TexasPokerActiveReq {
     1: optional string UUID (api.query="uuid");
-    2: optional string active_code (api.query="active_code");
+    2: optional string ActiveCode (api.query="active_code");
 }
 struct TexasPokerActiveResp {
     255: BaseResp BaseResp;
@@ -83,9 +83,9 @@ struct TexasPokerAmountInfoReq {
     1: optional string UUID (api.query="uuid");
 }
 struct TexasPokerAmountInfoResp {
-    1: optional bool is_active  (api.query="is_active");
-    2: optional i64 amount  (api.query="amount");
-    3: optional i64 expire_at (api.query="expire_at");
+    1: optional bool IsActive  (api.query="is_active");
+    2: optional i64 Amount  (api.query="amount");
+    3: optional i64 ExpireAt (api.query="expire_at");
     255: BaseResp BaseResp;
 }
 

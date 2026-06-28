@@ -636,7 +636,7 @@ func (p *TexasPokerDecisionResp) String() string {
 
 type TexasPokerActiveReq struct {
 	UUID       *string `thrift:"UUID,1,optional" json:"UUID,omitempty" query:"uuid"`
-	ActiveCode *string `thrift:"active_code,2,optional" json:"active_code,omitempty" query:"active_code"`
+	ActiveCode *string `thrift:"ActiveCode,2,optional" json:"ActiveCode,omitempty" query:"active_code"`
 }
 
 func NewTexasPokerActiveReq() *TexasPokerActiveReq {
@@ -742,9 +742,9 @@ func (p *TexasPokerAmountInfoReq) String() string {
 }
 
 type TexasPokerAmountInfoResp struct {
-	IsActive *bool     `thrift:"is_active,1,optional" json:"is_active,omitempty" query:"is_active"`
-	Amount   *int64    `thrift:"amount,2,optional" json:"amount,omitempty" query:"amount"`
-	ExpireAt *int64    `thrift:"expire_at,3,optional" json:"expire_at,omitempty" query:"expire_at"`
+	IsActive *bool     `thrift:"IsActive,1,optional" json:"IsActive,omitempty" query:"is_active"`
+	Amount   *int64    `thrift:"Amount,2,optional" json:"Amount,omitempty" query:"amount"`
+	ExpireAt *int64    `thrift:"ExpireAt,3,optional" json:"ExpireAt,omitempty" query:"expire_at"`
 	BaseResp *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
 }
 
