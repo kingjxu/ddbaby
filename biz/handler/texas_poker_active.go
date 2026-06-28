@@ -24,8 +24,8 @@ func TexasPokerActive(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(ddbaby.TexasPokerActiveResp)
-
+	resp, _ := NewTexasPokerActiveHandler(&req).Handle(ctx)
+	logrus.WithContext(ctx).Infof("[TexasPokerActive] resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
 }
 
