@@ -14,6 +14,7 @@ type UserActiveCode struct {
 	ActiveCode string    `gorm:"column:active_code;type:varchar(128);comment:激活码;NOT NULL" json:"active_code"`
 	CodeType   int       `gorm:"column:code_type;type:tinyint(4);comment:激活码类型：1=按次过期，2=按时间过期;NOT NULL" json:"code_type"`
 	InvokeCnt  int64     `gorm:"column:invoke_cnt;type:bigint(20);default:0;comment:激活码调用次数;NOT NULL" json:"invoke_cnt"`
+	TotalCnt   int64     `gorm:"column:total_cnt;type:bigint(20);default:0;comment:激活码总次数;NOT NULL" json:"total_cnt"`
 	CreateTime time.Time `gorm:"column:create_time;type:datetime;default:CURRENT_TIMESTAMP;comment:创建时间;NOT NULL" json:"create_time"`
 	UpdateTime time.Time `gorm:"column:update_time;type:datetime;default:CURRENT_TIMESTAMP;comment:更新时间;NOT NULL" json:"update_time"`
 	ExpireAt   int64     `gorm:"column:expire_at;type:bigint(20);comment:过期时间戳" json:"expire_at"`
@@ -52,6 +53,9 @@ func UpsertUserActiveCode(ctx context.Context, info *UserActiveCode) error {
 	}
 	if info.InvokeCnt != 0 {
 		col = append(col, "invoke_cnt")
+	}
+	if info.TotalCnt != 0 {
+		col = append(col, "total_cnt")
 	}
 	return mysql.GetDB(ctx).Debug().Clauses(clause.OnConflict{
 		DoUpdates: clause.AssignmentColumns(col),

@@ -102,3 +102,8 @@ var TexasPokerActionAll = []string{
 	TexasPokerActionBet,
 	TexasPokerActionRaise,
 }
+
+const (
+	ActiveCodeTypeByInvokeCnt = 1
+	ActiveCodeTypeByExpireAt  = 2
+)

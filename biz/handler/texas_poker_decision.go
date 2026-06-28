@@ -11,6 +11,7 @@ import (
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	_const "github.com/kingjxu/ddbaby/const"
 	"github.com/kingjxu/ddbaby/dal"
+	poker "github.com/kingjxu/ddbaby/dal/mysql/texas_poker"
 	"github.com/kingjxu/ddbaby/model"
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
@@ -36,6 +37,7 @@ func TexasPokerDecision(ctx context.Context, c *app.RequestContext) {
 
 type TexasPokerDecisionHandler struct {
 	req            *ddbaby.TexasPokerDecisionReq
+	activeCodeInfo *poker.UserActiveCode
 	Action         string
 	BetSize        int32
 	HeroCard       []string
@@ -61,6 +63,24 @@ func (h *TexasPokerDecisionHandler) check() error {
 	return nil
 }
 
+func (h *TexasPokerDecisionHandler) verifyActiveCode(ctx context.Context) error {
+	info, err := poker.GetUserActiveCodeByUserId(ctx, h.req.GetUUID())
+	if err != nil {
+		return err
+	}
+	if info == nil {
+		return errors.New("active code not found")
+	}
+	if info.CodeType == _const.ActiveCodeTypeByInvokeCnt && info.InvokeCnt >= info.TotalCnt {
+		return errors.New("activeCode invoke cnt is over")
+	}
+	if info.CodeType == _const.ActiveCodeTypeByExpireAt && info.ExpireAt > 0 && info.ExpireAt < time.Now().Unix() {
+		return errors.New("activeCode is expired")
+	}
+	h.activeCodeInfo = info
+	return nil
+}
+
 func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerDecisionResp, error) {
 	startTime := time.Now()
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imagesLen:%v, timestamp:%v, uuid:%v, imageType:%v",
@@ -71,6 +91,11 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] check err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
+	if err = h.verifyActiveCode(ctx); err != nil {
+		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] verifyActiveCode err:%v", err)
+		return h.newResp(ctx, ""), nil
+	}
+
 	//2 识别牌型
 	images := h.req.GetImages()
 	var recResult *model.TexasResult
@@ -134,9 +159,13 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	decisionSpends := time.Since(startTime).Milliseconds()
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] , recognize_spends:%v, decision_spends:%v, total_spends:%v",
 		recognizeSpends, decisionSpends-recognizeSpends, decisionSpends)
-
 	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] resp:%v,heroCard:%v,communityCards:%v, latestDataLen:%v, costTime:%v",
 		util.ToJSON(resp), recResult.HeroInfo.HeroCards, recResult.TableInfo.CommunityCards, len(latestData), time.Since(startTime).Milliseconds())
+	// 计费
+	if h.activeCodeInfo.CodeType == _const.ActiveCodeTypeByInvokeCnt {
+		h.activeCodeInfo.InvokeCnt++
+		_ = poker.UpsertUserActiveCode(ctx, h.activeCodeInfo)
+	}
 	return h.newResp(ctx, h.getFinalAction(resp)), nil
 }
 func (h *TexasPokerDecisionHandler) getFinalAction(decision *model.TexasGtoDecisionResp) string {
