@@ -4,6 +4,11 @@ package handler
 
 import (
 	"context"
+	"errors"
+	poker "github.com/kingjxu/ddbaby/dal/mysql/texas_poker"
+	"github.com/kingjxu/ddbaby/util"
+	"github.com/sirupsen/logrus"
+	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -21,7 +26,64 @@ func TexasPokerAmountInfo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(ddbaby.TexasPokerAmountInfoResp)
+	resp, _ := NewTexasPokerAmountInfoHandler(&req).Handle(ctx)
+	logrus.WithContext(ctx).Infof("[TexasPokerAmountInfo] resp:%v", util.ToJSON(resp))
 
 	c.JSON(consts.StatusOK, resp)
+}
+
+type TexasPokerAmountInfoHandler struct {
+	req      *ddbaby.TexasPokerAmountInfoReq
+	isValid  bool
+	amount   int64
+	expireAt int64
+}
+
+func NewTexasPokerAmountInfoHandler(req *ddbaby.TexasPokerAmountInfoReq) *TexasPokerAmountInfoHandler {
+	return &TexasPokerAmountInfoHandler{
+		req: req,
+	}
+}
+
+func (h *TexasPokerAmountInfoHandler) check() error {
+	if h.req.GetUUID() == "" {
+		return errors.New("uuid is empty")
+	}
+	return nil
+}
+
+func (h *TexasPokerAmountInfoHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerAmountInfoResp, error) {
+	logrus.WithContext(ctx).Infof("TexasPokerActiveHandler req:%v", util.ToJSON(h.req))
+	err := h.check()
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("check failed err:%v", err)
+		return h.newResp(ctx, -1, err.Error()), err
+	}
+	info, err := poker.GetUserActiveCodeByUserId(ctx, h.req.GetUUID())
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("GetUserActiveCodeByUserId failed err:%v", err)
+		return h.newResp(ctx, -1, err.Error()), err
+	}
+	if info == nil {
+		return h.newResp(ctx, -1, "not active"), nil
+	}
+	h.amount = info.TotalCnt - info.InvokeCnt
+	h.expireAt = info.ExpireAt
+	if h.amount <= 0 || h.expireAt > 0 && h.expireAt < time.Now().Unix() {
+		h.isValid = false
+	}
+	return h.newResp(ctx, 0, "success"), nil
+}
+
+func (h *TexasPokerAmountInfoHandler) newResp(ctx context.Context, code int32, msg string) *ddbaby.TexasPokerAmountInfoResp {
+	resp := &ddbaby.TexasPokerAmountInfoResp{
+		BaseResp: &ddbaby.BaseResp{
+			StatusCode:    code,
+			StatusMessage: msg,
+		},
+	}
+	resp.IsValid = util.Ptr(h.isValid)
+	resp.Amount = util.Ptr(h.amount)
+	resp.ExpireAt = util.Ptr(h.expireAt)
+	return resp
 }
