@@ -77,6 +77,7 @@ func (h *TexasPokerDecisionHandler) verifyActiveCode(ctx context.Context) error 
 	if info.CodeType == _const.ActiveCodeTypeByExpireAt && info.ExpireAt > 0 && info.ExpireAt < time.Now().Unix() {
 		return errors.New("activeCode is expired")
 	}
+	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] activeCodeInfo:%v", util.ToJSON(info))
 	h.activeCodeInfo = info
 	return nil
 }

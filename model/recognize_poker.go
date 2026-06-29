@@ -65,6 +65,7 @@ type TexasGtoDecisionReq struct {
 	Straddle              int                  `json:"straddle"`
 	SbSize                int                  `json:"sb_size"`
 	BbSize                int                  `json:"bb_size"`
+	Mushroom              int                  `json:"mushroom"`
 	CommunityCards        []string             `json:"community_cards"`
 	GameStage             string               `json:"game_stage"`
 	Players               []TexasPlayer        `json:"players"`
@@ -101,6 +102,7 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 		BbSize:                bbSize,
 		Ante:                  bbSize,
 		Straddle:              bbSize * 2,
+		Mushroom:              currentResult.TableInfo.MushroomCount / bbSize, // 蘑菇要换算成多少个bb表示
 		CommunityCards:        parseCards(currentResult.TableInfo.CommunityCards),
 		GameStage:             currentResult.TableInfo.Stage,
 		Players:               players,
