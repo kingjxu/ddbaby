@@ -63,7 +63,7 @@ func (h *TexasPokerAmountInfoHandler) Handle(ctx context.Context) (*ddbaby.Texas
 		return h.newResp(ctx, -1, err.Error()), err
 	}
 	if info == nil {
-		return h.newResp(ctx, -1, "not active"), nil
+		return h.newResp(ctx, 0, "not active"), nil
 	}
 	h.isActive = true
 	h.amount = info.TotalCnt - info.InvokeCnt

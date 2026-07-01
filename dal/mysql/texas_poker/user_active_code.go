@@ -2,7 +2,9 @@ package poker
 
 import (
 	"context"
+	"errors"
 	"github.com/kingjxu/ddbaby/dal/mysql"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"time"
 )
@@ -27,7 +29,7 @@ func (m *UserActiveCode) TableName() string {
 func GetUserActiveCodeByUserId(ctx context.Context, userId string) (*UserActiveCode, error) {
 	var info UserActiveCode
 	err := mysql.GetDB(ctx).Debug().Where("user_id = ?", userId).First(&info).Error
-	if err != nil {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 	return &info, nil
