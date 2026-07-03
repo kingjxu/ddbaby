@@ -1,0 +1,27 @@
+biz/handler/texas_poker_amount_info.go
+  s_5135b016a02203::t_69f8171dd45c81 8
+  s_5135b016a02203::t_e3d4ad2deb9440 55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "6ad4cf7abb619e5b7e3774c1bf7c7d2b0a787c59",
+  "prompts": {},
+  "humans": {
+    "h_307e037fafa53f": {
+      "author": "xujin.xj <xujin.xj@bytedance.com>"
+    }
+  },
+  "sessions": {
+    "s_5135b016a02203": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a0afc0037be6cf6da240e81",
+        "model": "Doubao-Seed-2.1-Turbo__dev"
+      },
+      "human_author": "xujin.xj <xujin.xj@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
