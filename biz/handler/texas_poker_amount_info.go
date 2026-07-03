@@ -5,6 +5,7 @@ package handler
 import (
 	"context"
 	"errors"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
@@ -51,7 +52,7 @@ func (h *TexasPokerAmountInfoHandler) check() error {
 }
 
 func (h *TexasPokerAmountInfoHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerAmountInfoResp, error) {
-	logrus.WithContext(ctx).Infof("TexasPokerActiveHandler req:%v", util.ToJSON(h.req))
+	logrus.WithContext(ctx).Infof("TexasPokerAmountInfoHandler req:%v", util.ToJSON(h.req))
 	err := h.check()
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("check failed err:%v", err)
