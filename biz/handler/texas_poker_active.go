@@ -5,6 +5,7 @@ package handler
 import (
 	"context"
 	"errors"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
@@ -64,6 +65,9 @@ func (h *TexasPokerActiveHandler) Handle(ctx context.Context) (*ddbaby.TexasPoke
 	if info == nil || info.ActiveCode == "" {
 		logrus.WithContext(ctx).Errorf("activeCode is invalid")
 		return h.newResp(ctx, -1, "activeCode is invalid"), nil
+	}
+	if info.UserId != h.req.GetUUID() {
+		return h.newResp(ctx, -1, "active code has been used"), nil
 	}
 	info.UserId = h.req.GetUUID()
 	err = poker.UpsertUserActiveCode(ctx, info)
