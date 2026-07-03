@@ -66,7 +66,7 @@ func (h *TexasPokerActiveHandler) Handle(ctx context.Context) (*ddbaby.TexasPoke
 		logrus.WithContext(ctx).Errorf("activeCode is invalid")
 		return h.newResp(ctx, -1, "activeCode is invalid"), nil
 	}
-	if info.UserId != h.req.GetUUID() {
+	if info.UserId != h.req.GetUUID() && info.UserId != "" {
 		return h.newResp(ctx, -1, "active code has been used"), nil
 	}
 	info.UserId = h.req.GetUUID()
