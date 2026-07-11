@@ -52,15 +52,16 @@ func (h *TexasPokerAmountInfoHandler) check() error {
 }
 
 func (h *TexasPokerAmountInfoHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerAmountInfoResp, error) {
-	logrus.WithContext(ctx).Infof("TexasPokerAmountInfoHandler req:%v", util.ToJSON(h.req))
+	logger := logrus.WithContext(ctx).WithField("uuid", h.req.GetUUID())
+	logger.Infof("TexasPokerAmountInfoHandler req:%v", util.ToJSON(h.req))
 	err := h.check()
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("check failed err:%v", err)
+		logger.Errorf("check failed err:%v", err)
 		return h.newResp(ctx, -1, err.Error()), err
 	}
 	info, err := poker.GetUserActiveCodeByUserId(ctx, h.req.GetUUID())
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("GetUserActiveCodeByUserId failed err:%v", err)
+		logger.Errorf("GetUserActiveCodeByUserId failed err:%v", err)
 		return h.newResp(ctx, -1, err.Error()), err
 	}
 	if info == nil {

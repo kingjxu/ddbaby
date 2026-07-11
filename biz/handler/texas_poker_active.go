@@ -51,19 +51,20 @@ func (h *TexasPokerActiveHandler) check() error {
 }
 
 func (h *TexasPokerActiveHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerActiveResp, error) {
-	logrus.WithContext(ctx).Infof("TexasPokerActiveHandler req:%v", util.ToJSON(h.req))
+	logger := logrus.WithContext(ctx).WithField("uuid", h.req.GetUUID())
+	logger.Infof("TexasPokerActiveHandler req:%v", util.ToJSON(h.req))
 	err := h.check()
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("check failed err:%v", err)
+		logger.Errorf("check failed err:%v", err)
 		return h.newResp(ctx, -1, err.Error()), err
 	}
 	info, err := poker.GetUserActiveCodeByCode(ctx, h.req.GetActiveCode())
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("GetUserActiveCodeByCode failed err:%v", err)
+		logger.Errorf("GetUserActiveCodeByCode failed err:%v", err)
 		return h.newResp(ctx, -1, err.Error()), err
 	}
 	if info == nil || info.ActiveCode == "" {
-		logrus.WithContext(ctx).Errorf("activeCode is invalid")
+		logger.Errorf("activeCode is invalid")
 		return h.newResp(ctx, -1, "activeCode is invalid"), nil
 	}
 	if info.UserId != h.req.GetUUID() && info.UserId != "" {
@@ -72,7 +73,7 @@ func (h *TexasPokerActiveHandler) Handle(ctx context.Context) (*ddbaby.TexasPoke
 	info.UserId = h.req.GetUUID()
 	err = poker.UpsertUserActiveCode(ctx, info)
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("UpsertUserActiveCode failed err:%v", err)
+		logger.Errorf("UpsertUserActiveCode failed err:%v", err)
 		return h.newResp(ctx, -1, err.Error()), err
 	}
 	return h.newResp(ctx, 0, "success"), nil

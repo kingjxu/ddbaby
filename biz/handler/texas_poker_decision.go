@@ -6,6 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
@@ -16,7 +18,6 @@ import (
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
 // TexasPokerDecision .
@@ -42,6 +43,7 @@ type TexasPokerDecisionHandler struct {
 	BetSize        int32
 	HeroCard       []string
 	CommunityCards []string
+	uuid           string
 }
 
 func NewTexasPokerDecisionHandler(req *ddbaby.TexasPokerDecisionReq) *TexasPokerDecisionHandler {
@@ -64,6 +66,7 @@ func (h *TexasPokerDecisionHandler) check() error {
 }
 
 func (h *TexasPokerDecisionHandler) verifyActiveCode(ctx context.Context) error {
+	logger := logrus.WithContext(ctx).WithField("uuid", h.req.GetUUID())
 	info, err := poker.GetUserActiveCodeByUserId(ctx, h.req.GetUUID())
 	if err != nil {
 		return err
@@ -77,23 +80,24 @@ func (h *TexasPokerDecisionHandler) verifyActiveCode(ctx context.Context) error 
 	if info.CodeType == _const.ActiveCodeTypeByExpireAt && info.ExpireAt > 0 && info.ExpireAt < time.Now().Unix() {
 		return errors.New("activeCode is expired")
 	}
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] activeCodeInfo:%v", util.ToJSON(info))
+	logger.Infof("[TexasPokerDecisionHandler] activeCodeInfo:%v", util.ToJSON(info))
 	h.activeCodeInfo = info
 	return nil
 }
 
 func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerDecisionResp, error) {
 	startTime := time.Now()
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] imagesLen:%v, timestamp:%v, uuid:%v, imageType:%v",
+	logger := logrus.WithContext(ctx).WithField("uuid", h.req.GetUUID())
+	logger.Infof("[TexasPokerDecisionHandler] imagesLen:%v, timestamp:%v, uuid:%v, imageType:%v",
 		len(h.req.GetImages()), time.Unix(h.req.GetTimestamp()/1000, 0).Format(time.DateTime), h.req.GetUUID(), h.req.GetImageType())
 	//1 数据校验
 	var err error
 	if err = h.check(); err != nil {
-		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] check err:%v", err)
+		logger.Errorf("[TexasPokerDecisionHandler] check err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
 	if err = h.verifyActiveCode(ctx); err != nil {
-		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] verifyActiveCode err:%v", err)
+		logger.Errorf("[TexasPokerDecisionHandler] verifyActiveCode err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
 
@@ -104,14 +108,14 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	if h.req.GetImageType() == _const.ImageTypeUrl {
 		recResult, err = service.RecognizePokerByFilePath(ctx, images[0])
 		if err != nil {
-			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.RecognizePokerByFilePath err:%v", err)
+			logger.Errorf("[TexasPokerDecisionHandler] service.RecognizePokerByFilePath err:%v", err)
 			return h.newResp(ctx, ""), nil
 		}
 	} else {
 		go service.WriteImageToLocalFile(ctx, images[0], "")
 		recResult, err = service.RecognizePoker(ctx, images[0], needParseAll)
 		if err != nil {
-			logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] service.RecognizePoker err:%v", err)
+			logger.Errorf("[TexasPokerDecisionHandler] service.RecognizePoker err:%v", err)
 			return h.newResp(ctx, ""), nil
 		}
 
@@ -119,48 +123,48 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	recognizeSpends := time.Since(startTime).Milliseconds()
 	if recResult == nil || recResult.TableInfo.Stage == "" || recResult.TableInfo.MainPot == 0 ||
 		!util.Contains(_const.TexasPokerStageAll, recResult.TableInfo.Stage) {
-		logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] recognize not full")
+		logger.Infof("[TexasPokerDecisionHandler] recognize not full")
 		return h.newResp(ctx, ""), nil
 	}
 	h.HeroCard = recResult.HeroInfo.HeroCards
 	h.CommunityCards = recResult.TableInfo.CommunityCards
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] recognize poker:%v", util.ToJSON(recResult))
+	logger.Infof("[TexasPokerDecisionHandler] recognize poker:%v", util.ToJSON(recResult))
 	if !recResult.HeroInfo.IsHeroTurn {
 		if needParseAll { // 全解析的，这个数据还得保存下来
 			_ = dal.SaveUserData(ctx, h.req.GetUUID(), recResult)
 			go service.WriteImageToLocalFile(ctx, images[0], "-decided")
 		}
 		dal.SetNeedParseAll(h.req.GetUUID(), false) // 如果已经是非hero turn，后面非hero turn，都不需要识别
-		logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] not hero turn, needParseAll:%v", needParseAll)
+		logger.Infof("[TexasPokerDecisionHandler] not hero turn, needParseAll:%v", needParseAll)
 		return h.newResp(ctx, ""), nil
 	}
 	//3 保存牌型
 	dal.SetNeedParseAll(h.req.GetUUID(), true)
 	go service.WriteImageToLocalFile(ctx, images[0], "-hero")
 	if err = dal.SaveUserData(ctx, h.req.GetUUID(), recResult); err != nil {
-		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] saveUserData err:%v", err)
+		logger.Errorf("[TexasPokerDecisionHandler] saveUserData err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
 	//4 获取最新牌型
 	latestData, err := dal.GetLastUserData(ctx, h.req.GetUUID())
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] GetLastUserData err:%v", err)
+		logger.Errorf("[TexasPokerDecisionHandler] GetLastUserData err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
 	if len(latestData) == 0 {
 		return h.newResp(ctx, ""), nil
 	}
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] latestData:%v", util.ToJSON(latestData))
+	logger.Infof("[TexasPokerDecisionHandler] latestData:%v", util.ToJSON(latestData))
 	//5 决策
 	resp, err := service.GtoDecision(ctx, model.Conv2TexasGtoDecisionReq(ctx, latestData))
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
+		logger.Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
 	decisionSpends := time.Since(startTime).Milliseconds()
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] , recognize_spends:%v, decision_spends:%v, total_spends:%v",
+	logger.Infof("[TexasPokerDecisionHandler] , recognize_spends:%v, decision_spends:%v, total_spends:%v",
 		recognizeSpends, decisionSpends-recognizeSpends, decisionSpends)
-	logrus.WithContext(ctx).Infof("[TexasPokerDecisionHandler] resp:%v,heroCard:%v,communityCards:%v, latestDataLen:%v, costTime:%v",
+	logger.Infof("[TexasPokerDecisionHandler] resp:%v,heroCard:%v,communityCards:%v, latestDataLen:%v, costTime:%v",
 		util.ToJSON(resp), recResult.HeroInfo.HeroCards, recResult.TableInfo.CommunityCards, len(latestData), time.Since(startTime).Milliseconds())
 	// 计费
 	if h.activeCodeInfo.CodeType == _const.ActiveCodeTypeByInvokeCnt {
