@@ -89,6 +89,18 @@ struct TexasPokerAmountInfoResp {
     255: BaseResp BaseResp;
 }
 
+struct TexasPokerReportReq {
+    1: optional string uuid (api.query="uuid");
+    2: optional string trigger (api.query="trigger");
+    3: optional string device (api.query="device");
+    4: optional string log (api.query="log");
+
+}
+struct TexasPokerReportResp {
+    255: BaseResp BaseResp;
+}
+
+
 
 struct HealthEvaluateQuestionItem {
     1: optional i64 QuestionID;
@@ -243,6 +255,7 @@ service DDBabyService {
     TexasPokerDecisionResp TexasPokerDecision(1:TexasPokerDecisionReq req) (api.post="/lyxz/gto_decision");
     TexasPokerActiveResp TexasPokerActive(1:TexasPokerActiveReq req) (api.post="/lyxz/gto_active");
     TexasPokerAmountInfoResp TexasPokerAmountInfo(1:TexasPokerAmountInfoReq req) (api.get="/lyxz/gto_amount_info");
+    TexasPokerReportResp TexasPokerReport(1:TexasPokerReportReq req) (api.post="/lyxz/gto_debug_log");
 
 
 

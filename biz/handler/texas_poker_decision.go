@@ -100,7 +100,6 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logger.Errorf("[TexasPokerDecisionHandler] verifyActiveCode err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
-
 	//2 识别牌型
 	images := h.req.GetImages()
 	var recResult *model.TexasResult
@@ -167,7 +166,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	logger.Infof("[TexasPokerDecisionHandler] resp:%v,heroCard:%v,communityCards:%v, latestDataLen:%v, costTime:%v",
 		util.ToJSON(resp), recResult.HeroInfo.HeroCards, recResult.TableInfo.CommunityCards, len(latestData), time.Since(startTime).Milliseconds())
 	// 计费
-	if h.activeCodeInfo.CodeType == _const.ActiveCodeTypeByInvokeCnt {
+	if h.activeCodeInfo != nil && h.activeCodeInfo.CodeType == _const.ActiveCodeTypeByInvokeCnt {
 		h.activeCodeInfo.InvokeCnt++
 		_ = poker.UpsertUserActiveCode(ctx, h.activeCodeInfo)
 	}
