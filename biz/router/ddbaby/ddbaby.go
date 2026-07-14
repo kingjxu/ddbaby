@@ -35,6 +35,7 @@ func Register(r *server.Hertz) {
 		_lyxz.GET("/dream_explain", append(_dreamexplainMw(), handler.DreamExplain)...)
 		_lyxz.POST("/gto_active", append(_texaspokeractiveMw(), handler.TexasPokerActive)...)
 		_lyxz.GET("/gto_amount_info", append(_texaspokeramountinfoMw(), handler.TexasPokerAmountInfo)...)
+		_lyxz.POST("/gto_debug_log", append(_texaspokerreportMw(), handler.TexasPokerReport)...)
 		_lyxz.POST("/gto_decision", append(_texaspokerdecisionMw(), handler.TexasPokerDecision)...)
 		_lyxz.GET("/name_fortune", append(_namefortuneMw(), handler.NameFortune)...)
 		_lyxz.GET("/pick_name", append(_picknameMw(), handler.PickName)...)

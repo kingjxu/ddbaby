@@ -814,6 +814,110 @@ func (p *TexasPokerAmountInfoResp) String() string {
 	return fmt.Sprintf("TexasPokerAmountInfoResp(%+v)", *p)
 }
 
+type TexasPokerReportReq struct {
+	UUID    *string `thrift:"uuid,1,optional" json:"uuid,omitempty" query:"uuid"`
+	Trigger *string `thrift:"trigger,2,optional" json:"trigger,omitempty" query:"trigger"`
+	Device  *string `thrift:"device,3,optional" json:"device,omitempty" query:"device"`
+	Log     *string `thrift:"log,4,optional" json:"log,omitempty" query:"log"`
+}
+
+func NewTexasPokerReportReq() *TexasPokerReportReq {
+	return &TexasPokerReportReq{}
+}
+
+func (p *TexasPokerReportReq) InitDefault() {
+}
+
+var TexasPokerReportReq_UUID_DEFAULT string
+
+func (p *TexasPokerReportReq) GetUUID() (v string) {
+	if !p.IsSetUUID() {
+		return TexasPokerReportReq_UUID_DEFAULT
+	}
+	return *p.UUID
+}
+
+var TexasPokerReportReq_Trigger_DEFAULT string
+
+func (p *TexasPokerReportReq) GetTrigger() (v string) {
+	if !p.IsSetTrigger() {
+		return TexasPokerReportReq_Trigger_DEFAULT
+	}
+	return *p.Trigger
+}
+
+var TexasPokerReportReq_Device_DEFAULT string
+
+func (p *TexasPokerReportReq) GetDevice() (v string) {
+	if !p.IsSetDevice() {
+		return TexasPokerReportReq_Device_DEFAULT
+	}
+	return *p.Device
+}
+
+var TexasPokerReportReq_Log_DEFAULT string
+
+func (p *TexasPokerReportReq) GetLog() (v string) {
+	if !p.IsSetLog() {
+		return TexasPokerReportReq_Log_DEFAULT
+	}
+	return *p.Log
+}
+
+func (p *TexasPokerReportReq) IsSetUUID() bool {
+	return p.UUID != nil
+}
+
+func (p *TexasPokerReportReq) IsSetTrigger() bool {
+	return p.Trigger != nil
+}
+
+func (p *TexasPokerReportReq) IsSetDevice() bool {
+	return p.Device != nil
+}
+
+func (p *TexasPokerReportReq) IsSetLog() bool {
+	return p.Log != nil
+}
+
+func (p *TexasPokerReportReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TexasPokerReportReq(%+v)", *p)
+}
+
+type TexasPokerReportResp struct {
+	BaseResp *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+}
+
+func NewTexasPokerReportResp() *TexasPokerReportResp {
+	return &TexasPokerReportResp{}
+}
+
+func (p *TexasPokerReportResp) InitDefault() {
+}
+
+var TexasPokerReportResp_BaseResp_DEFAULT *BaseResp
+
+func (p *TexasPokerReportResp) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return TexasPokerReportResp_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+
+func (p *TexasPokerReportResp) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *TexasPokerReportResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TexasPokerReportResp(%+v)", *p)
+}
+
 type HealthEvaluateQuestionItem struct {
 	QuestionID *int64   `thrift:"QuestionID,1,optional" form:"QuestionID" json:"QuestionID,omitempty" query:"QuestionID"`
 	Content    *string  `thrift:"Content,2,optional" form:"Content" json:"Content,omitempty" query:"Content"`
@@ -2264,6 +2368,8 @@ type DDBabyService interface {
 	TexasPokerActive(ctx context.Context, req *TexasPokerActiveReq) (r *TexasPokerActiveResp, err error)
 
 	TexasPokerAmountInfo(ctx context.Context, req *TexasPokerAmountInfoReq) (r *TexasPokerAmountInfoResp, err error)
+
+	TexasPokerReport(ctx context.Context, req *TexasPokerReportReq) (r *TexasPokerReportResp, err error)
 
 	HealthEvaluateQuestions(ctx context.Context, req *HealthEvaluateQuestionsReq) (r *HealthEvaluateQuestionsResp, err error)
 

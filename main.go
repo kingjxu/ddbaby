@@ -4,12 +4,11 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
-	"github.com/kingjxu/ddbaby/dal/mysql"
 )
 
 func main() {
 	h := server.Default()
-	mysql.Init()
+
 	register(h)
 	h.Spin()
 }

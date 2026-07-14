@@ -120,3 +120,8 @@ func _texaspokeramountinfoMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _texaspokerreportMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
