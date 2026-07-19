@@ -25,7 +25,7 @@ func TestTexasPokerDecisionHandler_Handle(t *testing.T) {
 						Timestamp: util.Ptr(time.Now().Unix()*1000 + 5000),
 					},*/
 			{
-				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/badcase/23.jpg"},
+				Images:    []string{"/Users/bytedance/go/src/ddbaby/conf/badcase/24.jpg"},
 				ImageType: util.Ptr("file_url"),
 				UUID:      util.Ptr("123456"),
 				Timestamp: util.Ptr(time.Now().Unix()*1000 + 5000),

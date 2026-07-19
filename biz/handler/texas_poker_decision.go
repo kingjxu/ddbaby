@@ -121,7 +121,8 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	}
 	recognizeSpends := time.Since(startTime).Milliseconds()
 	if recResult == nil || recResult.TableInfo.Stage == "" || recResult.TableInfo.MainPot == 0 ||
-		!util.Contains(_const.TexasPokerStageAll, recResult.TableInfo.Stage) {
+		!util.Contains(_const.TexasPokerStageAll, recResult.TableInfo.Stage) || recResult.TableInfo.ButtonSeat == 0 ||
+		recResult.TableInfo.BlindSize == "" {
 		logger.Infof("[TexasPokerDecisionHandler] recognize not full")
 		return h.newResp(ctx, ""), nil
 	}
