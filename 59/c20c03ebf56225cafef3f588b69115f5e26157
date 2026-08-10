@@ -1,0 +1,14 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "59c20c03ebf56225cafef3f588b69115f5e26157",
+  "prompts": {},
+  "humans": {
+    "h_307e037fafa53f": {
+      "author": "xujin.xj <xujin.xj@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
