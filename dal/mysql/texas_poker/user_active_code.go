@@ -6,6 +6,7 @@ import (
 	"github.com/kingjxu/ddbaby/dal/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"sort"
 	"time"
 )
 
@@ -27,12 +28,25 @@ func (m *UserActiveCode) TableName() string {
 }
 
 func GetUserActiveCodeByUserId(ctx context.Context, userId string) (*UserActiveCode, error) {
-	var info UserActiveCode
-	err := mysql.GetDB(ctx).Debug().Where("user_id = ?", userId).First(&info).Error
+	info, err := getUserActiveCodeByUserId(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+	if len(info) == 0 {
+		return nil, nil
+	}
+	sort.SliceStable(info, func(i, j int) bool {
+		return info[i].CreateTime.Unix() > info[j].CreateTime.Unix()
+	})
+	return info[0], nil
+}
+func getUserActiveCodeByUserId(ctx context.Context, userId string) ([]*UserActiveCode, error) {
+	var info []*UserActiveCode
+	err := mysql.GetDB(ctx).Debug().Where("user_id = ?", userId).Find(&info).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
-	return &info, nil
+	return info, nil
 }
 func GetUserActiveCodeByCode(ctx context.Context, code string) (*UserActiveCode, error) {
 	var info UserActiveCode
