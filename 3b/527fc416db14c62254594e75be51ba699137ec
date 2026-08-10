@@ -1,0 +1,126 @@
+logger.go
+  s_5135b016a02203::t_523fa2d7825852 9,16-60,66,68,71,73-74,78-84,87,89 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a79cd6e6c2313952dff3fec","tool_type":"agent","tool_id":"Edit","line_ranges":[{"Single":9},{"Range":[16,60]},{"Single":66},{"Single":68},{"Single":71},{"Range":[73,74]},{"Range":[78,84]},{"Single":87},{"Single":89}]}]}
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "3b527fc416db14c62254594e75be51ba699137ec",
+  "prompts": {},
+  "sessions": {
+    "s_5135b016a02203": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a0afc0037be6cf6da240e81",
+        "model": "Doubao-Seed-Code__dev"
+      },
+      "human_author": "xujin.xj <xujin.xj@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {
+    "logger.go": [
+      {
+        "hash": "s_5135b016a02203::t_523fa2d7825852",
+        "line_ranges": [
+          {
+            "Single": 9
+          },
+          {
+            "Range": [
+              16,
+              60
+            ]
+          },
+          {
+            "Single": 66
+          },
+          {
+            "Single": 68
+          },
+          {
+            "Single": 71
+          },
+          {
+            "Range": [
+              73,
+              74
+            ]
+          },
+          {
+            "Range": [
+              78,
+              84
+            ]
+          },
+          {
+            "Single": 87
+          },
+          {
+            "Single": 89
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a79cd6e6c2313952dff3fec",
+            "tool_type": "agent",
+            "tool_id": "Edit",
+            "line_ranges": [
+              {
+                "Single": 9
+              },
+              {
+                "Range": [
+                  16,
+                  60
+                ]
+              },
+              {
+                "Single": 66
+              },
+              {
+                "Single": 68
+              },
+              {
+                "Single": 71
+              },
+              {
+                "Range": [
+                  73,
+                  74
+                ]
+              },
+              {
+                "Range": [
+                  78,
+                  84
+                ]
+              },
+              {
+                "Single": 87
+              },
+              {
+                "Single": 89
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "remote_transcripts": {
+    "s_5135b016a02203": {
+      "tool": "trae",
+      "conversation_id": "6a0afc0037be6cf6da240e81",
+      "session_id": "6a0afc0037be6cf6da240e81",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_5135b016a02203::t_523fa2d7825852": {
+      "tool": "trae",
+      "conversation_id": "6a0afc0037be6cf6da240e81",
+      "session_id": "6a0afc0037be6cf6da240e81",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    }
+  }
+}
