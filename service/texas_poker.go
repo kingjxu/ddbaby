@@ -195,7 +195,7 @@ func RecognizePoker(ctx context.Context, imageBase64 string, parseAll bool) (*mo
 	// 1. 构造请求体
 	reqData := model.RecognizeRequest{
 		ImageBase64: imageBase64,
-		App:         "poler",
+		App:         "polerv2",
 		ParseAll:    parseAll,
 	}
 
