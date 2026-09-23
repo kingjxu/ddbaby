@@ -135,6 +135,18 @@ func convSuit(suit string) string {
 		return ""
 	}
 }
+
+func tableSeatCount(villainCount int) int {
+	return villainCount + 1
+}
+
+func tablePositions(totalSeats int) []string {
+	if totalSeats == 9 {
+		return []string{"BTN", "SB", "BB", "UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO"}
+	}
+	return []string{"BTN", "SB", "BB", "UTG", "UTG+1", "MP", "MP+1", "CO"}
+}
+
 func parseBlindSize(blindSizeStr string) (int, int) {
 	sliceBindSize := strings.Split(blindSizeStr, "(")
 	sliceBindSizeV2 := strings.Split(sliceBindSize[0], "/")
@@ -182,15 +194,14 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 		})
 	}
 
-	// 从按钮位开始，按顺时针顺序找到有玩家的座位
-	var totalSeats = len(result.VillainsInfo) + 1
+	// 从按钮位开始，按顺时针顺序找到有玩家的座位。
+	// 识别服务会为每个非 hero 座位返回一项（包括空座/等待座位），因此
+	// VillainsInfo 的长度加上 hero 就是当前牌桌的座位数。
+	totalSeats := tableSeatCount(len(result.VillainsInfo))
 	orderedSeats := make([]seatInfo, 0)
 
 	for offset := 0; offset < totalSeats; offset++ {
-		seat := result.TableInfo.ButtonSeat + offset
-		if seat > totalSeats {
-			seat = seat - totalSeats
-		}
+		seat := ((result.TableInfo.ButtonSeat - 1 + offset) % totalSeats) + 1
 
 		for _, si := range allSeats {
 			if si.seat == seat {
@@ -200,10 +211,7 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 		}
 	}
 
-	positions := []string{"BTN", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "CO"}
-	if totalSeats == 9 {
-		positions = []string{"BTN", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "MP+1", "CO"}
-	}
+	positions := tablePositions(totalSeats)
 	players := make([]TexasPlayer, 0)
 	currentPlayerPos := ""
 
@@ -245,7 +253,7 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 	if result.TableInfo.Stage == "preflop" {
 		// preflop从UTG+1开始
 		for i, pi := range playerList {
-			if pi.pos == "straddle" {
+			if pi.pos == "UTG" {
 				startIndex = (i + 1) % len(playerList)
 				break
 			}
@@ -463,15 +471,12 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 			})
 		}
 
-		// 从按钮位开始，按顺时针顺序找到有玩家的座位
-		var totalSeats = len(result.VillainsInfo) + 1
+		// 从按钮位开始，按顺时针顺序找到有玩家的座位。
+		totalSeats := tableSeatCount(len(result.VillainsInfo))
 		orderedSeats := make([]seatInfo, 0)
 
 		for offset := 0; offset < totalSeats; offset++ {
-			seat := result.TableInfo.ButtonSeat + offset
-			if seat > totalSeats {
-				seat = seat - totalSeats
-			}
+			seat := ((result.TableInfo.ButtonSeat - 1 + offset) % totalSeats) + 1
 
 			for _, si := range allSeats {
 				if si.seat == seat {
@@ -481,10 +486,7 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 			}
 		}
 
-		positions := []string{"BTN", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "CO"}
-		if totalSeats == 9 {
-			positions = []string{"BTN", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "MP+1", "CO"}
-		}
+		positions := tablePositions(totalSeats)
 
 		// 先创建带位置信息的玩家列表
 		type playerWithPos struct {
@@ -512,7 +514,7 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 		if stage == "preflop" {
 			// preflop从UTG+1开始
 			for i, p := range playerList {
-				if p.pos == "straddle" || p.pos == "straddle-Hero" {
+				if p.pos == "UTG" || p.pos == "UTG-Hero" {
 					startIndex = (i + 1) % len(playerList)
 					break
 				}
