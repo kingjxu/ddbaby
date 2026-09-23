@@ -141,13 +141,29 @@ func tableSeatCount(villainCount int) int {
 }
 
 func tablePositions(playerCount int) []string {
-	if playerCount == 9 {
+	switch playerCount {
+	case 9:
 		return []string{"BTN", "SB", "BB", "UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO"}
-	}
-	if playerCount == 8 {
+	case 8:
 		return []string{"BTN", "SB", "BB", "UTG", "UTG+1", "UTG+2", "HJ", "CO"}
+	case 7:
+		return []string{"BTN", "SB", "BB", "UTG", "UTG+1", "HJ", "CO"}
+	case 6:
+		return []string{"BTN", "SB", "BB", "UTG", "HJ", "CO"}
+	case 5:
+		return []string{"BTN", "SB", "BB", "UTG", "CO"}
+	case 4:
+		return []string{"BTN", "SB", "BB", "CO"}
+	case 3:
+		return []string{"BTN", "SB", "BB"}
+	case 2:
+		return []string{"BTN", "BB"}
+	case 1:
+		return []string{"BTN"}
+	default:
+		// 牌桌容量目前只支持 2～9 人；保留一个安全兜底，避免异常识别结果导致除零。
+		return []string{"BTN"}
 	}
-	return []string{"BTN", "SB", "BB", "UTG", "UTG+1", "MP", "MP+1", "CO"}
 }
 
 func parseBlindSize(blindSizeStr string) (int, int) {
