@@ -140,9 +140,12 @@ func tableSeatCount(villainCount int) int {
 	return villainCount + 1
 }
 
-func tablePositions(totalSeats int) []string {
-	if totalSeats == 9 {
+func tablePositions(playerCount int) []string {
+	if playerCount == 9 {
 		return []string{"BTN", "SB", "BB", "UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO"}
+	}
+	if playerCount == 8 {
+		return []string{"BTN", "SB", "BB", "UTG", "UTG+1", "UTG+2", "HJ", "CO"}
 	}
 	return []string{"BTN", "SB", "BB", "UTG", "UTG+1", "MP", "MP+1", "CO"}
 }
@@ -211,7 +214,9 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 		}
 	}
 
-	positions := tablePositions(totalSeats)
+	// 空座/等待座位不进入 orderedSeats，因此位置表必须按实际参与玩家数选择，
+	// 不能按桌容量选择，否则九人桌少一个空座时会把后位整体错移一位。
+	positions := tablePositions(len(orderedSeats))
 	players := make([]TexasPlayer, 0)
 	currentPlayerPos := ""
 
@@ -486,7 +491,8 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 			}
 		}
 
-		positions := tablePositions(totalSeats)
+		// 与 buildPlayers 保持一致：位置按实际参与玩家数，而非桌容量计算。
+		positions := tablePositions(len(orderedSeats))
 
 		// 先创建带位置信息的玩家列表
 		type playerWithPos struct {
