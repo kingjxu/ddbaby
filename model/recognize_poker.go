@@ -183,7 +183,7 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 	}
 
 	// 从按钮位开始，按顺时针顺序找到有玩家的座位
-	const totalSeats = 8
+	var totalSeats = len(result.VillainsInfo) + 1
 	orderedSeats := make([]seatInfo, 0)
 
 	for offset := 0; offset < totalSeats; offset++ {
@@ -200,7 +200,10 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 		}
 	}
 
-	positions := []string{"BTN", "SB", "BB", "UTG", "UTG+1", "MP", "MP+1", "CO"}
+	positions := []string{"BTN", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "CO"}
+	if totalSeats == 9 {
+		positions = []string{"BTN", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "MP+1", "CO"}
+	}
 	players := make([]TexasPlayer, 0)
 	currentPlayerPos := ""
 
@@ -242,7 +245,7 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 	if result.TableInfo.Stage == "preflop" {
 		// preflop从UTG+1开始
 		for i, pi := range playerList {
-			if pi.pos == "UTG" {
+			if pi.pos == "straddle" {
 				startIndex = (i + 1) % len(playerList)
 				break
 			}
@@ -461,7 +464,7 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 		}
 
 		// 从按钮位开始，按顺时针顺序找到有玩家的座位
-		const totalSeats = 8
+		var totalSeats = len(result.VillainsInfo) + 1
 		orderedSeats := make([]seatInfo, 0)
 
 		for offset := 0; offset < totalSeats; offset++ {
@@ -478,7 +481,10 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 			}
 		}
 
-		positions := []string{"BTN", "SB", "BB", "UTG", "UTG+1", "MP", "MP+1", "CO"}
+		positions := []string{"BTN", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "CO"}
+		if totalSeats == 9 {
+			positions = []string{"BTN", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "MP+1", "CO"}
+		}
 
 		// 先创建带位置信息的玩家列表
 		type playerWithPos struct {
@@ -506,7 +512,7 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 		if stage == "preflop" {
 			// preflop从UTG+1开始
 			for i, p := range playerList {
-				if p.pos == "UTG" || p.pos == "UTG-Hero" {
+				if p.pos == "straddle" || p.pos == "straddle-Hero" {
 					startIndex = (i + 1) % len(playerList)
 					break
 				}
