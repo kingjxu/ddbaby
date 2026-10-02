@@ -459,6 +459,54 @@ func TestPrepareActionHistoryOrdersEqualTargetsAfterLastActor(t *testing.T) {
 	}
 }
 
+func decisionRequest(heroBet, heroStack, villainBet int) *TexasGtoDecisionReq {
+	return &TexasGtoDecisionReq{
+		CurrentPlayerPosition: "BTN-Hero",
+		Players: []TexasPlayer{
+			{Position: "BTN-Hero", Stack: heroStack, Bet: heroBet, IsActive: true},
+			{Position: "BB", Stack: 300, Bet: villainBet, IsActive: true},
+		},
+	}
+}
+
+func TestValidateTexasGtoDecisionRequestRejectsUnreadHeroStack(t *testing.T) {
+	req := decisionRequest(20, 0, 20)
+	if err := ValidateTexasGtoDecisionRequest(req); err == nil {
+		t.Fatal("zero current-player stack should be rejected")
+	}
+}
+
+func TestValidateTexasGtoDecisionResponse(t *testing.T) {
+	tests := []struct {
+		name    string
+		req     *TexasGtoDecisionReq
+		resp    *TexasGtoDecisionResp
+		wantErr bool
+	}{
+		{name: "legal check", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "check"}},
+		{name: "fold without wager", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "fold"}, wantErr: true},
+		{name: "legal fold", req: decisionRequest(20, 200, 77), resp: &TexasGtoDecisionResp{Action: "fold"}},
+		{name: "check facing bet", req: decisionRequest(20, 200, 77), resp: &TexasGtoDecisionResp{Action: "check"}, wantErr: true},
+		{name: "legal bet", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "bet", RaiseSize: 50}},
+		{name: "zero bet", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "bet"}, wantErr: true},
+		{name: "bet facing wager", req: decisionRequest(0, 200, 20), resp: &TexasGtoDecisionResp{Action: "bet", RaiseSize: 50}, wantErr: true},
+		{name: "legal call", req: decisionRequest(20, 200, 77), resp: &TexasGtoDecisionResp{Action: "call"}},
+		{name: "call without wager", req: decisionRequest(20, 200, 20), resp: &TexasGtoDecisionResp{Action: "call"}, wantErr: true},
+		{name: "legal raise", req: decisionRequest(20, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 220}},
+		{name: "raise beyond stack", req: decisionRequest(99, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 420}, wantErr: true},
+		{name: "raise below current bet", req: decisionRequest(20, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 99}, wantErr: true},
+		{name: "unknown action", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "jam"}, wantErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateTexasGtoDecisionResponse(tt.req, tt.resp)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
 func TestPrepareActionHistoryKeepsFoldInActionOrder(t *testing.T) {
 	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
 	PrepareActionHistory(nil, initial)

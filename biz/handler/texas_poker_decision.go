@@ -161,9 +161,18 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	}
 	logger.Infof("[TexasPokerDecisionHandler] latestData:%v", util.ToJSON(latestData))
 	//5 决策
-	resp, err := service.GtoDecision(ctx, model.Conv2TexasGtoDecisionReq(ctx, latestData))
+	decisionReq := model.Conv2TexasGtoDecisionReq(ctx, latestData)
+	if err = model.ValidateTexasGtoDecisionRequest(decisionReq); err != nil {
+		logger.Errorf("[TexasPokerDecisionHandler] invalid decision request:%v", err)
+		return h.newResp(ctx, ""), nil
+	}
+	resp, err := service.GtoDecision(ctx, decisionReq)
 	if err != nil {
 		logger.Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
+		return h.newResp(ctx, ""), nil
+	}
+	if err = model.ValidateTexasGtoDecisionResponse(decisionReq, resp); err != nil {
+		logger.Errorf("[TexasPokerDecisionHandler] invalid decision response:%v, resp:%v", err, util.ToJSON(resp))
 		return h.newResp(ctx, ""), nil
 	}
 	decisionSpends := time.Since(startTime).Milliseconds()

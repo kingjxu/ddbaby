@@ -10,7 +10,8 @@ last_updated: "2026-10-02"
 3. `dal.GetLastUserData` 从最近一次 BTN 变化之后取出当前手牌的全部阶段。
 4. `model.Conv2TexasGtoDecisionReq` 调用 `buildPlayers` 与 `buildActionHistory`；优先输出连续快照累计的动作，首次进入阶段或发生漏帧时按最终下注额生成最小合法历史。
 5. 位置映射遍历牌桌物理座位，只跳过 `empty` 和 `waiting`；弃牌玩家继续占据原位置。
-6. 转换后的请求交给 `service.GtoDecision`，响应再映射为中文行动。
+6. 转换后先校验当前行动玩家存在、active 且剩余筹码大于0，再交给 `service.GtoDecision`。
+7. 决策返回后校验动作与当前下注是否相容，并确保 bet/raise 的目标额为正且不超过 Hero 已下注加剩余筹码；非法结果返回空动作且不计次。
 
 ## 修改约束
 
@@ -20,3 +21,5 @@ last_updated: "2026-10-02"
 - SB、BB、straddle 的初始投入属于强制盲注，不能直接转换为自愿 `call` 或 `raise`。
 - `action_history.amount` 保留每次动作当时的目标下注额，不能统一覆盖为阶段最大值。
 - 一旦进入 Hero 行动帧，当前进程会对该用户后续非 Hero 帧持续全量识别并写入缓存；缓存仍按 `ButtonSeat` 分手，确保连续加注差分可以累计。
+- `is_hero_turn=true` 但 Hero stack<=0 属于不可用于决策的识别结果；不能继续请求决策服务。
+- 决策协议中的 `raise_size` 是目标总下注额。check/fold/call 必须为0；bet只允许在无人下注时；raise必须高于当前最大下注且不超过 Hero 的可用总额。

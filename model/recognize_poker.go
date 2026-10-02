@@ -2,10 +2,13 @@ package model
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
+	"errors"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 type RecognizeRequest struct {
@@ -84,6 +87,92 @@ type TexasGtoDecisionResp struct {
 	RaiseSize         int     `json:"raise_size"`
 	ActionProbability float64 `json:"action_probability"`
 	Detail            string  `json:"detail"`
+}
+
+// ValidateTexasGtoDecisionRequest rejects recognition results that cannot
+// represent a player who is currently allowed to act. Sending such data to
+// the decision service can turn an OCR miss into an unsafe automated action.
+func ValidateTexasGtoDecisionRequest(req *TexasGtoDecisionReq) error {
+	if req == nil {
+		return errors.New("decision request is nil")
+	}
+	for _, player := range req.Players {
+		if player.Position != req.CurrentPlayerPosition {
+			continue
+		}
+		if !player.IsActive {
+			return fmt.Errorf("current player %s is inactive", player.Position)
+		}
+		if player.Stack <= 0 {
+			return fmt.Errorf("current player %s has invalid stack %d", player.Position, player.Stack)
+		}
+		return nil
+	}
+	return fmt.Errorf("current player %q is missing", req.CurrentPlayerPosition)
+}
+
+// ValidateTexasGtoDecisionResponse checks that the returned action is legal
+// for the current snapshot. RaiseSize is interpreted as the target total bet,
+// matching the existing decision protocol.
+func ValidateTexasGtoDecisionResponse(req *TexasGtoDecisionReq, resp *TexasGtoDecisionResp) error {
+	if err := ValidateTexasGtoDecisionRequest(req); err != nil {
+		return err
+	}
+	if resp == nil {
+		return errors.New("decision response is nil")
+	}
+
+	var hero *TexasPlayer
+	maxBet := 0
+	for i := range req.Players {
+		player := &req.Players[i]
+		if player.Bet > maxBet {
+			maxBet = player.Bet
+		}
+		if player.Position == req.CurrentPlayerPosition {
+			hero = player
+		}
+	}
+	maxTarget := hero.Bet + hero.Stack
+	facingBet := maxBet > hero.Bet
+
+	switch resp.Action {
+	case "fold":
+		if !facingBet {
+			return errors.New("cannot fold without an outstanding bet")
+		}
+		if resp.RaiseSize != 0 {
+			return fmt.Errorf("fold has non-zero raise_size %d", resp.RaiseSize)
+		}
+	case "check":
+		if facingBet {
+			return fmt.Errorf("cannot check facing bet %d with %d committed", maxBet, hero.Bet)
+		}
+		if resp.RaiseSize != 0 {
+			return fmt.Errorf("check has non-zero raise_size %d", resp.RaiseSize)
+		}
+	case "call":
+		if !facingBet {
+			return errors.New("cannot call without an outstanding bet")
+		}
+		if resp.RaiseSize != 0 {
+			return fmt.Errorf("call has non-zero raise_size %d", resp.RaiseSize)
+		}
+	case "bet":
+		if maxBet != 0 {
+			return fmt.Errorf("cannot bet when current maximum bet is %d", maxBet)
+		}
+		if resp.RaiseSize <= 0 || resp.RaiseSize > maxTarget {
+			return fmt.Errorf("bet target %d is outside (0, %d]", resp.RaiseSize, maxTarget)
+		}
+	case "raise":
+		if resp.RaiseSize <= maxBet || resp.RaiseSize > maxTarget {
+			return fmt.Errorf("raise target %d must be in (%d, %d]", resp.RaiseSize, maxBet, maxTarget)
+		}
+	default:
+		return fmt.Errorf("unknown decision action %q", resp.Action)
+	}
+	return nil
 }
 
 func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *TexasGtoDecisionReq {
