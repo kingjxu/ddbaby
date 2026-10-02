@@ -5,11 +5,16 @@ import (
 	"github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 	"time"
 )
 
 func TestTexasPokerDecisionHandler_Handle(t *testing.T) {
+	if os.Getenv("DDBABY_INTEGRATION_TEST") != "1" {
+		t.Skip("requires MySQL, recognition and decision services; set DDBABY_INTEGRATION_TEST=1 to run")
+	}
+
 	t.Run("全轮次的调用", func(t *testing.T) {
 		reqs := []*ddbaby.TexasPokerDecisionReq{
 			/*		{

@@ -143,17 +143,17 @@ func tableSeatCount(villainCount int) int {
 func tablePositions(playerCount int) []string {
 	switch playerCount {
 	case 9:
-		return []string{"BTN", "SB", "BB", "UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO"}
+		return []string{"BTN", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "MP+1", "CO"}
 	case 8:
-		return []string{"BTN", "SB", "BB", "UTG", "UTG+1", "UTG+2", "HJ", "CO"}
+		return []string{"BTN", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "CO"}
 	case 7:
-		return []string{"BTN", "SB", "BB", "UTG", "UTG+1", "HJ", "CO"}
+		return []string{"BTN", "SB", "BB", "straddle", "UTG", "MP", "CO"}
 	case 6:
-		return []string{"BTN", "SB", "BB", "UTG", "HJ", "CO"}
+		return []string{"BTN", "SB", "BB", "straddle", "UTG", "CO"}
 	case 5:
-		return []string{"BTN", "SB", "BB", "UTG", "CO"}
+		return []string{"BTN", "SB", "BB", "straddle", "CO"}
 	case 4:
-		return []string{"BTN", "SB", "BB", "CO"}
+		return []string{"BTN", "SB", "BB", "straddle"}
 	case 3:
 		return []string{"BTN", "SB", "BB"}
 	case 2:
@@ -161,7 +161,7 @@ func tablePositions(playerCount int) []string {
 	case 1:
 		return []string{"BTN"}
 	default:
-		// 牌桌容量目前只支持 2～9 人；保留一个安全兜底，避免异常识别结果导致除零。
+		// 牌桌容量目前只支持 2～9 人；保留安全兜底，避免异常识别结果导致除零。
 		return []string{"BTN"}
 	}
 }
@@ -272,9 +272,9 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 	// 确定行动开始位置
 	var startIndex int
 	if result.TableInfo.Stage == "preflop" {
-		// preflop从UTG+1开始
+		// 有 straddle 时从其下一位开始；短桌没有 straddle 时从 BTN 开始。
 		for i, pi := range playerList {
-			if pi.pos == "UTG" {
+			if pi.pos == "straddle" {
 				startIndex = (i + 1) % len(playerList)
 				break
 			}
@@ -534,9 +534,9 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 		// 确定行动开始位置
 		var startIndex int
 		if stage == "preflop" {
-			// preflop从UTG+1开始
+			// 有 straddle 时从其下一位开始；短桌没有 straddle 时从 BTN 开始。
 			for i, p := range playerList {
-				if p.pos == "UTG" || p.pos == "UTG-Hero" {
+				if p.pos == "straddle" || p.pos == "straddle-Hero" {
 					startIndex = (i + 1) % len(playerList)
 					break
 				}

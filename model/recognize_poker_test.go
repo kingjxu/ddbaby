@@ -47,12 +47,12 @@ func TestBuildPlayersSupportsEightAndNineSeatTables(t *testing.T) {
 		{
 			name:          "eight seats",
 			villainCount:  7,
-			wantPositions: []string{"BTN-Hero", "SB", "BB", "UTG", "UTG+1", "UTG+2", "HJ", "CO"},
+			wantPositions: []string{"BTN-Hero", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "CO"},
 		},
 		{
 			name:          "nine seats",
 			villainCount:  8,
-			wantPositions: []string{"BTN-Hero", "SB", "BB", "UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO"},
+			wantPositions: []string{"BTN-Hero", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "MP+1", "CO"},
 		},
 	}
 
@@ -91,7 +91,7 @@ func TestBuildPlayersUsesActualPlayersForNineSeatTableWithEmptySeat(t *testing.T
 	})
 
 	players, _ := buildPlayers(makeTexasResultWithSeats(t, 8, 8, villains), 2)
-	wantPositions := []string{"BTN-Hero", "SB", "BB", "UTG", "UTG+1", "UTG+2", "HJ", "CO"}
+	wantPositions := []string{"BTN-Hero", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "CO"}
 	if len(players) != len(wantPositions) {
 		t.Fatalf("players length = %d, want %d", len(players), len(wantPositions))
 	}
@@ -125,7 +125,7 @@ func TestBuildActionHistorySkipsWaitingSeatWithoutShiftingPositions(t *testing.T
 	if len(history) != 8 {
 		t.Fatalf("history length = %d, want 8", len(history))
 	}
-	wantPositions := []string{"SB", "BB", "UTG", "UTG+1", "UTG+2", "HJ", "CO", "BTN-Hero"}
+	wantPositions := []string{"SB", "BB", "straddle", "UTG", "UTG+1", "MP", "CO", "BTN-Hero"}
 	for i, want := range wantPositions {
 		if history[i].Position != want {
 			t.Errorf("history[%d].Position = %q, want %q", i, history[i].Position, want)
@@ -155,7 +155,7 @@ func TestBuildPlayersAndActionHistorySupportMultipleEmptySeats(t *testing.T) {
 				{"seat": 7, "status": "empty"},
 				{"seat": 9, "status": "empty"},
 			},
-			wantPositions: []string{"BTN-Hero", "SB", "BB", "UTG", "UTG+1", "HJ", "CO"},
+			wantPositions: []string{"BTN-Hero", "SB", "BB", "straddle", "UTG", "MP", "CO"},
 		},
 		{
 			name:       "eight seat table with one waiting seat",
@@ -170,7 +170,7 @@ func TestBuildPlayersAndActionHistorySupportMultipleEmptySeats(t *testing.T) {
 				{"seat": 6, "status": "active", "stack": 100},
 				{"seat": 7, "status": "waiting"},
 			},
-			wantPositions: []string{"BTN-Hero", "SB", "BB", "UTG", "UTG+1", "HJ", "CO"},
+			wantPositions: []string{"BTN-Hero", "SB", "BB", "straddle", "UTG", "MP", "CO"},
 		},
 	}
 
@@ -202,5 +202,74 @@ func TestBuildPlayersAndActionHistorySupportMultipleEmptySeats(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestFoldedPlayerKeepsSeatPosition(t *testing.T) {
+	villains := []map[string]interface{}{
+		{"seat": 1, "status": "folded", "stack": 100},
+		{"seat": 2, "status": "active", "stack": 100},
+		{"seat": 3, "status": "active", "stack": 100},
+		{"seat": 4, "status": "active", "stack": 100},
+		{"seat": 5, "status": "active", "stack": 100},
+		{"seat": 6, "status": "active", "stack": 100},
+		{"seat": 7, "status": "active", "stack": 100},
+		{"seat": 9, "status": "empty"},
+	}
+	flop := makeTexasResultWithSeats(t, 8, 8, villains)
+	flop.TableInfo.Stage = "flop"
+	turn := makeTexasResultWithSeats(t, 8, 8, villains)
+	turn.TableInfo.Stage = "turn"
+
+	players, _ := buildPlayers(flop, 2)
+	wantPlayerPositions := []string{"BTN-Hero", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "CO"}
+	if len(players) != len(wantPlayerPositions) {
+		t.Fatalf("players length = %d, want %d", len(players), len(wantPlayerPositions))
+	}
+	for i, want := range wantPlayerPositions {
+		if players[i].Position != want {
+			t.Errorf("players[%d].Position = %q, want %q", i, players[i].Position, want)
+		}
+	}
+	if players[1].IsActive || players[1].ActionTaken != "fold" {
+		t.Fatalf("folded player = %+v, want inactive SB with fold action", players[1])
+	}
+
+	history := buildActionHistory(context.Background(), []*TexasResult{flop, turn})
+	wantHistoryPositions := []string{"SB", "BB", "straddle", "UTG", "UTG+1", "MP", "CO", "BTN-Hero"}
+	if len(history) != len(wantHistoryPositions) {
+		t.Fatalf("history length = %d, want %d", len(history), len(wantHistoryPositions))
+	}
+	for i, want := range wantHistoryPositions {
+		if history[i].Position != want {
+			t.Errorf("history[%d].Position = %q, want %q", i, history[i].Position, want)
+		}
+	}
+	if history[0].Action != "fold" {
+		t.Fatalf("folded player's history action = %q, want fold", history[0].Action)
+	}
+}
+
+func TestPreflopActionHistoryStartsAfterStraddle(t *testing.T) {
+	villains := make([]map[string]interface{}, 0, 7)
+	for seat := 1; seat <= 7; seat++ {
+		villains = append(villains, map[string]interface{}{
+			"seat":        seat,
+			"status":      "active",
+			"stack":       100,
+			"current_bet": 0,
+		})
+	}
+	preflop := makeTexasResultWithSeats(t, 8, 8, villains)
+	preflop.TableInfo.Stage = "preflop"
+	flop := makeTexasResultWithSeats(t, 8, 8, villains)
+	flop.TableInfo.Stage = "flop"
+
+	history := buildActionHistory(context.Background(), []*TexasResult{preflop, flop})
+	if len(history) == 0 {
+		t.Fatal("history is empty")
+	}
+	if history[0].Position != "UTG" {
+		t.Fatalf("first preflop position = %q, want UTG after straddle", history[0].Position)
 	}
 }
