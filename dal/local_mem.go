@@ -19,10 +19,12 @@ func SaveUserData(ctx context.Context, uid string, result *model.TexasResult) er
 	}
 	userData := userDataMap[uid]
 	if len(userData) == 0 {
+		model.PrepareActionHistory(nil, result)
 		userDataMap[uid] = append(userData, result)
 		return nil
 	}
 	lastResult := userData[len(userData)-1]
+	model.PrepareActionHistory(lastResult, result)
 	if lastResult.TableInfo.ButtonSeat == result.TableInfo.ButtonSeat &&
 		lastResult.TableInfo.Stage == result.TableInfo.Stage { // 同一手的同阶段，更新
 		userData[len(userData)-1] = result

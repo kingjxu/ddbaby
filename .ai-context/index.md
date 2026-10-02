@@ -1,5 +1,5 @@
 ---
-version: "1.0"
+version: "1.1"
 last_updated: "2026-10-02"
 ---
 
@@ -29,7 +29,7 @@ last_updated: "2026-10-02"
 
 ## Context Version
 
-Context v1.0，生成于 2026-10-02。
+Context v1.1。德州缓存现在会在覆盖同阶段快照前累计可观察的动作差分。
 
 ## Pending Files
 

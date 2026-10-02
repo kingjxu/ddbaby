@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"github.com/sirupsen/logrus"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -39,6 +40,10 @@ type TexasResult struct {
 		Stack      int    `json:"stack"`
 		CurrentBet int    `json:"current_bet"`
 	} `json:"villains_info"`
+	// ObservedActionHistory is kept only in the in-memory hand cache. It lets us
+	// preserve actions observed between consecutive screenshots without changing
+	// the recognition or decision protocols.
+	ObservedActionHistory []TexasActionHistory `json:"-"`
 }
 
 type TexasPlayer struct {
@@ -92,7 +97,6 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 
 	players, currentPlayerPos := buildPlayers(currentResult, bbSize)
 	actionHistory := buildActionHistory(ctx, recResult)
-	actionHistory = reviseActionHistoryV2(actionHistory)
 
 	return &TexasGtoDecisionReq{
 		GameType:              "no_limit_holdem",
@@ -108,6 +112,42 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 		Players:               players,
 		CurrentPlayerPosition: currentPlayerPos,
 		ActionHistory:         actionHistory,
+	}
+}
+
+// PrepareActionHistory carries the current hand's accumulated action events to
+// result and appends the minimum actions observable between two snapshots. A
+// nil previous result starts a new hand and falls back to a minimum legal
+// reconstruction of the first snapshot.
+func PrepareActionHistory(previous, result *TexasResult) {
+	if result == nil {
+		return
+	}
+
+	if previous == nil || previous.TableInfo.ButtonSeat != result.TableInfo.ButtonSeat {
+		result.ObservedActionHistory = inferSnapshotActions(result)
+		return
+	}
+
+	result.ObservedActionHistory = append(
+		make([]TexasActionHistory, 0, len(previous.ObservedActionHistory)),
+		previous.ObservedActionHistory...,
+	)
+	if normalizeStage(previous.TableInfo.Stage) == normalizeStage(result.TableInfo.Stage) {
+		result.ObservedActionHistory = append(result.ObservedActionHistory, inferSnapshotDelta(previous, result)...)
+		return
+	}
+
+	result.ObservedActionHistory = append(result.ObservedActionHistory, inferStageCompletion(previous, result)...)
+	stageActions := inferSnapshotActions(result)
+	for _, action := range stageActions {
+		// A player already folded in the first snapshot of a new street must
+		// have folded while completing the previous street.
+		if action.Action == "fold" {
+			continue
+		}
+		action.Timestamp = nextTimestamp(result.ObservedActionHistory)
+		result.ObservedActionHistory = append(result.ObservedActionHistory, action)
 	}
 }
 
@@ -344,73 +384,358 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 	return players, currentPlayerPos
 }
 
-func reviseActionHistoryV2(history []TexasActionHistory) []TexasActionHistory {
-	if len(history) == 0 {
-		return history
-	}
-
-	// 按 stage 分组
-	stageHistory := make(map[string][]TexasActionHistory)
-	for _, h := range history {
-		stage := h.Stage
-		if stage == "" {
-			stage = "preflop"
-		}
-		stageHistory[stage] = append(stageHistory[stage], h)
-	}
-
-	// 遍历每个 stage，找到最大 amount 并统一设置
-	for stage, his := range stageHistory {
-		// 找到该 stage 的最大 amount
-		maxAmount := 0
-		for _, h := range his {
-			if h.Amount > maxAmount && h.Status == "active" {
-				maxAmount = h.Amount
-			}
-		}
-		// 将该 stage 所有条目的 amount 设置成最大值
-		for i := range his {
-			// 只处理 active 状态的
-			if his[i].Status == "active" {
-				stageHistory[stage][i].Amount = maxAmount
-			}
-		}
-	}
-
-	// 按照 preflop->flop->turn->river 的顺序重新组装
-	stages := []string{"preflop", "flop", "turn", "river"}
-	result := make([]TexasActionHistory, 0)
-	for _, stage := range stages {
-		if his, ok := stageHistory[stage]; ok {
-			result = append(result, his...)
-		}
-	}
-
-	return result
+type actionSeat struct {
+	seat       int
+	position   string
+	status     string
+	currentBet int
+	order      int
 }
 
-func reviseActionHistory(recResult []*TexasResult) []*TexasResult {
-	if len(recResult) < 2 {
-		return recResult
+func normalizeStage(stage string) string {
+	if stage == "" {
+		return "preflop"
+	}
+	return stage
+}
+
+func actionSeats(result *TexasResult) []actionSeat {
+	if result == nil {
+		return nil
 	}
 
-	for i := 0; i < len(recResult)-1; i++ {
-		maxBet := 0
-		for _, vi := range recResult[i].VillainsInfo {
-			if vi.CurrentBet > maxBet && vi.Status == "active" {
-				maxBet = vi.CurrentBet
-			}
+	type rawSeat struct {
+		seat       int
+		isHero     bool
+		status     string
+		currentBet int
+	}
+	raw := []rawSeat{{
+		seat:       result.HeroInfo.Seat,
+		isHero:     true,
+		status:     result.HeroInfo.Status,
+		currentBet: result.HeroInfo.CurrentBet,
+	}}
+	for _, villain := range result.VillainsInfo {
+		if villain.Status == "empty" || villain.Status == "waiting" {
+			continue
 		}
-		for j, vi := range recResult[i].VillainsInfo {
-			if vi.Status == "active" {
-				recResult[i].VillainsInfo[j].CurrentBet = maxBet
+		raw = append(raw, rawSeat{
+			seat:       villain.Seat,
+			status:     villain.Status,
+			currentBet: villain.CurrentBet,
+		})
+	}
+
+	totalSeats := tableSeatCount(len(result.VillainsInfo))
+	ordered := make([]rawSeat, 0, len(raw))
+	for offset := 0; offset < totalSeats; offset++ {
+		seat := ((result.TableInfo.ButtonSeat - 1 + offset) % totalSeats) + 1
+		for _, player := range raw {
+			if player.seat == seat {
+				ordered = append(ordered, player)
+				break
 			}
-		}
-		if recResult[i].HeroInfo.Status == "active" && recResult[i].HeroInfo.CurrentBet < maxBet {
-			recResult[i].HeroInfo.CurrentBet = maxBet
 		}
 	}
-	return recResult
+	if len(ordered) == 0 {
+		return nil
+	}
+
+	positions := tablePositions(len(ordered))
+	startIndex := 0
+	stage := normalizeStage(result.TableInfo.Stage)
+	if stage == "preflop" {
+		for i, position := range positions {
+			if position == "straddle" {
+				startIndex = (i + 1) % len(ordered)
+				break
+			}
+		}
+	} else {
+		for i, position := range positions {
+			if position == "SB" {
+				startIndex = i
+				break
+			}
+		}
+	}
+
+	resultSeats := make([]actionSeat, 0, len(ordered))
+	for i, player := range ordered {
+		position := positions[i%len(positions)]
+		if player.isHero {
+			position += "-Hero"
+		}
+		order := (i - startIndex + len(ordered)) % len(ordered)
+		resultSeats = append(resultSeats, actionSeat{
+			seat:       player.seat,
+			position:   position,
+			status:     player.status,
+			currentBet: player.currentBet,
+			order:      order,
+		})
+	}
+	return resultSeats
+}
+
+func forcedBlind(position string, sbSize, bbSize int) int {
+	position = strings.TrimSuffix(position, "-Hero")
+	switch position {
+	case "SB":
+		return sbSize
+	case "BB":
+		return bbSize
+	case "straddle":
+		return bbSize * 2
+	default:
+		return 0
+	}
+}
+
+func isActiveStatus(status string) bool {
+	return status == "active" || status == "allin"
+}
+
+func nextTimestamp(history []TexasActionHistory) int {
+	if len(history) == 0 {
+		return 0
+	}
+	return history[len(history)-1].Timestamp + 1
+}
+
+// inferSnapshotActions builds the shortest legal history consistent with one
+// snapshot. SB/BB/straddle are forced bets rather than voluntary actions.
+func inferSnapshotActions(result *TexasResult) []TexasActionHistory {
+	seats := actionSeats(result)
+	if len(seats) == 0 {
+		return []TexasActionHistory{}
+	}
+	stage := normalizeStage(result.TableInfo.Stage)
+	sbSize, bbSize := parseBlindSize(result.TableInfo.BlindSize)
+	currentMax := 0
+	if stage == "preflop" {
+		currentMax = bbSize * 2
+	}
+
+	candidates := make([]actionSeat, 0, len(seats))
+	folds := make([]actionSeat, 0)
+	for _, player := range seats {
+		if !isActiveStatus(player.status) {
+			folds = append(folds, player)
+			continue
+		}
+		baseline := 0
+		if stage == "preflop" {
+			baseline = forcedBlind(player.position, sbSize, bbSize)
+		}
+		if player.currentBet > baseline {
+			candidates = append(candidates, player)
+		}
+	}
+
+	// Ascending target amounts produce the minimum legal raise sequence. Seat
+	// order resolves equal amounts as one raise followed by calls.
+	sort.SliceStable(candidates, func(i, j int) bool {
+		if candidates[i].currentBet == candidates[j].currentBet {
+			return candidates[i].order < candidates[j].order
+		}
+		return candidates[i].currentBet < candidates[j].currentBet
+	})
+	sort.SliceStable(folds, func(i, j int) bool { return folds[i].order < folds[j].order })
+
+	history := make([]TexasActionHistory, 0, len(candidates)+len(folds))
+	for _, player := range candidates {
+		action := "call"
+		if player.currentBet > currentMax {
+			if stage != "preflop" && currentMax == 0 {
+				action = "bet"
+			} else {
+				action = "raise"
+			}
+			currentMax = player.currentBet
+		}
+		history = append(history, TexasActionHistory{
+			Stage: stage, Position: player.position, Action: action,
+			Amount: player.currentBet, Timestamp: len(history), Status: player.status,
+		})
+	}
+	for _, player := range folds {
+		history = append(history, TexasActionHistory{
+			Stage: stage, Position: player.position, Action: "fold",
+			Amount: 0, Timestamp: len(history), Status: player.status,
+		})
+	}
+	return history
+}
+
+func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
+	previousSeats := actionSeats(previous)
+	currentSeats := actionSeats(current)
+	if len(previousSeats) == 0 || len(currentSeats) == 0 {
+		return nil
+	}
+
+	previousBySeat := make(map[int]actionSeat, len(previousSeats))
+	currentMax := 0
+	for _, player := range previousSeats {
+		previousBySeat[player.seat] = player
+		if player.currentBet > currentMax {
+			currentMax = player.currentBet
+		}
+	}
+
+	changedBets := make([]actionSeat, 0)
+	folds := make([]actionSeat, 0)
+	for _, player := range currentSeats {
+		old, ok := previousBySeat[player.seat]
+		if !ok {
+			continue
+		}
+		if isActiveStatus(old.status) && !isActiveStatus(player.status) {
+			folds = append(folds, player)
+			continue
+		}
+		if isActiveStatus(player.status) && player.currentBet > old.currentBet {
+			changedBets = append(changedBets, player)
+		}
+	}
+
+	sort.SliceStable(changedBets, func(i, j int) bool {
+		if changedBets[i].currentBet == changedBets[j].currentBet {
+			return changedBets[i].order < changedBets[j].order
+		}
+		return changedBets[i].currentBet < changedBets[j].currentBet
+	})
+	sort.SliceStable(folds, func(i, j int) bool { return folds[i].order < folds[j].order })
+
+	stage := normalizeStage(current.TableInfo.Stage)
+	timestamp := nextTimestamp(previous.ObservedActionHistory)
+	history := make([]TexasActionHistory, 0, len(changedBets)+len(folds))
+	for _, player := range changedBets {
+		action := "call"
+		if player.currentBet > currentMax {
+			if stage != "preflop" && currentMax == 0 {
+				action = "bet"
+			} else {
+				action = "raise"
+			}
+			currentMax = player.currentBet
+		}
+		history = append(history, TexasActionHistory{
+			Stage: stage, Position: player.position, Action: action,
+			Amount: player.currentBet, Timestamp: timestamp, Status: player.status,
+		})
+		timestamp++
+	}
+	for _, player := range folds {
+		history = append(history, TexasActionHistory{
+			Stage: stage, Position: player.position, Action: "fold",
+			Amount: 0, Timestamp: timestamp, Status: player.status,
+		})
+		timestamp++
+	}
+	return history
+}
+
+// inferStageCompletion adds the minimum missing calls, checks and folds needed
+// when the next street proves that the previous betting round has completed.
+func inferStageCompletion(previous, current *TexasResult) []TexasActionHistory {
+	previousSeats := actionSeats(previous)
+	currentSeats := actionSeats(current)
+	if len(previousSeats) == 0 || len(currentSeats) == 0 {
+		return nil
+	}
+
+	currentBySeat := make(map[int]actionSeat, len(currentSeats))
+	for _, player := range currentSeats {
+		currentBySeat[player.seat] = player
+	}
+	stage := normalizeStage(previous.TableInfo.Stage)
+	sbSize, bbSize := parseBlindSize(previous.TableInfo.BlindSize)
+	stageMax := 0
+	if stage == "preflop" {
+		stageMax = bbSize * 2
+	}
+	for _, player := range previousSeats {
+		if player.currentBet > stageMax {
+			stageMax = player.currentBet
+		}
+	}
+
+	lastAmount := make(map[string]int)
+	folded := make(map[string]bool)
+	lastOrder := -1
+	orderByPosition := make(map[string]int, len(previousSeats))
+	for _, player := range previousSeats {
+		orderByPosition[player.position] = player.order
+	}
+	for _, action := range previous.ObservedActionHistory {
+		if normalizeStage(action.Stage) != stage {
+			continue
+		}
+		if action.Amount > lastAmount[action.Position] {
+			lastAmount[action.Position] = action.Amount
+		}
+		if action.Amount > stageMax {
+			stageMax = action.Amount
+		}
+		if action.Action == "fold" {
+			folded[action.Position] = true
+		}
+		if order, ok := orderByPosition[action.Position]; ok {
+			lastOrder = order
+		}
+	}
+
+	pending := make([]TexasActionHistory, 0)
+	pendingOrder := make(map[string]int)
+	for _, player := range previousSeats {
+		next, ok := currentBySeat[player.seat]
+		if !ok {
+			continue
+		}
+		pendingOrder[player.position] = player.order
+		if !isActiveStatus(next.status) {
+			if isActiveStatus(player.status) && !folded[player.position] {
+				pending = append(pending, TexasActionHistory{
+					Stage: stage, Position: player.position, Action: "fold", Status: next.status,
+				})
+			}
+			continue
+		}
+		if !isActiveStatus(player.status) {
+			continue
+		}
+
+		accounted := lastAmount[player.position]
+		if stage == "preflop" {
+			if blind := forcedBlind(player.position, sbSize, bbSize); blind > accounted {
+				accounted = blind
+			}
+		}
+		if stageMax == 0 {
+			pending = append(pending, TexasActionHistory{
+				Stage: stage, Position: player.position, Action: "check", Status: player.status,
+			})
+		} else if accounted < stageMax {
+			pending = append(pending, TexasActionHistory{
+				Stage: stage, Position: player.position, Action: "call", Amount: stageMax, Status: player.status,
+			})
+		}
+	}
+
+	playerCount := len(previousSeats)
+	sort.SliceStable(pending, func(i, j int) bool {
+		iOrder := (pendingOrder[pending[i].Position] - lastOrder - 1 + playerCount) % playerCount
+		jOrder := (pendingOrder[pending[j].Position] - lastOrder - 1 + playerCount) % playerCount
+		return iOrder < jOrder
+	})
+	timestamp := nextTimestamp(previous.ObservedActionHistory)
+	for i := range pending {
+		pending[i].Timestamp = timestamp + i
+	}
+	return pending
 }
 
 // buildActionHistory 构建德州扑克的行动历史
@@ -424,12 +749,19 @@ func reviseActionHistory(recResult []*TexasResult) []*TexasResult {
 //
 // 说明:
 //
-//	该函数从第0个到第len(recResult)-2个结果中解析数据，最后一个结果是当前阶段的数据，不用解析。
-//	对于每个stage，函数会取该stage的最后一个结果，像buildPlayers那样从中推断出该阶段的行动历史。
+//	缓存已累计连续快照动作时，直接返回最新结果携带的历史；旧调用方没有累计历史时，
+//	继续使用阶段末快照推断，保持兼容。
 func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasActionHistory {
 	logrus.WithContext(ctx).Infof("[buildActionHistory] len(recResult):%v", len(recResult))
 	if len(recResult) < 2 {
+		if len(recResult) == 1 && recResult[0].ObservedActionHistory != nil {
+			return append([]TexasActionHistory(nil), recResult[0].ObservedActionHistory...)
+		}
 		return make([]TexasActionHistory, 0)
+	}
+	latest := recResult[len(recResult)-1]
+	if latest.ObservedActionHistory != nil {
+		return append([]TexasActionHistory(nil), latest.ObservedActionHistory...)
 	}
 
 	history := make([]TexasActionHistory, 0)

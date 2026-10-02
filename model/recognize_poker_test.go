@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"encoding/json"
+	"reflect"
 	"testing"
 )
 
@@ -275,5 +276,164 @@ func TestPreflopActionHistoryStartsAfterStraddle(t *testing.T) {
 	}
 	if history[0].Position != "UTG" {
 		t.Fatalf("first preflop position = %q, want UTG after straddle", history[0].Position)
+	}
+}
+
+func setSeatBet(result *TexasResult, seat, bet int) {
+	if result.HeroInfo.Seat == seat {
+		result.HeroInfo.CurrentBet = bet
+		return
+	}
+	for i := range result.VillainsInfo {
+		if result.VillainsInfo[i].Seat == seat {
+			result.VillainsInfo[i].CurrentBet = bet
+			return
+		}
+	}
+}
+
+func setSeatStatus(result *TexasResult, seat int, status string) {
+	if result.HeroInfo.Seat == seat {
+		result.HeroInfo.Status = status
+		return
+	}
+	for i := range result.VillainsInfo {
+		if result.VillainsInfo[i].Seat == seat {
+			result.VillainsInfo[i].Status = status
+			return
+		}
+	}
+}
+
+func preflopSnapshot(t *testing.T, bets map[int]int) *TexasResult {
+	t.Helper()
+	villains := make([]map[string]interface{}, 0, 7)
+	for seat := 1; seat <= 7; seat++ {
+		villains = append(villains, map[string]interface{}{
+			"seat": seat, "status": "active", "stack": 1000, "current_bet": bets[seat],
+		})
+	}
+	result := makeTexasResultWithSeats(t, 8, 8, villains)
+	result.TableInfo.Stage = "preflop"
+	result.TableInfo.BlindSize = "1/2/4(2)"
+	result.HeroInfo.CurrentBet = bets[8]
+	return result
+}
+
+func TestPrepareActionHistoryPreservesMultiRaiseSequence(t *testing.T) {
+	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	PrepareActionHistory(nil, initial)
+	if len(initial.ObservedActionHistory) != 0 {
+		t.Fatalf("forced blinds produced actions: %+v", initial.ObservedActionHistory)
+	}
+
+	twoBet := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12})
+	PrepareActionHistory(initial, twoBet)
+	threeBet := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12, 5: 40})
+	PrepareActionHistory(twoBet, threeBet)
+	fourBet := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 100, 5: 40})
+	PrepareActionHistory(threeBet, fourBet)
+
+	want := []TexasActionHistory{
+		{Stage: "preflop", Position: "UTG", Action: "raise", Amount: 12, Timestamp: 0, Status: "active"},
+		{Stage: "preflop", Position: "UTG+1", Action: "raise", Amount: 40, Timestamp: 1, Status: "active"},
+		{Stage: "preflop", Position: "UTG", Action: "raise", Amount: 100, Timestamp: 2, Status: "active"},
+	}
+	if !reflect.DeepEqual(fourBet.ObservedActionHistory, want) {
+		t.Fatalf("history = %+v, want %+v", fourBet.ObservedActionHistory, want)
+	}
+
+	req := Conv2TexasGtoDecisionReq(context.Background(), []*TexasResult{fourBet})
+	if !reflect.DeepEqual(req.ActionHistory, want) {
+		t.Fatalf("request history = %+v, want %+v", req.ActionHistory, want)
+	}
+}
+
+func TestPrepareActionHistoryInfersMinimumSequenceAcrossMissedFrames(t *testing.T) {
+	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	PrepareActionHistory(nil, initial)
+	lateSnapshot := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12, 5: 40})
+	PrepareActionHistory(initial, lateSnapshot)
+
+	want := []TexasActionHistory{
+		{Stage: "preflop", Position: "UTG", Action: "raise", Amount: 12, Timestamp: 0, Status: "active"},
+		{Stage: "preflop", Position: "UTG+1", Action: "raise", Amount: 40, Timestamp: 1, Status: "active"},
+	}
+	if !reflect.DeepEqual(lateSnapshot.ObservedActionHistory, want) {
+		t.Fatalf("history = %+v, want minimum sequence %+v", lateSnapshot.ObservedActionHistory, want)
+	}
+}
+
+func TestPrepareActionHistoryDoesNotRewriteChecksOrForcedBlinds(t *testing.T) {
+	preflop := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	PrepareActionHistory(nil, preflop)
+	flop := preflopSnapshot(t, nil)
+	flop.TableInfo.Stage = "flop"
+	PrepareActionHistory(preflop, flop)
+
+	for _, action := range flop.ObservedActionHistory {
+		if action.Action == "check" && action.Amount != 0 {
+			t.Fatalf("invalid check amount: %+v", action)
+		}
+	}
+}
+
+func TestPrepareActionHistoryIgnoresDuplicateSnapshot(t *testing.T) {
+	first := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12})
+	PrepareActionHistory(nil, first)
+	duplicate := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12})
+	PrepareActionHistory(first, duplicate)
+
+	if !reflect.DeepEqual(duplicate.ObservedActionHistory, first.ObservedActionHistory) {
+		t.Fatalf("duplicate snapshot changed history: before=%+v after=%+v", first.ObservedActionHistory, duplicate.ObservedActionHistory)
+	}
+}
+
+func TestPrepareActionHistoryDoesNotRepeatFoldAcrossStages(t *testing.T) {
+	preflop := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	setSeatStatus(preflop, 4, "folded")
+	PrepareActionHistory(nil, preflop)
+
+	flop := preflopSnapshot(t, nil)
+	flop.TableInfo.Stage = "flop"
+	setSeatStatus(flop, 4, "folded")
+	PrepareActionHistory(preflop, flop)
+
+	foldCount := 0
+	for _, action := range flop.ObservedActionHistory {
+		if action.Position == "UTG" && action.Action == "fold" {
+			foldCount++
+		}
+	}
+	if foldCount != 1 {
+		t.Fatalf("UTG fold count = %d, want 1; history=%+v", foldCount, flop.ObservedActionHistory)
+	}
+}
+
+func TestPrepareActionHistoryCompletesPreviousStreetWithMinimumLegalActions(t *testing.T) {
+	preflop := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	PrepareActionHistory(nil, preflop)
+
+	flop := preflopSnapshot(t, nil)
+	flop.TableInfo.Stage = "flop"
+	for _, seat := range []int{1, 2, 3, 5, 6, 7} {
+		setSeatStatus(flop, seat, "folded")
+	}
+	PrepareActionHistory(preflop, flop)
+
+	calls := make(map[string]int)
+	for _, action := range flop.ObservedActionHistory {
+		if action.Stage != "preflop" {
+			t.Fatalf("first flop snapshot invented a flop action: %+v", action)
+		}
+		if action.Action == "check" {
+			t.Fatalf("preflop completion emitted check: %+v", action)
+		}
+		if action.Action == "call" {
+			calls[action.Position] = action.Amount
+		}
+	}
+	if calls["UTG"] != 4 || calls["BTN-Hero"] != 4 {
+		t.Fatalf("minimum completion calls = %+v, want UTG and BTN-Hero call 4", calls)
 	}
 }
