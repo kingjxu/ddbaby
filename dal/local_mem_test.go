@@ -53,8 +53,13 @@ func pokerCacheResult(t *testing.T, seat4Bet, seat5Bet int) *model.TexasResult {
 }
 
 func resetLocalMemory() {
+	userDataMu.Lock()
 	userDataMap = make(map[string][]*model.TexasResult)
+	userDataMu.Unlock()
+
+	userNeedParseAllMu.Lock()
 	userNeedParseAllMap = make(map[string]bool)
+	userNeedParseAllMu.Unlock()
 }
 
 func TestNeedParseAllTracksHeroFollowUpLifecycle(t *testing.T) {

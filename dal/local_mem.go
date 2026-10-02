@@ -13,10 +13,14 @@ const (
 )
 
 var userDataMap = make(map[string][]*model.TexasResult)
+var userDataMu sync.Mutex
 var userNeedParseAllMap = make(map[string]bool)
 var userNeedParseAllMu sync.Mutex
 
 func SaveUserData(ctx context.Context, uid string, result *model.TexasResult) error {
+	userDataMu.Lock()
+	defer userDataMu.Unlock()
+
 	if len(userDataMap[uid]) > maxUserDataCount {
 		userDataMap[uid] = userDataMap[uid][maxUserDataCount/2:]
 	}
@@ -38,6 +42,9 @@ func SaveUserData(ctx context.Context, uid string, result *model.TexasResult) er
 }
 
 func GetLastUserData(ctx context.Context, uid string) ([]*model.TexasResult, error) {
+	userDataMu.Lock()
+	defer userDataMu.Unlock()
+
 	userData, ok := userDataMap[uid]
 	if !ok {
 		logrus.WithContext(ctx).Errorf("user data not exist, uid: %s", uid)

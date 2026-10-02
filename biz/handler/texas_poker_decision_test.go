@@ -2,13 +2,47 @@ package handler
 
 import (
 	"context"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
 	"github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/stretchr/testify/assert"
 	"os"
-	"testing"
-	"time"
 )
+
+func TestLockTexasPokerUserSerializesSameUUID(t *testing.T) {
+	const workers = 16
+	start := make(chan struct{})
+	var active int32
+	var maxActive int32
+	var wg sync.WaitGroup
+
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			<-start
+			unlock := lockTexasPokerUser("same-user")
+			current := atomic.AddInt32(&active, 1)
+			for {
+				maximum := atomic.LoadInt32(&maxActive)
+				if current <= maximum || atomic.CompareAndSwapInt32(&maxActive, maximum, current) {
+					break
+				}
+			}
+			time.Sleep(time.Millisecond)
+			atomic.AddInt32(&active, -1)
+			unlock()
+		}()
+	}
+
+	close(start)
+	wg.Wait()
+	assert.Equal(t, int32(1), maxActive)
+}
 
 func TestTexasPokerDecisionHandler_Handle(t *testing.T) {
 	if os.Getenv("DDBABY_INTEGRATION_TEST") != "1" {
