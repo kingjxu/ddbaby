@@ -29,6 +29,8 @@ type TexasPokerDecision struct {
 	BetSize        int32  `json:"bet_size"`
 }
 
+const recognizePokerURL = "http://127.0.0.1:5555/recognize"
+
 func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32, error) {
 	req := GetCozeHttpRequestV3()
 	botParam := &BotReqParamV3{
@@ -206,8 +208,7 @@ func RecognizePoker(ctx context.Context, imageBase64 string, parseAll bool) (*mo
 	}
 
 	// 2. 发送 HTTP POST 请求
-	url := "http://211.159.223.91:5555/recognize"
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBytes))
+	resp, err := http.Post(recognizePokerURL, "application/json", bytes.NewBuffer(reqBytes))
 	if err != nil {
 		return nil, fmt.Errorf("[RecognizePoker] http Post err:%v", err)
 	}
