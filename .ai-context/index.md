@@ -29,7 +29,7 @@ last_updated: "2026-10-02"
 
 ## Context Version
 
-Context v1.2。在线链路仅对 Hero 行动帧做完整识别；动作历史从 Hero 快照推断，并在同阶段多次轮到 Hero 时累计可观察差分。
+Context v1.2。在线链路默认使用轻量 Hero 门控；每个 Hero 行动帧只触发紧接着的一帧完整识别，随后恢复轻量检测。动作历史从这些有限快照推断并累计可观察差分。
 
 ## Pending Files
 

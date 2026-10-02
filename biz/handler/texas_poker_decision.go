@@ -103,17 +103,16 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	//2 识别牌型
 	images := h.req.GetImages()
 	var recResult *model.TexasResult
+	needParseAll := dal.GetNeedParseAll(h.req.GetUUID())
 	if h.req.GetImageType() == _const.ImageTypeUrl {
-		recResult, err = service.RecognizePokerByFilePath(ctx, images[0], false)
+		recResult, err = service.RecognizePokerByFilePath(ctx, images[0])
 		if err != nil {
 			logger.Errorf("[TexasPokerDecisionHandler] service.RecognizePokerByFilePath err:%v", err)
 			return h.newResp(ctx, ""), nil
 		}
 	} else {
 		go service.WriteImageToLocalFile(ctx, images[0], "")
-		// The recognizer first performs the inexpensive Hero-turn check. It only
-		// runs the full table OCR when the current frame requires a decision.
-		recResult, err = service.RecognizePoker(ctx, images[0], false)
+		recResult, err = service.RecognizePoker(ctx, images[0], needParseAll)
 		if err != nil {
 			logger.Errorf("[TexasPokerDecisionHandler] service.RecognizePoker err:%v", err)
 			return h.newResp(ctx, ""), nil
@@ -131,10 +130,16 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	h.CommunityCards = recResult.TableInfo.CommunityCards
 	logger.Infof("[TexasPokerDecisionHandler] recognize poker:%v", util.ToJSON(recResult))
 	if !recResult.HeroInfo.IsHeroTurn {
-		logger.Infof("[TexasPokerDecisionHandler] not hero turn")
+		if needParseAll {
+			_ = dal.SaveUserData(ctx, h.req.GetUUID(), recResult)
+			go service.WriteImageToLocalFile(ctx, images[0], "-decided")
+		}
+		dal.SetNeedParseAll(h.req.GetUUID(), false)
+		logger.Infof("[TexasPokerDecisionHandler] not hero turn, needParseAll:%v", needParseAll)
 		return h.newResp(ctx, ""), nil
 	}
 	//3 保存牌型
+	dal.SetNeedParseAll(h.req.GetUUID(), true)
 	go service.WriteImageToLocalFile(ctx, images[0], "-hero")
 	if err = dal.SaveUserData(ctx, h.req.GetUUID(), recResult); err != nil {
 		logger.Errorf("[TexasPokerDecisionHandler] saveUserData err:%v", err)

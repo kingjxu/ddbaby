@@ -54,6 +54,22 @@ func pokerCacheResult(t *testing.T, seat4Bet, seat5Bet int) *model.TexasResult {
 
 func resetLocalMemory() {
 	userDataMap = make(map[string][]*model.TexasResult)
+	userNeedParseAllMap = make(map[string]bool)
+}
+
+func TestNeedParseAllTracksHeroFollowUpLifecycle(t *testing.T) {
+	resetLocalMemory()
+	t.Cleanup(resetLocalMemory)
+
+	uid := "one-shot-full-parse"
+	SetNeedParseAll(uid, true)
+	require.True(t, GetNeedParseAll(uid), "the frame after Hero should be fully parsed")
+
+	SetNeedParseAll(uid, false)
+	require.False(t, GetNeedParseAll(uid), "later opponent frames must return to the cheap Hero gate")
+
+	SetNeedParseAll(uid, true)
+	require.True(t, GetNeedParseAll(uid), "a later Hero frame should schedule one new follow-up")
 }
 
 func TestGetLastUserDataKeepsAllStagesWhenCacheOnlyContainsCurrentHand(t *testing.T) {

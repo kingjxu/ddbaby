@@ -2,6 +2,8 @@ package dal
 
 import (
 	"context"
+	"sync"
+
 	"github.com/kingjxu/ddbaby/model"
 	"github.com/sirupsen/logrus"
 )
@@ -11,6 +13,8 @@ const (
 )
 
 var userDataMap = make(map[string][]*model.TexasResult)
+var userNeedParseAllMap = make(map[string]bool)
+var userNeedParseAllMu sync.Mutex
 
 func SaveUserData(ctx context.Context, uid string, result *model.TexasResult) error {
 	if len(userDataMap[uid]) > maxUserDataCount {
@@ -48,4 +52,16 @@ func GetLastUserData(ctx context.Context, uid string) ([]*model.TexasResult, err
 		}
 	}
 	return userData[preFlopIndex:], nil
+}
+
+func SetNeedParseAll(uid string, parseAll bool) {
+	userNeedParseAllMu.Lock()
+	defer userNeedParseAllMu.Unlock()
+	userNeedParseAllMap[uid] = parseAll
+}
+
+func GetNeedParseAll(uid string) bool {
+	userNeedParseAllMu.Lock()
+	defer userNeedParseAllMu.Unlock()
+	return userNeedParseAllMap[uid]
 }
