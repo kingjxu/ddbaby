@@ -6,8 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"hash/crc32"
-	"sync"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -21,16 +19,6 @@ import (
 	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 )
-
-const texasPokerUserLockShards = 256
-
-var texasPokerUserLocks [texasPokerUserLockShards]sync.Mutex
-
-func lockTexasPokerUser(uid string) func() {
-	lock := &texasPokerUserLocks[crc32.ChecksumIEEE([]byte(uid))%texasPokerUserLockShards]
-	lock.Lock()
-	return lock.Unlock
-}
 
 // TexasPokerDecision .
 // @router /lyxz/gto_decision [POST]
@@ -108,8 +96,6 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logger.Errorf("[TexasPokerDecisionHandler] check err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
-	unlockUser := lockTexasPokerUser(h.req.GetUUID())
-	defer unlockUser()
 	if err = h.verifyActiveCode(ctx); err != nil {
 		logger.Errorf("[TexasPokerDecisionHandler] verifyActiveCode err:%v", err)
 		return h.newResp(ctx, ""), nil
