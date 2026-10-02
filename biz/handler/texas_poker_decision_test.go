@@ -46,3 +46,24 @@ func TestTexasPokerDecisionHandler_Handle(t *testing.T) {
 	})
 
 }
+
+func TestKeepFullPokerParsingAcrossOpponentFrames(t *testing.T) {
+	tests := []struct {
+		name       string
+		current    bool
+		isHeroTurn bool
+		want       bool
+	}{
+		{name: "before hero turn", current: false, isHeroTurn: false, want: false},
+		{name: "hero turn enables full parsing", current: false, isHeroTurn: true, want: true},
+		{name: "opponent frame keeps full parsing", current: true, isHeroTurn: false, want: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := keepFullPokerParsing(tt.current, tt.isHeroTurn); got != tt.want {
+				t.Fatalf("keepFullPokerParsing(%v, %v) = %v, want %v", tt.current, tt.isHeroTurn, got, tt.want)
+			}
+		})
+	}
+}

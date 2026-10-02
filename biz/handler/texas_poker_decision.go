@@ -46,6 +46,10 @@ type TexasPokerDecisionHandler struct {
 	uuid           string
 }
 
+func keepFullPokerParsing(current, isHeroTurn bool) bool {
+	return current || isHeroTurn
+}
+
 func NewTexasPokerDecisionHandler(req *ddbaby.TexasPokerDecisionReq) *TexasPokerDecisionHandler {
 	return &TexasPokerDecisionHandler{
 		req: req,
@@ -129,17 +133,18 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	h.HeroCard = recResult.HeroInfo.HeroCards
 	h.CommunityCards = recResult.TableInfo.CommunityCards
 	logger.Infof("[TexasPokerDecisionHandler] recognize poker:%v", util.ToJSON(recResult))
+	// Once a hand reaches Hero, keep full parsing enabled for subsequent
+	// opponent frames so SaveUserData can preserve raises across snapshots.
+	dal.SetNeedParseAll(h.req.GetUUID(), keepFullPokerParsing(needParseAll, recResult.HeroInfo.IsHeroTurn))
 	if !recResult.HeroInfo.IsHeroTurn {
 		if needParseAll { // 全解析的，这个数据还得保存下来
 			_ = dal.SaveUserData(ctx, h.req.GetUUID(), recResult)
 			go service.WriteImageToLocalFile(ctx, images[0], "-decided")
 		}
-		dal.SetNeedParseAll(h.req.GetUUID(), false) // 如果已经是非hero turn，后面非hero turn，都不需要识别
 		logger.Infof("[TexasPokerDecisionHandler] not hero turn, needParseAll:%v", needParseAll)
 		return h.newResp(ctx, ""), nil
 	}
 	//3 保存牌型
-	dal.SetNeedParseAll(h.req.GetUUID(), true)
 	go service.WriteImageToLocalFile(ctx, images[0], "-hero")
 	if err = dal.SaveUserData(ctx, h.req.GetUUID(), recResult); err != nil {
 		logger.Errorf("[TexasPokerDecisionHandler] saveUserData err:%v", err)

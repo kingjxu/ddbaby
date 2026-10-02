@@ -19,3 +19,4 @@ last_updated: "2026-10-02"
 - 缓存切手边界目前依赖 `ButtonSeat` 变化。
 - SB、BB、straddle 的初始投入属于强制盲注，不能直接转换为自愿 `call` 或 `raise`。
 - `action_history.amount` 保留每次动作当时的目标下注额，不能统一覆盖为阶段最大值。
+- 一旦进入 Hero 行动帧，当前进程会对该用户后续非 Hero 帧持续全量识别并写入缓存；缓存仍按 `ButtonSeat` 分手，确保连续加注差分可以累计。

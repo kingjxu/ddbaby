@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -435,5 +436,98 @@ func TestPrepareActionHistoryCompletesPreviousStreetWithMinimumLegalActions(t *t
 	}
 	if calls["UTG"] != 4 || calls["BTN-Hero"] != 4 {
 		t.Fatalf("minimum completion calls = %+v, want UTG and BTN-Hero call 4", calls)
+	}
+}
+
+func TestPrepareActionHistoryOrdersEqualTargetsAfterLastActor(t *testing.T) {
+	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	PrepareActionHistory(nil, initial)
+
+	mpRaise := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 6: 40})
+	PrepareActionHistory(initial, mpRaise)
+
+	called := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 100, 6: 40, 8: 100})
+	PrepareActionHistory(mpRaise, called)
+
+	wantTail := []TexasActionHistory{
+		{Stage: "preflop", Position: "BTN-Hero", Action: "raise", Amount: 100, Timestamp: 1, Status: "active"},
+		{Stage: "preflop", Position: "UTG", Action: "call", Amount: 100, Timestamp: 2, Status: "active"},
+	}
+	got := called.ObservedActionHistory[len(called.ObservedActionHistory)-2:]
+	if !reflect.DeepEqual(got, wantTail) {
+		t.Fatalf("equal-target actions = %+v, want %+v", got, wantTail)
+	}
+}
+
+func TestPrepareActionHistoryKeepsFoldInActionOrder(t *testing.T) {
+	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	PrepareActionHistory(nil, initial)
+
+	next := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 5: 12, 6: 12})
+	setSeatStatus(next, 4, "folded")
+	PrepareActionHistory(initial, next)
+
+	want := []TexasActionHistory{
+		{Stage: "preflop", Position: "UTG", Action: "fold", Amount: 0, Timestamp: 0, Status: "folded"},
+		{Stage: "preflop", Position: "UTG+1", Action: "raise", Amount: 12, Timestamp: 1, Status: "active"},
+		{Stage: "preflop", Position: "MP", Action: "call", Amount: 12, Timestamp: 2, Status: "active"},
+	}
+	if !reflect.DeepEqual(next.ObservedActionHistory, want) {
+		t.Fatalf("history = %+v, want %+v", next.ObservedActionHistory, want)
+	}
+}
+
+func TestPrepareActionHistoryTreatsAllInAsActiveAction(t *testing.T) {
+	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	PrepareActionHistory(nil, initial)
+
+	next := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12})
+	setSeatStatus(next, 4, "all_in")
+	PrepareActionHistory(initial, next)
+
+	want := TexasActionHistory{Stage: "preflop", Position: "UTG", Action: "raise", Amount: 12, Timestamp: 0, Status: "all_in"}
+	if len(next.ObservedActionHistory) != 1 || next.ObservedActionHistory[0] != want {
+		t.Fatalf("all-in history = %+v, want %+v", next.ObservedActionHistory, want)
+	}
+}
+
+func TestPrepareActionHistoryIgnoresPendingBetBelowCurrentTarget(t *testing.T) {
+	result := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 2})
+
+	PrepareActionHistory(nil, result)
+
+	if len(result.ObservedActionHistory) != 0 {
+		t.Fatalf("pending partial bet produced an action: %+v", result.ObservedActionHistory)
+	}
+}
+
+func TestPrepareActionHistoryUsesActualBlindForShortTable(t *testing.T) {
+	villains := []map[string]interface{}{
+		{"seat": 1, "status": "active", "stack": 100, "current_bet": 1},
+		{"seat": 2, "status": "active", "stack": 100, "current_bet": 2},
+	}
+	result := makeTexasResultWithSeats(t, 3, 3, villains)
+	result.TableInfo.Stage = "preflop"
+	result.TableInfo.BlindSize = "1/2/4(2)"
+	result.HeroInfo.CurrentBet = 4
+
+	PrepareActionHistory(nil, result)
+
+	want := TexasActionHistory{Stage: "preflop", Position: "BTN-Hero", Action: "raise", Amount: 4, Timestamp: 0, Status: "active"}
+	if len(result.ObservedActionHistory) != 1 || result.ObservedActionHistory[0] != want {
+		t.Fatalf("short-table history = %+v, want %+v", result.ObservedActionHistory, want)
+	}
+}
+
+func TestObservedActionHistoryIsNotSerialized(t *testing.T) {
+	result := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12})
+	PrepareActionHistory(nil, result)
+
+	payload, err := json.Marshal(result)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(payload), "ObservedActionHistory") || strings.Contains(string(payload), "observed_action_history") {
+		t.Fatalf("internal history leaked into recognition protocol: %s", payload)
 	}
 }

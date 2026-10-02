@@ -494,7 +494,7 @@ func forcedBlind(position string, sbSize, bbSize int) int {
 }
 
 func isActiveStatus(status string) bool {
-	return status == "active" || status == "allin"
+	return status == "active" || status == "all_in"
 }
 
 func nextTimestamp(history []TexasActionHistory) int {
@@ -502,6 +502,24 @@ func nextTimestamp(history []TexasActionHistory) int {
 		return 0
 	}
 	return history[len(history)-1].Timestamp + 1
+}
+
+func initialStreetBet(stage string, seats []actionSeat, sbSize, bbSize int) int {
+	if stage != "preflop" {
+		return 0
+	}
+	maxBlind := 0
+	for _, player := range seats {
+		if blind := forcedBlind(player.position, sbSize, bbSize); blind > maxBlind {
+			maxBlind = blind
+		}
+	}
+	return maxBlind
+}
+
+type inferredActionEvent struct {
+	player actionSeat
+	target int
 }
 
 // inferSnapshotActions builds the shortest legal history consistent with one
@@ -513,39 +531,43 @@ func inferSnapshotActions(result *TexasResult) []TexasActionHistory {
 	}
 	stage := normalizeStage(result.TableInfo.Stage)
 	sbSize, bbSize := parseBlindSize(result.TableInfo.BlindSize)
-	currentMax := 0
-	if stage == "preflop" {
-		currentMax = bbSize * 2
-	}
+	currentMax := initialStreetBet(stage, seats, sbSize, bbSize)
 
-	candidates := make([]actionSeat, 0, len(seats))
-	folds := make([]actionSeat, 0)
+	events := make([]inferredActionEvent, 0, len(seats))
 	for _, player := range seats {
 		if !isActiveStatus(player.status) {
-			folds = append(folds, player)
+			// A static snapshot cannot reveal which raise caused a fold. Place
+			// it at the earliest legal betting level instead of claiming that
+			// it happened after every visible raise.
+			events = append(events, inferredActionEvent{player: player, target: currentMax})
 			continue
 		}
 		baseline := 0
 		if stage == "preflop" {
 			baseline = forcedBlind(player.position, sbSize, bbSize)
 		}
-		if player.currentBet > baseline {
-			candidates = append(candidates, player)
+		if player.currentBet > baseline && (player.currentBet >= currentMax || player.status == "all_in") {
+			events = append(events, inferredActionEvent{player: player, target: player.currentBet})
 		}
 	}
 
-	// Ascending target amounts produce the minimum legal raise sequence. Seat
-	// order resolves equal amounts as one raise followed by calls.
-	sort.SliceStable(candidates, func(i, j int) bool {
-		if candidates[i].currentBet == candidates[j].currentBet {
-			return candidates[i].order < candidates[j].order
+	sort.SliceStable(events, func(i, j int) bool {
+		if events[i].target == events[j].target {
+			return events[i].player.order < events[j].player.order
 		}
-		return candidates[i].currentBet < candidates[j].currentBet
+		return events[i].target < events[j].target
 	})
-	sort.SliceStable(folds, func(i, j int) bool { return folds[i].order < folds[j].order })
 
-	history := make([]TexasActionHistory, 0, len(candidates)+len(folds))
-	for _, player := range candidates {
+	history := make([]TexasActionHistory, 0, len(events))
+	for _, event := range events {
+		player := event.player
+		if !isActiveStatus(player.status) {
+			history = append(history, TexasActionHistory{
+				Stage: stage, Position: player.position, Action: "fold",
+				Amount: 0, Timestamp: len(history), Status: player.status,
+			})
+			continue
+		}
 		action := "call"
 		if player.currentBet > currentMax {
 			if stage != "preflop" && currentMax == 0 {
@@ -560,12 +582,6 @@ func inferSnapshotActions(result *TexasResult) []TexasActionHistory {
 			Amount: player.currentBet, Timestamp: len(history), Status: player.status,
 		})
 	}
-	for _, player := range folds {
-		history = append(history, TexasActionHistory{
-			Stage: stage, Position: player.position, Action: "fold",
-			Amount: 0, Timestamp: len(history), Status: player.status,
-		})
-	}
 	return history
 }
 
@@ -577,7 +593,9 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 	}
 
 	previousBySeat := make(map[int]actionSeat, len(previousSeats))
-	currentMax := 0
+	sbSize, bbSize := parseBlindSize(previous.TableInfo.BlindSize)
+	stage := normalizeStage(current.TableInfo.Stage)
+	currentMax := initialStreetBet(stage, previousSeats, sbSize, bbSize)
 	for _, player := range previousSeats {
 		previousBySeat[player.seat] = player
 		if player.currentBet > currentMax {
@@ -585,34 +603,57 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 		}
 	}
 
-	changedBets := make([]actionSeat, 0)
-	folds := make([]actionSeat, 0)
+	events := make([]inferredActionEvent, 0)
 	for _, player := range currentSeats {
 		old, ok := previousBySeat[player.seat]
 		if !ok {
 			continue
 		}
 		if isActiveStatus(old.status) && !isActiveStatus(player.status) {
-			folds = append(folds, player)
+			events = append(events, inferredActionEvent{player: player, target: currentMax})
 			continue
 		}
-		if isActiveStatus(player.status) && player.currentBet > old.currentBet {
-			changedBets = append(changedBets, player)
+		if isActiveStatus(player.status) && player.currentBet > old.currentBet &&
+			(player.currentBet >= currentMax || player.status == "all_in") {
+			events = append(events, inferredActionEvent{player: player, target: player.currentBet})
 		}
 	}
 
-	sort.SliceStable(changedBets, func(i, j int) bool {
-		if changedBets[i].currentBet == changedBets[j].currentBet {
-			return changedBets[i].order < changedBets[j].order
+	lastOrder := -1
+	orderByPosition := make(map[string]int, len(previousSeats))
+	for _, player := range previousSeats {
+		orderByPosition[player.position] = player.order
+	}
+	for _, action := range previous.ObservedActionHistory {
+		if normalizeStage(action.Stage) != stage {
+			continue
 		}
-		return changedBets[i].currentBet < changedBets[j].currentBet
+		if order, ok := orderByPosition[action.Position]; ok {
+			lastOrder = order
+		}
+	}
+	playerCount := len(previousSeats)
+	sort.SliceStable(events, func(i, j int) bool {
+		if events[i].target != events[j].target {
+			return events[i].target < events[j].target
+		}
+		iOrder := (events[i].player.order - lastOrder - 1 + playerCount) % playerCount
+		jOrder := (events[j].player.order - lastOrder - 1 + playerCount) % playerCount
+		return iOrder < jOrder
 	})
-	sort.SliceStable(folds, func(i, j int) bool { return folds[i].order < folds[j].order })
 
-	stage := normalizeStage(current.TableInfo.Stage)
 	timestamp := nextTimestamp(previous.ObservedActionHistory)
-	history := make([]TexasActionHistory, 0, len(changedBets)+len(folds))
-	for _, player := range changedBets {
+	history := make([]TexasActionHistory, 0, len(events))
+	for _, event := range events {
+		player := event.player
+		if !isActiveStatus(player.status) {
+			history = append(history, TexasActionHistory{
+				Stage: stage, Position: player.position, Action: "fold",
+				Amount: 0, Timestamp: timestamp, Status: player.status,
+			})
+			timestamp++
+			continue
+		}
 		action := "call"
 		if player.currentBet > currentMax {
 			if stage != "preflop" && currentMax == 0 {
@@ -625,13 +666,6 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 		history = append(history, TexasActionHistory{
 			Stage: stage, Position: player.position, Action: action,
 			Amount: player.currentBet, Timestamp: timestamp, Status: player.status,
-		})
-		timestamp++
-	}
-	for _, player := range folds {
-		history = append(history, TexasActionHistory{
-			Stage: stage, Position: player.position, Action: "fold",
-			Amount: 0, Timestamp: timestamp, Status: player.status,
 		})
 		timestamp++
 	}
@@ -653,10 +687,7 @@ func inferStageCompletion(previous, current *TexasResult) []TexasActionHistory {
 	}
 	stage := normalizeStage(previous.TableInfo.Stage)
 	sbSize, bbSize := parseBlindSize(previous.TableInfo.BlindSize)
-	stageMax := 0
-	if stage == "preflop" {
-		stageMax = bbSize * 2
-	}
+	stageMax := initialStreetBet(stage, previousSeats, sbSize, bbSize)
 	for _, player := range previousSeats {
 		if player.currentBet > stageMax {
 			stageMax = player.currentBet
@@ -897,7 +928,7 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 		for _, idx := range actionOrder {
 			p := playerList[idx]
 			si := p.seatInfo
-			isActive := si.status == "active" || si.status == "allin"
+			isActive := isActiveStatus(si.status)
 
 			var action string
 			var amount int
