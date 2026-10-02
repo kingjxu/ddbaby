@@ -171,6 +171,9 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logger.Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
+	if model.NormalizeTexasGtoDecisionToStack(decisionReq, resp) {
+		logger.Warnf("[TexasPokerDecisionHandler] decision size exceeds hero stack, normalized to all-in:%v", util.ToJSON(resp))
+	}
 	if err = model.ValidateTexasGtoDecisionResponse(decisionReq, resp); err != nil {
 		logger.Errorf("[TexasPokerDecisionHandler] invalid decision response:%v, resp:%v", err, util.ToJSON(resp))
 		return h.newResp(ctx, ""), nil

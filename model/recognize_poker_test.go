@@ -508,6 +508,39 @@ func TestValidateTexasGtoDecisionResponse(t *testing.T) {
 	}
 }
 
+func TestNormalizeTexasGtoDecisionToStack(t *testing.T) {
+	tests := []struct {
+		name       string
+		req        *TexasGtoDecisionReq
+		resp       *TexasGtoDecisionResp
+		wantCapped bool
+		wantAction string
+		wantSize   int
+	}{
+		{name: "oversized raise becomes all-in", req: decisionRequest(99, 207, 210), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 420}, wantCapped: true, wantAction: "raise", wantSize: 306},
+		{name: "short all-in raise becomes call", req: decisionRequest(20, 50, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 200}, wantCapped: true, wantAction: "call"},
+		{name: "oversized bet becomes all-in", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "bet", RaiseSize: 250}, wantCapped: true, wantAction: "bet", wantSize: 200},
+		{name: "legal raise unchanged", req: decisionRequest(20, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 220}, wantAction: "raise", wantSize: 220},
+		{name: "call unchanged", req: decisionRequest(20, 50, 99), resp: &TexasGtoDecisionResp{Action: "call"}, wantAction: "call"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NormalizeTexasGtoDecisionToStack(tt.req, tt.resp); got != tt.wantCapped {
+				t.Fatalf("capped = %v, want %v", got, tt.wantCapped)
+			}
+			if tt.resp.Action != tt.wantAction {
+				t.Fatalf("action = %s, want %s", tt.resp.Action, tt.wantAction)
+			}
+			if tt.resp.RaiseSize != tt.wantSize {
+				t.Fatalf("raise_size = %d, want %d", tt.resp.RaiseSize, tt.wantSize)
+			}
+			if err := ValidateTexasGtoDecisionResponse(tt.req, tt.resp); err != nil {
+				t.Fatalf("normalized response is invalid: %v", err)
+			}
+		})
+	}
+}
+
 func TestPrepareActionHistoryKeepsFoldInActionOrder(t *testing.T) {
 	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
 	PrepareActionHistory(nil, initial)

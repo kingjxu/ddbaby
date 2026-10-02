@@ -111,9 +111,41 @@ func ValidateTexasGtoDecisionRequest(req *TexasGtoDecisionReq) error {
 	return fmt.Errorf("current player %q is missing", req.CurrentPlayerPosition)
 }
 
+// NormalizeTexasGtoDecisionToStack converts an oversized bet/raise target to
+// the maximum total Hero can put in. An undersized all-in raise is represented
+// as call because it cannot reopen betting under poker rules.
+func NormalizeTexasGtoDecisionToStack(req *TexasGtoDecisionReq, resp *TexasGtoDecisionResp) bool {
+	if req == nil || resp == nil || (resp.Action != "bet" && resp.Action != "raise") {
+		return false
+	}
+	maxBet := 0
+	for _, player := range req.Players {
+		if player.Bet > maxBet {
+			maxBet = player.Bet
+		}
+	}
+	for _, player := range req.Players {
+		if player.Position != req.CurrentPlayerPosition {
+			continue
+		}
+		maxTarget := player.Bet + player.Stack
+		if resp.RaiseSize > maxTarget {
+			if resp.Action == "raise" && maxTarget <= maxBet {
+				resp.Action = "call"
+				resp.RaiseSize = 0
+				return true
+			}
+			resp.RaiseSize = maxTarget
+			return true
+		}
+		return false
+	}
+	return false
+}
+
 // ValidateTexasGtoDecisionResponse checks that the returned action is legal
-// for the current snapshot. RaiseSize is interpreted as the target total bet,
-// matching the existing decision protocol.
+// for the current snapshot after any stack cap has been applied. RaiseSize is
+// interpreted as the target total bet, matching the existing protocol.
 func ValidateTexasGtoDecisionResponse(req *TexasGtoDecisionReq, resp *TexasGtoDecisionResp) error {
 	if err := ValidateTexasGtoDecisionRequest(req); err != nil {
 		return err
