@@ -1,12 +1,12 @@
 ---
-version: "1.1"
+version: "1.2"
 last_updated: "2026-10-02"
 ---
 
 # 德州扑克决策数据流
 
-1. `TexasPokerDecisionHandler.Handle` 接收图片并调用 `service.RecognizePoker`。
-2. 识别结果写入 `dal.SaveUserData`；同一 BTN、同一 stage 的重复识别在覆盖最后一帧前，先比较前后快照并把确定的下注、加注、跟注或弃牌追加到内存动作历史。
+1. `TexasPokerDecisionHandler.Handle` 接收图片并以 `parse_all=false` 调用 `service.RecognizePoker`；识别服务先做轻量 Hero 轮次检测，只有 Hero 行动帧才完整解析牌桌。
+2. Hero 行动帧的完整识别结果写入 `dal.SaveUserData`；同一 BTN、同一 stage 再次轮到 Hero 时，在覆盖上一张 Hero 快照前比较前后状态，并把确定的下注、加注、跟注或弃牌追加到内存动作历史。非 Hero 帧不进入缓存。
 3. `dal.GetLastUserData` 从最近一次 BTN 变化之后取出当前手牌的全部阶段。
 4. `model.Conv2TexasGtoDecisionReq` 调用 `buildPlayers` 与 `buildActionHistory`；优先输出连续快照累计的动作，首次进入阶段或发生漏帧时按最终下注额生成最小合法历史。
 5. 位置映射遍历牌桌物理座位，只跳过 `empty` 和 `waiting`；弃牌玩家继续占据原位置。
@@ -20,6 +20,6 @@ last_updated: "2026-10-02"
 - 缓存切手边界目前依赖 `ButtonSeat` 变化。
 - SB、BB、straddle 的初始投入属于强制盲注，不能直接转换为自愿 `call` 或 `raise`。
 - `action_history.amount` 保留每次动作当时的目标下注额，不能统一覆盖为阶段最大值。
-- 一旦进入 Hero 行动帧，当前进程会对该用户后续非 Hero 帧持续全量识别并写入缓存；缓存仍按 `ButtonSeat` 分手，确保连续加注差分可以累计。
+- 在线请求固定使用 `parse_all=false`：非 Hero 帧只做轮次门控，不做全桌 OCR，也不写入牌局缓存。3bet/4bet 优先根据 Hero 行动帧中的最终下注额和行动顺序推断；同阶段存在多张 Hero 快照时再累计可观察差分。
 - `is_hero_turn=true` 但 Hero stack<=0 属于不可用于决策的识别结果；不能继续请求决策服务。
 - 决策协议中的 `raise_size` 是目标总下注额。超过 Hero 可用总额时按 all-in 上限收敛；check/fold/call 必须为0；bet只允许在无人下注时；收敛后的 raise 仍必须高于当前最大下注。

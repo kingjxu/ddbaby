@@ -350,11 +350,10 @@ func TestPrepareActionHistoryPreservesMultiRaiseSequence(t *testing.T) {
 	}
 }
 
-func TestPrepareActionHistoryInfersMinimumSequenceAcrossMissedFrames(t *testing.T) {
-	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
-	PrepareActionHistory(nil, initial)
+func TestPrepareActionHistoryInfersMinimumSequenceFromFirstHeroFrame(t *testing.T) {
 	lateSnapshot := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12, 5: 40})
-	PrepareActionHistory(initial, lateSnapshot)
+	lateSnapshot.HeroInfo.IsHeroTurn = true
+	PrepareActionHistory(nil, lateSnapshot)
 
 	want := []TexasActionHistory{
 		{Stage: "preflop", Position: "UTG", Action: "raise", Amount: 12, Timestamp: 0, Status: "active"},

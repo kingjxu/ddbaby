@@ -46,10 +46,6 @@ type TexasPokerDecisionHandler struct {
 	uuid           string
 }
 
-func keepFullPokerParsing(current, isHeroTurn bool) bool {
-	return current || isHeroTurn
-}
-
 func NewTexasPokerDecisionHandler(req *ddbaby.TexasPokerDecisionReq) *TexasPokerDecisionHandler {
 	return &TexasPokerDecisionHandler{
 		req: req,
@@ -107,7 +103,6 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	//2 识别牌型
 	images := h.req.GetImages()
 	var recResult *model.TexasResult
-	needParseAll := dal.GetNeedParseAll(h.req.GetUUID())
 	if h.req.GetImageType() == _const.ImageTypeUrl {
 		recResult, err = service.RecognizePokerByFilePath(ctx, images[0])
 		if err != nil {
@@ -116,7 +111,9 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		}
 	} else {
 		go service.WriteImageToLocalFile(ctx, images[0], "")
-		recResult, err = service.RecognizePoker(ctx, images[0], needParseAll)
+		// The recognizer first performs the inexpensive Hero-turn check. It only
+		// runs the full table OCR when the current frame requires a decision.
+		recResult, err = service.RecognizePoker(ctx, images[0], false)
 		if err != nil {
 			logger.Errorf("[TexasPokerDecisionHandler] service.RecognizePoker err:%v", err)
 			return h.newResp(ctx, ""), nil
@@ -133,15 +130,8 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	h.HeroCard = recResult.HeroInfo.HeroCards
 	h.CommunityCards = recResult.TableInfo.CommunityCards
 	logger.Infof("[TexasPokerDecisionHandler] recognize poker:%v", util.ToJSON(recResult))
-	// Once a hand reaches Hero, keep full parsing enabled for subsequent
-	// opponent frames so SaveUserData can preserve raises across snapshots.
-	dal.SetNeedParseAll(h.req.GetUUID(), keepFullPokerParsing(needParseAll, recResult.HeroInfo.IsHeroTurn))
 	if !recResult.HeroInfo.IsHeroTurn {
-		if needParseAll { // 全解析的，这个数据还得保存下来
-			_ = dal.SaveUserData(ctx, h.req.GetUUID(), recResult)
-			go service.WriteImageToLocalFile(ctx, images[0], "-decided")
-		}
-		logger.Infof("[TexasPokerDecisionHandler] not hero turn, needParseAll:%v", needParseAll)
+		logger.Infof("[TexasPokerDecisionHandler] not hero turn")
 		return h.newResp(ctx, ""), nil
 	}
 	//3 保存牌型

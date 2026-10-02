@@ -1,5 +1,5 @@
 ---
-version: "1.1"
+version: "1.2"
 last_updated: "2026-10-02"
 ---
 
@@ -29,7 +29,7 @@ last_updated: "2026-10-02"
 
 ## Context Version
 
-Context v1.1。德州缓存现在会在覆盖同阶段快照前累计可观察的动作差分。
+Context v1.2。在线链路仅对 Hero 行动帧做完整识别；动作历史从 Hero 快照推断，并在同阶段多次轮到 Hero 时累计可观察差分。
 
 ## Pending Files
 

@@ -11,7 +11,6 @@ const (
 )
 
 var userDataMap = make(map[string][]*model.TexasResult)
-var userNeedParseAllMap = make(map[string]bool)
 
 func SaveUserData(ctx context.Context, uid string, result *model.TexasResult) error {
 	if len(userDataMap[uid]) > maxUserDataCount {
@@ -49,11 +48,4 @@ func GetLastUserData(ctx context.Context, uid string) ([]*model.TexasResult, err
 		}
 	}
 	return userData[preFlopIndex:], nil
-}
-
-func SetNeedParseAll(uid string, parseAll bool) {
-	userNeedParseAllMap[uid] = parseAll
-}
-func GetNeedParseAll(uid string) bool {
-	return userNeedParseAllMap[uid]
 }

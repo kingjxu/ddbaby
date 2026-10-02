@@ -54,7 +54,6 @@ func pokerCacheResult(t *testing.T, seat4Bet, seat5Bet int) *model.TexasResult {
 
 func resetLocalMemory() {
 	userDataMap = make(map[string][]*model.TexasResult)
-	userNeedParseAllMap = make(map[string]bool)
 }
 
 func TestGetLastUserDataKeepsAllStagesWhenCacheOnlyContainsCurrentHand(t *testing.T) {
