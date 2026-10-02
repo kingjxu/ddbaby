@@ -484,7 +484,7 @@ func TestValidateTexasGtoDecisionResponse(t *testing.T) {
 		wantErr bool
 	}{
 		{name: "legal check", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "check"}},
-		{name: "fold without wager", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "fold"}, wantErr: true},
+		{name: "fold without wager", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "fold"}},
 		{name: "legal fold", req: decisionRequest(20, 200, 77), resp: &TexasGtoDecisionResp{Action: "fold"}},
 		{name: "check facing bet", req: decisionRequest(20, 200, 77), resp: &TexasGtoDecisionResp{Action: "check"}, wantErr: true},
 		{name: "legal bet", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "bet", RaiseSize: 50}},
@@ -493,6 +493,7 @@ func TestValidateTexasGtoDecisionResponse(t *testing.T) {
 		{name: "legal call", req: decisionRequest(20, 200, 77), resp: &TexasGtoDecisionResp{Action: "call"}},
 		{name: "call without wager", req: decisionRequest(20, 200, 20), resp: &TexasGtoDecisionResp{Action: "call"}, wantErr: true},
 		{name: "legal raise", req: decisionRequest(20, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 220}},
+		{name: "raise without wager", req: decisionRequest(0, 207, 0), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 50}, wantErr: true},
 		{name: "raise beyond stack", req: decisionRequest(99, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 420}, wantErr: true},
 		{name: "raise below current bet", req: decisionRequest(20, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 99}, wantErr: true},
 		{name: "unknown action", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "jam"}, wantErr: true},

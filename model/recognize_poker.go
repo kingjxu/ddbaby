@@ -138,9 +138,6 @@ func ValidateTexasGtoDecisionResponse(req *TexasGtoDecisionReq, resp *TexasGtoDe
 
 	switch resp.Action {
 	case "fold":
-		if !facingBet {
-			return errors.New("cannot fold without an outstanding bet")
-		}
 		if resp.RaiseSize != 0 {
 			return fmt.Errorf("fold has non-zero raise_size %d", resp.RaiseSize)
 		}
@@ -166,6 +163,9 @@ func ValidateTexasGtoDecisionResponse(req *TexasGtoDecisionReq, resp *TexasGtoDe
 			return fmt.Errorf("bet target %d is outside (0, %d]", resp.RaiseSize, maxTarget)
 		}
 	case "raise":
+		if !facingBet {
+			return errors.New("cannot raise without an outstanding bet")
+		}
 		if resp.RaiseSize <= maxBet || resp.RaiseSize > maxTarget {
 			return fmt.Errorf("raise target %d must be in (%d, %d]", resp.RaiseSize, maxBet, maxTarget)
 		}
