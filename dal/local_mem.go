@@ -22,7 +22,9 @@ func SaveUserData(ctx context.Context, uid string, result *model.TexasResult) er
 		userDataMap[uid] = append(userData, result)
 		return nil
 	}
-	if userData[len(userData)-1].TableInfo.Stage == result.TableInfo.Stage { // 同阶段，更新
+	lastResult := userData[len(userData)-1]
+	if lastResult.TableInfo.ButtonSeat == result.TableInfo.ButtonSeat &&
+		lastResult.TableInfo.Stage == result.TableInfo.Stage { // 同一手的同阶段，更新
 		userData[len(userData)-1] = result
 		return nil
 	}
@@ -37,7 +39,7 @@ func GetLastUserData(ctx context.Context, uid string) ([]*model.TexasResult, err
 		return nil, nil
 	}
 	buttonSeat := userData[len(userData)-1].TableInfo.ButtonSeat
-	preFlopIndex := len(userData) - 1
+	preFlopIndex := 0
 	for i := len(userData) - 1; i >= 0; i-- {
 		if userData[i].TableInfo.ButtonSeat != buttonSeat {
 			preFlopIndex = i + 1
