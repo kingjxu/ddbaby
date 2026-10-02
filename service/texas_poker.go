@@ -179,7 +179,7 @@ func WriteImageToLocalFile(ctx context.Context, base64Data string, tag string) {
 	logrus.WithContext(ctx).Infof("[WriteImageToLocalFile] height:%v,width:%v, cost %vms", conf.Height, conf.Width, time.Since(startTime).Milliseconds())
 }
 
-func RecognizePokerByFilePath(ctx context.Context, filePath string) (*model.TexasResult, error) {
+func RecognizePokerByFilePath(ctx context.Context, filePath string, parseAll bool) (*model.TexasResult, error) {
 	fileData, err := os.ReadFile(filePath)
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[RecognizePokerByFilePath] os.ReadFile err:%v, filePath:%v", err, filePath)
@@ -187,7 +187,7 @@ func RecognizePokerByFilePath(ctx context.Context, filePath string) (*model.Texa
 	}
 
 	imageBase64 := base64.StdEncoding.EncodeToString(fileData)
-	return RecognizePoker(ctx, imageBase64, true)
+	return RecognizePoker(ctx, imageBase64, parseAll)
 }
 
 func RecognizePoker(ctx context.Context, imageBase64 string, parseAll bool) (*model.TexasResult, error) {

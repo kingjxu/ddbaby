@@ -104,7 +104,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	images := h.req.GetImages()
 	var recResult *model.TexasResult
 	if h.req.GetImageType() == _const.ImageTypeUrl {
-		recResult, err = service.RecognizePokerByFilePath(ctx, images[0])
+		recResult, err = service.RecognizePokerByFilePath(ctx, images[0], false)
 		if err != nil {
 			logger.Errorf("[TexasPokerDecisionHandler] service.RecognizePokerByFilePath err:%v", err)
 			return h.newResp(ctx, ""), nil
