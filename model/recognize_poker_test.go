@@ -477,6 +477,23 @@ func TestPrepareActionHistoryKeepsFoldInActionOrder(t *testing.T) {
 	}
 }
 
+func TestPrepareActionHistoryKeepsFoldAfterPriorRaiser(t *testing.T) {
+	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	PrepareActionHistory(nil, initial)
+
+	next := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 5: 12})
+	setSeatStatus(next, 6, "folded")
+	PrepareActionHistory(initial, next)
+
+	want := []TexasActionHistory{
+		{Stage: "preflop", Position: "UTG+1", Action: "raise", Amount: 12, Timestamp: 0, Status: "active"},
+		{Stage: "preflop", Position: "MP", Action: "fold", Amount: 0, Timestamp: 1, Status: "folded"},
+	}
+	if !reflect.DeepEqual(next.ObservedActionHistory, want) {
+		t.Fatalf("history = %+v, want %+v", next.ObservedActionHistory, want)
+	}
+}
+
 func TestPrepareActionHistoryTreatsAllInAsActiveAction(t *testing.T) {
 	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
 	PrepareActionHistory(nil, initial)
@@ -488,6 +505,64 @@ func TestPrepareActionHistoryTreatsAllInAsActiveAction(t *testing.T) {
 	want := TexasActionHistory{Stage: "preflop", Position: "UTG", Action: "raise", Amount: 12, Timestamp: 0, Status: "all_in"}
 	if len(next.ObservedActionHistory) != 1 || next.ObservedActionHistory[0] != want {
 		t.Fatalf("all-in history = %+v, want %+v", next.ObservedActionHistory, want)
+	}
+}
+
+func TestPrepareActionHistoryTreatsShortAllInAsCallAfterRaise(t *testing.T) {
+	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	PrepareActionHistory(nil, initial)
+
+	next := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12, 5: 8})
+	setSeatStatus(next, 5, "all_in")
+	PrepareActionHistory(initial, next)
+
+	want := []TexasActionHistory{
+		{Stage: "preflop", Position: "UTG", Action: "raise", Amount: 12, Timestamp: 0, Status: "active"},
+		{Stage: "preflop", Position: "UTG+1", Action: "call", Amount: 8, Timestamp: 1, Status: "all_in"},
+	}
+	if !reflect.DeepEqual(next.ObservedActionHistory, want) {
+		t.Fatalf("history = %+v, want %+v", next.ObservedActionHistory, want)
+	}
+}
+
+func TestPrepareActionHistoryDoesNotCompleteAllInOnNextStreet(t *testing.T) {
+	preflop := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12, 5: 8})
+	setSeatStatus(preflop, 5, "all_in")
+	PrepareActionHistory(nil, preflop)
+
+	flop := preflopSnapshot(t, nil)
+	flop.TableInfo.Stage = "flop"
+	setSeatStatus(flop, 5, "all_in")
+	PrepareActionHistory(preflop, flop)
+
+	allInActions := 0
+	for _, action := range flop.ObservedActionHistory {
+		if action.Position == "UTG+1" {
+			allInActions++
+			if action.Action != "call" || action.Amount != 8 {
+				t.Fatalf("unexpected all-in action: %+v", action)
+			}
+		}
+	}
+	if allInActions != 1 {
+		t.Fatalf("all-in actions = %d, want 1; history=%+v", allInActions, flop.ObservedActionHistory)
+	}
+}
+
+func TestPrepareActionHistoryOrdersStaticFoldAndShortAllIn(t *testing.T) {
+	result := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12, 5: 8})
+	setSeatStatus(result, 5, "all_in")
+	setSeatStatus(result, 6, "folded")
+
+	PrepareActionHistory(nil, result)
+
+	want := []TexasActionHistory{
+		{Stage: "preflop", Position: "UTG", Action: "raise", Amount: 12, Timestamp: 0, Status: "active"},
+		{Stage: "preflop", Position: "UTG+1", Action: "call", Amount: 8, Timestamp: 1, Status: "all_in"},
+		{Stage: "preflop", Position: "MP", Action: "fold", Amount: 0, Timestamp: 2, Status: "folded"},
+	}
+	if !reflect.DeepEqual(result.ObservedActionHistory, want) {
+		t.Fatalf("static history = %+v, want %+v", result.ObservedActionHistory, want)
 	}
 }
 

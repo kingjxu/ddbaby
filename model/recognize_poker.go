@@ -522,6 +522,61 @@ type inferredActionEvent struct {
 	target int
 }
 
+func circularDistance(order, afterOrder, playerCount int) int {
+	return (order - afterOrder - 1 + playerCount) % playerCount
+}
+
+// orderInferredEvents keeps observed active bets in ascending target order so
+// missing raises form the shortest legal sequence. Folds and all-ins are then
+// inserted by seat order: their amount alone cannot tell whether they happened
+// before a later raise or were a short call after it.
+func orderInferredEvents(events []inferredActionEvent, lastOrder, playerCount int) []inferredActionEvent {
+	regular := make([]inferredActionEvent, 0, len(events))
+	seatOrdered := make([]inferredActionEvent, 0, len(events))
+	for _, event := range events {
+		if event.player.status == "active" {
+			regular = append(regular, event)
+		} else {
+			seatOrdered = append(seatOrdered, event)
+		}
+	}
+	sort.SliceStable(regular, func(i, j int) bool {
+		if regular[i].target == regular[j].target {
+			return circularDistance(regular[i].player.order, lastOrder, playerCount) <
+				circularDistance(regular[j].player.order, lastOrder, playerCount)
+		}
+		return regular[i].target < regular[j].target
+	})
+
+	ordered := make([]inferredActionEvent, 0, len(events))
+	cursor := lastOrder
+	for _, bet := range regular {
+		betDistance := circularDistance(bet.player.order, cursor, playerCount)
+		before := make([]inferredActionEvent, 0)
+		remaining := make([]inferredActionEvent, 0, len(seatOrdered))
+		for _, event := range seatOrdered {
+			if circularDistance(event.player.order, cursor, playerCount) <= betDistance {
+				before = append(before, event)
+			} else {
+				remaining = append(remaining, event)
+			}
+		}
+		sort.SliceStable(before, func(i, j int) bool {
+			return circularDistance(before[i].player.order, cursor, playerCount) <
+				circularDistance(before[j].player.order, cursor, playerCount)
+		})
+		ordered = append(ordered, before...)
+		ordered = append(ordered, bet)
+		seatOrdered = remaining
+		cursor = bet.player.order
+	}
+	sort.SliceStable(seatOrdered, func(i, j int) bool {
+		return circularDistance(seatOrdered[i].player.order, cursor, playerCount) <
+			circularDistance(seatOrdered[j].player.order, cursor, playerCount)
+	})
+	return append(ordered, seatOrdered...)
+}
+
 // inferSnapshotActions builds the shortest legal history consistent with one
 // snapshot. SB/BB/straddle are forced bets rather than voluntary actions.
 func inferSnapshotActions(result *TexasResult) []TexasActionHistory {
@@ -551,12 +606,7 @@ func inferSnapshotActions(result *TexasResult) []TexasActionHistory {
 		}
 	}
 
-	sort.SliceStable(events, func(i, j int) bool {
-		if events[i].target == events[j].target {
-			return events[i].player.order < events[j].player.order
-		}
-		return events[i].target < events[j].target
-	})
+	events = orderInferredEvents(events, -1, len(seats))
 
 	history := make([]TexasActionHistory, 0, len(events))
 	for _, event := range events {
@@ -632,15 +682,7 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 			lastOrder = order
 		}
 	}
-	playerCount := len(previousSeats)
-	sort.SliceStable(events, func(i, j int) bool {
-		if events[i].target != events[j].target {
-			return events[i].target < events[j].target
-		}
-		iOrder := (events[i].player.order - lastOrder - 1 + playerCount) % playerCount
-		jOrder := (events[j].player.order - lastOrder - 1 + playerCount) % playerCount
-		return iOrder < jOrder
-	})
+	events = orderInferredEvents(events, lastOrder, len(previousSeats))
 
 	timestamp := nextTimestamp(previous.ObservedActionHistory)
 	history := make([]TexasActionHistory, 0, len(events))
@@ -727,6 +769,9 @@ func inferStageCompletion(previous, current *TexasResult) []TexasActionHistory {
 			continue
 		}
 		pendingOrder[player.position] = player.order
+		if player.status == "all_in" {
+			continue
+		}
 		if !isActiveStatus(next.status) {
 			if isActiveStatus(player.status) && !folded[player.position] {
 				pending = append(pending, TexasActionHistory{
