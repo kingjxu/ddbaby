@@ -23,7 +23,11 @@ func makeTexasResult(t *testing.T, villainCount int) *TexasResult {
 func makeTexasResultWithSeats(t *testing.T, buttonSeat, heroSeat int, villains []map[string]interface{}) *TexasResult {
 	t.Helper()
 	payload := map[string]interface{}{
-		"table_info":    map[string]interface{}{"button_seat": buttonSeat, "stage": "flop"},
+		"table_info": map[string]interface{}{
+			"button_seat": buttonSeat,
+			"stage":       "flop",
+			"blind_size":  "1/2/4(2)",
+		},
 		"hero_info":     map[string]interface{}{"seat": heroSeat, "status": "active", "stack": 100},
 		"villains_info": villains,
 	}
