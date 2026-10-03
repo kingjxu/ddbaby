@@ -1,6 +1,6 @@
 ---
-version: "1.0"
-last_updated: "2026-10-02"
+version: "1.1"
+last_updated: "2026-10-03"
 status: "active"
 ---
 
@@ -41,3 +41,17 @@ status: "active"
 - 使用同一张 Hero 图片连续验证 3 次，ddbaby 外层/dezhou 内层耗时分别为
   `2573/2500ms`、`2320/2314ms`、`2275/2271ms`；热请求额外开销已从约 200–300ms 降至 3–6ms。
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261002-211105-before-35858c9`。
+
+## 2026-10-03 straddle 位置顺延部署
+
+- 业务提交：`c6cc23f`。位置按本手实际参与人数分配；`empty`、`waiting`
+  不占位置，`folded` 仍占位置。若按钮位或后续物理座位无人，`BTN`、`SB`、
+  `BB`、`straddle` 顺时针依次顺延给下一名实际参与者。
+- 远端使用 Go 1.22.2 执行 `go test ./... -count=1` 和 `build.sh`，均通过；
+  部署二进制 SHA256：`ef581480f4fbb7c42e8703d6d514e723069a29e59a9939dc13a6b824c1dab4c2`。
+- 运行时 `model/recognize_poker.go` SHA256：
+  `2f95a6f6fce07a552e0a4a548a78a6cd631f356649bd2f458c6ac9c15ab3cf44`，
+  与提交构建输入一致。
+- 部署后进程 PID=349622、PPID=1，监听 8888；本机 `/ping` 返回
+  `{"message":"pong"}`，重新建立 SSH 连接后进程仍存活，启动日志无异常。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261003-111847-before-c6cc23f`。
