@@ -70,3 +70,23 @@ status: "active"
 - 2026-10-02 18:54:54 原图的 Hero 下注 33 在当前 dezhou 线上版本中
   连续重放 3 次均直接识别为 `current_bet=33`；后续回归以原图
   ROI/OCR 识别结果为准，不在 ddbaby 通过筹码差额推算下注。
+
+## 2026-10-03 Hero 牌面完整性拦截部署
+
+- 业务提交：`92ddbef`。在请求 GTO 前校验当前 Hero 恰有两张合法明牌、
+  各街公共牌数量正确，并拒绝非法牌和 Hero/公共牌重复。
+- 远端 Go 1.22.2 执行 `go test ./... -count=1`、
+  `go test -race ./model ./dal -count=1` 和 `bash build.sh` 均通过。
+- 部署二进制 SHA256：
+  `694b03f331bfc7a490b5ba7d0cf89ce149a6458655c8879dea07cb888e99c47d`；
+  运行时 `model/recognize_poker.go` SHA256：
+  `2d1547726a0025d778de08d31ee95b255290e726886c24fba3766a2e677ac823`，
+  与提交构建输入一致。
+- 部署后进程 PID=525120、PPID=1，监听 8888；重新建立 SSH 连接后
+  本机 `/ping` 返回 `{"message":"pong"}`，启动日志无异常。
+- 当天 129 张 Hero 图的候选回放中，18:53:33 牌背帧在 GTO 前以
+  `current player BB-Hero has 0 hole cards, want 2` 拒绝；其余 128 个
+  请求调用当前 GTO 后均通过响应合法性校验。线上未注入用户缓存，
+  运行时行为以源码/二进制哈希和候选回放为证据。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261003-224307-before-92ddbef`，
+  包含上一版二进制、运行时源码和校验信息。
