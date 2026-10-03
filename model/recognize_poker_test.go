@@ -449,6 +449,67 @@ func TestPrepareActionHistoryPreservesMultiRaiseSequence(t *testing.T) {
 	}
 }
 
+func TestPrepareActionHistoryKeepsRecognizedHeroOpen(t *testing.T) {
+	initial := makeTexasResultWithSeats(t, 2, 1, []map[string]interface{}{
+		{"seat": 2, "status": "active", "stack": 126, "current_bet": 0},
+		{"seat": 3, "status": "active", "stack": 119, "current_bet": 1},
+		{"seat": 4, "status": "active", "stack": 244, "current_bet": 2},
+		{"seat": 5, "status": "active", "stack": 271, "current_bet": 4},
+		{"seat": 6, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 7, "status": "folded", "stack": 219, "current_bet": 0},
+		{"seat": 8, "status": "active", "stack": 245, "current_bet": 4},
+	})
+	initial.TableInfo.Stage = "preflop"
+	initial.TableInfo.BlindSize = "1/2/4(2)"
+	initial.HeroInfo.CurrentBet = 0
+	PrepareActionHistory(nil, initial)
+
+	afterOpen := makeTexasResultWithSeats(t, 2, 1, []map[string]interface{}{
+		{"seat": 2, "status": "active", "stack": 126, "current_bet": 0},
+		{"seat": 3, "status": "active", "stack": 119, "current_bet": 1},
+		{"seat": 4, "status": "active", "stack": 244, "current_bet": 2},
+		{"seat": 5, "status": "active", "stack": 271, "current_bet": 4},
+		{"seat": 6, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 7, "status": "folded", "stack": 219, "current_bet": 0},
+		{"seat": 8, "status": "active", "stack": 245, "current_bet": 4},
+	})
+	afterOpen.TableInfo.Stage = "preflop"
+	afterOpen.TableInfo.BlindSize = "1/2/4(2)"
+	afterOpen.HeroInfo.CurrentBet = 33
+	PrepareActionHistory(initial, afterOpen)
+
+	hasHeroOpen := func(history []TexasActionHistory) bool {
+		for _, action := range history {
+			if action.Stage == "preflop" && action.Position == "CO-Hero" &&
+				action.Action == "raise" && action.Amount == 33 && action.Status == "active" {
+				return true
+			}
+		}
+		return false
+	}
+	if !hasHeroOpen(afterOpen.ObservedActionHistory) {
+		t.Fatalf("history does not contain recognized Hero open 33: %+v", afterOpen.ObservedActionHistory)
+	}
+
+	request := Conv2TexasGtoDecisionReq(context.Background(), []*TexasResult{afterOpen})
+	if !hasHeroOpen(request.ActionHistory) {
+		t.Fatalf("request history lost recognized Hero open 33: %+v", request.ActionHistory)
+	}
+	foundHero := false
+	for _, player := range request.Players {
+		if player.Position != "CO-Hero" {
+			continue
+		}
+		foundHero = true
+		if player.Bet != 33 {
+			t.Fatalf("request Hero bet = %d, want recognized 33", player.Bet)
+		}
+	}
+	if !foundHero {
+		t.Fatal("request players do not contain CO-Hero")
+	}
+}
+
 func TestPrepareActionHistoryInfersMinimumSequenceFromFirstHeroFrame(t *testing.T) {
 	lateSnapshot := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12, 5: 40})
 	lateSnapshot.HeroInfo.IsHeroTurn = true
