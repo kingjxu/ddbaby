@@ -1,0 +1,2504 @@
+{
+  "version": 1,
+  "source": "server /usr/local/webserver/images, 2026-10-03 hero images absent from manifest v5",
+  "image_count": 129,
+  "items": [
+    {
+      "file": "2026-10-03 18:22:40-hero.jpg",
+      "sha256": "4f5b83279b1b0fa01b28b8299bbe44a6ffe72a5fd21064b8de9de29c0e9f8819",
+      "recognition_seconds": 1.487619,
+      "stage": "preflop",
+      "hero_cards": [
+        "3 红桃",
+        "5 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:22:42-hero.jpg",
+      "sha256": "ee1cd8ab8d8564bed91d0c1b96655643321ec6fab6a1aa0dd9fbcb6c93bf2211",
+      "recognition_seconds": 1.328419,
+      "stage": "preflop",
+      "hero_cards": [
+        "3 红桃",
+        "5 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:22:51-hero.jpg",
+      "sha256": "942d52469ef12769b1555966f6efd3e258e21b421e8d8d36221ccdc06730f072",
+      "recognition_seconds": 1.577451,
+      "stage": "preflop",
+      "hero_cards": [
+        "3 红桃",
+        "5 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:23:09-hero.jpg",
+      "sha256": "e4d11bbee707302b869d8570ca04848653af4e4bd720956b12ab31fadc566c60",
+      "recognition_seconds": 1.219471,
+      "stage": "preflop",
+      "hero_cards": [
+        "9 红桃",
+        "7 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:23:11-hero.jpg",
+      "sha256": "601d6c53f48cc6278df7da27f595c0bf459779e4fafe513216ad5fe14ce78fca",
+      "recognition_seconds": 1.258951,
+      "stage": "preflop",
+      "hero_cards": [
+        "9 红桃",
+        "7 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:23:45-hero.jpg",
+      "sha256": "c2324bfef03af4bbc67108aefb7d01e8e9d62123f231c93a256fb8eb807cef71",
+      "recognition_seconds": 1.811269,
+      "stage": "preflop",
+      "hero_cards": [
+        "10 方块",
+        "3 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:23:48-hero.jpg",
+      "sha256": "7c67d29bf1d4472c49f9d76e4b46297fec52d56bdd1c03dfe11dba2cbaed0c32",
+      "recognition_seconds": 1.69912,
+      "stage": "preflop",
+      "hero_cards": [
+        "10 方块",
+        "3 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:24:00-hero.jpg",
+      "sha256": "661ccc9814bf32afe4aa302684f9f2f0418ed4f9747c98d3d86f2fa1bfdb852c",
+      "recognition_seconds": 1.630285,
+      "stage": "preflop",
+      "hero_cards": [
+        "J 方块",
+        "9 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:24:03-hero.jpg",
+      "sha256": "3dd952eecaa3a9ae20df4ca2786016ae19c4c58735e6135321f814fe3410425d",
+      "recognition_seconds": 1.614092,
+      "stage": "preflop",
+      "hero_cards": [
+        "J 方块",
+        "9 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:24:05-hero.jpg",
+      "sha256": "10b742d8e347c31a49e376b953165a4e4a50b6ae4b5417a2818a033965e5381c",
+      "recognition_seconds": 1.685689,
+      "stage": "preflop",
+      "hero_cards": [
+        "J 方块",
+        "9 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:24:08-hero.jpg",
+      "sha256": "0e9486ce4055bf953a67ce7e66f4e32c8aa4b35ea42cdc5e936b85b6f6aaba94",
+      "recognition_seconds": 1.996347,
+      "stage": "preflop",
+      "hero_cards": [
+        "J 方块",
+        "9 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:25:12-hero.jpg",
+      "sha256": "ca4c3475ec65bbcc0adbb1469a7bbe6f69f5e740c59359a87c488cf53230b990",
+      "recognition_seconds": 1.367427,
+      "stage": "preflop",
+      "hero_cards": [
+        "5 红桃",
+        "6 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:25:14-hero.jpg",
+      "sha256": "c5a11ffa5b2d7e42de599a8d50ab5ac3a038b8438f96717960190983ed8a9995",
+      "recognition_seconds": 1.285141,
+      "stage": "preflop",
+      "hero_cards": [
+        "5 红桃",
+        "6 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:25:28-hero.jpg",
+      "sha256": "63b5aab53a1606555cd541b38aa0522c16e9570ef4d96d8468a32ee2dc4d232b",
+      "recognition_seconds": 1.321478,
+      "stage": "preflop",
+      "hero_cards": [
+        "3 方块",
+        "10 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:25:30-hero.jpg",
+      "sha256": "f4275ed4a2dbec9951423b32be11b829575964f9c981611ad0f0be5bce449d72",
+      "recognition_seconds": 1.322431,
+      "stage": "preflop",
+      "hero_cards": [
+        "3 方块",
+        "10 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:26:35-hero.jpg",
+      "sha256": "4b0f339ce3be70aade242c2910fd33fb971fc2b74ad86317384af1c93fc597c0",
+      "recognition_seconds": 1.379223,
+      "stage": "preflop",
+      "hero_cards": [
+        "10 梅花",
+        "A 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:26:37-hero.jpg",
+      "sha256": "d8539c75c96447c0249cadfe8ae0f08651f860d8f81ac9b72db2fb9f3f227508",
+      "recognition_seconds": 1.322519,
+      "stage": "preflop",
+      "hero_cards": [
+        "10 梅花",
+        "A 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:26:46-hero.jpg",
+      "sha256": "5a1526d4a75af361b6ee79c41387c5bf5e6001561bb0247b4b19a069f296def5",
+      "recognition_seconds": 1.009158,
+      "stage": "flop",
+      "hero_cards": [
+        "10 梅花",
+        "A 方块"
+      ],
+      "community_cards": [
+        "8 方块",
+        "2 红桃",
+        "6 方块"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:26:51-hero.jpg",
+      "sha256": "5d79b99f6aa113cf630b854bb305ddf0755a02642fb92cdee28cdd2f7b15ed7b",
+      "recognition_seconds": 1.030532,
+      "stage": "turn",
+      "hero_cards": [
+        "10 梅花",
+        "A 方块"
+      ],
+      "community_cards": [
+        "8 方块",
+        "2 红桃",
+        "6 方块",
+        "5 方块"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:26:53-hero.jpg",
+      "sha256": "08bbec2fd27eec5c628af0b4c839d46b36ce9fdeccfdaac18d89c027e4ba8c42",
+      "recognition_seconds": 1.228991,
+      "stage": "turn",
+      "hero_cards": [
+        "10 梅花",
+        "A 方块"
+      ],
+      "community_cards": [
+        "8 方块",
+        "2 红桃",
+        "6 方块",
+        "5 方块"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:26:58-hero.jpg",
+      "sha256": "aac486b620925322d3bf18d653a67e4d5a0ef4ec4cb9cf534ce45160306cff57",
+      "recognition_seconds": 1.357279,
+      "stage": "river",
+      "hero_cards": [
+        "10 梅花",
+        "A 方块"
+      ],
+      "community_cards": [
+        "8 方块",
+        "2 红桃",
+        "6 方块",
+        "5 方块",
+        "5 红桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "bet",
+      "historical_raise_size": 72,
+      "current_gto_action": "bet",
+      "current_gto_raise_size": 72,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:27:00-hero.jpg",
+      "sha256": "83b4f96d01076c91ed8226de97b9922ed5d5e86bd28517404c5622a1830062cf",
+      "recognition_seconds": 1.128463,
+      "stage": "river",
+      "hero_cards": [
+        "10 梅花",
+        "A 方块"
+      ],
+      "community_cards": [
+        "8 方块",
+        "2 红桃",
+        "6 方块",
+        "5 方块",
+        "5 红桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "bet",
+      "historical_raise_size": 72,
+      "current_gto_action": "bet",
+      "current_gto_raise_size": 72,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:27:02-hero.jpg",
+      "sha256": "db3476ff47c9109d670fba71da3e212404de954669f17f3575325edc7f897c18",
+      "recognition_seconds": 1.182587,
+      "stage": "river",
+      "hero_cards": [
+        "10 梅花",
+        "A 方块"
+      ],
+      "community_cards": [
+        "8 方块",
+        "2 红桃",
+        "6 方块",
+        "5 方块",
+        "5 红桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "bet",
+      "historical_raise_size": 72,
+      "current_gto_action": "bet",
+      "current_gto_raise_size": 72,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:27:04-hero.jpg",
+      "sha256": "74d72c589d4dcb4dc70cc54743005000a296cddfd9c26730331929cf622a8cb4",
+      "recognition_seconds": 1.147924,
+      "stage": "river",
+      "hero_cards": [
+        "10 梅花",
+        "A 方块"
+      ],
+      "community_cards": [
+        "8 方块",
+        "2 红桃",
+        "6 方块",
+        "5 方块",
+        "5 红桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "bet",
+      "historical_raise_size": 72,
+      "current_gto_action": "bet",
+      "current_gto_raise_size": 72,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:27:12-hero.jpg",
+      "sha256": "a9f0c1f99c2c9ebb24effc4721c9fce101a4191b202ab702a4a16a9ad42c4d6c",
+      "recognition_seconds": 1.512468,
+      "stage": "preflop",
+      "hero_cards": [
+        "A 梅花",
+        "9 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:27:15-hero.jpg",
+      "sha256": "21059017b6219317ef156cf9857e8603df6ce639be11b32378e184aed1e727db",
+      "recognition_seconds": 1.617234,
+      "stage": "preflop",
+      "hero_cards": [
+        "A 梅花",
+        "9 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:27:31-hero.jpg",
+      "sha256": "25fcee22fc7cee96ed609e983a34f9383c6f5460134fab129add65db8d5e465b",
+      "recognition_seconds": 1.132264,
+      "stage": "flop",
+      "hero_cards": [
+        "A 梅花",
+        "9 梅花"
+      ],
+      "community_cards": [
+        "Q 梅花",
+        "8 红桃",
+        "A 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "bet",
+      "historical_raise_size": 17,
+      "current_gto_action": "bet",
+      "current_gto_raise_size": 17,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:27:33-hero.jpg",
+      "sha256": "ed321f14423404c83e173793327db3b9c89ac414025fbbd32efb927b91dbe2a0",
+      "recognition_seconds": 1.177686,
+      "stage": "flop",
+      "hero_cards": [
+        "A 梅花",
+        "9 梅花"
+      ],
+      "community_cards": [
+        "Q 梅花",
+        "8 红桃",
+        "A 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "bet",
+      "historical_raise_size": 17,
+      "current_gto_action": "bet",
+      "current_gto_raise_size": 17,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:27:34-hero.jpg",
+      "sha256": "b1c4a9213bf4c0d07c624369bac88f024b4ca6a50846e13c20542bafb4e0364d",
+      "recognition_seconds": 1.126413,
+      "stage": "flop",
+      "hero_cards": [
+        "A 梅花",
+        "9 梅花"
+      ],
+      "community_cards": [
+        "Q 梅花",
+        "8 红桃",
+        "A 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "bet",
+      "historical_raise_size": 17,
+      "current_gto_action": "bet",
+      "current_gto_raise_size": 17,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:28:23-hero.jpg",
+      "sha256": "02a4847e634f08bb4449b200edf74a5a31c32b0a84e53d195fce5a8a789db71b",
+      "recognition_seconds": 2.124904,
+      "stage": "preflop",
+      "hero_cards": [
+        "6 方块",
+        "5 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:28:28-hero.jpg",
+      "sha256": "c0a8a1501a2e8c64a8ded0f9f41ab0226e36cec989890d85bb2b5f5b0d10ceb1",
+      "recognition_seconds": 1.046897,
+      "stage": "flop",
+      "hero_cards": [
+        "6 方块",
+        "5 黑桃"
+      ],
+      "community_cards": [
+        "2 方块",
+        "A 黑桃",
+        "7 梅花"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:28:34-hero.jpg",
+      "sha256": "acaa0f12ed7c8241ca859f49c024cfbd29ef34fcb97340b09d43228236b147c7",
+      "recognition_seconds": 1.010227,
+      "stage": "turn",
+      "hero_cards": [
+        "6 方块",
+        "5 黑桃"
+      ],
+      "community_cards": [
+        "2 方块",
+        "A 黑桃",
+        "7 梅花",
+        "7 方块"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:28:55-hero.jpg",
+      "sha256": "1c0cd75cb6f5a811e9b7566f0963f840b46f215156f172b0b374b1f02e9be8bf",
+      "recognition_seconds": 1.29904,
+      "stage": "preflop",
+      "hero_cards": [
+        "2 红桃",
+        "Q 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "call",
+      "historical_raise_size": 0,
+      "current_gto_action": "call",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:29:09-hero.jpg",
+      "sha256": "e5e555bc824dac8970d7c2b6547abeb62f24aa837cddb846524f0436ffb80740",
+      "recognition_seconds": 2.421555,
+      "stage": "preflop",
+      "hero_cards": [
+        "K 黑桃",
+        "6 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:29:36-hero.jpg",
+      "sha256": "092fad1d291aa9d513710664b0d018b2517739899920390278578ff1900f1de7",
+      "recognition_seconds": 1.663017,
+      "stage": "preflop",
+      "hero_cards": [
+        "J 红桃",
+        "A 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:29:39-hero.jpg",
+      "sha256": "44306eb35bb7876731793e353b610335c5aa6db4ca1d5eb3c6da08577bb59dfc",
+      "recognition_seconds": 1.515581,
+      "stage": "preflop",
+      "hero_cards": [
+        "J 红桃",
+        "A 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:29:56-hero.jpg",
+      "sha256": "5647220e2699b5fcb7a6c6fc5d3bcfd09184bd1b10a5de9e6bb8234e17a2f39d",
+      "recognition_seconds": 1.443137,
+      "stage": "flop",
+      "hero_cards": [
+        "J 红桃",
+        "A 方块"
+      ],
+      "community_cards": [
+        "2 红桃",
+        "3 方块",
+        "K 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:30:14-hero.jpg",
+      "sha256": "f3c68c94e380f6e8c1130dfbfdb5489040a3f31ad84d4d78f05aad1bd403f76c",
+      "recognition_seconds": 1.68579,
+      "stage": "preflop",
+      "hero_cards": [
+        "Q 黑桃",
+        "Q 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:30:35-hero.jpg",
+      "sha256": "bbe590c656db3565ba38dc1531c8bb8c5ca0a90baa8164fac671182420cdea3c",
+      "recognition_seconds": 1.387447,
+      "stage": "flop",
+      "hero_cards": [
+        "Q 黑桃",
+        "Q 红桃"
+      ],
+      "community_cards": [
+        "8 方块",
+        "3 梅花",
+        "J 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 169,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 169,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:30:57-hero.jpg",
+      "sha256": "9545cfea1be6445a04b1b36e767642d6b35d22546c94e17d3ac8be888dc7897e",
+      "recognition_seconds": 1.844774,
+      "stage": "preflop",
+      "hero_cards": [
+        "A 方块",
+        "10 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:31:10-hero.jpg",
+      "sha256": "3f9eb0417495bea5a20aaf351aed3e4a34010c46217a3115b75aadfcc262d094",
+      "recognition_seconds": 1.546545,
+      "stage": "preflop",
+      "hero_cards": [
+        "A 方块",
+        "10 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "call",
+      "historical_raise_size": 0,
+      "current_gto_action": "call",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:31:13-hero.jpg",
+      "sha256": "0e66aa014295f2e681e2a613992c49f658b5b5b2a04289c927aec19c46469a96",
+      "recognition_seconds": 1.577665,
+      "stage": "preflop",
+      "hero_cards": [
+        "A 方块",
+        "10 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "call",
+      "historical_raise_size": 0,
+      "current_gto_action": "call",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:31:25-hero.jpg",
+      "sha256": "5fcf582c0378f0ed68cce0e8d43e9bd22d7fe93efaa9046596dd1e0ca530b1f8",
+      "recognition_seconds": 1.684094,
+      "stage": "flop",
+      "hero_cards": [
+        "A 方块",
+        "10 方块"
+      ],
+      "community_cards": [
+        "10 红桃",
+        "2 黑桃",
+        "K 方块"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:31:38-hero.jpg",
+      "sha256": "d285f2ee7ddc528ec68b98f3c1f84d8e5426f7b65590108b6cff47a3af2ab72e",
+      "recognition_seconds": 1.145994,
+      "stage": "preflop",
+      "hero_cards": [
+        "A 红桃",
+        "10 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:31:40-hero.jpg",
+      "sha256": "2bf869b74821c19c7612afd6fef426cf671a317216152fdc3fb90b6f10a9bbf7",
+      "recognition_seconds": 1.273285,
+      "stage": "preflop",
+      "hero_cards": [
+        "A 红桃",
+        "10 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:31:54-hero.jpg",
+      "sha256": "dfd1477c5e995ebb6ed34fdfab2f1d91a4ee5e1baa216ecb23fcb62bc522778d",
+      "recognition_seconds": 2.089691,
+      "stage": "preflop",
+      "hero_cards": [
+        "A 红桃",
+        "10 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "call",
+      "historical_raise_size": 0,
+      "current_gto_action": "call",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:32:21-hero.jpg",
+      "sha256": "fadb5b2d4e3232f484c14ad2bbb95e70ce1d342c40cb7854efcbe4576b24020b",
+      "recognition_seconds": 1.529437,
+      "stage": "preflop",
+      "hero_cards": [
+        "7 黑桃",
+        "K 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:32:23-hero.jpg",
+      "sha256": "1d55e424888ef465a141b4c81ac9091692a95abcdc5fe528baab10d39ecd8ce4",
+      "recognition_seconds": 1.635641,
+      "stage": "preflop",
+      "hero_cards": [
+        "7 黑桃",
+        "K 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:32:54-hero.jpg",
+      "sha256": "87adb14a67251103521e39b095b47dadad5c3bfea1f3ac123651abdc35e181ba",
+      "recognition_seconds": 1.948364,
+      "stage": "preflop",
+      "hero_cards": [
+        "J 红桃",
+        "2 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:33:35-hero.jpg",
+      "sha256": "c188f5430965a9a2b8737e8a604cc6379f7a8daa0869c58732bb6849492dafda",
+      "recognition_seconds": 1.395793,
+      "stage": "preflop",
+      "hero_cards": [
+        "6 方块",
+        "5 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:34:18-hero.jpg",
+      "sha256": "bb2e8d169e844ed4cdf2f7deac120ef84db1202c1a4d10bc23266f87738ba6a5",
+      "recognition_seconds": 1.665039,
+      "stage": "preflop",
+      "hero_cards": [
+        "8 黑桃",
+        "7 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:34:29-hero.jpg",
+      "sha256": "38d2dd249850b4d5ca8ec9a820c78c86a10506363ed0801aa7dc40c8f8f4d7b9",
+      "recognition_seconds": 1.948277,
+      "stage": "preflop",
+      "hero_cards": [
+        "8 黑桃",
+        "7 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:34:31-hero.jpg",
+      "sha256": "a95cfa89f4d6b903945366d83102ed1e3734bfafabcd1a320a27ebdd3be55b46",
+      "recognition_seconds": 1.936792,
+      "stage": "preflop",
+      "hero_cards": [
+        "8 黑桃",
+        "7 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:35:12-hero.jpg",
+      "sha256": "b2f17dd764c978bb47458e9af8266ec0606b4d08c66cc6b983f7221740dcbdb0",
+      "recognition_seconds": 1.559793,
+      "stage": "preflop",
+      "hero_cards": [
+        "Q 梅花",
+        "7 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:35:52-hero.jpg",
+      "sha256": "8b4b460eeda4520df7f1f233703bea45c08054e9f2f59e549da052d8936d68d2",
+      "recognition_seconds": 2.03448,
+      "stage": "preflop",
+      "hero_cards": [
+        "2 红桃",
+        "Q 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:36:49-hero.jpg",
+      "sha256": "9868091827f987bc9f645f261302ecb84beaff6fe1fd9e73f4ef9d01519b6757",
+      "recognition_seconds": 1.699483,
+      "stage": "preflop",
+      "hero_cards": [
+        "Q 黑桃",
+        "K 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:37:14-hero.jpg",
+      "sha256": "ef22ff32383cbe88947aa49834c188dac162b4c216cba633492a09f995231bc7",
+      "recognition_seconds": 1.370141,
+      "stage": "flop",
+      "hero_cards": [
+        "Q 黑桃",
+        "K 红桃"
+      ],
+      "community_cards": [
+        "8 红桃",
+        "7 方块",
+        "J 方块"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:37:23-hero.jpg",
+      "sha256": "fb0238e7660feb425c982f65ac1dad8512d2952f60e3c2696f990c57947f1280",
+      "recognition_seconds": 1.351064,
+      "stage": "turn",
+      "hero_cards": [
+        "Q 黑桃",
+        "K 红桃"
+      ],
+      "community_cards": [
+        "8 红桃",
+        "7 方块",
+        "J 方块",
+        "5 红桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:37:25-hero.jpg",
+      "sha256": "aa368a14a92c07c6b7d78d92690fc6bd2bd8de5642bdc2c2f530027ab58c9bfb",
+      "recognition_seconds": 1.65364,
+      "stage": "turn",
+      "hero_cards": [
+        "Q 黑桃",
+        "K 红桃"
+      ],
+      "community_cards": [
+        "8 红桃",
+        "7 方块",
+        "J 方块",
+        "5 红桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:37:31-hero.jpg",
+      "sha256": "3702903da4a02c543138962f655de6893fb23dfa6b1bc3534033686a3ed1ea1f",
+      "recognition_seconds": 1.621884,
+      "stage": "river",
+      "hero_cards": [
+        "Q 黑桃",
+        "K 红桃"
+      ],
+      "community_cards": [
+        "8 红桃",
+        "7 方块",
+        "J 方块",
+        "5 红桃",
+        "5 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "bet",
+      "historical_raise_size": 298,
+      "current_gto_action": "bet",
+      "current_gto_raise_size": 298,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:37:34-hero.jpg",
+      "sha256": "78434ca4b96e52282671a45421aa9036bd461eba3511ad0a2009248a23223153",
+      "recognition_seconds": 1.439883,
+      "stage": "river",
+      "hero_cards": [
+        "Q 黑桃",
+        "K 红桃"
+      ],
+      "community_cards": [
+        "8 红桃",
+        "7 方块",
+        "J 方块",
+        "5 红桃",
+        "5 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "bet",
+      "historical_raise_size": 298,
+      "current_gto_action": "bet",
+      "current_gto_raise_size": 298,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:37:36-hero.jpg",
+      "sha256": "5ad0c3b147b0688bf6b07c2c53c4eb5901054b911e3a17f17bacfd7b38122d56",
+      "recognition_seconds": 1.384604,
+      "stage": "river",
+      "hero_cards": [
+        "Q 黑桃",
+        "K 红桃"
+      ],
+      "community_cards": [
+        "8 红桃",
+        "7 方块",
+        "J 方块",
+        "5 红桃",
+        "5 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "bet",
+      "historical_raise_size": 298,
+      "current_gto_action": "bet",
+      "current_gto_raise_size": 298,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:38:00-hero.jpg",
+      "sha256": "1625697a39c8d63a6874ff520b14b5028be180ba69fbf618e484889eeb3d6271",
+      "recognition_seconds": 1.687956,
+      "stage": "flop",
+      "hero_cards": [
+        "Q 红桃",
+        "Q 黑桃"
+      ],
+      "community_cards": [
+        "8 黑桃",
+        "9 黑桃",
+        "5 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:38:24-hero.jpg",
+      "sha256": "94205555cd9db6ec7ed7110fb205f19589c8a895d7073461fe90956fbf6851d9",
+      "recognition_seconds": 1.749343,
+      "stage": "preflop",
+      "hero_cards": [
+        "8 梅花",
+        "9 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:39:35-hero.jpg",
+      "sha256": "6802a617b2d7917f10e41ba192c657e3432d0fb8eb56d4907bda38ac67488476",
+      "recognition_seconds": 1.506715,
+      "stage": "turn",
+      "hero_cards": [
+        "8 梅花",
+        "K 方块"
+      ],
+      "community_cards": [
+        "J 红桃",
+        "A 红桃",
+        "J 黑桃",
+        "4 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:39:37-hero.jpg",
+      "sha256": "bdbae31c46058f7e918f9c938b0530a0f388af0c98d77c7059c9554dd1f9eade",
+      "recognition_seconds": 1.623077,
+      "stage": "turn",
+      "hero_cards": [
+        "8 梅花",
+        "K 方块"
+      ],
+      "community_cards": [
+        "J 红桃",
+        "A 红桃",
+        "J 黑桃",
+        "4 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:40:09-hero.jpg",
+      "sha256": "062be77f7e4988491569e5fee38c95fb3a0ca6a8d0fa3a63fd84990c2f4e5310",
+      "recognition_seconds": 2.680354,
+      "stage": "preflop",
+      "hero_cards": [
+        "7 梅花",
+        "A 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "call",
+      "historical_raise_size": 0,
+      "current_gto_action": "call",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:40:12-hero.jpg",
+      "sha256": "a847b7daf2b6c4da86deae5a0f4dab9e0c75419acb5f73f96cdfcbb2d247a1a3",
+      "recognition_seconds": 2.515464,
+      "stage": "preflop",
+      "hero_cards": [
+        "7 梅花",
+        "A 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "call",
+      "historical_raise_size": 0,
+      "current_gto_action": "call",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:42:19-hero.jpg",
+      "sha256": "d46b57f4903772b83d943ae5fed737135f5b5113b41a8b98b342b424048b12ee",
+      "recognition_seconds": 1.864575,
+      "stage": "preflop",
+      "hero_cards": [
+        "Q 黑桃",
+        "5 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:42:22-hero.jpg",
+      "sha256": "d3184af26a7a1f439e429c5df959d5116c328d5081f864fa96c7d59efa119414",
+      "recognition_seconds": 1.908144,
+      "stage": "preflop",
+      "hero_cards": [
+        "Q 黑桃",
+        "5 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:43:06-hero.jpg",
+      "sha256": "33bee56f4d00e625319325b46a6115378f3190af8b2f5acf54a5993e416d2647",
+      "recognition_seconds": 1.877785,
+      "stage": "preflop",
+      "hero_cards": [
+        "K 黑桃",
+        "6 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:43:21-hero.jpg",
+      "sha256": "98203227866317e33dbc4488b9ebaf4c8787965b0e7d83da6ddfca8c350e6566",
+      "recognition_seconds": 1.895791,
+      "stage": "preflop",
+      "hero_cards": [
+        "K 黑桃",
+        "6 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:43:33-hero.jpg",
+      "sha256": "77598249b52ed4b9160d0801bd78b434ee2f2b478b0e12614371d23f7503b1c8",
+      "recognition_seconds": 1.630674,
+      "stage": "preflop",
+      "hero_cards": [
+        "3 梅花",
+        "A 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:43:35-hero.jpg",
+      "sha256": "98d4c99ea5527615f9f1f4b482b224b93ecdf6807933521f1e344996f3f79217",
+      "recognition_seconds": 1.701328,
+      "stage": "preflop",
+      "hero_cards": [
+        "3 梅花",
+        "A 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:43:51-hero.jpg",
+      "sha256": "fc5a0f0bdf7af6eabbfb42bdcf49799122365e8ba333643fb05aa8d60e6b06f0",
+      "recognition_seconds": 1.361153,
+      "stage": "flop",
+      "hero_cards": [
+        "3 梅花",
+        "A 梅花"
+      ],
+      "community_cards": [
+        "4 黑桃",
+        "6 黑桃",
+        "9 方块"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:43:58-hero.jpg",
+      "sha256": "b72a414853ad14f9d655b7335073739e9c916a0c0ef66f6d4ced3d16283d84b6",
+      "recognition_seconds": 1.369268,
+      "stage": "turn",
+      "hero_cards": [
+        "3 梅花",
+        "A 梅花"
+      ],
+      "community_cards": [
+        "4 黑桃",
+        "6 黑桃",
+        "9 方块",
+        "J 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:44:06-hero.jpg",
+      "sha256": "db333a99550f9c9526679e24cab3bd7bd97fdd233ed289739bf53255e6b5baf8",
+      "recognition_seconds": 1.431261,
+      "stage": "turn",
+      "hero_cards": [
+        "3 梅花",
+        "A 梅花"
+      ],
+      "community_cards": [
+        "4 黑桃",
+        "6 黑桃",
+        "9 方块",
+        "J 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:44:08-hero.jpg",
+      "sha256": "8f5e8b56a784cdceb503ab2ea69bdabdc3edda7ebe3e5ee206bcd1c6fd3b8201",
+      "recognition_seconds": 1.468056,
+      "stage": "turn",
+      "hero_cards": [
+        "3 梅花",
+        "A 梅花"
+      ],
+      "community_cards": [
+        "4 黑桃",
+        "6 黑桃",
+        "9 方块",
+        "J 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:44:24-hero.jpg",
+      "sha256": "bb0efc971e693e662aeacbb2f4c9dd3de622293503ad7235b15bb79d6c9357f5",
+      "recognition_seconds": 1.664315,
+      "stage": "preflop",
+      "hero_cards": [
+        "8 黑桃",
+        "2 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:45:00-hero.jpg",
+      "sha256": "1773a3bdf8ab945624f028e371ceed31f150bedbfb40380416a2aa09d268151d",
+      "recognition_seconds": 1.51833,
+      "stage": "preflop",
+      "hero_cards": [
+        "3 红桃",
+        "6 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:46:11-hero.jpg",
+      "sha256": "0abe7bbf50b5046cb960e983353a51b29424cf5b01d4f2cf1900d7b317377268",
+      "recognition_seconds": 1.869223,
+      "stage": "preflop",
+      "hero_cards": [
+        "10 梅花",
+        "3 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:46:19-hero.jpg",
+      "sha256": "b4e8b3d39c4440a6483ce701295479c1a0e06f4a8cda8d86276ddbb383df3313",
+      "recognition_seconds": 1.369806,
+      "stage": "flop",
+      "hero_cards": [
+        "10 梅花",
+        "3 黑桃"
+      ],
+      "community_cards": [
+        "J 梅花",
+        "5 方块",
+        "4 红桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:47:14-hero.jpg",
+      "sha256": "f455bdfbddb1c2b6db3f8fe28ab64cd573ce573136fa3f59dc573d5cb9c1331c",
+      "recognition_seconds": 1.649022,
+      "stage": "preflop",
+      "hero_cards": [
+        "K 方块",
+        "6 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:47:21-hero.jpg",
+      "sha256": "068f744f443c49480dac782b3ee866dbcf7c2fdbf6d6d7d11da2e5fd4a38f4ae",
+      "recognition_seconds": 1.331141,
+      "stage": "flop",
+      "hero_cards": [
+        "K 方块",
+        "6 红桃"
+      ],
+      "community_cards": [
+        "5 红桃",
+        "A 黑桃",
+        "7 方块"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:47:24-hero.jpg",
+      "sha256": "742e44396bb0e21f4f4b22ecd35e8a3fb2def3cdd7dd2e70dffb285c1830b9e7",
+      "recognition_seconds": 1.344389,
+      "stage": "flop",
+      "hero_cards": [
+        "K 方块",
+        "6 红桃"
+      ],
+      "community_cards": [
+        "5 红桃",
+        "A 黑桃",
+        "7 方块"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:47:29-hero.jpg",
+      "sha256": "38e2aa752aa82c6345f59a71266f68f6a6661538d9a55cdebd7a74ee80c48b07",
+      "recognition_seconds": 1.651014,
+      "stage": "flop",
+      "hero_cards": [
+        "K 方块",
+        "6 红桃"
+      ],
+      "community_cards": [
+        "5 红桃",
+        "A 黑桃",
+        "7 方块"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:47:34-hero.jpg",
+      "sha256": "64d1a247e19ccce04378f737b2097e45eead14d24035be3d63a68ca44f4148fb",
+      "recognition_seconds": 1.352995,
+      "stage": "turn",
+      "hero_cards": [
+        "K 方块",
+        "6 红桃"
+      ],
+      "community_cards": [
+        "5 红桃",
+        "A 黑桃",
+        "7 方块",
+        "3 梅花"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:47:36-hero.jpg",
+      "sha256": "6df636fba46f0e0617ddb993e0d6ce31709783bfaeca917ca00a1a64df4122ef",
+      "recognition_seconds": 1.395009,
+      "stage": "turn",
+      "hero_cards": [
+        "K 方块",
+        "6 红桃"
+      ],
+      "community_cards": [
+        "5 红桃",
+        "A 黑桃",
+        "7 方块",
+        "3 梅花"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "check",
+      "historical_raise_size": 0,
+      "current_gto_action": "check",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:47:39-hero.jpg",
+      "sha256": "09dbc411f6f6acafeac8a096070083d40676eb9ec4bd11602ed4c758b47713ec",
+      "recognition_seconds": 1.432223,
+      "stage": "river",
+      "hero_cards": [
+        "K 方块",
+        "6 红桃"
+      ],
+      "community_cards": [
+        "5 红桃",
+        "A 黑桃",
+        "7 方块",
+        "3 梅花",
+        "7 红桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "bet",
+      "historical_raise_size": 87,
+      "current_gto_action": "bet",
+      "current_gto_raise_size": 87,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:47:41-hero.jpg",
+      "sha256": "91a2ac9c3b6f33def5aa4a7b166fafc3cac9aa19757adcc07b225634ace338ad",
+      "recognition_seconds": 1.427745,
+      "stage": "river",
+      "hero_cards": [
+        "K 方块",
+        "6 红桃"
+      ],
+      "community_cards": [
+        "5 红桃",
+        "A 黑桃",
+        "7 方块",
+        "3 梅花",
+        "7 红桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "bet",
+      "historical_raise_size": 87,
+      "current_gto_action": "bet",
+      "current_gto_raise_size": 87,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:48:00-hero.jpg",
+      "sha256": "7f4a204cf5ff5398593cadd80e6da0605883cea984276259d97bc2d5044d019b",
+      "recognition_seconds": 1.589741,
+      "stage": "preflop",
+      "hero_cards": [
+        "6 梅花",
+        "K 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:48:03-hero.jpg",
+      "sha256": "1cf37bc696feee8df536a0524367452e917a07ecfeb943fe34872322b0358ca4",
+      "recognition_seconds": 1.562067,
+      "stage": "preflop",
+      "hero_cards": [
+        "6 梅花",
+        "K 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:48:26-hero.jpg",
+      "sha256": "bfdd2ee335da07a35d3a64eb1707c618adfe9d65941b386d15fcd5342bbcfdaa",
+      "recognition_seconds": 1.560816,
+      "stage": "preflop",
+      "hero_cards": [
+        "9 梅花",
+        "3 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:48:29-hero.jpg",
+      "sha256": "2b83fb7e429282ae99378345e40aca58ec28ef3859ef75b8688a84492c2bb132",
+      "recognition_seconds": 1.607444,
+      "stage": "preflop",
+      "hero_cards": [
+        "9 梅花",
+        "3 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:49:06-hero.jpg",
+      "sha256": "2c58f65e842d58902a66e4bbe56f576a709d4162349d1bce549a7c7a07c1abad",
+      "recognition_seconds": 2.000372,
+      "stage": "preflop",
+      "hero_cards": [
+        "8 梅花",
+        "2 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:49:09-hero.jpg",
+      "sha256": "edc42f584409bd68b784ada911af2c21930682fa2fff44860931add92680916e",
+      "recognition_seconds": 2.028971,
+      "stage": "preflop",
+      "hero_cards": [
+        "8 梅花",
+        "2 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:50:02-hero.jpg",
+      "sha256": "5488c9b0e21a30441e58069303444e216cd221afcabf5942361f942dd4ad4dbf",
+      "recognition_seconds": 1.319624,
+      "stage": "preflop",
+      "hero_cards": [
+        "6 红桃",
+        "5 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:50:04-hero.jpg",
+      "sha256": "0ae5129db3880abe409df77867130ec7a1a0df6888ef4587a35fa662fe7256e0",
+      "recognition_seconds": 1.188232,
+      "stage": "preflop",
+      "hero_cards": [
+        "6 红桃",
+        "5 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:50:19-hero.jpg",
+      "sha256": "7bbbedbbf594574de6e9d39deaa2d41da33945971269026c8715ce3042b6499f",
+      "recognition_seconds": 1.37094,
+      "stage": "preflop",
+      "hero_cards": [
+        "6 红桃",
+        "5 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:50:21-hero.jpg",
+      "sha256": "8d04b9a0bdc416546db362fb7107285c528a9761b92952a19f876f54d468ebc4",
+      "recognition_seconds": 1.807916,
+      "stage": "preflop",
+      "hero_cards": [
+        "6 红桃",
+        "5 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:50:52-hero.jpg",
+      "sha256": "63e29b0a472e0a6413375d01cc2987e17a815a0c16b8ed9b87bf7bef4328b328",
+      "recognition_seconds": 2.248891,
+      "stage": "preflop",
+      "hero_cards": [
+        "2 梅花",
+        "6 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:50:56-hero.jpg",
+      "sha256": "de564e0f18fa4fc506d8dee00cb7c1f297191482d9995e7e4a44bfe9f964c528",
+      "recognition_seconds": 2.238102,
+      "stage": "preflop",
+      "hero_cards": [
+        "2 梅花",
+        "6 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:51:55-hero.jpg",
+      "sha256": "33a7ff7b9d2d2487da70417b8bd904b8009e8bc2678d95dfcadc08b83fb8546a",
+      "recognition_seconds": 1.540045,
+      "stage": "preflop",
+      "hero_cards": [
+        "Q 方块",
+        "6 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:52:46-hero.jpg",
+      "sha256": "e10f13e9b2e5c1cb3784b137578155937075578a7ef9a45f79176209e85f86bc",
+      "recognition_seconds": 2.14532,
+      "stage": "preflop",
+      "hero_cards": [
+        "8 红桃",
+        "6 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:53:33-hero.jpg",
+      "sha256": "937371666f551cb2bcf8cf7295c72c2eed4d7a081ba9861d163d6eb13410df30",
+      "recognition_seconds": 1.502904,
+      "stage": "preflop",
+      "hero_cards": [],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 500,
+      "candidate_request_error": "current player BB-Hero has 0 hole cards, want 2"
+    },
+    {
+      "file": "2026-10-03 18:53:36-hero.jpg",
+      "sha256": "5cb0ca1971b3804a4a117bf2cd67b80061cd66dc1f48de06ff344ab97bc04bfa",
+      "recognition_seconds": 1.629076,
+      "stage": "preflop",
+      "hero_cards": [
+        "4 方块",
+        "4 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:54:04-hero.jpg",
+      "sha256": "dda203423ecc76660cd6b1690164a013e61e1f24640ddfa20fe5962222b37d43",
+      "recognition_seconds": 1.668864,
+      "stage": "preflop",
+      "hero_cards": [
+        "J 方块",
+        "3 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:54:53-hero.jpg",
+      "sha256": "109f061617cf1e8c31c5b48683b375b2398cc72da63db3232e39901ea865d7e8",
+      "recognition_seconds": 1.706387,
+      "stage": "preflop",
+      "hero_cards": [
+        "J 梅花",
+        "7 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:55:46-hero.jpg",
+      "sha256": "7a51f018c4464ae129946ba68db8f4ae996e4011357be2d89ac4407248b2a5c5",
+      "recognition_seconds": 2.051304,
+      "stage": "preflop",
+      "hero_cards": [
+        "2 方块",
+        "5 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:57:00-hero.jpg",
+      "sha256": "c95b8dc082c92989bd5e356d93cc05ba9d0343eb0eb63fd9e0300ce7e616bc25",
+      "recognition_seconds": 1.354043,
+      "stage": "flop",
+      "hero_cards": [
+        "9 方块",
+        "6 黑桃"
+      ],
+      "community_cards": [
+        "6 红桃",
+        "A 黑桃",
+        "J 黑桃"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "call",
+      "historical_raise_size": 0,
+      "current_gto_action": "call",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:57:36-hero.jpg",
+      "sha256": "626c1290a6e4ac817967c3c09a44b73065f1ab949d5f31f00ec57a4cebe1ad1e",
+      "recognition_seconds": 2.310524,
+      "stage": "preflop",
+      "hero_cards": [
+        "4 梅花",
+        "J 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:58:25-hero.jpg",
+      "sha256": "f33c399caef6d268d410e5db3800d010966f4a95d4fd7b19535868de407c2196",
+      "recognition_seconds": 1.49246,
+      "stage": "preflop",
+      "hero_cards": [
+        "A 方块",
+        "9 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:58:41-hero.jpg",
+      "sha256": "a42eeaea87e4d300c15691fd6f1d3a1cc71b9137ca3362458a9690c1a2a5f0ec",
+      "recognition_seconds": 1.984927,
+      "stage": "preflop",
+      "hero_cards": [
+        "A 方块",
+        "9 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:58:43-hero.jpg",
+      "sha256": "01b323b42f06f247997ba02e55082fb1d28f9b75ef794f521b2e6c526c2d1d0a",
+      "recognition_seconds": 1.956841,
+      "stage": "preflop",
+      "hero_cards": [
+        "A 方块",
+        "9 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:58:47-hero.jpg",
+      "sha256": "5b41b4077db5c47fbcf55cdbaf6b16a6cc55ae2d5fac5c95a3c0e6a546f4118b",
+      "recognition_seconds": 1.982786,
+      "stage": "preflop",
+      "hero_cards": [
+        "A 方块",
+        "9 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:59:17-hero.jpg",
+      "sha256": "6e3e2a23a26e730c636611c5e6b981c90f0c4c95380a5102288fea9616b90b17",
+      "recognition_seconds": 1.974045,
+      "stage": "preflop",
+      "hero_cards": [
+        "6 黑桃",
+        "7 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:59:30-hero.jpg",
+      "sha256": "c7c945404ce5138db2e61aebd7b708a046fe3af1f64768a792412d5f32f0a8a6",
+      "recognition_seconds": 1.676575,
+      "stage": "flop",
+      "hero_cards": [
+        "6 黑桃",
+        "7 方块"
+      ],
+      "community_cards": [
+        "Q 梅花",
+        "2 红桃",
+        "10 方块"
+      ],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 18:59:51-hero.jpg",
+      "sha256": "5eeb18c7baa8d3a1c14144ac0a1d3842fed23420a157e0cacbebdd36bf675b10",
+      "recognition_seconds": 1.757206,
+      "stage": "preflop",
+      "hero_cards": [
+        "2 方块",
+        "4 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 19:00:37-hero.jpg",
+      "sha256": "d5e64b50e3c8a9d4eedad4cf2fd14c6ee7b745d02d438eabf92718450a02eb62",
+      "recognition_seconds": 1.635283,
+      "stage": "preflop",
+      "hero_cards": [
+        "6 梅花",
+        "3 黑桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 19:01:26-hero.jpg",
+      "sha256": "dc8cd14150f2401f200ce2d86adac41ef72047d7e99d8fcc76c1326dd820f17f",
+      "recognition_seconds": 1.550129,
+      "stage": "preflop",
+      "hero_cards": [
+        "K 红桃",
+        "3 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 19:01:28-hero.jpg",
+      "sha256": "65f774e1d813e93484e29345f940ea0f00deb355f0ccfc16e8c1bf451171e815",
+      "recognition_seconds": 1.605318,
+      "stage": "preflop",
+      "hero_cards": [
+        "K 红桃",
+        "3 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 19:01:30-hero.jpg",
+      "sha256": "7d7d21e7ad98ce359224193f6bbc38f4301372afad50918a7fe52bd0879ff162",
+      "recognition_seconds": 1.928923,
+      "stage": "preflop",
+      "hero_cards": [
+        "K 红桃",
+        "3 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "raise",
+      "historical_raise_size": 15,
+      "current_gto_action": "raise",
+      "current_gto_raise_size": 15,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 19:02:30-hero.jpg",
+      "sha256": "a44dbbb4d06a985586880de8cef1525470054cb5773df0db7ec5df3d526dbe37",
+      "recognition_seconds": 1.971358,
+      "stage": "preflop",
+      "hero_cards": [
+        "3 梅花",
+        "5 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 19:03:22-hero.jpg",
+      "sha256": "752c9473751726db3f876b5fe9bb3db2bf893a7efe8d6b15d20e61e649f53aa0",
+      "recognition_seconds": 1.553757,
+      "stage": "preflop",
+      "hero_cards": [
+        "7 方块",
+        "J 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 19:03:25-hero.jpg",
+      "sha256": "0608eda0340ca6d44ada6171c7a9fca31daff0d081547527189be58af3e38398",
+      "recognition_seconds": 1.556078,
+      "stage": "preflop",
+      "hero_cards": [
+        "7 方块",
+        "J 方块"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 19:04:08-hero.jpg",
+      "sha256": "b5cda0b338c9c3644ca76caea4faade6f5107d7bcdaead5f62b1549bfe913c43",
+      "recognition_seconds": 1.647,
+      "stage": "preflop",
+      "hero_cards": [
+        "5 梅花",
+        "Q 梅花"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 19:05:07-hero.jpg",
+      "sha256": "7cad19a3b9c436f19e0b9f3a865d4f71dff2db078f8db6a87a2e8f0798022f8d",
+      "recognition_seconds": 1.619363,
+      "stage": "preflop",
+      "hero_cards": [
+        "4 梅花",
+        "6 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 19:06:08-hero.jpg",
+      "sha256": "c10a470932d6889084a58efc8d8d7b4ef40f58906ea173a8a43dea5d12fee7f8",
+      "recognition_seconds": 1.909835,
+      "stage": "preflop",
+      "hero_cards": [
+        "J 方块",
+        "2 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    },
+    {
+      "file": "2026-10-03 19:06:11-hero.jpg",
+      "sha256": "491ed8790cfeb619d6c513939a777cbdf6b8f4291a41e3f5d091dfef478ba70c",
+      "recognition_seconds": 2.182877,
+      "stage": "preflop",
+      "hero_cards": [
+        "J 方块",
+        "2 红桃"
+      ],
+      "community_cards": [],
+      "recognition_matches_production_log": true,
+      "historical_decision_status": 200,
+      "historical_action": "fold",
+      "historical_raise_size": 0,
+      "current_gto_action": "fold",
+      "current_gto_raise_size": 0,
+      "candidate_normalized": false
+    }
+  ]
+}

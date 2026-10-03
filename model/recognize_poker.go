@@ -96,6 +96,22 @@ func ValidateTexasGtoDecisionRequest(req *TexasGtoDecisionReq) error {
 	if req == nil {
 		return errors.New("decision request is nil")
 	}
+	expectedCommunityCards := -1
+	switch req.GameStage {
+	case "preflop":
+		expectedCommunityCards = 0
+	case "flop":
+		expectedCommunityCards = 3
+	case "turn":
+		expectedCommunityCards = 4
+	case "river":
+		expectedCommunityCards = 5
+	default:
+		return fmt.Errorf("decision request has invalid game stage %q", req.GameStage)
+	}
+	if len(req.CommunityCards) != expectedCommunityCards {
+		return fmt.Errorf("%s decision request has %d community cards, want %d", req.GameStage, len(req.CommunityCards), expectedCommunityCards)
+	}
 	for _, player := range req.Players {
 		if player.Position != req.CurrentPlayerPosition {
 			continue
@@ -106,9 +122,40 @@ func ValidateTexasGtoDecisionRequest(req *TexasGtoDecisionReq) error {
 		if player.Stack <= 0 {
 			return fmt.Errorf("current player %s has invalid stack %d", player.Position, player.Stack)
 		}
+		if len(player.HoleCards) != 2 {
+			return fmt.Errorf("current player %s has %d hole cards, want 2", player.Position, len(player.HoleCards))
+		}
+		seenCards := make(map[string]struct{}, 2+len(req.CommunityCards))
+		for _, card := range append(append([]string(nil), player.HoleCards...), req.CommunityCards...) {
+			if !isValidTexasCard(card) {
+				return fmt.Errorf("decision request has invalid card %q", card)
+			}
+			if _, exists := seenCards[card]; exists {
+				return fmt.Errorf("decision request has duplicate card %q", card)
+			}
+			seenCards[card] = struct{}{}
+		}
 		return nil
 	}
 	return fmt.Errorf("current player %q is missing", req.CurrentPlayerPosition)
+}
+
+func isValidTexasCard(card string) bool {
+	parts := strings.Split(card, "-")
+	if len(parts) != 2 {
+		return false
+	}
+	switch parts[0] {
+	case "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A":
+	default:
+		return false
+	}
+	switch parts[1] {
+	case "S", "H", "C", "D":
+		return true
+	default:
+		return false
+	}
 }
 
 // NormalizeTexasGtoDecisionToStack converts an oversized bet/raise target to

@@ -738,9 +738,10 @@ func TestPrepareActionHistoryOrdersEqualTargetsAfterLastActor(t *testing.T) {
 
 func decisionRequest(heroBet, heroStack, villainBet int) *TexasGtoDecisionReq {
 	return &TexasGtoDecisionReq{
+		GameStage:             "preflop",
 		CurrentPlayerPosition: "BTN-Hero",
 		Players: []TexasPlayer{
-			{Position: "BTN-Hero", Stack: heroStack, Bet: heroBet, IsActive: true},
+			{Position: "BTN-Hero", HoleCards: []string{"A-S", "K-H"}, Stack: heroStack, Bet: heroBet, IsActive: true},
 			{Position: "BB", Stack: 300, Bet: villainBet, IsActive: true},
 		},
 	}
@@ -750,6 +751,59 @@ func TestValidateTexasGtoDecisionRequestRejectsUnreadHeroStack(t *testing.T) {
 	req := decisionRequest(20, 0, 20)
 	if err := ValidateTexasGtoDecisionRequest(req); err == nil {
 		t.Fatal("zero current-player stack should be rejected")
+	}
+}
+
+func TestValidateTexasGtoDecisionRequestRejectsUnreadableHeroCards(t *testing.T) {
+	tests := []struct {
+		name  string
+		cards []string
+	}{
+		{name: "missing", cards: nil},
+		{name: "one card", cards: []string{"A-S"}},
+		{name: "invalid card", cards: []string{"A-S", "?-H"}},
+		{name: "duplicate", cards: []string{"A-S", "A-S"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := decisionRequest(2, 160, 219)
+			req.Players[0].HoleCards = tt.cards
+			if err := ValidateTexasGtoDecisionRequest(req); err == nil {
+				t.Fatalf("cards %v should be rejected", tt.cards)
+			}
+		})
+	}
+}
+
+func TestValidateTexasGtoDecisionRequestRejectsHeroBoardDuplicate(t *testing.T) {
+	req := decisionRequest(0, 200, 0)
+	req.GameStage = "flop"
+	req.CommunityCards = []string{"A-S", "7-D", "2-C"}
+	if err := ValidateTexasGtoDecisionRequest(req); err == nil {
+		t.Fatal("hero card duplicated on board should be rejected")
+	}
+}
+
+func TestValidateTexasGtoDecisionRequestRejectsWrongBoardCardCount(t *testing.T) {
+	tests := []struct {
+		name      string
+		stage     string
+		community []string
+	}{
+		{name: "unknown stage", stage: "showdown"},
+		{name: "flop missing card", stage: "flop", community: []string{"2-S", "3-H"}},
+		{name: "turn missing card", stage: "turn", community: []string{"2-S", "3-H", "4-C"}},
+		{name: "river missing card", stage: "river", community: []string{"2-S", "3-H", "4-C", "5-D"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := decisionRequest(0, 200, 0)
+			req.GameStage = tt.stage
+			req.CommunityCards = tt.community
+			if err := ValidateTexasGtoDecisionRequest(req); err == nil {
+				t.Fatalf("stage %q with cards %v should be rejected", tt.stage, tt.community)
+			}
+		})
 	}
 }
 
