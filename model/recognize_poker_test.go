@@ -449,6 +449,130 @@ func TestPrepareActionHistoryPreservesMultiRaiseSequence(t *testing.T) {
 	}
 }
 
+func TestPrepareActionHistoryRecoversHeroOpenFromStackDecrease(t *testing.T) {
+	initial := makeTexasResultWithSeats(t, 2, 1, []map[string]interface{}{
+		{"seat": 2, "status": "active", "stack": 126, "current_bet": 0},
+		{"seat": 3, "status": "active", "stack": 119, "current_bet": 1},
+		{"seat": 4, "status": "active", "stack": 244, "current_bet": 2},
+		{"seat": 5, "status": "active", "stack": 271, "current_bet": 4},
+		{"seat": 6, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 7, "status": "folded", "stack": 219, "current_bet": 0},
+		{"seat": 8, "status": "active", "stack": 245, "current_bet": 4},
+	})
+	initial.TableInfo.Stage = "preflop"
+	initial.TableInfo.BlindSize = "1/2/4(2)"
+	initial.TableInfo.MainPot = 25
+	initial.HeroInfo.Stack = 194
+	initial.HeroInfo.CurrentBet = 0
+	initial.HeroInfo.IsHeroTurn = true
+	initial.HeroInfo.HeroCards = []string{"J 梅花", "J 黑桃"}
+	PrepareActionHistory(nil, initial)
+
+	afterOpen := makeTexasResultWithSeats(t, 2, 1, []map[string]interface{}{
+		{"seat": 2, "status": "active", "stack": 126, "current_bet": 0},
+		{"seat": 3, "status": "active", "stack": 119, "current_bet": 1},
+		{"seat": 4, "status": "active", "stack": 244, "current_bet": 2},
+		{"seat": 5, "status": "active", "stack": 271, "current_bet": 4},
+		{"seat": 6, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 7, "status": "folded", "stack": 219, "current_bet": 0},
+		{"seat": 8, "status": "active", "stack": 245, "current_bet": 4},
+	})
+	afterOpen.TableInfo.Stage = "preflop"
+	afterOpen.TableInfo.BlindSize = "1/2/4(2)"
+	afterOpen.TableInfo.MainPot = 58
+	afterOpen.HeroInfo.Stack = 161
+	afterOpen.HeroInfo.CurrentBet = 0 // OCR returned current_bet=null.
+	afterOpen.HeroInfo.HeroCards = []string{"J 梅花", "J 黑桃"}
+	PrepareActionHistory(initial, afterOpen)
+
+	if afterOpen.HeroInfo.CurrentBet != 33 {
+		t.Fatalf("recovered hero bet = %d, want 33", afterOpen.HeroInfo.CurrentBet)
+	}
+	if !containsAction(afterOpen.ObservedActionHistory, TexasActionHistory{
+		Stage: "preflop", Position: "CO-Hero", Action: "raise", Amount: 33, Status: "active",
+	}) {
+		t.Fatalf("history does not contain Hero open 33: %+v", afterOpen.ObservedActionHistory)
+	}
+
+	facingAllIns := makeTexasResultWithSeats(t, 2, 1, []map[string]interface{}{
+		{"seat": 2, "status": "all_in", "stack": 0, "current_bet": 126},
+		{"seat": 3, "status": "folded", "stack": 119, "current_bet": 0},
+		{"seat": 4, "status": "all_in", "stack": 0, "current_bet": 246},
+		{"seat": 5, "status": "folded", "stack": 271, "current_bet": 0},
+		{"seat": 6, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 7, "status": "folded", "stack": 219, "current_bet": 0},
+		{"seat": 8, "status": "folded", "stack": 245, "current_bet": 0},
+	})
+	facingAllIns.TableInfo.Stage = "preflop"
+	facingAllIns.TableInfo.BlindSize = "1/2/4(2)"
+	facingAllIns.TableInfo.MainPot = 428
+	facingAllIns.HeroInfo.Stack = 161
+	facingAllIns.HeroInfo.CurrentBet = 0 // A later Hero frame still misses the bet.
+	facingAllIns.HeroInfo.IsHeroTurn = true
+	facingAllIns.HeroInfo.HeroCards = []string{"J 梅花", "J 黑桃"}
+	PrepareActionHistory(afterOpen, facingAllIns)
+
+	request := Conv2TexasGtoDecisionReq(context.Background(), []*TexasResult{facingAllIns})
+	if !containsAction(request.ActionHistory, TexasActionHistory{
+		Stage: "preflop", Position: "CO-Hero", Action: "raise", Amount: 33,
+	}) {
+		t.Fatalf("decision history lost Hero open 33: %+v", request.ActionHistory)
+	}
+	for _, player := range request.Players {
+		if player.Position == "CO-Hero" && player.Bet != 33 {
+			t.Fatalf("decision Hero bet = %d, want 33", player.Bet)
+		}
+	}
+}
+
+func TestPrepareActionHistoryDoesNotInferBetFromUnreadActiveStack(t *testing.T) {
+	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	initial.HeroInfo.Stack = 194
+	PrepareActionHistory(nil, initial)
+
+	missingStack := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	missingStack.TableInfo.MainPot = initial.TableInfo.MainPot + 33
+	missingStack.HeroInfo.Stack = 0
+	missingStack.HeroInfo.Status = "active"
+	PrepareActionHistory(initial, missingStack)
+
+	if missingStack.HeroInfo.CurrentBet != 0 {
+		t.Fatalf("unread active stack inferred bet %d, want 0", missingStack.HeroInfo.CurrentBet)
+	}
+}
+
+func TestPrepareActionHistoryRequiresPotGrowthForStackFallback(t *testing.T) {
+	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	initial.TableInfo.MainPot = 25
+	initial.HeroInfo.Stack = 194
+	PrepareActionHistory(nil, initial)
+
+	stackUnderRead := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
+	stackUnderRead.TableInfo.MainPot = 25
+	stackUnderRead.HeroInfo.Stack = 161
+	PrepareActionHistory(initial, stackUnderRead)
+
+	if stackUnderRead.HeroInfo.CurrentBet != 0 {
+		t.Fatalf("uncorroborated stack drop inferred bet %d, want 0", stackUnderRead.HeroInfo.CurrentBet)
+	}
+	for _, action := range stackUnderRead.ObservedActionHistory {
+		if action.Position == "BTN-Hero" && (action.Action == "bet" || action.Action == "raise") {
+			t.Fatalf("uncorroborated stack drop produced Hero action: %+v", action)
+		}
+	}
+}
+
+func containsAction(history []TexasActionHistory, want TexasActionHistory) bool {
+	for _, action := range history {
+		if action.Stage == want.Stage && action.Position == want.Position &&
+			action.Action == want.Action && action.Amount == want.Amount &&
+			(want.Status == "" || action.Status == want.Status) {
+			return true
+		}
+	}
+	return false
+}
+
 func TestPrepareActionHistoryInfersMinimumSequenceFromFirstHeroFrame(t *testing.T) {
 	lateSnapshot := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12, 5: 40})
 	lateSnapshot.HeroInfo.IsHeroTurn = true

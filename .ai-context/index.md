@@ -1,6 +1,6 @@
 ---
-version: "1.2"
-last_updated: "2026-10-02"
+version: "1.3"
+last_updated: "2026-10-03"
 ---
 
 # ddbaby 项目上下文
@@ -29,7 +29,7 @@ last_updated: "2026-10-02"
 
 ## Context Version
 
-Context v1.2。在线链路默认使用轻量 Hero 门控；每个 Hero 行动帧只触发紧接着的一帧完整识别，随后恢复轻量检测。动作历史从这些有限快照推断并累计可观察差分。
+Context v1.3。在线链路默认使用轻量 Hero 门控；每个 Hero 行动帧只触发紧接着的一帧完整识别，随后恢复轻量检测。动作历史从这些有限快照推断并累计可观察差分；同街 `current_bet` 漏读时，只在底池增长可验证筹码减少量的情况下恢复缺失下注。
 
 ## Pending Files
 

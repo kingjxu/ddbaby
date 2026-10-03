@@ -250,6 +250,8 @@ func PrepareActionHistory(previous, result *TexasResult) {
 		return
 	}
 
+	recoverMissingCurrentBets(previous, result)
+
 	result.ObservedActionHistory = append(
 		make([]TexasActionHistory, 0, len(previous.ObservedActionHistory)),
 		previous.ObservedActionHistory...,
@@ -269,6 +271,95 @@ func PrepareActionHistory(previous, result *TexasResult) {
 		}
 		action.Timestamp = nextTimestamp(result.ObservedActionHistory)
 		result.ObservedActionHistory = append(result.ObservedActionHistory, action)
+	}
+}
+
+type seatBetState struct {
+	stack      int
+	currentBet int
+}
+
+// recoverMissingCurrentBets fills a missing cumulative bet from the stack
+// decrease between two snapshots on the same street. The recognizer can still
+// read a player's stack after chips move while returning current_bet=null (and
+// therefore zero after JSON decoding). Carrying the reconstructed bet into the
+// current snapshot keeps both action_history and players[].bet consistent.
+func recoverMissingCurrentBets(previous, current *TexasResult) {
+	if previous == nil || current == nil ||
+		normalizeStage(previous.TableInfo.Stage) != normalizeStage(current.TableInfo.Stage) ||
+		current.TableInfo.MainPot < previous.TableInfo.MainPot {
+		return
+	}
+
+	previousBySeat := make(map[int]seatBetState, len(previous.VillainsInfo)+1)
+	if isParticipatingStatus(previous.HeroInfo.Status) {
+		previousBySeat[previous.HeroInfo.Seat] = seatBetState{
+			stack: previous.HeroInfo.Stack, currentBet: previous.HeroInfo.CurrentBet,
+		}
+	}
+	for _, player := range previous.VillainsInfo {
+		if !isParticipatingStatus(player.Status) {
+			continue
+		}
+		previousBySeat[player.Seat] = seatBetState{
+			stack: player.Stack, currentBet: player.CurrentBet,
+		}
+	}
+
+	stackDeltas := make(map[int]int, len(previousBySeat))
+	directBetIncrease := 0
+	collectEvidence := func(seat int, status string, stack, currentBet int) {
+		old, ok := previousBySeat[seat]
+		if !ok || !isParticipatingStatus(status) {
+			return
+		}
+		if currentBet > old.currentBet {
+			directBetIncrease += currentBet - old.currentBet
+			return
+		}
+		if old.stack > 0 && (stack > 0 || status == "all_in") && old.stack > stack {
+			stackDeltas[seat] = old.stack - stack
+		}
+	}
+	collectEvidence(
+		current.HeroInfo.Seat, current.HeroInfo.Status,
+		current.HeroInfo.Stack, current.HeroInfo.CurrentBet,
+	)
+	for _, player := range current.VillainsInfo {
+		collectEvidence(player.Seat, player.Status, player.Stack, player.CurrentBet)
+	}
+	missingBetIncrease := 0
+	for _, delta := range stackDeltas {
+		missingBetIncrease += delta
+	}
+	unexplainedPotGrowth := current.TableInfo.MainPot - previous.TableInfo.MainPot - directBetIncrease
+	useStackDeltas := missingBetIncrease > 0 && missingBetIncrease <= unexplainedPotGrowth
+
+	recoverBet := func(seat int, status string, currentBet int) int {
+		old, ok := previousBySeat[seat]
+		if !ok || !isParticipatingStatus(status) || currentBet > old.currentBet {
+			return currentBet
+		}
+
+		reconstructed := old.currentBet
+		// Require the table pot to corroborate all missing stack decreases. This
+		// avoids turning an isolated stack OCR under-read into a phantom wager.
+		if useStackDeltas {
+			reconstructed += stackDeltas[seat]
+		}
+		if reconstructed > currentBet {
+			return reconstructed
+		}
+		return currentBet
+	}
+
+	current.HeroInfo.CurrentBet = recoverBet(
+		current.HeroInfo.Seat, current.HeroInfo.Status,
+		current.HeroInfo.CurrentBet,
+	)
+	for i := range current.VillainsInfo {
+		player := &current.VillainsInfo[i]
+		player.CurrentBet = recoverBet(player.Seat, player.Status, player.CurrentBet)
 	}
 }
 
