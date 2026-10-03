@@ -510,6 +510,124 @@ func TestPrepareActionHistoryKeepsRecognizedHeroOpen(t *testing.T) {
 	}
 }
 
+func fourPlayerPreflopSnapshot(t *testing.T, heroBet, sbBet, bbBet, straddleBet int) *TexasResult {
+	t.Helper()
+	result := makeTexasResultWithSeats(t, 1, 1, []map[string]interface{}{
+		{"seat": 2, "status": "active", "stack": 500, "current_bet": sbBet},
+		{"seat": 3, "status": "active", "stack": 500, "current_bet": bbBet},
+		{"seat": 4, "status": "active", "stack": 500, "current_bet": straddleBet},
+		{"seat": 5, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 6, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 7, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 8, "status": "empty", "stack": 0, "current_bet": 0},
+	})
+	result.TableInfo.Stage = "preflop"
+	result.TableInfo.BlindSize = "1/2/4(2)"
+	result.HeroInfo.CurrentBet = heroBet
+	return result
+}
+
+func TestPrepareActionHistoryReconstructsHeroABCThreeBetFourBetOrbit(t *testing.T) {
+	beforeHero := fourPlayerPreflopSnapshot(t, 0, 1, 2, 4)
+	PrepareActionHistory(nil, beforeHero)
+
+	afterHero := fourPlayerPreflopSnapshot(t, 12, 1, 2, 4)
+	PrepareActionHistory(beforeHero, afterHero)
+
+	backToHero := fourPlayerPreflopSnapshot(t, 12, 40, 40, 100)
+	PrepareActionHistory(afterHero, backToHero)
+
+	want := []TexasActionHistory{
+		{Stage: "preflop", Position: "BTN-Hero", Action: "raise", Amount: 12, Timestamp: 0, Status: "active"},
+		{Stage: "preflop", Position: "SB", Action: "raise", Amount: 40, Timestamp: 1, Status: "active"},
+		{Stage: "preflop", Position: "BB", Action: "call", Amount: 40, Timestamp: 2, Status: "active"},
+		{Stage: "preflop", Position: "straddle", Action: "raise", Amount: 100, Timestamp: 3, Status: "active"},
+	}
+	if !reflect.DeepEqual(backToHero.ObservedActionHistory, want) {
+		t.Fatalf("Hero-A-B-C-Hero history = %+v, want %+v", backToHero.ObservedActionHistory, want)
+	}
+
+	request := Conv2TexasGtoDecisionReq(context.Background(), []*TexasResult{backToHero})
+	if !reflect.DeepEqual(request.ActionHistory, want) {
+		t.Fatalf("Hero-A-B-C-Hero request history = %+v, want %+v", request.ActionHistory, want)
+	}
+}
+
+func TestPrepareActionHistoryOrdersFoldAndShortAllInWithinRaiseOrbit(t *testing.T) {
+	beforeHero := fourPlayerPreflopSnapshot(t, 0, 1, 2, 4)
+	PrepareActionHistory(nil, beforeHero)
+	afterHero := fourPlayerPreflopSnapshot(t, 12, 1, 2, 4)
+	PrepareActionHistory(beforeHero, afterHero)
+
+	backToHero := fourPlayerPreflopSnapshot(t, 12, 40, 25, 100)
+	setSeatStatus(backToHero, 3, "all_in")
+	PrepareActionHistory(afterHero, backToHero)
+
+	want := []TexasActionHistory{
+		{Stage: "preflop", Position: "BTN-Hero", Action: "raise", Amount: 12, Timestamp: 0, Status: "active"},
+		{Stage: "preflop", Position: "SB", Action: "raise", Amount: 40, Timestamp: 1, Status: "active"},
+		{Stage: "preflop", Position: "BB", Action: "call", Amount: 25, Timestamp: 2, Status: "all_in"},
+		{Stage: "preflop", Position: "straddle", Action: "raise", Amount: 100, Timestamp: 3, Status: "active"},
+	}
+	if !reflect.DeepEqual(backToHero.ObservedActionHistory, want) {
+		t.Fatalf("short-all-in orbit history = %+v, want %+v", backToHero.ObservedActionHistory, want)
+	}
+}
+
+func TestPrepareActionHistoryKeepsMultipleHeroOrbitsOnSameStreet(t *testing.T) {
+	beforeHero := fourPlayerPreflopSnapshot(t, 0, 1, 2, 4)
+	PrepareActionHistory(nil, beforeHero)
+	afterHeroOpen := fourPlayerPreflopSnapshot(t, 12, 1, 2, 4)
+	PrepareActionHistory(beforeHero, afterHeroOpen)
+	firstReturn := fourPlayerPreflopSnapshot(t, 12, 40, 40, 100)
+	PrepareActionHistory(afterHeroOpen, firstReturn)
+
+	afterHeroCall := fourPlayerPreflopSnapshot(t, 100, 40, 40, 100)
+	PrepareActionHistory(firstReturn, afterHeroCall)
+	secondReturn := fourPlayerPreflopSnapshot(t, 100, 200, 40, 200)
+	setSeatStatus(secondReturn, 3, "folded")
+	PrepareActionHistory(afterHeroCall, secondReturn)
+
+	want := []TexasActionHistory{
+		{Stage: "preflop", Position: "BTN-Hero", Action: "raise", Amount: 12, Timestamp: 0, Status: "active"},
+		{Stage: "preflop", Position: "SB", Action: "raise", Amount: 40, Timestamp: 1, Status: "active"},
+		{Stage: "preflop", Position: "BB", Action: "call", Amount: 40, Timestamp: 2, Status: "active"},
+		{Stage: "preflop", Position: "straddle", Action: "raise", Amount: 100, Timestamp: 3, Status: "active"},
+		{Stage: "preflop", Position: "BTN-Hero", Action: "call", Amount: 100, Timestamp: 4, Status: "active"},
+		{Stage: "preflop", Position: "SB", Action: "raise", Amount: 200, Timestamp: 5, Status: "active"},
+		{Stage: "preflop", Position: "BB", Action: "fold", Amount: 0, Timestamp: 6, Status: "folded"},
+		{Stage: "preflop", Position: "straddle", Action: "call", Amount: 200, Timestamp: 7, Status: "active"},
+	}
+	if !reflect.DeepEqual(secondReturn.ObservedActionHistory, want) {
+		t.Fatalf("multi-orbit history = %+v, want %+v", secondReturn.ObservedActionHistory, want)
+	}
+}
+
+func TestPrepareActionHistoryCompletesMultiRaiseOrbitOnNextStreet(t *testing.T) {
+	beforeHero := fourPlayerPreflopSnapshot(t, 0, 1, 2, 4)
+	PrepareActionHistory(nil, beforeHero)
+	afterHeroOpen := fourPlayerPreflopSnapshot(t, 12, 1, 2, 4)
+	PrepareActionHistory(beforeHero, afterHeroOpen)
+	firstReturn := fourPlayerPreflopSnapshot(t, 12, 40, 40, 100)
+	PrepareActionHistory(afterHeroOpen, firstReturn)
+	afterHeroCall := fourPlayerPreflopSnapshot(t, 100, 40, 40, 100)
+	PrepareActionHistory(firstReturn, afterHeroCall)
+
+	flop := fourPlayerPreflopSnapshot(t, 0, 0, 0, 0)
+	flop.TableInfo.Stage = "flop"
+	setSeatStatus(flop, 3, "folded")
+	PrepareActionHistory(afterHeroCall, flop)
+
+	wantTail := []TexasActionHistory{
+		{Stage: "preflop", Position: "SB", Action: "call", Amount: 100, Timestamp: 5, Status: "active"},
+		{Stage: "preflop", Position: "BB", Action: "fold", Amount: 0, Timestamp: 6, Status: "folded"},
+	}
+	gotTail := flop.ObservedActionHistory[len(flop.ObservedActionHistory)-len(wantTail):]
+	if !reflect.DeepEqual(gotTail, wantTail) {
+		t.Fatalf("completed multi-raise orbit tail = %+v, want %+v; history=%+v", gotTail, wantTail, flop.ObservedActionHistory)
+	}
+}
+
 func TestPrepareActionHistoryInfersMinimumSequenceFromFirstHeroFrame(t *testing.T) {
 	lateSnapshot := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4, 4: 12, 5: 40})
 	lateSnapshot.HeroInfo.IsHeroTurn = true
