@@ -55,3 +55,24 @@ status: "active"
 - 部署后进程 PID=349622、PPID=1，监听 8888；本机 `/ping` 返回
   `{"message":"pong"}`，重新建立 SSH 连接后进程仍存活，启动日志无异常。
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261003-111847-before-c6cc23f`。
+
+## 2026-10-03 Hero open 历史补偿部署
+
+- 业务提交：`7087701`。当同一手、同一街的后继快照漏读
+  `current_bet` 时，仅在玩家筹码减少且底池增量能完整覆盖该差额的
+  情况下恢复累计下注。修复了 2026-10-02 18:54:45–18:55:07 序列中
+  `CO-Hero raise 33` 丢失的问题。
+- 远端使用 Go 1.22.2 执行 `go test ./... -count=1`、
+  `go test -race ./model ./dal -count=1` 和 `bash build.sh`，均通过。
+  候选二进制 SHA256：
+  `51de47662d4bb11f937590f5efb24e46d23a470f65d65b70dfafc85ca14ac303`。
+- 运行时 `model/recognize_poker.go` SHA256：
+  `36f856f2257cdd5e53d638ae5cc64b588e7930b0806b5c8776e3e143aef4ad20`，
+  与提交构建输入一致。
+- 部署后进程 PID=497149、PPID=1，监听 8888；重新建立 SSH 连接后
+  `/ping` 返回 `{"message":"pong"}`。运行目录上的历史恢复、
+  零筹码和底池无增长三项聚焦回归通过；启动日志无异常。
+- 部署验证未向生产牌局缓存注入历史快照；线上真实流量观察需继续
+  依据新请求日志进行。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261003-211223-before-7087701`，
+  包含上一版二进制、运行时源码、SHA256 和旧 PID。
