@@ -327,6 +327,10 @@ func tablePositions(playerCount int) []string {
 	}
 }
 
+func isParticipatingStatus(status string) bool {
+	return status != "empty" && status != "waiting"
+}
+
 func parseBlindSize(blindSizeStr string) (int, int) {
 	sliceBindSize := strings.Split(blindSizeStr, "(")
 	sliceBindSizeV2 := strings.Split(sliceBindSize[0], "/")
@@ -351,18 +355,20 @@ func buildPlayers(result *TexasResult, bbSize int) ([]TexasPlayer, string) {
 
 	// 收集所有有玩家的座位
 	allSeats := make([]seatInfo, 0)
-	allSeats = append(allSeats, seatInfo{
-		seat:       result.HeroInfo.Seat,
-		isHero:     true,
-		status:     result.HeroInfo.Status,
-		stack:      result.HeroInfo.Stack,
-		currentBet: result.HeroInfo.CurrentBet,
-		heroCards:  result.HeroInfo.HeroCards,
-		isHeroTurn: result.HeroInfo.IsHeroTurn,
-	})
+	if isParticipatingStatus(result.HeroInfo.Status) {
+		allSeats = append(allSeats, seatInfo{
+			seat:       result.HeroInfo.Seat,
+			isHero:     true,
+			status:     result.HeroInfo.Status,
+			stack:      result.HeroInfo.Stack,
+			currentBet: result.HeroInfo.CurrentBet,
+			heroCards:  result.HeroInfo.HeroCards,
+			isHeroTurn: result.HeroInfo.IsHeroTurn,
+		})
+	}
 
 	for _, villain := range result.VillainsInfo {
-		if villain.Status == "empty" || villain.Status == "waiting" {
+		if !isParticipatingStatus(villain.Status) {
 			continue
 		}
 		allSeats = append(allSeats, seatInfo{
@@ -531,14 +537,17 @@ func actionSeats(result *TexasResult) []actionSeat {
 		status     string
 		currentBet int
 	}
-	raw := []rawSeat{{
-		seat:       result.HeroInfo.Seat,
-		isHero:     true,
-		status:     result.HeroInfo.Status,
-		currentBet: result.HeroInfo.CurrentBet,
-	}}
+	raw := make([]rawSeat, 0, len(result.VillainsInfo)+1)
+	if isParticipatingStatus(result.HeroInfo.Status) {
+		raw = append(raw, rawSeat{
+			seat:       result.HeroInfo.Seat,
+			isHero:     true,
+			status:     result.HeroInfo.Status,
+			currentBet: result.HeroInfo.CurrentBet,
+		})
+	}
 	for _, villain := range result.VillainsInfo {
-		if villain.Status == "empty" || villain.Status == "waiting" {
+		if !isParticipatingStatus(villain.Status) {
 			continue
 		}
 		raw = append(raw, rawSeat{
@@ -998,18 +1007,20 @@ func buildActionHistory(ctx context.Context, recResult []*TexasResult) []TexasAc
 
 		// 收集所有有玩家的座位
 		allSeats := make([]seatInfo, 0)
-		allSeats = append(allSeats, seatInfo{
-			seat:       result.HeroInfo.Seat,
-			isHero:     true,
-			status:     result.HeroInfo.Status,
-			stack:      result.HeroInfo.Stack,
-			currentBet: result.HeroInfo.CurrentBet,
-			heroCards:  result.HeroInfo.HeroCards,
-			isHeroTurn: result.HeroInfo.IsHeroTurn,
-		})
+		if isParticipatingStatus(result.HeroInfo.Status) {
+			allSeats = append(allSeats, seatInfo{
+				seat:       result.HeroInfo.Seat,
+				isHero:     true,
+				status:     result.HeroInfo.Status,
+				stack:      result.HeroInfo.Stack,
+				currentBet: result.HeroInfo.CurrentBet,
+				heroCards:  result.HeroInfo.HeroCards,
+				isHeroTurn: result.HeroInfo.IsHeroTurn,
+			})
+		}
 
 		for _, villain := range result.VillainsInfo {
-			if villain.Status == "empty" || villain.Status == "waiting" {
+			if !isParticipatingStatus(villain.Status) {
 				continue
 			}
 			allSeats = append(allSeats, seatInfo{

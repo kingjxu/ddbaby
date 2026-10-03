@@ -1,6 +1,6 @@
 ---
-version: "1.2"
-last_updated: "2026-10-02"
+version: "1.3"
+last_updated: "2026-10-03"
 ---
 
 # 德州扑克决策数据流
@@ -9,7 +9,7 @@ last_updated: "2026-10-02"
 2. Hero 行动帧以及它后面一次完整解析的牌局帧写入 `dal.SaveUserData`；同一 BTN、同一 stage 的快照在覆盖前比较状态，把确定的下注、加注、跟注或弃牌追加到内存动作历史。更后面的非 Hero 帧不做全桌 OCR，也不进入缓存。
 3. `dal.GetLastUserData` 从最近一次 BTN 变化之后取出当前手牌的全部阶段。
 4. `model.Conv2TexasGtoDecisionReq` 调用 `buildPlayers` 与 `buildActionHistory`；优先输出连续快照累计的动作，首次进入阶段或发生漏帧时按最终下注额生成最小合法历史。
-5. 位置映射遍历牌桌物理座位，只跳过 `empty` 和 `waiting`；弃牌玩家继续占据原位置。
+5. 位置映射从 `ButtonSeat` 开始遍历物理座位，只保留本手实际参与者：`empty` 和 `waiting` 不占位置，弃牌玩家仍占位置。若按钮或后续强制位置对应的物理座位无人，`BTN`、`SB`、`BB`、`straddle` 依次顺延给下一名实际参与者。
 6. 转换后先校验当前行动玩家存在、active 且剩余筹码大于0，再交给 `service.GtoDecision`。
 7. 决策返回的 bet/raise 若超过 Hero 可用总额，先保留动作并把目标额收敛为 `hero.bet + hero.stack`（all-in），再校验动作与当前下注是否相容；其余非法结果返回空动作且不计次。
 
