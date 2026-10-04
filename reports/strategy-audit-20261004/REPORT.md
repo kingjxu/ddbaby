@@ -65,3 +65,9 @@
 - 自包含页面：`outputs/today-hero-regression-20261003/strategy-issues.html`，SHA256 `a943be93c29b67f22e59775d20cf71e8e9e5005f6309d8fedd22e2110fd9a026`，大小 2,147,788 bytes。
 - 页面覆盖 8/8 个问题或重点复核状态，内嵌 8 张原始 JPEG，并展示完整请求、原始响应和 action_history；过滤器可分别查看 2 条明确错误、4 条高风险和 2 条 solver 敏感项。
 - 页面由 `build_page.py` 从 `audit.json`、原始 `decision-requests.json`、`decision-replay.jsonl` 和受控原图目录生成；文件名经过 basename、扩展名和目录边界校验，所有动态文本经过 HTML 转义。
+
+## 公网发布
+
+- 2026-10-04 将同一份自包含页面发布到 `https://www.ddbaby.site/tyzs/strategy-issues.html`。
+- 上传文件先写入同目录临时文件，核对 SHA256 后原子替换；如目标文件已存在，会先保存文件及校验值到 `/home/ubuntu/taoyuan-backups/` 下的时间戳目录。
+- 公网下载回验为 HTTP 200、2,147,788 bytes、SHA256 `a943be93c29b67f22e59775d20cf71e8e9e5005f6309d8fedd22e2110fd9a026`，与已复审附件逐字节一致。
