@@ -135,11 +135,17 @@ func parseCompletedClientTrace(value string) (*completedClientTrace, bool) {
 	compressStart, compressEnd := numbers[6], numbers[7]
 	bodyStart, bodyEnd, httpStart := numbers[8], numbers[9], numbers[10]
 	responseEnd, displayEnd := numbers[11], numbers[12]
+	serverTiming := numbers[13:]
 	if !(pendingSince <= capture && capture <= ready && ready <= enqueue && enqueue <= dequeue &&
 		dequeue <= compressStart && superseded <= 1000 &&
 		compressStart <= compressEnd && compressEnd <= httpStart && httpStart <= bodyStart && bodyStart <= bodyEnd &&
 		bodyEnd <= responseEnd && responseEnd <= displayEnd && displayEnd-pendingSince <= 60000) {
 		return nil, false
+	}
+	for _, duration := range serverTiming {
+		if duration > 60000 {
+			return nil, false
+		}
 	}
 	return &completedClientTrace{
 		TraceID: parts[1], CaptureToReady: ready - capture, QueueWait: dequeue - enqueue,

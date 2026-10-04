@@ -43,4 +43,13 @@ func TestParseCompletedClientTrace(t *testing.T) {
 	if _, ok := parseCompletedClientTrace("v1,bad id,100,112,115,140,141,151,154,160,153,300,306,2,8,120,10,45,166"); ok {
 		t.Fatal("accepted invalid trace id")
 	}
+	if _, ok := parseCompletedClientTrace("v1,trace,100,112,115,90,140,2,141,151,154,160,153,300,306,2,8,-1,10,45,166"); ok {
+		t.Fatal("accepted negative server timing")
+	}
+	if _, ok := parseCompletedClientTrace("v1,trace,100,112,115,90,140,2,141,151,154,160,153,300,306,2,8,60001,10,45,166"); ok {
+		t.Fatal("accepted server timing above 60 seconds")
+	}
+	if _, ok := parseCompletedClientTrace("v1,trace,100,112,115,90,140,2,141,151,154,160,153,300,306,60000,60000,60000,60000,60000,60000"); !ok {
+		t.Fatal("rejected valid 60 second server timing boundary")
+	}
 }
