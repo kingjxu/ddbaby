@@ -1,6 +1,6 @@
 ---
-version: "1.1"
-last_updated: "2026-10-03"
+version: "1.2"
+last_updated: "2026-10-04"
 status: "active"
 ---
 
@@ -90,3 +90,23 @@ status: "active"
   运行时行为以源码/二进制哈希和候选回放为证据。
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261003-224307-before-92ddbef`，
   包含上一版二进制、运行时源码和校验信息。
+
+## 2026-10-04 全链路时延追踪部署
+
+- 业务提交：`1f4c38c`，安全边界修复提交：`97cd83d`；客户端配套提交：
+  `a779a81`。旧客户端不发送追踪头时保持原行为。
+- 远端 Go 1.22.2 执行 `go test ./... -count=1`、
+  `go test -race ./biz/handler ./model ./dal -count=1` 和 `bash build.sh`
+  均通过。
+- 部署二进制 SHA256：
+  `74346e9563c52e0ad9f44a88cda328216e5abe4bcbc67341a00a2a8486bbaeca`；
+  运行时 `texas_poker_decision.go` 和 `latency_trace.go` SHA256 分别为
+  `2679cf11f156d9a100b7af2009981e8eb4a0421f63ee3c58125fbe60d05967f7`、
+  `ba11b21f9b09fff6744573a90ee55c4666bd50606a8c1720a492bbf2267409e7`，
+  与构建输入一致。
+- 部署后 PID=821094、PPID=1，监听 8888；本机 `/ping` 返回
+  `{"message":"pong"}`。无鉴权 smoke 请求验证响应包含同一 trace id 和
+  `X-GTO-Server-Timing`，客户端阶段日志按预期产生。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261004-185316-before-97cd83d`。
+- 尚无 1.0.26 真机真实流量，不能据此确认 3 秒以上体感的具体归因；需要后续
+  `client_complete` 日志完成分段判断。
