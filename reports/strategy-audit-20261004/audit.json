@@ -1,0 +1,2116 @@
+{
+  "schema_version": 1,
+  "source": {
+    "decision_requests": "/data00/home/xujin.xj/outputs/today-hero-regression-20261003/decision-requests.json",
+    "decision_replay": "/data00/home/xujin.xj/outputs/today-hero-regression-20261003/decision-replay.jsonl"
+  },
+  "scope": {
+    "images": 129,
+    "valid_decisions": 128,
+    "unique_request_states": 84,
+    "excluded": [
+      {
+        "file": "2026-10-03 18:53:33-hero.jpg",
+        "reason": "pre-GTO request rejection: Hero cards are not face-up"
+      }
+    ]
+  },
+  "checks": {
+    "duplicate_response_consistency": true,
+    "repeated_outlier_calls": {
+      "states": 6,
+      "calls_per_state": 5,
+      "identical_within_state": true
+    },
+    "raw_equity_monte_carlo": {
+      "seed": 20261004,
+      "trials": 100000,
+      "ATo_vs_3_random": 0.339485,
+      "93o_vs_5_random": 0.10203416666666656
+    }
+  },
+  "classification_counts": {
+    "high_risk_multiway_postflop": 1,
+    "high_risk_preflop": 3,
+    "passed_obvious_error_screen": 76,
+    "solver_sensitive_river_bluff": 2,
+    "strict_free_fold": 2
+  },
+  "action_counts_all_occurrences": {
+    "bet": 12,
+    "call": 7,
+    "check": 18,
+    "fold": 72,
+    "raise": 19
+  },
+  "action_counts_unique_states": {
+    "bet": 4,
+    "call": 5,
+    "check": 13,
+    "fold": 50,
+    "raise": 12
+  },
+  "states": [
+    {
+      "state_sha256": "70e9a40116d9eec396f9e6b6d55f11c7d2471e24d6ed28c84cf35d121aadb1cb",
+      "files": [
+        "2026-10-03 18:22:40-hero.jpg",
+        "2026-10-03 18:22:42-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "3-H",
+        "5-D"
+      ],
+      "pot": 24,
+      "hero_bet": 2,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "e4e7bf0ca25ae0831f4d82bf4ca7a39dc6f1306b7efba89c46476087b03a7d17",
+      "files": [
+        "2026-10-03 18:22:51-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "3-H",
+        "5-D"
+      ],
+      "pot": 53,
+      "hero_bet": 4,
+      "max_bet": 13,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "81679dde41d1dbbd6683072b7f61e5ef83f23dbb6999721dc18ddc3f07e156bf",
+      "files": [
+        "2026-10-03 18:23:09-hero.jpg",
+        "2026-10-03 18:23:11-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "SB-Hero",
+      "hero_cards": [
+        "9-H",
+        "7-H"
+      ],
+      "pot": 35,
+      "hero_bet": 1,
+      "max_bet": 18,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "1e9a8e11fd29d4faf2d8461939968989f0d1c55d9c80d1a8e8de1fe15d0c2bab",
+      "files": [
+        "2026-10-03 18:23:45-hero.jpg",
+        "2026-10-03 18:23:48-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "SB-Hero",
+      "hero_cards": [
+        "10-D",
+        "3-C"
+      ],
+      "pot": 50,
+      "hero_bet": 1,
+      "max_bet": 290,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "a29e7d189371e0742b1536246b0c4197f220f20ca192d5987f839731a61f44ff",
+      "files": [
+        "2026-10-03 18:24:00-hero.jpg",
+        "2026-10-03 18:24:03-hero.jpg",
+        "2026-10-03 18:24:05-hero.jpg",
+        "2026-10-03 18:24:08-hero.jpg"
+      ],
+      "occurrences": 4,
+      "stage": "preflop",
+      "hero_position": "BTN-Hero",
+      "hero_cards": [
+        "J-D",
+        "9-S"
+      ],
+      "pot": 27,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 0.745,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "59a7bb49a3017f8b72e50ebc435c229993733675f14811526e8eece2289ad37d",
+      "files": [
+        "2026-10-03 18:25:12-hero.jpg",
+        "2026-10-03 18:25:14-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "CO-Hero",
+      "hero_cards": [
+        "5-H",
+        "6-C"
+      ],
+      "pot": 19,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "d9d09fecf59560d03641b05dac83571dc4bbf7c76efd851541f8b6ca2f115cff",
+      "files": [
+        "2026-10-03 18:25:28-hero.jpg",
+        "2026-10-03 18:25:30-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "UTG-Hero",
+      "hero_cards": [
+        "3-D",
+        "10-H"
+      ],
+      "pot": 19,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "8eb79f4376b63fe08fdcd68a9a16fae1d546c74968df978ba531f9723a996190",
+      "files": [
+        "2026-10-03 18:26:35-hero.jpg",
+        "2026-10-03 18:26:37-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "SB-Hero",
+      "hero_cards": [
+        "10-C",
+        "A-D"
+      ],
+      "pot": 19,
+      "hero_bet": 1,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "high_risk_preflop",
+      "reason": "ATo in SB folds for 3 into pot 19; raw all-in equity is 33.95% against three uniformly random hands, while immediate pot odds are 13.64%. Range-aware solver verification is still required."
+    },
+    {
+      "state_sha256": "bc5f750a6bd135926a234f7bd1c4a02b06595d11c299e9c92ea59088f1508c87",
+      "files": [
+        "2026-10-03 18:26:46-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "flop",
+      "hero_position": "SB-Hero",
+      "hero_cards": [
+        "10-C",
+        "A-D"
+      ],
+      "pot": 24,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.985,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "f1d1e260da3cc3ac1d5008e61094eb442733862aa2f356ab9902f289d0c1c086",
+      "files": [
+        "2026-10-03 18:26:51-hero.jpg",
+        "2026-10-03 18:26:53-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "turn",
+      "hero_position": "SB-Hero",
+      "hero_cards": [
+        "10-C",
+        "A-D"
+      ],
+      "pot": 24,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.879,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "86b3884430d3aa1010fb0a68c3fb1fd8f5ab7f3a1e207e11e51bae0015f3eeee",
+      "files": [
+        "2026-10-03 18:26:58-hero.jpg",
+        "2026-10-03 18:27:00-hero.jpg",
+        "2026-10-03 18:27:02-hero.jpg",
+        "2026-10-03 18:27:04-hero.jpg"
+      ],
+      "occurrences": 4,
+      "stage": "river",
+      "hero_position": "SB-Hero",
+      "hero_cards": [
+        "10-C",
+        "A-D"
+      ],
+      "pot": 56,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "bet",
+        "raise_size": 72,
+        "action_probability": 0.85,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "17c7d93fe61f864c111b3fef5c047d85708d11c9c499b3f36c966bd2cdce100a",
+      "files": [
+        "2026-10-03 18:27:12-hero.jpg",
+        "2026-10-03 18:27:15-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "BTN-Hero",
+      "hero_cards": [
+        "A-C",
+        "9-C"
+      ],
+      "pot": 15,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "raise",
+        "raise_size": 15,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "3b397e9f9915e52c381374e9c5a05970d6fe2978e2e4f5197645d93379966e68",
+      "files": [
+        "2026-10-03 18:27:31-hero.jpg",
+        "2026-10-03 18:27:33-hero.jpg",
+        "2026-10-03 18:27:34-hero.jpg"
+      ],
+      "occurrences": 3,
+      "stage": "flop",
+      "hero_position": "BTN-Hero",
+      "hero_cards": [
+        "A-C",
+        "9-C"
+      ],
+      "pot": 54,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "bet",
+        "raise_size": 17,
+        "action_probability": 0.87,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "4e9f7290fb1021f775c215a9079119ca75a41b0df6bc9f36991971973b8a5eb4",
+      "files": [
+        "2026-10-03 18:28:23-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "6-D",
+        "5-S"
+      ],
+      "pot": 17,
+      "hero_bet": 2,
+      "max_bet": 8,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "a78183ac3de77eb31eb97b414b005c20f5ba255cc750c0f476024b9e4ba51d80",
+      "files": [
+        "2026-10-03 18:28:28-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "flop",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "6-D",
+        "5-S"
+      ],
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.985,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "ddb018e91c1ffd1501b2ad855a6c5224dae723a9603e69422a29ae567fc087fb",
+      "files": [
+        "2026-10-03 18:28:34-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "turn",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "6-D",
+        "5-S"
+      ],
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.85,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "49bd26bd4ded6fe6fe624beefc01287d1e51eb3d627a6ca319844e81ac7cbc36",
+      "files": [
+        "2026-10-03 18:28:55-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "2-H",
+        "Q-S"
+      ],
+      "pot": 16,
+      "hero_bet": 2,
+      "max_bet": 4,
+      "response": {
+        "action": "call",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "617160ebeed6c4073830b6897e90213ed348eb6e5982b1165f359d6c3541521c",
+      "files": [
+        "2026-10-03 18:29:09-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "SB-Hero",
+      "hero_cards": [
+        "K-S",
+        "6-D"
+      ],
+      "pot": 21,
+      "hero_bet": 1,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "4a2ed130503a584134156fb7dfd90b63b06c4e47062e9e7b19c29ea6792ad68d",
+      "files": [
+        "2026-10-03 18:29:36-hero.jpg",
+        "2026-10-03 18:29:39-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "BTN-Hero",
+      "hero_cards": [
+        "J-H",
+        "A-D"
+      ],
+      "pot": 21,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "raise",
+        "raise_size": 15,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "5a81945ec69cb7e659172969c7129e065abf2d9b3202551ac5f1546a84cbdff4",
+      "files": [
+        "2026-10-03 18:29:56-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "flop",
+      "hero_position": "BTN-Hero",
+      "hero_cards": [
+        "J-H",
+        "A-D"
+      ],
+      "pot": 96,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.838,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "ec4150862c9d295d63b195bbbf433c42e044851e4cabf76521ceee2b86704d82",
+      "files": [
+        "2026-10-03 18:30:14-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "CO-Hero",
+      "hero_cards": [
+        "Q-S",
+        "Q-H"
+      ],
+      "pot": 25,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "raise",
+        "raise_size": 15,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "385d4a7694a3823a39a221be7493f253dc5b47219f9b2b12a066332e9bf719bb",
+      "files": [
+        "2026-10-03 18:30:35-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "flop",
+      "hero_position": "CO-Hero",
+      "hero_cards": [
+        "Q-S",
+        "Q-H"
+      ],
+      "pot": 224,
+      "hero_bet": 0,
+      "max_bet": 112,
+      "response": {
+        "action": "raise",
+        "raise_size": 169,
+        "action_probability": 0.8,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "a3b17e81b367a15a1f223e452dc91b431ff96e4ada5e9e636b69712e6f24d0d1",
+      "files": [
+        "2026-10-03 18:30:57-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "A-D",
+        "10-D"
+      ],
+      "pot": 21,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "raise",
+        "raise_size": 15,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "5d716091e3f2e34678bc898a33196b68704cf28a79371243c616c00eb1ba4de7",
+      "files": [
+        "2026-10-03 18:31:10-hero.jpg",
+        "2026-10-03 18:31:13-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "A-D",
+        "10-D"
+      ],
+      "pot": 59,
+      "hero_bet": 4,
+      "max_bet": 33,
+      "response": {
+        "action": "call",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "993b6696cd47f2ce033cb66ce0a069f28c2dedb8b80083938246cebd4a2eeeda",
+      "files": [
+        "2026-10-03 18:31:25-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "flop",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "A-D",
+        "10-D"
+      ],
+      "pot": 206,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.825,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "ed9ac143fea89448333ab048e7b977981056abb9718a839c5274ba8b3e89daf9",
+      "files": [
+        "2026-10-03 18:31:38-hero.jpg",
+        "2026-10-03 18:31:40-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "UTG-Hero",
+      "hero_cards": [
+        "A-H",
+        "10-H"
+      ],
+      "pot": 21,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "raise",
+        "raise_size": 15,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "aac136ed2ba8ed4f450132430ea7dc3364067a3a60cef177e4a9a84d6cf298ff",
+      "files": [
+        "2026-10-03 18:31:54-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "UTG-Hero",
+      "hero_cards": [
+        "A-H",
+        "10-H"
+      ],
+      "pot": 167,
+      "hero_bet": 4,
+      "max_bet": 70,
+      "response": {
+        "action": "call",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "high_risk_preflop",
+      "reason": "ATh in UTG has limped 4, then faces a raise to 70 plus a call at 70 and calls another 66 with players still behind. Immediate pot odds are 28.33%; a 100% call is high risk and needs range-aware solver review."
+    },
+    {
+      "state_sha256": "096559e68dd40ab2ae55d012f08d76502a25248d0ec897f4dfc2f8cdc2af1b5b",
+      "files": [
+        "2026-10-03 18:32:21-hero.jpg",
+        "2026-10-03 18:32:23-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "straddle-Hero",
+      "hero_cards": [
+        "7-S",
+        "K-D"
+      ],
+      "pot": 46,
+      "hero_bet": 4,
+      "max_bet": 27,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "011f2a3ceea35c9581abbb004acb52e89719802f61e0aef34977f7521c823b2c",
+      "files": [
+        "2026-10-03 18:32:54-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "straddle-Hero",
+      "hero_cards": [
+        "J-H",
+        "2-S"
+      ],
+      "pot": 65,
+      "hero_bet": 4,
+      "max_bet": 14,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "38079803fc22349f3296b6dd234df9a13e1536ad124fdc7c27f52f1d81f159b7",
+      "files": [
+        "2026-10-03 18:33:35-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "6-D",
+        "5-S"
+      ],
+      "pot": 88,
+      "hero_bet": 2,
+      "max_bet": 17,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "51f70ec52f050d2894e649379a86152fe859d8cb422375b3fc7d13ef5c20df0c",
+      "files": [
+        "2026-10-03 18:34:18-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "SB-Hero",
+      "hero_cards": [
+        "8-S",
+        "7-H"
+      ],
+      "pot": 31,
+      "hero_bet": 1,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "f59503fa8b10f25ddbbcce227ea1c0774de232ced1609ecfcd4c4d5aef53197b",
+      "files": [
+        "2026-10-03 18:34:29-hero.jpg",
+        "2026-10-03 18:34:31-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "SB-Hero",
+      "hero_cards": [
+        "8-S",
+        "7-H"
+      ],
+      "pot": 108,
+      "hero_bet": 4,
+      "max_bet": 40,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "9df12e19089f90e074149212f7a748f49dbf170eba65a88429581ab6d3ce7262",
+      "files": [
+        "2026-10-03 18:35:12-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "BTN-Hero",
+      "hero_cards": [
+        "Q-C",
+        "7-S"
+      ],
+      "pot": 41,
+      "hero_bet": 0,
+      "max_bet": 18,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "5e832d1bf3d2e906946704d245ec5cae3406ce99e052eeea63cfbfd93992a7fa",
+      "files": [
+        "2026-10-03 18:35:52-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "CO-Hero",
+      "hero_cards": [
+        "2-H",
+        "Q-D"
+      ],
+      "pot": 31,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "e46c91928c76002970fca10f4831c4883e1ab25677c3107c5a6744c1cfa2354a",
+      "files": [
+        "2026-10-03 18:36:49-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "Q-S",
+        "K-H"
+      ],
+      "pot": 31,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "raise",
+        "raise_size": 15,
+        "action_probability": 0.85,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "0c7506e864de2a851f30c91c878eef2a91c2921aa2205730d9e4a69de9e44b37",
+      "files": [
+        "2026-10-03 18:37:14-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "flop",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "Q-S",
+        "K-H"
+      ],
+      "pot": 165,
+      "hero_bet": 0,
+      "max_bet": 55,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 0.92,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "ccf3dfec713fc8468ebfe80e3fc19afc751b4d89bbe52a3e465a555ffb8f1e5b",
+      "files": [
+        "2026-10-03 18:37:23-hero.jpg",
+        "2026-10-03 18:37:25-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "turn",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "Q-S",
+        "K-H"
+      ],
+      "pot": 440,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.855,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "4ea01bb55ba91f6472aec25f5fe406c80e8e252c9ebeee06bbdb825877afc71c",
+      "files": [
+        "2026-10-03 18:37:31-hero.jpg",
+        "2026-10-03 18:37:34-hero.jpg",
+        "2026-10-03 18:37:36-hero.jpg"
+      ],
+      "occurrences": 3,
+      "stage": "river",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "Q-S",
+        "K-H"
+      ],
+      "pot": 440,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "bet",
+        "raise_size": 298,
+        "action_probability": 0.85,
+        "detail": ""
+      },
+      "classification": "solver_sensitive_river_bluff",
+      "reason": "KQo missed draw bets 298 into 440 on the river. Polarized bluffing can be valid; blocker and range quality require the same solver configuration."
+    },
+    {
+      "state_sha256": "9b32444c073e0765927ae3f49fe74d2124eb409c1a2854c158d1f2b1477a4153",
+      "files": [
+        "2026-10-03 18:38:00-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "flop",
+      "hero_position": "UTG+1-Hero",
+      "hero_cards": [
+        "Q-H",
+        "Q-S"
+      ],
+      "pot": 80,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.91,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "f0fa69454d583987439e21695b9c0042531ce2659fb254b694b71a99fe9ed20f",
+      "files": [
+        "2026-10-03 18:38:24-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "UTG-Hero",
+      "hero_cards": [
+        "8-C",
+        "9-D"
+      ],
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "d2efca3ae345e6f09fc0b569bac60d227770d23c44c645679a77c8b2bf05df99",
+      "files": [
+        "2026-10-03 18:39:35-hero.jpg",
+        "2026-10-03 18:39:37-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "turn",
+      "hero_position": "straddle-Hero",
+      "hero_cards": [
+        "8-C",
+        "K-D"
+      ],
+      "pot": 36,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.865,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "10aa890dd5db9180fa22e416b7603c5921919357a72e98c7c81467e0bd553862",
+      "files": [
+        "2026-10-03 18:40:09-hero.jpg",
+        "2026-10-03 18:40:12-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "7-C",
+        "A-C"
+      ],
+      "pot": 38,
+      "hero_bet": 2,
+      "max_bet": 4,
+      "response": {
+        "action": "call",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "c202f999a10dba544809ccaaf2b1461e92b904d543cd231109a245cc3a2e763b",
+      "files": [
+        "2026-10-03 18:42:19-hero.jpg",
+        "2026-10-03 18:42:22-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "BTN-Hero",
+      "hero_cards": [
+        "Q-S",
+        "5-C"
+      ],
+      "pot": 63,
+      "hero_bet": 2,
+      "max_bet": 19,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "5ee23c8ad2050a724b17bad02810c13e8d32d2001bfdc71ec34058d0c810897d",
+      "files": [
+        "2026-10-03 18:43:06-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "CO-Hero",
+      "hero_cards": [
+        "K-S",
+        "6-S"
+      ],
+      "pot": 27,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "cdc6289fffed990c15e1d4a9cd81d0be7a8fc1da584d3b4390660737be0af00e",
+      "files": [
+        "2026-10-03 18:43:21-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "CO-Hero",
+      "hero_cards": [
+        "K-S",
+        "6-S"
+      ],
+      "pot": 68,
+      "hero_bet": 4,
+      "max_bet": 38,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "227f830b9f5117fd2d71aaed58da23ae7acda233d26084d526788a85ea381b0d",
+      "files": [
+        "2026-10-03 18:43:33-hero.jpg",
+        "2026-10-03 18:43:35-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "3-C",
+        "A-C"
+      ],
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "raise",
+        "raise_size": 15,
+        "action_probability": 0.7,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "7556d68685dc96289842983df8392fdd3b281c898795e3347ddcfab83b8556d7",
+      "files": [
+        "2026-10-03 18:43:51-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "flop",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "3-C",
+        "A-C"
+      ],
+      "pot": 73,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.97,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "1c285baf8267cd9fd3bef368ce80310becf13680c452c3cce455c48af9109b27",
+      "files": [
+        "2026-10-03 18:43:58-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "turn",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "3-C",
+        "A-C"
+      ],
+      "pot": 73,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.858,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "0b71a3470d74fdd76910cd4e499d35c2d4ae5ed2247f21cfdc18b3147f06a599",
+      "files": [
+        "2026-10-03 18:44:06-hero.jpg",
+        "2026-10-03 18:44:08-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "turn",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "3-C",
+        "A-C"
+      ],
+      "pot": 110,
+      "hero_bet": 0,
+      "max_bet": 37,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 0.88,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "b9e5876990d4559670e0c9831786446309ed8be06b5f3f0b895c963742077395",
+      "files": [
+        "2026-10-03 18:44:24-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "UTG+1-Hero",
+      "hero_cards": [
+        "8-S",
+        "2-H"
+      ],
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "d7868c103a41f0201b4ffbe4e78148fab79770c7eda7acd4654a5f6b58583179",
+      "files": [
+        "2026-10-03 18:45:00-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "UTG-Hero",
+      "hero_cards": [
+        "3-H",
+        "6-C"
+      ],
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "d89254b128531809c0cdea81d300e6970a2cee67c568e68618a97f6416924128",
+      "files": [
+        "2026-10-03 18:46:11-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "straddle-Hero",
+      "hero_cards": [
+        "10-C",
+        "3-S"
+      ],
+      "pot": 32,
+      "hero_bet": 4,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "strict_free_fold",
+      "reason": "Hero has matched the maximum committed bet, so check is free and dominates fold."
+    },
+    {
+      "state_sha256": "85a4f1969029f62e1f96ad971233289a89f2e9f9c1c58b9f67cb658d3b17a738",
+      "files": [
+        "2026-10-03 18:46:19-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "flop",
+      "hero_position": "straddle-Hero",
+      "hero_cards": [
+        "10-C",
+        "3-S"
+      ],
+      "pot": 43,
+      "hero_bet": 0,
+      "max_bet": 11,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 0.92,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "2b746e6e40715185cb545731ff4c3e9b2922d1c0b4fcf015d042a962f1c9059a",
+      "files": [
+        "2026-10-03 18:47:14-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "K-D",
+        "6-H"
+      ],
+      "pot": 31,
+      "hero_bet": 2,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "66c7b195ed987d19fc9c6fab15fd12916990916d6e47e37bcca0f37c2afb9040",
+      "files": [
+        "2026-10-03 18:47:21-hero.jpg",
+        "2026-10-03 18:47:24-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "flop",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "K-D",
+        "6-H"
+      ],
+      "pot": 33,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.995,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "e8fe4843b682cbd89b7dc62989dcc73ae4f425472d38bb379885f2c2136198f3",
+      "files": [
+        "2026-10-03 18:47:29-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "flop",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "K-D",
+        "6-H"
+      ],
+      "pot": 50,
+      "hero_bet": 0,
+      "max_bet": 17,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 0.92,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "9b6f90bc897529958a22359a3d98a9e4f0e31e703b3e447e4fd4c91f6a61eac0",
+      "files": [
+        "2026-10-03 18:47:34-hero.jpg",
+        "2026-10-03 18:47:36-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "turn",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "K-D",
+        "6-H"
+      ],
+      "pot": 67,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "check",
+        "raise_size": 0,
+        "action_probability": 0.854,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "8a2e211be56441e16b635cea2b85414474b56697d2fbb9c25b34a043c13eb9ea",
+      "files": [
+        "2026-10-03 18:47:39-hero.jpg",
+        "2026-10-03 18:47:41-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "river",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "K-D",
+        "6-H"
+      ],
+      "pot": 67,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "response": {
+        "action": "bet",
+        "raise_size": 87,
+        "action_probability": 0.85,
+        "detail": ""
+      },
+      "classification": "solver_sensitive_river_bluff",
+      "reason": "K6o bets 87 into 67 on the river with king high. Polarized bluffing can be valid; blocker and range quality require the same solver configuration."
+    },
+    {
+      "state_sha256": "be257b6971f8ee5bc69bdc5cd82ce75508647ea21e8eaf21ed6f11b50d469577",
+      "files": [
+        "2026-10-03 18:48:00-hero.jpg",
+        "2026-10-03 18:48:03-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "SB-Hero",
+      "hero_cards": [
+        "6-C",
+        "K-H"
+      ],
+      "pot": 23,
+      "hero_bet": 1,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "6425080966b1387302500bd0e0c1bd40abf8dec2d26c94b4e209a5abbabc6f33",
+      "files": [
+        "2026-10-03 18:48:26-hero.jpg",
+        "2026-10-03 18:48:29-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "BTN-Hero",
+      "hero_cards": [
+        "9-C",
+        "3-D"
+      ],
+      "pot": 31,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "raise",
+        "raise_size": 15,
+        "action_probability": 0.85,
+        "detail": ""
+      },
+      "classification": "high_risk_preflop",
+      "reason": "93o on BTN raises to 15 over two limpers with five opponents still active; raw all-in equity is 10.20% against five uniformly random hands. An exploit or range-aware solver could justify some bluffs, so this is flagged rather than overridden."
+    },
+    {
+      "state_sha256": "4042236bf9100c0e3498af8e533430a71021389b33bb96da97aad9cde47a5a01",
+      "files": [
+        "2026-10-03 18:49:06-hero.jpg",
+        "2026-10-03 18:49:09-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "CO-Hero",
+      "hero_cards": [
+        "8-C",
+        "2-D"
+      ],
+      "pot": 27,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "7b28d961f04e9301a35ed50aa050d9731a871ff6ebede989f291e3bf4659a6b6",
+      "files": [
+        "2026-10-03 18:50:02-hero.jpg",
+        "2026-10-03 18:50:04-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "6-H",
+        "5-H"
+      ],
+      "pot": 21,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 0.7,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "6a90c9600c4691334d1152a754583c540ab3705131270ddc468631388352a385",
+      "files": [
+        "2026-10-03 18:50:19-hero.jpg",
+        "2026-10-03 18:50:21-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "6-H",
+        "5-H"
+      ],
+      "pot": 146,
+      "hero_bet": 17,
+      "max_bet": 54,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "f5a472ee0d151c98d74aadd399454b5a20c11213ca3d874e9c2e5a3834ad95f0",
+      "files": [
+        "2026-10-03 18:50:52-hero.jpg",
+        "2026-10-03 18:50:56-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "CO-Hero",
+      "hero_cards": [
+        "2-C",
+        "6-C"
+      ],
+      "pot": 25,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "d59fc45ee4c7d1f149c8a8725203508f357c206f9f5f7e23f75703c957890f9b",
+      "files": [
+        "2026-10-03 18:51:55-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "UTG-Hero",
+      "hero_cards": [
+        "Q-D",
+        "6-H"
+      ],
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "ccf4bf6f5b55764ae5781a8b80be9f11de3fc697d8dd588d04338a7d727c3be5",
+      "files": [
+        "2026-10-03 18:52:46-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "straddle-Hero",
+      "hero_cards": [
+        "8-H",
+        "6-H"
+      ],
+      "pot": 77,
+      "hero_bet": 4,
+      "max_bet": 25,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "c7eb2e1637fd5cde9e51780495290a7805f8af25d0cc202bc41b7e8d1bc72c87",
+      "files": [
+        "2026-10-03 18:53:36-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "4-D",
+        "4-C"
+      ],
+      "pot": 286,
+      "hero_bet": 2,
+      "max_bet": 219,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "c48916526ec2d6ea1a2d2b1aff0810742355d7ffb0cc37eb3d7726519222d01c",
+      "files": [
+        "2026-10-03 18:54:04-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "SB-Hero",
+      "hero_cards": [
+        "J-D",
+        "3-C"
+      ],
+      "pot": 41,
+      "hero_bet": 1,
+      "max_bet": 18,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "5238c4a84a833100a230d767426ab4ace3b95db93aff043b88232254fee73710",
+      "files": [
+        "2026-10-03 18:54:53-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "BTN-Hero",
+      "hero_cards": [
+        "J-C",
+        "7-D"
+      ],
+      "pot": 27,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "raise",
+        "raise_size": 15,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "bd9f8c756ccd02d6e69d1f3e6dbdd5f0b118fb30856f97f1400801749b6f6005",
+      "files": [
+        "2026-10-03 18:55:46-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "CO-Hero",
+      "hero_cards": [
+        "2-D",
+        "5-H"
+      ],
+      "pot": 31,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "fa25d49f67cbc938be4d71913b652a0baec079b8bb8f58751615bdfe7dee0553",
+      "files": [
+        "2026-10-03 18:57:00-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "flop",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "9-D",
+        "6-S"
+      ],
+      "pot": 120,
+      "hero_bet": 0,
+      "max_bet": 40,
+      "response": {
+        "action": "call",
+        "raise_size": 0,
+        "action_probability": 0.757,
+        "detail": ""
+      },
+      "classification": "high_risk_multiway_postflop",
+      "reason": "96o has weak bottom pair plus only a low-spade backdoor on A♠ J♠ 6♥ in an eight-player pot, faces 40 into 120 with players behind, and calls at 75.7%. The 25% immediate price understates reverse-implied and overcall/check-raise risk; solver review is required."
+    },
+    {
+      "state_sha256": "5ec0584153d8a3a2253cd4f7ac0c095ad3fd4bbd318a4251acf9104a6119c923",
+      "files": [
+        "2026-10-03 18:57:36-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "UTG+1-Hero",
+      "hero_cards": [
+        "4-C",
+        "J-C"
+      ],
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "7b11680cf1718a4e4e3c8906a1857f350fd6ddc85159954e3aedc6d20017bbf2",
+      "files": [
+        "2026-10-03 18:58:25-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "UTG-Hero",
+      "hero_cards": [
+        "A-D",
+        "9-D"
+      ],
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "raise",
+        "raise_size": 15,
+        "action_probability": 0.5,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "2089a2636d5f3c7db4f961e2887a2a0a0a5e7f54b7de6b19889aa93797cab362",
+      "files": [
+        "2026-10-03 18:58:41-hero.jpg",
+        "2026-10-03 18:58:43-hero.jpg",
+        "2026-10-03 18:58:47-hero.jpg"
+      ],
+      "occurrences": 3,
+      "stage": "preflop",
+      "hero_position": "UTG-Hero",
+      "hero_cards": [
+        "A-D",
+        "9-D"
+      ],
+      "pot": 76,
+      "hero_bet": 4,
+      "max_bet": 25,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "94af2ed468d8564e0d5607a7ec2cf3d94957e8f46ec809d222b3df42fb02c70b",
+      "files": [
+        "2026-10-03 18:59:17-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "straddle-Hero",
+      "hero_cards": [
+        "6-S",
+        "7-D"
+      ],
+      "pot": 35,
+      "hero_bet": 4,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "strict_free_fold",
+      "reason": "Hero has matched the maximum committed bet, so check is free and dominates fold."
+    },
+    {
+      "state_sha256": "0cc89f43f4e2499ae8eae9e4af09b6a8a1868e297cfbbb5da48cc9d5b66c5d51",
+      "files": [
+        "2026-10-03 18:59:30-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "flop",
+      "hero_position": "straddle-Hero",
+      "hero_cards": [
+        "6-S",
+        "7-D"
+      ],
+      "pot": 53,
+      "hero_bet": 0,
+      "max_bet": 18,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 0.92,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "12ec1424618334c2a9f2eee77db45c93839deedd74ce5f4f805fdd80d7ff99e2",
+      "files": [
+        "2026-10-03 18:59:51-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "BB-Hero",
+      "hero_cards": [
+        "2-D",
+        "4-S"
+      ],
+      "pot": 34,
+      "hero_bet": 2,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "5f1315c40fa4c2b9c4ddbc90bd7893250183d28924f9ef64bd5a25e98bbcf923",
+      "files": [
+        "2026-10-03 19:00:37-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "SB-Hero",
+      "hero_cards": [
+        "6-C",
+        "3-S"
+      ],
+      "pot": 41,
+      "hero_bet": 1,
+      "max_bet": 18,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "dbcb4209a4968245cc4762878e425eac92830bb9c9796b9de649c035d729517c",
+      "files": [
+        "2026-10-03 19:01:26-hero.jpg",
+        "2026-10-03 19:01:28-hero.jpg",
+        "2026-10-03 19:01:30-hero.jpg"
+      ],
+      "occurrences": 3,
+      "stage": "preflop",
+      "hero_position": "BTN-Hero",
+      "hero_cards": [
+        "K-H",
+        "3-H"
+      ],
+      "pot": 31,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "raise",
+        "raise_size": 15,
+        "action_probability": 0.85,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "276793c8d698701e812958f2ceae4509a62d0f66b82659a8d9914d52fcc70e2f",
+      "files": [
+        "2026-10-03 19:02:30-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "CO-Hero",
+      "hero_cards": [
+        "3-C",
+        "5-H"
+      ],
+      "pot": 35,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "a19536e293d237a239868158eb8c71d90222e1294b7e3d8267b759f290c95684",
+      "files": [
+        "2026-10-03 19:03:22-hero.jpg",
+        "2026-10-03 19:03:25-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "MP-Hero",
+      "hero_cards": [
+        "7-D",
+        "J-D"
+      ],
+      "pot": 27,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "ebad2ae0c39768902021c5421fec31aa156cec8793b9d97157116df20473aef1",
+      "files": [
+        "2026-10-03 19:04:08-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "UTG+1-Hero",
+      "hero_cards": [
+        "5-C",
+        "Q-C"
+      ],
+      "pot": 27,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "eec5b9759a1a95ad2f5383ae456d8841edae90ca6d2ac0dcf3987b20a268b9c6",
+      "files": [
+        "2026-10-03 19:05:07-hero.jpg"
+      ],
+      "occurrences": 1,
+      "stage": "preflop",
+      "hero_position": "UTG-Hero",
+      "hero_cards": [
+        "4-C",
+        "6-H"
+      ],
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    },
+    {
+      "state_sha256": "0fd221492ee602a111f29b6c93388af0547b07918c4a867fa2dc9a3b1f17bdcf",
+      "files": [
+        "2026-10-03 19:06:08-hero.jpg",
+        "2026-10-03 19:06:11-hero.jpg"
+      ],
+      "occurrences": 2,
+      "stage": "preflop",
+      "hero_position": "straddle-Hero",
+      "hero_cards": [
+        "J-D",
+        "2-H"
+      ],
+      "pot": 51,
+      "hero_bet": 4,
+      "max_bet": 21,
+      "response": {
+        "action": "fold",
+        "raise_size": 0,
+        "action_probability": 1,
+        "detail": ""
+      },
+      "classification": "passed_obvious_error_screen",
+      "reason": "No illegal action, strict dominance, duplicate inconsistency, or selected high-risk outlier found by this audit; this does not certify solver optimality."
+    }
+  ],
+  "interpretation": "strict_free_fold is conclusively wrong without a solver and should be fixed in the decision algorithm. passed_obvious_error_screen does not mean mathematically optimal. This audit does not alter ddbaby responses."
+}
