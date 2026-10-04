@@ -1,0 +1,1229 @@
+{
+  "cutoff": "2026-10-04T17:40:42+08:00",
+  "images": 96,
+  "decision_occurrences": 96,
+  "unique_states": 56,
+  "category_counts": {
+    "passed_obvious_error_screen": 53,
+    "high_risk_preflop": 1,
+    "solver_sensitive_river_bluff": 2
+  },
+  "items": [
+    {
+      "state_sha256": "3fda4c1806e852c16c283dd4f558b1153a4eaa0c584e319a2ea0156bcdcb84e2",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:18:14-hero.jpg",
+        "2026-10-04 17:18:17-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "4-H",
+        "5-H"
+      ],
+      "hero_position": "SB-Hero",
+      "pot": 45,
+      "hero_bet": 1,
+      "max_bet": 22,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "071734dd7643b1a89e85844a423bdcf847b46df4aa57ccf712c9e7b0daa4ddc2",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:18:55-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "2-S",
+        "Q-D"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 19,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "action": "raise",
+      "raise_size": 15,
+      "action_probability": 1.0,
+      "category": "high_risk_preflop",
+      "reason": "BTN 在前位均弃牌后以 Q2o 加注到 15（straddle=4）；范围和抽水未知，不能严格判错，但属于明显偏松且尺度偏大的翻前开池，需策略服务复核。"
+    },
+    {
+      "state_sha256": "8dd50591eb6cc218201fbc39b1c46745bcf36fa4744edd709d3af822941adaab",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:19:59-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "8-S",
+        "J-D"
+      ],
+      "hero_position": "CO-Hero",
+      "pot": 49,
+      "hero_bet": 0,
+      "max_bet": 24,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "eb7e2aabe1f8d6f070c2aca2cf216eb639950d999e19f60eefb2469f557294e2",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:20:19-hero.jpg",
+        "2026-10-04 17:20:21-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "2-H",
+        "5-D"
+      ],
+      "hero_position": "MP-Hero",
+      "pot": 21,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "bb75719c23d83e247aa50e077b1bd3434c2bc05f3b381c0afea50730f72d752d",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:22:03-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "J-C",
+        "6-H"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 62,
+      "hero_bet": 2,
+      "max_bet": 22,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "bc90556aecfd7099e2a5a267c0b3409cfb7a2ee3b2271c885bd3c42a77a7a7e9",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:22:27-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "J-S",
+        "2-C"
+      ],
+      "hero_position": "SB-Hero",
+      "pot": 23,
+      "hero_bet": 1,
+      "max_bet": 4,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "2028edfc20150a52e1c48cf271469ccb8d1f869e499001e5c8983f816626d294",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:23:29-hero.jpg",
+        "2026-10-04 17:23:32-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "Q-S",
+        "8-S"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 19,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "action": "raise",
+      "raise_size": 15,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "0472d6ea35bf2f5188ad3ef16e26990ff49ef820842b0deeb878f21eaa9b8b78",
+      "occurrences": 3,
+      "files": [
+        "2026-10-04 17:23:43-hero.jpg",
+        "2026-10-04 17:23:45-hero.jpg",
+        "2026-10-04 17:23:47-hero.jpg"
+      ],
+      "stage": "flop",
+      "hero_cards": [
+        "Q-S",
+        "8-S"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 47,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.67,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "d5e3a9d10dcc56c32d018c0dca50d5c3e7742ed4bd3678a6caf1cb1c9a46f692",
+      "occurrences": 3,
+      "files": [
+        "2026-10-04 17:23:55-hero.jpg",
+        "2026-10-04 17:23:57-hero.jpg",
+        "2026-10-04 17:23:59-hero.jpg"
+      ],
+      "stage": "turn",
+      "hero_cards": [
+        "Q-S",
+        "8-S"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 87,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.775,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "9dbef3f70e21a9a309f86cedf3d0528ce0c10db1c3bc542deda0db10a9d4ee67",
+      "occurrences": 4,
+      "files": [
+        "2026-10-04 17:24:04-hero.jpg",
+        "2026-10-04 17:24:06-hero.jpg",
+        "2026-10-04 17:24:08-hero.jpg",
+        "2026-10-04 17:24:10-hero.jpg"
+      ],
+      "stage": "river",
+      "hero_cards": [
+        "Q-S",
+        "8-S"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 116,
+      "hero_bet": 0,
+      "max_bet": 29,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 0.92,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "ee7d7f1e51fb40d0ffb7b1b569f9ec5508c0649f576752cc1a074b41000c87e3",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:24:18-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "6-S",
+        "A-H"
+      ],
+      "hero_position": "CO-Hero",
+      "pot": 19,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "8c6b1c753626a38a0c6cc38e949fce71fd9c610345c6b9b512ccbbeac11ab531",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:24:30-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "6-S",
+        "A-H"
+      ],
+      "hero_position": "CO-Hero",
+      "pot": 96,
+      "hero_bet": 4,
+      "max_bet": 36,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "e512d9892b4dc3099d517063924b4c543fcd3fc3050403e4cedd64eb75d477ff",
+      "occurrences": 3,
+      "files": [
+        "2026-10-04 17:25:12-hero.jpg",
+        "2026-10-04 17:25:15-hero.jpg",
+        "2026-10-04 17:25:17-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "A-S",
+        "9-C"
+      ],
+      "hero_position": "straddle-Hero",
+      "pot": 23,
+      "hero_bet": 4,
+      "max_bet": 4,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "0f2f7c27139ca5505d1c76954d2d41e616a4bb6fb6785380ab4912aa4239d3b2",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:25:24-hero.jpg"
+      ],
+      "stage": "flop",
+      "hero_cards": [
+        "A-S",
+        "9-C"
+      ],
+      "hero_position": "straddle-Hero",
+      "pot": 71,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.872,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "3ddba0ed7ef0b649ed1f31c3341db89d46ce49fc50a6d03b8c9bd6c4eba97cca",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:25:30-hero.jpg",
+        "2026-10-04 17:25:32-hero.jpg"
+      ],
+      "stage": "turn",
+      "hero_cards": [
+        "A-S",
+        "9-C"
+      ],
+      "hero_position": "straddle-Hero",
+      "pot": 71,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.858,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "f41830ad73c9f7595eb9268738082e6cf42bd93afa1ff5f7b216e41e73c05124",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:25:36-hero.jpg"
+      ],
+      "stage": "turn",
+      "hero_cards": [
+        "A-S",
+        "9-C"
+      ],
+      "hero_position": "straddle-Hero",
+      "pot": 107,
+      "hero_bet": 0,
+      "max_bet": 36,
+      "action": "call",
+      "raise_size": 0,
+      "action_probability": 0.691,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "d660455276f92f9ff73048cb138d0f8decbf81bf8c342b3301fbfe5dc6ed5646",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:25:38-hero.jpg"
+      ],
+      "stage": "river",
+      "hero_cards": [
+        "A-S",
+        "9-C"
+      ],
+      "hero_position": "straddle-Hero",
+      "pot": 143,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "bet",
+      "raise_size": 151,
+      "action_probability": 0.85,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "4a5ff520f8f7b792a5773ed8c46e3209ba2844b34f1bdfa0360ac57e001e0b76",
+      "occurrences": 3,
+      "files": [
+        "2026-10-04 17:25:48-hero.jpg",
+        "2026-10-04 17:25:50-hero.jpg",
+        "2026-10-04 17:25:52-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "4-D",
+        "7-S"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 17,
+      "hero_bet": 2,
+      "max_bet": 8,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "30ef119033325804b6d34eda6b7cc27fbb081f368a1ce675ef1f49fd83569ec5",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:25:55-hero.jpg"
+      ],
+      "stage": "flop",
+      "hero_cards": [
+        "4-D",
+        "7-S"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.955,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "cef45bedfa3b6eb2ca65de86b692a1d0755b133d3a1cad05afe5ccf52069fa1e",
+      "occurrences": 3,
+      "files": [
+        "2026-10-04 17:25:58-hero.jpg",
+        "2026-10-04 17:26:00-hero.jpg",
+        "2026-10-04 17:26:02-hero.jpg"
+      ],
+      "stage": "turn",
+      "hero_cards": [
+        "4-D",
+        "7-S"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.879,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "26f7b0f706a11b73b7d0ebbe33a3bde77300d300e39165089a583f4ab3c56863",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:26:08-hero.jpg",
+        "2026-10-04 17:26:09-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "10-C",
+        "K-H"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 7,
+      "hero_bet": 1,
+      "max_bet": 2,
+      "action": "raise",
+      "raise_size": 15,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "5469f837b72c552586b6d63bcb78de1a187d331446a90e9cf85aa9b1592c6a98",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:26:17-hero.jpg",
+        "2026-10-04 17:26:19-hero.jpg"
+      ],
+      "stage": "flop",
+      "hero_cards": [
+        "10-C",
+        "K-H"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 8,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.97,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "2b2e31ff0ddf497622abb5cc55dbc2f8958f28c37a61d6dfe752b71e5d27df56",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:26:22-hero.jpg",
+        "2026-10-04 17:26:23-hero.jpg"
+      ],
+      "stage": "turn",
+      "hero_cards": [
+        "10-C",
+        "K-H"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 8,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.85,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "f8244a21c5b79e338edb1cc8b2ebe020bf626333a5f03ae9725338070ee61f9d",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:26:27-hero.jpg"
+      ],
+      "stage": "river",
+      "hero_cards": [
+        "10-C",
+        "K-H"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 8,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "bet",
+      "raise_size": 3,
+      "action_probability": 0.825,
+      "category": "solver_sensitive_river_bluff",
+      "reason": "KTo 在 2-7-7-5-3 河牌以空气牌下注 3 into 8；诈唬可能合理，但需要双方到河范围、阻断牌及抽水配置求解。"
+    },
+    {
+      "state_sha256": "262be413c195d00548e35d3f62cebff3698c710671578d83f8f8d7b0d2b9b2f4",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:26:35-hero.jpg",
+        "2026-10-04 17:26:37-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "Q-C",
+        "9-D"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 15,
+      "hero_bet": 2,
+      "max_bet": 9,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "a5412459e30456e0e8c57d95eedcfbd682f4516bbed794ae3afd1c74e9259561",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:26:40-hero.jpg"
+      ],
+      "stage": "flop",
+      "hero_cards": [
+        "Q-C",
+        "9-D"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 22,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.97,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "c8e69be2c680eb7033c309ca0a7b82fea5bc7b38edea44909ba23c13e206027a",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:26:44-hero.jpg",
+        "2026-10-04 17:26:46-hero.jpg"
+      ],
+      "stage": "turn",
+      "hero_cards": [
+        "Q-C",
+        "9-D"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 22,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.85,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "2bd1f607e9b271083f58e183a40d5e7bac2b4f6ebf72ad9799059c086a531991",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:26:49-hero.jpg"
+      ],
+      "stage": "river",
+      "hero_cards": [
+        "Q-C",
+        "9-D"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 22,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.894,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "6965277aeca49ff986e13380881b0da7817e3524fac7bccd115460f79991769c",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:26:55-hero.jpg",
+        "2026-10-04 17:26:56-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "J-D",
+        "K-H"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 7,
+      "hero_bet": 1,
+      "max_bet": 2,
+      "action": "raise",
+      "raise_size": 15,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "cb72a8a47e4391a71899b001d2db0787afcd272cef69949c76624bb9dd22a530",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:27:08-hero.jpg",
+        "2026-10-04 17:27:09-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "8-C",
+        "J-D"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 13,
+      "hero_bet": 2,
+      "max_bet": 7,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "a871cc97a66c429e0d25dd9d305a57d642993ed264fefd66b4657223d8e81ea2",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:27:13-hero.jpg"
+      ],
+      "stage": "flop",
+      "hero_cards": [
+        "8-C",
+        "J-D"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 18,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.985,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "239179893dcd5f0e89201bbaaeaf6ed92a3a62f8c30a7f79e15abf5f99d19a55",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:27:17-hero.jpg",
+        "2026-10-04 17:27:18-hero.jpg"
+      ],
+      "stage": "turn",
+      "hero_cards": [
+        "8-C",
+        "J-D"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 18,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.82,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "c298f38d932c10aeb49bfb204d0c52e904fa92341c257e213fb34ab640333cd8",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:27:21-hero.jpg"
+      ],
+      "stage": "river",
+      "hero_cards": [
+        "8-C",
+        "J-D"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 18,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "bet",
+      "raise_size": 7,
+      "action_probability": 0.55,
+      "category": "solver_sensitive_river_bluff",
+      "reason": "J8o 在 6-3-T-T-9 河牌以算法标记 equity=0 的空气牌下注 7 into 18；需要到河范围和阻断牌求解。"
+    },
+    {
+      "state_sha256": "6db9fe44b5b1c8542d65ea06ed5ac0c6b90e75ebb5ea01f4f1c9e676e52eb5a1",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:31:27-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "7-H",
+        "Q-C"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 24,
+      "hero_bet": 2,
+      "max_bet": 4,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "f748b9580c329c0ed41e215805f25cf7e022050d371f68e2720faaeb62d5d636",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:31:35-hero.jpg"
+      ],
+      "stage": "flop",
+      "hero_cards": [
+        "7-H",
+        "Q-C"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 26,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.995,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "e7dda8f37da5f3b117ae857bef20c20f1c1ca3ecf81b7be1abeb3255fd2c4890",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:31:42-hero.jpg"
+      ],
+      "stage": "flop",
+      "hero_cards": [
+        "7-H",
+        "Q-C"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 62,
+      "hero_bet": 0,
+      "max_bet": 18,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 0.92,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "c689cfe6cfdb5a5e950557833399466105d6e7dadc1c816aaf517714d9560eb9",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:32:26-hero.jpg",
+        "2026-10-04 17:32:28-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "8-D",
+        "2-D"
+      ],
+      "hero_position": "straddle-Hero",
+      "pot": 30,
+      "hero_bet": 4,
+      "max_bet": 4,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "d9a0dc7f23dccefb4eb5c96ab4dc84bc0e753b6a9675278814b038ae74be1dd0",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:32:34-hero.jpg"
+      ],
+      "stage": "flop",
+      "hero_cards": [
+        "8-D",
+        "2-D"
+      ],
+      "hero_position": "straddle-Hero",
+      "pot": 30,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.985,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "79c302c56ab1789310f9cfc75fb139d8c7f8e7f94812197959061aed3ab73fdf",
+      "occurrences": 4,
+      "files": [
+        "2026-10-04 17:32:43-hero.jpg",
+        "2026-10-04 17:32:45-hero.jpg",
+        "2026-10-04 17:32:47-hero.jpg",
+        "2026-10-04 17:32:49-hero.jpg"
+      ],
+      "stage": "turn",
+      "hero_cards": [
+        "8-D",
+        "2-D"
+      ],
+      "hero_position": "straddle-Hero",
+      "pot": 45,
+      "hero_bet": 0,
+      "max_bet": 15,
+      "action": "call",
+      "raise_size": 0,
+      "action_probability": 0.74,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "807d8e6de62fa82b92a729d66f329ad535f180d7f916b7479bc0134e2f2677fc",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:33:04-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "J-C",
+        "3-C"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 30,
+      "hero_bet": 2,
+      "max_bet": 4,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "7ec273db2d15daf608de0ea6a2f4565639e3179e3a74c83adc472b35a24ce54c",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:33:42-hero.jpg",
+        "2026-10-04 17:33:45-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "J-C",
+        "6-C"
+      ],
+      "hero_position": "SB-Hero",
+      "pot": 25,
+      "hero_bet": 1,
+      "max_bet": 4,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "1f5c966235691791efd3686773cc4ddb2e1c488347050a29a324de883b61668f",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:33:57-hero.jpg"
+      ],
+      "stage": "flop",
+      "hero_cards": [
+        "J-C",
+        "6-C"
+      ],
+      "hero_position": "SB-Hero",
+      "pot": 87,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "bet",
+      "raise_size": 43,
+      "action_probability": 0.81,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "b49b579f5088f0935e970b868ccf55393a251a81cfaf0f7d90eb4a2777c85741",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:34:13-hero.jpg",
+        "2026-10-04 17:34:15-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "Q-D",
+        "10-S"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 29,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "action": "raise",
+      "raise_size": 15,
+      "action_probability": 0.75,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "6c7ceab7db66f76e0042d74ae78d37851bd25cae60b7280b77a8862fd3d09a93",
+      "occurrences": 3,
+      "files": [
+        "2026-10-04 17:34:38-hero.jpg",
+        "2026-10-04 17:34:40-hero.jpg",
+        "2026-10-04 17:34:42-hero.jpg"
+      ],
+      "stage": "flop",
+      "hero_cards": [
+        "Q-D",
+        "10-S"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 64,
+      "hero_bet": 0,
+      "max_bet": 26,
+      "action": "call",
+      "raise_size": 0,
+      "action_probability": 0.55,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "ed3260abb398c47fe17080da464a2f976f427bb49b8d63784a2b6a11c854c717",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:34:52-hero.jpg"
+      ],
+      "stage": "turn",
+      "hero_cards": [
+        "Q-D",
+        "10-S"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 232,
+      "hero_bet": 0,
+      "max_bet": 116,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 0.7,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "2bbcb704a81865f613cba76d8045b554dac20c050d75332c974a1419cd18f656",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:35:25-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "2-D",
+        "J-C"
+      ],
+      "hero_position": "CO-Hero",
+      "pot": 54,
+      "hero_bet": 0,
+      "max_bet": 31,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "e4b9f16f17f8c85f63a3847f3c0c703b330e47e0695924cf083d473cfd06d260",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:36:04-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "6-C",
+        "J-C"
+      ],
+      "hero_position": "MP-Hero",
+      "pot": 45,
+      "hero_bet": 0,
+      "max_bet": 22,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "6a2258dfff03d83d0a57651b7e04d39d2d18447278cbc1106dcb745319c2bd72",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:36:34-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "8-S",
+        "7-S"
+      ],
+      "hero_position": "UTG+1-Hero",
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 0.7,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "e271edb2964af3791e0f60fe63efd8697652403e611c5c9add1b95b52d744acc",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:36:48-hero.jpg",
+        "2026-10-04 17:36:50-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "8-S",
+        "7-S"
+      ],
+      "hero_position": "UTG+1-Hero",
+      "pot": 226,
+      "hero_bet": 18,
+      "max_bet": 185,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "2b15e1b5d9a0df3d6ee968fd2758fca8f4cbf089bd132a08b636a458e802a532",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:36:57-hero.jpg",
+        "2026-10-04 17:37:00-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "6-H",
+        "9-C"
+      ],
+      "hero_position": "UTG-Hero",
+      "pot": 23,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "b8637a31775a94e26d461950f5f3b698a88afada1872573b93115fef55f76ac6",
+      "occurrences": 1,
+      "files": [
+        "2026-10-04 17:37:55-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "4-C",
+        "Q-C"
+      ],
+      "hero_position": "straddle-Hero",
+      "pot": 33,
+      "hero_bet": 4,
+      "max_bet": 4,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "e8a43e8dbdb1cde98e9413911c86cf07bac194c14f7051712fd01737454a06f0",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:37:59-hero.jpg",
+        "2026-10-04 17:38:01-hero.jpg"
+      ],
+      "stage": "flop",
+      "hero_cards": [
+        "4-C",
+        "Q-C"
+      ],
+      "hero_position": "straddle-Hero",
+      "pot": 33,
+      "hero_bet": 0,
+      "max_bet": 0,
+      "action": "check",
+      "raise_size": 0,
+      "action_probability": 0.985,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "a8eb2159f1c064810b3c564c29094433be5d43abfcea490274e9d4208fc84dff",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:38:26-hero.jpg",
+        "2026-10-04 17:38:28-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "6-H",
+        "10-C"
+      ],
+      "hero_position": "BB-Hero",
+      "pot": 31,
+      "hero_bet": 2,
+      "max_bet": 4,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "449c53cf6b6f67e7953bba3b2a385a97e477b0024ba1562224d76e1000a769be",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:39:34-hero.jpg",
+        "2026-10-04 17:39:37-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "8-C",
+        "K-S"
+      ],
+      "hero_position": "BTN-Hero",
+      "pot": 45,
+      "hero_bet": 0,
+      "max_bet": 22,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "62a29fd21daa5116bc37ffbfb07fdcd3d9b9a4d45b59e62e5d41cfb0b08bb633",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:40:09-hero.jpg",
+        "2026-10-04 17:40:12-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "10-S",
+        "Q-D"
+      ],
+      "hero_position": "CO-Hero",
+      "pot": 21,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "action": "raise",
+      "raise_size": 15,
+      "action_probability": 0.8,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    },
+    {
+      "state_sha256": "115379f036fbfee4a65fe6732fbd854f1350be5c287941295cf7a3089cb81cde",
+      "occurrences": 2,
+      "files": [
+        "2026-10-04 17:40:28-hero.jpg",
+        "2026-10-04 17:40:31-hero.jpg"
+      ],
+      "stage": "preflop",
+      "hero_cards": [
+        "2-C",
+        "3-D"
+      ],
+      "hero_position": "MP-Hero",
+      "pot": 21,
+      "hero_bet": 0,
+      "max_bet": 4,
+      "action": "fold",
+      "raise_size": 0,
+      "action_probability": 1.0,
+      "category": "passed_obvious_error_screen",
+      "reason": "动作合法，未命中免费弃牌、明显赔率矛盾或选定的强异常规则。"
+    }
+  ]
+}
