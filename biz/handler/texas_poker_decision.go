@@ -23,6 +23,17 @@ import (
 // TexasPokerDecision .
 // @router /lyxz/gto_decision [POST]
 func TexasPokerDecision(ctx context.Context, c *app.RequestContext) {
+	requestReceivedAt := time.Now()
+	traceID := string(c.Request.Header.Peek(traceIDHeader))
+	if traceID != "" && !validTraceID(traceID) {
+		traceID = fmt.Sprintf("server-%d", requestReceivedAt.UnixNano())
+	}
+	latency := &decisionLatency{traceID: traceID, requestReceivedAt: requestReceivedAt}
+	defer latency.writeResponseHeader(c)
+	if traceID != "" {
+		logClientTraceHeaders(c, traceID)
+	}
+
 	var err error
 	var req ddbaby.TexasPokerDecisionReq
 	err = c.BindAndValidate(&req)
@@ -31,7 +42,9 @@ func TexasPokerDecision(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp, _ := NewTexasPokerDecisionHandler(&req).Handle(ctx)
+	handler := NewTexasPokerDecisionHandler(&req)
+	handler.latency = latency
+	resp, _ := handler.Handle(ctx)
 	logrus.WithContext(ctx).Infof("[TexasPokerDecision] resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
 }
@@ -44,6 +57,7 @@ type TexasPokerDecisionHandler struct {
 	HeroCard       []string
 	CommunityCards []string
 	uuid           string
+	latency        *decisionLatency
 }
 
 func NewTexasPokerDecisionHandler(req *ddbaby.TexasPokerDecisionReq) *TexasPokerDecisionHandler {
@@ -87,6 +101,9 @@ func (h *TexasPokerDecisionHandler) verifyActiveCode(ctx context.Context) error 
 
 func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerDecisionResp, error) {
 	startTime := time.Now()
+	if h.latency != nil {
+		h.latency.handleStartedAt = startTime
+	}
 	logger := logrus.WithContext(ctx).WithField("uuid", h.req.GetUUID())
 	logger.Infof("[TexasPokerDecisionHandler] imagesLen:%v, timestamp:%v, uuid:%v, imageType:%v",
 		len(h.req.GetImages()), time.Unix(h.req.GetTimestamp()/1000, 0).Format(time.DateTime), h.req.GetUUID(), h.req.GetImageType())
@@ -99,6 +116,9 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	if err = h.verifyActiveCode(ctx); err != nil {
 		logger.Errorf("[TexasPokerDecisionHandler] verifyActiveCode err:%v", err)
 		return h.newResp(ctx, ""), nil
+	}
+	if h.latency != nil {
+		h.latency.authDoneAt = time.Now()
 	}
 	//2 识别牌型
 	images := h.req.GetImages()
@@ -118,6 +138,9 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 			return h.newResp(ctx, ""), nil
 		}
 
+	}
+	if h.latency != nil {
+		h.latency.recognizeDoneAt = time.Now()
 	}
 	recognizeSpends := time.Since(startTime).Milliseconds()
 	if recResult == nil || recResult.TableInfo.Stage == "" || recResult.TableInfo.MainPot == 0 ||
@@ -161,7 +184,13 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logger.Errorf("[TexasPokerDecisionHandler] invalid decision request:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
+	if h.latency != nil {
+		h.latency.decisionStartedAt = time.Now()
+	}
 	resp, err := service.GtoDecision(ctx, decisionReq)
+	if h.latency != nil {
+		h.latency.decisionDoneAt = time.Now()
+	}
 	if err != nil {
 		logger.Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
 		return h.newResp(ctx, ""), nil
