@@ -59,3 +59,9 @@
 - 当前外部 GTO 服务不返回完整策略树、EV、对手范围或求解配置；因此本报告可以确定动作合法性和严格支配错误，不能认证 84 个状态均为 Nash/GTO 最优。
 - Monte Carlo 只计算对均匀随机手牌的摊分胜率，不包含位置、范围、弃牌率、后续下注、rake 或 exploit 假设，只用于异常优先级，不作为自动改策略的依据。
 - 本轮没有把任何策略判断或兜底写进 ddbaby；问题保留给决策算法修复。
+
+## 单页证据交付
+
+- 自包含页面：`outputs/today-hero-regression-20261003/strategy-issues.html`，SHA256 `a943be93c29b67f22e59775d20cf71e8e9e5005f6309d8fedd22e2110fd9a026`，大小 2,147,788 bytes。
+- 页面覆盖 8/8 个问题或重点复核状态，内嵌 8 张原始 JPEG，并展示完整请求、原始响应和 action_history；过滤器可分别查看 2 条明确错误、4 条高风险和 2 条 solver 敏感项。
+- 页面由 `build_page.py` 从 `audit.json`、原始 `decision-requests.json`、`decision-replay.jsonl` 和受控原图目录生成；文件名经过 basename、扩展名和目录边界校验，所有动态文本经过 HTML 转义。
