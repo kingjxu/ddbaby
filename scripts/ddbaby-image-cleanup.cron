@@ -1,2 +1,2 @@
-# Delete ordinary screenshots older than six hours. Hero and decided evidence is retained.
-17 * * * * root /usr/local/sbin/ddbaby-cleanup-images --retention-minutes 360 >> /var/log/ddbaby-image-cleanup.log 2>&1
+# Delete ordinary screenshots older than five days. Hero and decided evidence is retained.
+17 3 * * * root /usr/local/sbin/ddbaby-cleanup-images --retention-minutes 7200 >> /var/log/ddbaby-image-cleanup.log 2>&1

@@ -114,8 +114,8 @@ status: "active"
 ## 生产截图保留策略
 
 - `/usr/local/webserver/images` 中 `*-hero.jpg` 和 `*-decided.jpg` 长期保留，
-  普通 `*.jpg` 只保留最近 6 小时。
-- 清理脚本为 `/usr/local/sbin/ddbaby-cleanup-images`，cron 每小时第 17 分钟执行；
+  普通 `*.jpg` 保留最近 5 天。
+- 清理脚本为 `/usr/local/sbin/ddbaby-cleanup-images`，cron 每天 03:17 执行；
   运行日志写入 `/var/log/ddbaby-image-cleanup.log` 并按周轮转。
 - 清理与 ddbaby 图片落盘共用 `/run/lock/ddbaby-images.lock`；清理持锁完成最终身份校验
   和删除，所有生产图片写入必须通过 `writeImageToFileWithLock` 持同一把锁，避免删除

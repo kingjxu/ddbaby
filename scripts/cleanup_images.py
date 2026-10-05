@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 DEFAULT_IMAGE_DIR = Path("/usr/local/webserver/images")
-DEFAULT_RETENTION_MINUTES = 360
+DEFAULT_RETENTION_MINUTES = 5 * 24 * 60
 DEFAULT_LOCK_FILE = Path("/run/lock/ddbaby-image-cleanup.lock")
 DEFAULT_IMAGE_DIRECTORY_LOCK_FILE = Path("/run/lock/ddbaby-images.lock")
 RETAINED_SUFFIXES = ("-hero.jpg", "-decided.jpg")
