@@ -3,8 +3,9 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from cleanup_images import cleanup_images
+from cleanup_images import cleanup_images, delete_if_unchanged
 
 
 class CleanupImagesTest(unittest.TestCase):
@@ -33,11 +34,11 @@ class CleanupImagesTest(unittest.TestCase):
         symlink = self.image_dir / "linked.jpg"
         symlink.symlink_to(target)
 
-        count, byte_count, errors = cleanup_images(
+        result = cleanup_images(
             self.image_dir, 360, now=self.now
         )
 
-        self.assertEqual((count, byte_count, errors), (1, 3, []))
+        self.assertEqual(result, (1, 3, 1, 3, 0, []))
         self.assertFalse(expired.exists())
         for path in (recent, hero, decided, text_file, target, symlink):
             self.assertTrue(path.exists())
@@ -45,12 +46,47 @@ class CleanupImagesTest(unittest.TestCase):
     def test_dry_run_reports_without_deleting(self):
         expired = self.create_file("old.jpg", 361, b"12345")
 
-        count, byte_count, errors = cleanup_images(
+        result = cleanup_images(
             self.image_dir, 360, dry_run=True, now=self.now
         )
 
-        self.assertEqual((count, byte_count, errors), (1, 5, []))
+        self.assertEqual(result, (1, 5, 0, 0, 0, []))
         self.assertTrue(expired.exists())
+
+    def test_skips_file_replaced_after_scan(self):
+        path = self.create_file("old.jpg", 361, b"old")
+        observed_stat = path.lstat()
+        path.unlink()
+        path.write_bytes(b"replacement")
+        os.utime(str(path), (self.now, self.now))
+
+        deleted = delete_if_unchanged(
+            path, observed_stat, self.now - 360 * 60
+        )
+
+        self.assertFalse(deleted)
+        self.assertEqual(path.read_bytes(), b"replacement")
+
+    def test_skips_file_whose_mtime_changed_after_scan(self):
+        path = self.create_file("old.jpg", 361, b"old")
+        observed_stat = path.lstat()
+        os.utime(str(path), (self.now, self.now))
+
+        deleted = delete_if_unchanged(
+            path, observed_stat, self.now - 360 * 60
+        )
+
+        self.assertFalse(deleted)
+        self.assertTrue(path.exists())
+
+    def test_cleanup_counts_file_changed_before_delete(self):
+        path = self.create_file("old.jpg", 361, b"old")
+
+        with patch("cleanup_images.delete_if_unchanged", return_value=False):
+            result = cleanup_images(self.image_dir, 360, now=self.now)
+
+        self.assertEqual(result, (1, 3, 0, 0, 1, []))
+        self.assertTrue(path.exists())
 
     def test_rejects_non_positive_retention(self):
         with self.assertRaises(ValueError):

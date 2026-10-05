@@ -16,6 +16,28 @@ DEFAULT_LOCK_FILE = Path("/run/lock/ddbaby-image-cleanup.lock")
 RETAINED_SUFFIXES = ("-hero.jpg", "-decided.jpg")
 
 
+def file_identity(file_stat):
+    return (
+        file_stat.st_dev,
+        file_stat.st_ino,
+        file_stat.st_size,
+        file_stat.st_mtime_ns,
+    )
+
+
+def delete_if_unchanged(path, observed_stat, cutoff):
+    """Delete path only when it is still the expired regular file we inspected."""
+    current_stat = path.lstat()
+    if not stat.S_ISREG(current_stat.st_mode):
+        return False
+    if current_stat.st_mtime >= cutoff:
+        return False
+    if file_identity(current_stat) != file_identity(observed_stat):
+        return False
+    path.unlink()
+    return True
+
+
 def cleanup_images(image_dir, retention_minutes, dry_run=False, now=None):
     """Return the number and bytes of expired ordinary screenshots matched."""
     if retention_minutes <= 0:
@@ -28,6 +50,9 @@ def cleanup_images(image_dir, retention_minutes, dry_run=False, now=None):
     cutoff = (time.time() if now is None else now) - retention_minutes * 60
     matched_count = 0
     matched_bytes = 0
+    deleted_count = 0
+    deleted_bytes = 0
+    changed_count = 0
     errors = []
 
     for path in image_dir.iterdir():
@@ -42,14 +67,26 @@ def cleanup_images(image_dir, retention_minutes, dry_run=False, now=None):
 
             matched_count += 1
             matched_bytes += file_stat.st_size
-            if not dry_run:
-                path.unlink()
+            if dry_run:
+                continue
+            if delete_if_unchanged(path, file_stat, cutoff):
+                deleted_count += 1
+                deleted_bytes += file_stat.st_size
+            else:
+                changed_count += 1
         except FileNotFoundError:
-            continue
+            changed_count += 1
         except OSError as error:
             errors.append("{}: {}".format(name, error))
 
-    return matched_count, matched_bytes, errors
+    return (
+        matched_count,
+        matched_bytes,
+        deleted_count,
+        deleted_bytes,
+        changed_count,
+        errors,
+    )
 
 
 def parse_args(argv=None):
@@ -91,7 +128,14 @@ def main(argv=None):
             return 0
 
         try:
-            count, byte_count, errors = cleanup_images(
+            (
+                matched_count,
+                matched_bytes,
+                deleted_count,
+                deleted_bytes,
+                changed_count,
+                errors,
+            ) = cleanup_images(
                 args.directory,
                 args.retention_minutes,
                 dry_run=args.dry_run,
@@ -100,12 +144,15 @@ def main(argv=None):
             print("cleanup failed: {}".format(error), file=sys.stderr)
             return 1
 
-    action = "matched" if args.dry_run else "deleted"
     print(
-        "{} files={} bytes={} retention_minutes={} directory={}".format(
-            action,
-            count,
-            byte_count,
+        "matched_files={} matched_bytes={} deleted_files={} deleted_bytes={} "
+        "changed_files={} dry_run={} retention_minutes={} directory={}".format(
+            matched_count,
+            matched_bytes,
+            deleted_count,
+            deleted_bytes,
+            changed_count,
+            str(args.dry_run).lower(),
             args.retention_minutes,
             args.directory.resolve(),
         )
