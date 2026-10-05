@@ -51,7 +51,10 @@
   PID=1098849、PPID=1，8888 监听和 SSH 重连后的 `/ping` 均正常。
 - 清理脚本安装至 `/usr/local/sbin/ddbaby-cleanup-images`，cron 和 logrotate 配置已
   安装。服务器 `/var/log` 权限要求 logrotate 显式指定用户，规则已增加
-  `su root adm` 并通过 `logrotate -d` 校验；cron 服务为 active。
+  `su root adm`，经同目录临时文件校验后原子替换到生产；生产配置 SHA256 为
+  `1f0e465457a41fc7135cec658b3a785c6c1644fe146960e342b4ce0fbf353c72`。
+  生产路径 `logrotate -d` 无错误，受控强制轮转生成包含 dry-run 摘要的 `.1.gz`
+  归档，并按 root:adm/0640 重新创建当前日志；cron 服务为 active。
 - 首次实际清理结果：`matched_files=11230`、`matched_bytes=1842131538`、
   `deleted_files=11230`、`deleted_bytes=1842131538`、`changed_files=0`。紧接着的
   第二次运行匹配和删除均为 0。
