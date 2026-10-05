@@ -1,0 +1,8 @@
+/var/log/ddbaby-image-cleanup.log {
+    weekly
+    rotate 4
+    compress
+    missingok
+    notifempty
+    create 0640 root adm
+}

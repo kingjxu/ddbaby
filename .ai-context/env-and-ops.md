@@ -110,3 +110,12 @@ status: "active"
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261004-185316-before-97cd83d`。
 - 尚无 1.0.26 真机真实流量，不能据此确认 3 秒以上体感的具体归因；需要后续
   `client_complete` 日志完成分段判断。
+
+## 生产截图保留策略
+
+- `/usr/local/webserver/images` 中 `*-hero.jpg` 和 `*-decided.jpg` 长期保留，
+  普通 `*.jpg` 只保留最近 6 小时。
+- 清理脚本为 `/usr/local/sbin/ddbaby-cleanup-images`，cron 每小时第 17 分钟执行；
+  运行日志写入 `/var/log/ddbaby-image-cleanup.log` 并按周轮转。
+- 修改清理规则时必须先执行 `--dry-run`，不得扩大到子目录、符号链接、Hero 或
+  decided 证据图。
