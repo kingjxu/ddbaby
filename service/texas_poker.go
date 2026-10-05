@@ -160,7 +160,10 @@ func UploadImages(ctx context.Context, images []string) ([]string, error) {
 // UploadImagesV2 返回图片的URL
 func UploadImagesV2(ctx context.Context, imageData string) (string, error) {
 	fileName := fmt.Sprintf("/usr/local/webserver/images/%v.jpg", time.Now().UnixNano())
-	_ = util.WriteImageToFile([]byte(imageData), fileName)
+	if err := writeImageToFileWithLock([]byte(imageData), fileName); err != nil {
+		logrus.WithContext(ctx).Errorf("[UploadImagesV2] write image err:%v", err)
+		return "", err
+	}
 	imageUrl, err := util.UploadImage(fileName)
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[UploadImagesV2] UploadImage err:%v", err)
@@ -177,7 +180,10 @@ func WriteImageToLocalFile(ctx context.Context, base64Data string, tag string) {
 	}
 	conf, _, _ := image.DecodeConfig(bytes.NewReader(imageData))
 	fileName := fmt.Sprintf("/usr/local/webserver/images/%v.jpg", time.Now().Format(time.DateTime)+tag)
-	_ = util.WriteImageToFile(imageData, fileName)
+	if err := writeImageToFileWithLock(imageData, fileName); err != nil {
+		logrus.WithContext(ctx).Errorf("[WriteImageToLocalFile] write image err:%v", err)
+		return
+	}
 	logrus.WithContext(ctx).Infof("[WriteImageToLocalFile] height:%v,width:%v, cost %vms", conf.Height, conf.Width, time.Since(startTime).Milliseconds())
 }
 

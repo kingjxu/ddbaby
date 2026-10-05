@@ -1,5 +1,7 @@
+import fcntl
 import os
 import tempfile
+import threading
 import time
 import unittest
 from pathlib import Path
@@ -12,6 +14,7 @@ class CleanupImagesTest(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.image_dir = Path(self.temp_dir.name)
+        self.image_directory_lock_file = self.image_dir / "images.lock"
         self.now = time.time()
 
     def tearDown(self):
@@ -35,7 +38,10 @@ class CleanupImagesTest(unittest.TestCase):
         symlink.symlink_to(target)
 
         result = cleanup_images(
-            self.image_dir, 360, now=self.now
+            self.image_dir,
+            360,
+            now=self.now,
+            image_directory_lock_file=self.image_directory_lock_file,
         )
 
         self.assertEqual(result, (1, 3, 1, 3, 0, []))
@@ -47,7 +53,11 @@ class CleanupImagesTest(unittest.TestCase):
         expired = self.create_file("old.jpg", 361, b"12345")
 
         result = cleanup_images(
-            self.image_dir, 360, dry_run=True, now=self.now
+            self.image_dir,
+            360,
+            dry_run=True,
+            now=self.now,
+            image_directory_lock_file=self.image_directory_lock_file,
         )
 
         self.assertEqual(result, (1, 5, 0, 0, 0, []))
@@ -83,7 +93,12 @@ class CleanupImagesTest(unittest.TestCase):
         path = self.create_file("old.jpg", 361, b"old")
 
         with patch("cleanup_images.delete_if_unchanged", return_value=False):
-            result = cleanup_images(self.image_dir, 360, now=self.now)
+            result = cleanup_images(
+                self.image_dir,
+                360,
+                now=self.now,
+                image_directory_lock_file=self.image_directory_lock_file,
+            )
 
         self.assertEqual(result, (1, 3, 0, 0, 1, []))
         self.assertTrue(path.exists())
@@ -91,6 +106,47 @@ class CleanupImagesTest(unittest.TestCase):
     def test_rejects_non_positive_retention(self):
         with self.assertRaises(ValueError):
             cleanup_images(self.image_dir, 0, now=self.now)
+
+    def test_writer_waits_between_final_check_and_unlink(self):
+        path = self.create_file("old.jpg", 361, b"old")
+        checked = threading.Event()
+        writer_attempted = threading.Event()
+        writer_finished = threading.Event()
+        writer_errors = []
+
+        def writer():
+            if not checked.wait(2):
+                writer_errors.append("cleanup never reached the final identity check")
+                return
+            with self.image_directory_lock_file.open("a") as lock_handle:
+                writer_attempted.set()
+                fcntl.flock(lock_handle, fcntl.LOCK_EX)
+                path.write_bytes(b"replacement")
+                os.utime(str(path), (self.now, self.now))
+                fcntl.flock(lock_handle, fcntl.LOCK_UN)
+            writer_finished.set()
+
+        writer_thread = threading.Thread(target=writer)
+        writer_thread.start()
+
+        def before_unlink():
+            checked.set()
+            self.assertTrue(writer_attempted.wait(2))
+            self.assertFalse(writer_finished.is_set())
+
+        result = cleanup_images(
+            self.image_dir,
+            360,
+            now=self.now,
+            image_directory_lock_file=self.image_directory_lock_file,
+            before_unlink=before_unlink,
+        )
+        writer_thread.join(2)
+
+        self.assertFalse(writer_thread.is_alive())
+        self.assertEqual(writer_errors, [])
+        self.assertEqual(result, (1, 3, 1, 3, 0, []))
+        self.assertEqual(path.read_bytes(), b"replacement")
 
 
 if __name__ == "__main__":

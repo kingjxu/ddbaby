@@ -2,6 +2,7 @@
 """Delete expired ordinary screenshots while retaining evidence images."""
 
 import argparse
+from contextlib import contextmanager
 import fcntl
 import os
 import stat
@@ -13,6 +14,7 @@ from pathlib import Path
 DEFAULT_IMAGE_DIR = Path("/usr/local/webserver/images")
 DEFAULT_RETENTION_MINUTES = 360
 DEFAULT_LOCK_FILE = Path("/run/lock/ddbaby-image-cleanup.lock")
+DEFAULT_IMAGE_DIRECTORY_LOCK_FILE = Path("/run/lock/ddbaby-images.lock")
 RETAINED_SUFFIXES = ("-hero.jpg", "-decided.jpg")
 
 
@@ -25,8 +27,21 @@ def file_identity(file_stat):
     )
 
 
-def delete_if_unchanged(path, observed_stat, cutoff):
-    """Delete path only when it is still the expired regular file we inspected."""
+@contextmanager
+def exclusive_file_lock(lock_file):
+    """Hold an advisory cross-process lock for the duration of the context."""
+    lock_file = Path(lock_file)
+    lock_file.parent.mkdir(parents=True, exist_ok=True)
+    with lock_file.open("a") as lock_handle:
+        fcntl.flock(lock_handle, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_handle, fcntl.LOCK_UN)
+
+
+def delete_if_unchanged(path, observed_stat, cutoff, before_unlink=None):
+    """Delete an unchanged expired file while the caller holds the writer lock."""
     current_stat = path.lstat()
     if not stat.S_ISREG(current_stat.st_mode):
         return False
@@ -34,11 +49,20 @@ def delete_if_unchanged(path, observed_stat, cutoff):
         return False
     if file_identity(current_stat) != file_identity(observed_stat):
         return False
+    if before_unlink is not None:
+        before_unlink()
     path.unlink()
     return True
 
 
-def cleanup_images(image_dir, retention_minutes, dry_run=False, now=None):
+def cleanup_images(
+    image_dir,
+    retention_minutes,
+    dry_run=False,
+    now=None,
+    image_directory_lock_file=DEFAULT_IMAGE_DIRECTORY_LOCK_FILE,
+    before_unlink=None,
+):
     """Return the number and bytes of expired ordinary screenshots matched."""
     if retention_minutes <= 0:
         raise ValueError("retention_minutes must be positive")
@@ -54,6 +78,7 @@ def cleanup_images(image_dir, retention_minutes, dry_run=False, now=None):
     deleted_bytes = 0
     changed_count = 0
     errors = []
+    candidates = []
 
     for path in image_dir.iterdir():
         name = path.name
@@ -67,17 +92,42 @@ def cleanup_images(image_dir, retention_minutes, dry_run=False, now=None):
 
             matched_count += 1
             matched_bytes += file_stat.st_size
-            if dry_run:
-                continue
-            if delete_if_unchanged(path, file_stat, cutoff):
-                deleted_count += 1
-                deleted_bytes += file_stat.st_size
-            else:
-                changed_count += 1
+            candidates.append((path, file_stat))
         except FileNotFoundError:
             changed_count += 1
         except OSError as error:
             errors.append("{}: {}".format(name, error))
+
+    if dry_run:
+        return (
+            matched_count,
+            matched_bytes,
+            deleted_count,
+            deleted_bytes,
+            changed_count,
+            errors,
+        )
+
+    # Every production image writer takes this same lock. Holding it across the
+    # final identity check and unlink closes the check-to-delete replacement
+    # window that cannot be closed with another path-based stat alone.
+    with exclusive_file_lock(image_directory_lock_file):
+        for path, file_stat in candidates:
+            try:
+                if delete_if_unchanged(
+                    path,
+                    file_stat,
+                    cutoff,
+                    before_unlink=before_unlink,
+                ):
+                    deleted_count += 1
+                    deleted_bytes += file_stat.st_size
+                else:
+                    changed_count += 1
+            except FileNotFoundError:
+                changed_count += 1
+            except OSError as error:
+                errors.append("{}: {}".format(path.name, error))
 
     return (
         matched_count,
@@ -110,6 +160,12 @@ def parse_args(argv=None):
         default=DEFAULT_LOCK_FILE,
         help=argparse.SUPPRESS,
     )
+    parser.add_argument(
+        "--image-directory-lock-file",
+        type=Path,
+        default=DEFAULT_IMAGE_DIRECTORY_LOCK_FILE,
+        help=argparse.SUPPRESS,
+    )
     return parser.parse_args(argv)
 
 
@@ -139,6 +195,7 @@ def main(argv=None):
                 args.directory,
                 args.retention_minutes,
                 dry_run=args.dry_run,
+                image_directory_lock_file=args.image_directory_lock_file,
             )
         except (OSError, ValueError) as error:
             print("cleanup failed: {}".format(error), file=sys.stderr)
