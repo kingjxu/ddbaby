@@ -1,6 +1,6 @@
 ---
 version: "1.2"
-last_updated: "2026-10-04"
+last_updated: "2026-10-05"
 status: "active"
 ---
 
@@ -122,3 +122,21 @@ status: "active"
   检查通过后被同名新文件替换。
 - 修改清理规则时必须先执行 `--dry-run`，不得扩大到子目录、符号链接、Hero 或
   decided 证据图。
+
+## 2026-10-05 生产截图保留部署
+
+- 业务提交：`e557483`。服务器 Go 1.22.2 隔离目录通过 service、全仓、service race
+  测试及 `build.sh`；运行时二进制 SHA256 为
+  `4eb739d7cb76ba52241b396dec0b36a5bdca9cf3b84f1b1ae1419014c40f55b4`。
+- 部署后进程 PID=1098849、PPID=1，监听 8888；SSH 重连后 `/ping` 返回
+  `{"message":"pong"}`，运行中 `/proc/1098849/exe` 与部署文件 SHA 一致。
+- 首次清理前 dry-run 匹配 11,230 张普通过期图、1,842,131,538 bytes；实际删除数量
+  和字节数完全一致，`changed_files=0`。二次执行匹配/删除均为 0。
+- 清理前的 765 张 Hero 与 1,690 张 decided 共 2,455 个文件已生成逐文件 SHA256
+  清单，清理后全部校验通过；JPEG 总数由 13,685 降为 2,455。
+- 根盘使用率由 80% 降为 76%，可用空间由 8,198,955,008 bytes 增至
+  10,064,629,760 bytes。
+- cron 服务为 active；logrotate 规则显式使用 `su root adm`，适配服务器 `/var/log`
+  权限策略并通过 debug 校验。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261005-135714-before-e557483`，包含旧二进制、
+  运行时源码、清理配置备份、候选/旧二进制校验值和清理前保留图片 SHA256 清单。

@@ -1,4 +1,5 @@
 /var/log/ddbaby-image-cleanup.log {
+    su root adm
     weekly
     rotate 4
     compress

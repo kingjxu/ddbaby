@@ -43,3 +43,21 @@
 - 本策略不清理 Hero/decided 证据图，也不清理服务日志、构建目录、备份或 swap。
 - 共享锁协议覆盖当前仓库内全部生产图片写入入口；新增图片写入入口时必须复用
   `writeImageToFileWithLock`，不能绕过该锁直接写入生产图片目录。
+
+## 生产部署与首次清理
+
+- ddbaby 运行时已部署 `e557483` 对应构建，二进制 SHA256 为
+  `4eb739d7cb76ba52241b396dec0b36a5bdca9cf3b84f1b1ae1419014c40f55b4`；进程
+  PID=1098849、PPID=1，8888 监听和 SSH 重连后的 `/ping` 均正常。
+- 清理脚本安装至 `/usr/local/sbin/ddbaby-cleanup-images`，cron 和 logrotate 配置已
+  安装。服务器 `/var/log` 权限要求 logrotate 显式指定用户，规则已增加
+  `su root adm` 并通过 `logrotate -d` 校验；cron 服务为 active。
+- 首次实际清理结果：`matched_files=11230`、`matched_bytes=1842131538`、
+  `deleted_files=11230`、`deleted_bytes=1842131538`、`changed_files=0`。紧接着的
+  第二次运行匹配和删除均为 0。
+- 清理前后 Hero 数量均为 765、decided 数量均为 1,690；清理前为全部 2,455 个
+  保留文件生成 SHA256 清单，清理后逐项校验全部通过。JPEG 总数由 13,685 降为
+  2,455。
+- 根盘已用空间由 32,115,527,680 bytes 降为 30,249,852,928 bytes，可用空间由
+  8,198,955,008 bytes 增至 10,064,629,760 bytes，使用率由 80% 降为 76%。
+- 回滚与审计目录：`/home/ubuntu/ddbaby-backups/20261005-135714-before-e557483`。
