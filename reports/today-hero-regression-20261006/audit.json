@@ -23,14 +23,21 @@
   "postdeploy_history_stage_regressions": 0,
   "postdeploy_gto_accepted": 47,
   "postdeploy_gto_normalized": 0,
-  "pending_total_over_3000_ms": 11,
-  "latency_ms": {
+  "raw_trace_pending_total_over_3000_ms": 11,
+  "raw_trace_latency_ms": {
     "queue_backlog": {"mean": 1096.27, "p50": 1103.5, "p95": 2237, "max": 2514},
     "server_recognize": {"mean": 1045.38, "p50": 938.5, "p95": 2023, "max": 2096},
     "server_decision": {"mean": 67.12, "p50": 66.5, "p95": 80, "max": 175},
     "selected_frame_total": {"mean": 1491.67, "p50": 1339, "p95": 2463, "max": 2643},
     "pending_total": {"mean": 2510.48, "p50": 2371.5, "p95": 4728, "max": 4795}
   },
+  "first_occurrence_by_request_state_latency_ms": {
+    "states": 19,
+    "selected_frame_total": {"mean": 1388, "p50": 1295, "p95": 2202, "max": 2329},
+    "pending_total": {"mean": 1966, "p50": 1819, "p95": 3044, "max": 4041},
+    "pending_total_over_3000_ms": 2
+  },
+  "latency_interpretation": "Raw traces include repeated Hero frames and inherited pendingSince. Neither raw traces nor state-first dedup measure hero-turn onset to first display; decided and other-player action time must be excluded from that future metric.",
   "evidence": {
     "images_tgz_sha256": "af887333dc021ddb85bb1f5a1899b176fd871a00456272ad6ca1904a1930e87a",
     "snapshot_sha256": "0619c42e922c0408aae0ed96b306f2b49d37547ce64075bb02898262c3425b84",
