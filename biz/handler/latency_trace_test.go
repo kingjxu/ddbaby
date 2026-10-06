@@ -25,6 +25,33 @@ func TestParseClientStageTrace(t *testing.T) {
 	}
 }
 
+func TestParseClientStageTraceV2DecisionCycle(t *testing.T) {
+	trace, ok := parseClientStageTrace(
+		"1700000000000-12",
+		"v2,cycle-1,80,1,100,112,115,70,140,2,141,151,153",
+	)
+	if !ok {
+		t.Fatal("expected valid v2 trace")
+	}
+	if trace.DecisionCycleID != "cycle-1" || !trace.CycleStartFrame ||
+		trace.HeroTurnToCapture != 20 || trace.HeroTurnToHTTP != 73 ||
+		trace.QueueBacklog != 70 {
+		t.Fatalf("unexpected v2 trace: %+v", trace)
+	}
+
+	invalid := []string{
+		"v2,bad cycle,80,1,100,112,115,70,140,2,141,151,153",
+		"v2,cycle-1,101,1,100,112,115,70,140,2,141,151,153",
+		"v2,cycle-1,80,2,100,112,115,70,140,2,141,151,153",
+		"v2,cycle-1,80,1,100,112,115,70,140,2,141,151",
+	}
+	for _, value := range invalid {
+		if _, accepted := parseClientStageTrace("trace", value); accepted {
+			t.Fatalf("accepted invalid v2 trace: %q", value)
+		}
+	}
+}
+
 func TestParseCompletedClientTrace(t *testing.T) {
 	value := "v1,1700000000000-12,100,112,115,90,140,2,141,151,154,160,153,300,306,2,8,120,10,45,166"
 	trace, ok := parseCompletedClientTrace(value)
@@ -51,5 +78,30 @@ func TestParseCompletedClientTrace(t *testing.T) {
 	}
 	if _, ok := parseCompletedClientTrace("v1,trace,100,112,115,90,140,2,141,151,154,160,153,300,306,60000,60000,60000,60000,60000,60000"); !ok {
 		t.Fatal("rejected valid 60 second server timing boundary")
+	}
+}
+
+func TestParseCompletedClientTraceV2DecisionCycle(t *testing.T) {
+	value := "v2,trace-1,cycle-1,80,1,100,112,115,70,140,2,141,151,154,160,153,300,306,2,8,120,10,45,166"
+	trace, ok := parseCompletedClientTrace(value)
+	if !ok {
+		t.Fatal("expected valid completed v2 trace")
+	}
+	if trace.DecisionCycleID != "cycle-1" || !trace.FirstCycleDisplay ||
+		trace.HeroTurnToDisplay != 226 || trace.PendingTotal != 236 ||
+		trace.ServerRecognize != 120 {
+		t.Fatalf("unexpected completed v2 trace: %+v", trace)
+	}
+
+	invalid := []string{
+		"v2,trace-1,bad cycle,80,1,100,112,115,70,140,2,141,151,154,160,153,300,306,2,8,120,10,45,166",
+		"v2,trace-1,cycle-1,101,1,100,112,115,70,140,2,141,151,154,160,153,300,306,2,8,120,10,45,166",
+		"v2,trace-1,cycle-1,80,2,100,112,115,70,140,2,141,151,154,160,153,300,306,2,8,120,10,45,166",
+		"v2,trace-1,cycle-1,80,1,100,112,115,70,140,2,141,151,154,160,153,300,306,2,8,120,10,45",
+	}
+	for _, item := range invalid {
+		if _, accepted := parseCompletedClientTrace(item); accepted {
+			t.Fatalf("accepted invalid completed v2 trace: %q", item)
+		}
 	}
 }

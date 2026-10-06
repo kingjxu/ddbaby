@@ -30,17 +30,24 @@ type decisionLatency struct {
 }
 
 type clientStageTrace struct {
-	TraceID        string `json:"trace_id"`
-	CaptureToReady int64  `json:"capture_to_ready_ms"`
-	QueueWait      int64  `json:"queue_wait_ms"`
-	QueueBacklog   int64  `json:"queue_backlog_ms"`
-	Superseded     int64  `json:"superseded_frames"`
-	Compress       int64  `json:"compress_ms"`
-	CaptureToHTTP  int64  `json:"capture_to_http_start_ms"`
+	TraceID           string `json:"trace_id"`
+	DecisionCycleID   string `json:"decision_cycle_id,omitempty"`
+	CycleStartFrame   bool   `json:"cycle_start_frame,omitempty"`
+	HeroTurnToCapture int64  `json:"hero_turn_to_capture_ms,omitempty"`
+	HeroTurnToHTTP    int64  `json:"hero_turn_to_http_start_ms,omitempty"`
+	CaptureToReady    int64  `json:"capture_to_ready_ms"`
+	QueueWait         int64  `json:"queue_wait_ms"`
+	QueueBacklog      int64  `json:"queue_backlog_ms"`
+	Superseded        int64  `json:"superseded_frames"`
+	Compress          int64  `json:"compress_ms"`
+	CaptureToHTTP     int64  `json:"capture_to_http_start_ms"`
 }
 
 type completedClientTrace struct {
 	TraceID           string `json:"trace_id"`
+	DecisionCycleID   string `json:"decision_cycle_id,omitempty"`
+	FirstCycleDisplay bool   `json:"first_cycle_display,omitempty"`
+	HeroTurnToDisplay int64  `json:"hero_turn_to_display_ms,omitempty"`
 	CaptureToReady    int64  `json:"capture_to_ready_ms"`
 	QueueWait         int64  `json:"queue_wait_ms"`
 	QueueBacklog      int64  `json:"queue_backlog_ms"`
@@ -75,35 +82,33 @@ func validTraceID(value string) bool {
 	return true
 }
 
-func parseTraceValues(value string, expected int) ([]string, []int64, bool) {
-	if value == "" || len(value) > maxLatencyTraceHeaderBytes {
-		return nil, nil, false
-	}
-	parts := strings.Split(value, ",")
-	if len(parts) != expected || parts[0] != "v1" || !validTraceID(parts[1]) {
-		return nil, nil, false
-	}
-	numbers := make([]int64, 0, expected-2)
-	for _, part := range parts[2:] {
-		number, err := strconv.ParseInt(part, 10, 64)
-		if err != nil || number < 0 {
-			return nil, nil, false
-		}
-		numbers = append(numbers, number)
-	}
-	return parts, numbers, true
-}
-
 func parseClientStageTrace(traceID, value string) (*clientStageTrace, bool) {
 	if !validTraceID(traceID) || value == "" || len(value) > maxLatencyTraceHeaderBytes {
 		return nil, false
 	}
 	parts := strings.Split(value, ",")
-	if len(parts) != 10 || parts[0] != "v1" {
+	version := parts[0]
+	numberStart := 1
+	cycleID := ""
+	var heroTurnDetected int64
+	cycleStartFrame := false
+	if version == "v2" {
+		if len(parts) != 13 || !validTraceID(parts[1]) {
+			return nil, false
+		}
+		cycleID = parts[1]
+		detected, err := strconv.ParseInt(parts[2], 10, 64)
+		if err != nil || detected < 0 || (parts[3] != "0" && parts[3] != "1") {
+			return nil, false
+		}
+		heroTurnDetected = detected
+		cycleStartFrame = parts[3] == "1"
+		numberStart = 4
+	} else if version != "v1" || len(parts) != 10 {
 		return nil, false
 	}
 	numbers := make([]int64, 0, 9)
-	for _, part := range parts[1:] {
+	for _, part := range parts[numberStart:] {
 		number, err := strconv.ParseInt(part, 10, 64)
 		if err != nil || number < 0 {
 			return nil, false
@@ -117,19 +122,67 @@ func parseClientStageTrace(traceID, value string) (*clientStageTrace, bool) {
 		compressStart <= compressEnd && compressEnd <= httpStart && httpStart-capture <= 60000) {
 		return nil, false
 	}
-	return &clientStageTrace{
+	trace := &clientStageTrace{
 		TraceID: traceID, CaptureToReady: ready - capture, QueueWait: dequeue - enqueue,
 		QueueBacklog: dequeue - pendingSince, Superseded: superseded,
 		Compress: compressEnd - compressStart, CaptureToHTTP: httpStart - capture,
-	}, true
+	}
+	if cycleID != "" {
+		if heroTurnDetected > capture || capture-heroTurnDetected > 60000 {
+			return nil, false
+		}
+		trace.DecisionCycleID = cycleID
+		trace.CycleStartFrame = cycleStartFrame
+		trace.HeroTurnToCapture = capture - heroTurnDetected
+		trace.HeroTurnToHTTP = httpStart - heroTurnDetected
+	}
+	return trace, true
 }
 
 func parseCompletedClientTrace(value string) (*completedClientTrace, bool) {
-	_, numbers, ok := parseTraceValues(value, 21)
-	if !ok {
+	parts := strings.Split(value, ",")
+	if len(parts) == 0 {
 		return nil, false
 	}
-	parts := strings.Split(value, ",")
+	version := parts[0]
+	expected := 21
+	numberStart := 2
+	cycleID := ""
+	firstCycleDisplay := false
+	var heroTurnDetected int64
+	if version == "v2" {
+		expected = 24
+		numberStart = 5
+	} else if version != "v1" {
+		return nil, false
+	}
+	if len(parts) != expected || len(value) > maxLatencyTraceHeaderBytes ||
+		!validTraceID(parts[1]) {
+		return nil, false
+	}
+	if version == "v2" {
+		if !validTraceID(parts[2]) || (parts[4] != "0" && parts[4] != "1") {
+			return nil, false
+		}
+		detected, err := strconv.ParseInt(parts[3], 10, 64)
+		if err != nil || detected < 0 {
+			return nil, false
+		}
+		cycleID = parts[2]
+		heroTurnDetected = detected
+		firstCycleDisplay = parts[4] == "1"
+	}
+	numbers := make([]int64, 0, 19)
+	for _, part := range parts[numberStart:] {
+		number, err := strconv.ParseInt(part, 10, 64)
+		if err != nil || number < 0 {
+			return nil, false
+		}
+		numbers = append(numbers, number)
+	}
+	if len(numbers) != 19 {
+		return nil, false
+	}
 	capture, ready, enqueue, pendingSince, dequeue, superseded :=
 		numbers[0], numbers[1], numbers[2], numbers[3], numbers[4], numbers[5]
 	compressStart, compressEnd := numbers[6], numbers[7]
@@ -147,7 +200,7 @@ func parseCompletedClientTrace(value string) (*completedClientTrace, bool) {
 			return nil, false
 		}
 	}
-	return &completedClientTrace{
+	trace := &completedClientTrace{
 		TraceID: parts[1], CaptureToReady: ready - capture, QueueWait: dequeue - enqueue,
 		QueueBacklog: dequeue - pendingSince, Superseded: superseded,
 		Compress: compressEnd - compressStart, RequestBodyWrite: bodyEnd - bodyStart,
@@ -156,7 +209,16 @@ func parseCompletedClientTrace(value string) (*completedClientTrace, bool) {
 		ServerBind: numbers[13], ServerAuth: numbers[14],
 		ServerRecognize: numbers[15], ServerPrepare: numbers[16], ServerDecision: numbers[17],
 		ServerTotal: numbers[18],
-	}, true
+	}
+	if cycleID != "" {
+		if heroTurnDetected > capture || displayEnd-heroTurnDetected > 60000 {
+			return nil, false
+		}
+		trace.DecisionCycleID = cycleID
+		trace.FirstCycleDisplay = firstCycleDisplay
+		trace.HeroTurnToDisplay = displayEnd - heroTurnDetected
+	}
+	return trace, true
 }
 
 func elapsedOrMissing(start, end time.Time) int64 {
@@ -193,7 +255,11 @@ func logClientTraceHeaders(ctx *app.RequestContext, traceID string) {
 		return
 	}
 	if completed, ok := parseCompletedClientTrace(previous); ok {
-		logrus.Infof("[GtoLatencyTrace] client_complete:%s", util.ToJSON(completed))
+		if completed.DecisionCycleID != "" && !completed.FirstCycleDisplay {
+			logrus.Infof("[GtoLatencyTrace] client_complete_repeat:%s", util.ToJSON(completed))
+		} else {
+			logrus.Infof("[GtoLatencyTrace] client_complete:%s", util.ToJSON(completed))
+		}
 	} else {
 		logrus.Warn("[GtoLatencyTrace] invalid previous client trace header")
 	}

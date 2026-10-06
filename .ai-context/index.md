@@ -1,6 +1,6 @@
 ---
-version: "1.4"
-last_updated: "2026-10-04"
+version: "1.5"
+last_updated: "2026-10-06"
 ---
 
 # ddbaby 项目上下文
@@ -29,7 +29,7 @@ last_updated: "2026-10-04"
 
 ## Context Version
 
-Context v1.4。在线链路默认使用轻量 Hero 门控；每个 Hero 行动帧只触发紧接着的一帧完整识别，随后恢复轻量检测。动作历史从这些有限快照推断并累计可观察差分；图上可见下注由 dezhou 直接识别，ddbaby 不从筹码或底池差额反推下注。支持可选的跨客户端/服务端时延追踪头，旧客户端协议保持兼容。
+Context v1.5。在线链路默认使用轻量 Hero 门控；每个 Hero 行动帧只触发紧接着的一帧完整识别，随后恢复轻量检测。动作历史从这些有限快照推断并累计可观察差分；图上可见下注由 dezhou 直接识别，ddbaby 不从筹码或底池差额反推下注。可选时延追踪支持 `decision_cycle_id` 和首次展示口径，重复 Hero 结果单独记录；旧 v1 客户端协议保持兼容。
 
 ## Pending Files
 

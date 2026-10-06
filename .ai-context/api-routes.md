@@ -1,6 +1,6 @@
 ---
-version: "1.0"
-last_updated: "2026-10-04"
+version: "1.1"
+last_updated: "2026-10-06"
 ---
 
 # API 路由
@@ -20,6 +20,8 @@ last_updated: "2026-10-04"
 所有追踪头都是可选的。没有追踪头的旧客户端保持原行为，也不会产生逐请求追踪日志。服务端对外部头做长度、字符、字段数、非负值、单调性和最大 60 秒窗口校验；无效追踪数据不进入统计，也不改变业务决策。
 
 客户端完整展示追踪由下一次请求携带，因此最后一次结果在停止录制且不再发请求时可能只保留在本机 `TRACE_COMPLETE` 日志中。服务端阶段使用自己的时钟，客户端阶段使用 `elapsedRealtime`，不依赖设备与服务器墙上时钟同步。
+
+1.0.27 客户端在 `X-GTO-Client-Stages` 和 `X-GTO-Previous-Trace` 的 v2 格式中附加随机 `decision_cycle_id`、Hero 控件首次检测时间和 cycle 起始/首次展示标记。服务端对 cycle id、字段数量、时间顺序、布尔值及 60 秒窗口做同等校验；同一 cycle 仅首次实际展示写入 `client_complete`，后续重复结果写入 `client_complete_repeat`。没有 cycle 的 v1 头继续按原格式解析。
 
 ## 其他路由
 
