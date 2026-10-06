@@ -122,6 +122,12 @@ status: "active"
   检查通过后被同名新文件替换。
 - 修改清理规则时必须先执行 `--dry-run`，不得扩大到子目录、符号链接、Hero 或
   decided 证据图。
+- 2026-10-06 已部署 5 天保留调整（提交 `b5eb1ba`）：生产脚本 SHA256
+  `1dd0ce9922b5edc84ebc63b43fa4a538eae22bb21b63875fb741cde3068f00b3`，
+  cron SHA256 `9bbbd3aefb9dd616e4eaaedb59c42a181874b26a9273672a97e8f903f07b5476`。
+  生产无参数 dry-run 显示 `retention_minutes=7200` 且匹配/删除/变化均为 0；cron
+  表达式为 `17 3 * * *`、服务 active，ddbaby `/ping` 正常。替换前脚本和 cron
+  已备份到既有回滚目录的 `cleanup-config` 子目录。
 
 ## 2026-10-05 生产截图保留部署
 

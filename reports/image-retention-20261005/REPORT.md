@@ -72,3 +72,13 @@
 - Hero、decided 保留规则、共享写删锁、目录边界和日志轮转策略均不变。
 - 调整候选通过 Python 7/7、`py_compile` 和 `git diff --check`；生产目录使用
   7,200 分钟参数 dry-run 匹配 0、删除 0、`changed_files=0`，服务 `/ping` 正常。
+- 调整已于 2026-10-06 原子部署：生产脚本 SHA256 为
+  `1dd0ce9922b5edc84ebc63b43fa4a538eae22bb21b63875fb741cde3068f00b3`，cron
+  SHA256 为 `9bbbd3aefb9dd616e4eaaedb59c42a181874b26a9273672a97e8f903f07b5476`；
+  权限分别为 root:root/0755 和 root:root/0644。
+- 生产脚本不显式传保留期执行 dry-run，结果为 `retention_minutes=7200` 且匹配、
+  删除、变化均为 0；实际 cron 行为 `17 3 * * * ... --retention-minutes 7200`，cron
+  服务 active，ddbaby `/ping` 正常。
+- 替换前脚本和 cron 分别备份为回滚目录 `cleanup-config` 下的
+  `ddbaby-cleanup-images.before-b5eb1ba` 和
+  `ddbaby-image-cleanup.cron.before-b5eb1ba`。
