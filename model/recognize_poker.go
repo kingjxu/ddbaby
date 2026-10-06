@@ -112,6 +112,22 @@ func ValidateTexasGtoDecisionRequest(req *TexasGtoDecisionReq) error {
 	if len(req.CommunityCards) != expectedCommunityCards {
 		return fmt.Errorf("%s decision request has %d community cards, want %d", req.GameStage, len(req.CommunityCards), expectedCommunityCards)
 	}
+	previousStage := -1
+	previousTimestamp := -1
+	for index, action := range req.ActionHistory {
+		actionStage := stageOrder(action.Stage)
+		if actionStage < 0 || actionStage > expectedCommunityCardsStage(expectedCommunityCards) {
+			return fmt.Errorf("action history item %d has invalid stage %q for %s", index, action.Stage, req.GameStage)
+		}
+		if actionStage < previousStage {
+			return fmt.Errorf("action history item %d regresses from %s to %s", index, req.ActionHistory[index-1].Stage, action.Stage)
+		}
+		if action.Timestamp <= previousTimestamp {
+			return fmt.Errorf("action history item %d has non-increasing timestamp %d", index, action.Timestamp)
+		}
+		previousStage = actionStage
+		previousTimestamp = action.Timestamp
+	}
 	for _, player := range req.Players {
 		if player.Position != req.CurrentPlayerPosition {
 			continue
@@ -138,6 +154,21 @@ func ValidateTexasGtoDecisionRequest(req *TexasGtoDecisionReq) error {
 		return nil
 	}
 	return fmt.Errorf("current player %q is missing", req.CurrentPlayerPosition)
+}
+
+func expectedCommunityCardsStage(cardCount int) int {
+	switch cardCount {
+	case 0:
+		return 0
+	case 3:
+		return 1
+	case 4:
+		return 2
+	case 5:
+		return 3
+	default:
+		return -1
+	}
 }
 
 func isValidTexasCard(card string) bool {
@@ -292,7 +323,7 @@ func PrepareActionHistory(previous, result *TexasResult) {
 		return
 	}
 
-	if previous == nil || previous.TableInfo.ButtonSeat != result.TableInfo.ButtonSeat {
+	if IsNewHand(previous, result) {
 		result.ObservedActionHistory = inferSnapshotActions(result)
 		return
 	}
@@ -317,6 +348,49 @@ func PrepareActionHistory(previous, result *TexasResult) {
 		action.Timestamp = nextTimestamp(result.ObservedActionHistory)
 		result.ObservedActionHistory = append(result.ObservedActionHistory, action)
 	}
+}
+
+// IsNewHand reports whether two consecutive full recognitions cannot belong to
+// the same poker hand. Button movement is the usual signal, but some clients
+// keep reporting a fixed button seat. In that case a street regression or a
+// change of the two visible Hero cards is sufficient evidence of a new hand.
+func IsNewHand(previous, current *TexasResult) bool {
+	if previous == nil || current == nil {
+		return true
+	}
+	if previous.TableInfo.ButtonSeat != current.TableInfo.ButtonSeat {
+		return true
+	}
+	if stageOrder(current.TableInfo.Stage) < stageOrder(previous.TableInfo.Stage) {
+		return true
+	}
+	return completeHeroCardsChanged(previous.HeroInfo.HeroCards, current.HeroInfo.HeroCards)
+}
+
+func stageOrder(stage string) int {
+	switch normalizeStage(stage) {
+	case "preflop":
+		return 0
+	case "flop":
+		return 1
+	case "turn":
+		return 2
+	case "river":
+		return 3
+	default:
+		return -1
+	}
+}
+
+func completeHeroCardsChanged(previous, current []string) bool {
+	if len(previous) != 2 || len(current) != 2 {
+		return false
+	}
+	previousCards := append([]string(nil), previous...)
+	currentCards := append([]string(nil), current...)
+	sort.Strings(previousCards)
+	sort.Strings(currentCards)
+	return previousCards[0] != currentCards[0] || previousCards[1] != currentCards[1]
 }
 
 func parseCards(cards []string) []string {

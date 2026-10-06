@@ -32,7 +32,7 @@ func SaveUserData(ctx context.Context, uid string, result *model.TexasResult) er
 	}
 	lastResult := userData[len(userData)-1]
 	model.PrepareActionHistory(lastResult, result)
-	if lastResult.TableInfo.ButtonSeat == result.TableInfo.ButtonSeat &&
+	if !model.IsNewHand(lastResult, result) &&
 		lastResult.TableInfo.Stage == result.TableInfo.Stage { // 同一手的同阶段，更新
 		userData[len(userData)-1] = result
 		return nil
@@ -50,11 +50,10 @@ func GetLastUserData(ctx context.Context, uid string) ([]*model.TexasResult, err
 		logrus.WithContext(ctx).Errorf("user data not exist, uid: %s", uid)
 		return nil, nil
 	}
-	buttonSeat := userData[len(userData)-1].TableInfo.ButtonSeat
 	preFlopIndex := 0
 	for i := len(userData) - 1; i >= 0; i-- {
-		if userData[i].TableInfo.ButtonSeat != buttonSeat {
-			preFlopIndex = i + 1
+		if i > 0 && model.IsNewHand(userData[i-1], userData[i]) {
+			preFlopIndex = i
 			break
 		}
 	}

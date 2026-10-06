@@ -807,6 +807,33 @@ func TestValidateTexasGtoDecisionRequestRejectsWrongBoardCardCount(t *testing.T)
 	}
 }
 
+func TestValidateTexasGtoDecisionRequestRejectsCrossHandHistory(t *testing.T) {
+	req := decisionRequest(0, 200, 0)
+	req.GameStage = "river"
+	req.CommunityCards = []string{"2-S", "J-H", "K-C", "9-S", "A-D"}
+	req.ActionHistory = []TexasActionHistory{
+		{Stage: "river", Position: "BB-Hero", Action: "fold", Timestamp: 0},
+		{Stage: "preflop", Position: "BTN", Action: "call", Amount: 2, Timestamp: 1},
+	}
+	if err := ValidateTexasGtoDecisionRequest(req); err == nil {
+		t.Fatal("history that regresses from river to preflop should be rejected")
+	}
+}
+
+func TestValidateTexasGtoDecisionRequestAcceptsMonotonicHistory(t *testing.T) {
+	req := decisionRequest(0, 200, 0)
+	req.GameStage = "turn"
+	req.CommunityCards = []string{"2-S", "J-H", "K-C", "9-S"}
+	req.ActionHistory = []TexasActionHistory{
+		{Stage: "preflop", Position: "BTN", Action: "call", Amount: 2, Timestamp: 0},
+		{Stage: "flop", Position: "BTN", Action: "check", Timestamp: 1},
+		{Stage: "flop", Position: "BB-Hero", Action: "check", Timestamp: 2},
+	}
+	if err := ValidateTexasGtoDecisionRequest(req); err != nil {
+		t.Fatalf("valid monotonic history was rejected: %v", err)
+	}
+}
+
 func TestValidateTexasGtoDecisionResponse(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -1017,5 +1044,59 @@ func TestObservedActionHistoryIsNotSerialized(t *testing.T) {
 	}
 	if strings.Contains(string(payload), "ObservedActionHistory") || strings.Contains(string(payload), "observed_action_history") {
 		t.Fatalf("internal history leaked into recognition protocol: %s", payload)
+	}
+}
+
+func TestPrepareActionHistoryResetsWhenFixedButtonStartsNewHand(t *testing.T) {
+	previous := &TexasResult{}
+	previous.TableInfo.ButtonSeat = 5
+	previous.TableInfo.Stage = "river"
+	previous.HeroInfo.HeroCards = []string{"J 方块", "2 方块"}
+	previous.ObservedActionHistory = []TexasActionHistory{
+		{Stage: "river", Position: "BB-Hero", Action: "bet", Amount: 14},
+		{Stage: "river", Position: "BTN", Action: "raise", Amount: 205, Timestamp: 1},
+	}
+
+	current := &TexasResult{}
+	current.TableInfo.ButtonSeat = 5
+	current.TableInfo.Stage = "preflop"
+	current.HeroInfo.HeroCards = []string{"10 梅花", "J 梅花"}
+
+	PrepareActionHistory(previous, current)
+
+	if len(current.ObservedActionHistory) != 0 {
+		t.Fatalf("new hand retained previous history: %+v", current.ObservedActionHistory)
+	}
+}
+
+func TestIsNewHandUsesHeroCardsWhenFirstObservedStreetDoesNotRegress(t *testing.T) {
+	previous := &TexasResult{}
+	previous.TableInfo.ButtonSeat = 5
+	previous.TableInfo.Stage = "preflop"
+	previous.HeroInfo.HeroCards = []string{"10 梅花", "2 红桃"}
+
+	current := &TexasResult{}
+	current.TableInfo.ButtonSeat = 5
+	current.TableInfo.Stage = "flop"
+	current.HeroInfo.HeroCards = []string{"A 方块", "K 黑桃"}
+
+	if !IsNewHand(previous, current) {
+		t.Fatal("changed complete Hero cards with a fixed button must start a new hand")
+	}
+}
+
+func TestIsNewHandIgnoresHeroCardOrder(t *testing.T) {
+	previous := &TexasResult{}
+	previous.TableInfo.ButtonSeat = 5
+	previous.TableInfo.Stage = "flop"
+	previous.HeroInfo.HeroCards = []string{"A 方块", "K 黑桃"}
+
+	current := &TexasResult{}
+	current.TableInfo.ButtonSeat = 5
+	current.TableInfo.Stage = "turn"
+	current.HeroInfo.HeroCards = []string{"K 黑桃", "A 方块"}
+
+	if IsNewHand(previous, current) {
+		t.Fatal("reordered Hero cards must not start a new hand")
 	}
 }

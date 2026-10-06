@@ -169,3 +169,27 @@ func TestSaveUserDataKeepsActionsWhileReplacingSameStageSnapshot(t *testing.T) {
 	require.Equal(t, "raise", history[0].ObservedActionHistory[1].Action)
 	require.Equal(t, 40, history[0].ObservedActionHistory[1].Amount)
 }
+
+func TestFixedButtonNewHandDoesNotLeakActionHistory(t *testing.T) {
+	resetLocalMemory()
+	t.Cleanup(resetLocalMemory)
+
+	ctx := context.Background()
+	uid := "fixed-button-new-hand"
+	previous := texasResult(5, "river", 239)
+	previous.HeroInfo.HeroCards = []string{"J 方块", "2 方块"}
+	previous.ObservedActionHistory = []model.TexasActionHistory{
+		{Stage: "river", Position: "BB-Hero", Action: "bet", Amount: 14},
+		{Stage: "river", Position: "BTN", Action: "raise", Amount: 205, Timestamp: 1},
+	}
+	current := texasResult(5, "preflop", 4)
+	current.HeroInfo.HeroCards = []string{"10 梅花", "J 梅花"}
+
+	require.NoError(t, SaveUserData(ctx, uid, previous))
+	require.NoError(t, SaveUserData(ctx, uid, current))
+
+	history, err := GetLastUserData(ctx, uid)
+	require.NoError(t, err)
+	require.Len(t, history, 1)
+	require.Empty(t, history[0].ObservedActionHistory)
+}

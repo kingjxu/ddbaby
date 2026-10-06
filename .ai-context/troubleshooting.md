@@ -1,10 +1,17 @@
 ---
-version: "1.1"
-last_updated: "2026-10-03"
+version: "1.2"
+last_updated: "2026-10-06"
 status: "active"
 ---
 
 # 故障排查
+
+## 固定 BTN 时 action_history 串到下一手
+
+- 不能把 `button_seat` 不变视为同一手牌；部分牌桌会连续多手显示同一 BTN。
+- 先检查相邻完整识别是否出现街道回退或两张完整 Hero 手牌变化。任一信号成立时，新快照应从空历史开始，缓存查询也只能返回该边界之后的数据。
+- GTO 请求中的 `action_history` 必须按 preflop、flop、turn、river 单调推进，且时间戳严格递增。出现 river 后跟 preflop、历史包含未来街道或时间戳倒退时，ddbaby 应在调用决策服务前拒绝请求。
+- Hero 手牌 OCR 在同一手内发生变化时，当前实现选择保守切断历史，避免将不确定数据继续串入策略请求；排查时应同步核对 dezhou 原始识别。
 
 ## 识别成功但决策金额非法
 
