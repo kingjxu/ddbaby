@@ -136,6 +136,13 @@ status: "active"
 - 部署后 PID 1513243、PPID 1，`/proc/1513243/exe` 与部署文件 SHA 一致；SSH 重连后 `/ping` 返回 `pong`。
 - 回滚目录 `/home/ubuntu/ddbaby-backups/20261006-1837-before-cc7987c`。47 个真实可决策请求的隔离重放 history stage regression=0、生产 GTO 47/47 响应合法、归一化 0；未向真实用户缓存注入历史牌局。
 
+## 2026-10-06 Hero 决策机会首次结果追踪部署
+
+- 业务提交 `6ea22c3`，配套客户端提交 `58737df`。trace v2 增加随机 `decision_cycle_id`、Hero 控件首次检测时间和首次展示标记；v1 客户端保持兼容。
+- 服务器 Go 1.22.2 全仓测试、handler/model/dal race 和构建通过。运行时二进制 SHA256 为 `21024ffa93e42d44b2fc4ad1252956feebd99ad5c16309f2d40d11f389b38eb9`；运行时 `biz/handler/latency_trace.go` SHA256 为 `69eab9f64b56b882b1d48d157b1b463e5d4ae5225c8904fb4aa54703775db04e`，与构建输入一致。
+- 部署后 PID `1554013`、PPID `1`，`/proc/1554013/exe` 与部署文件 SHA 一致；SSH 重连后 `/ping` 返回 `pong`。v2 smoke 验证首次展示进入 `client_complete`、重复展示进入 `client_complete_repeat`。
+- 回滚目录 `/home/ubuntu/ddbaby-backups/20261006-211121-before-6ea22c3`。smoke 未使用真实鉴权或图片；需等待 1.0.27 真机流量后再分析 `hero_turn_detected -> first_display`。
+
 ## 2026-10-05 生产截图保留部署
 
 - 业务提交：`e557483`。服务器 Go 1.22.2 隔离目录通过 service、全仓、service race

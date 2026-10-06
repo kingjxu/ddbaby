@@ -18,4 +18,7 @@
 
 ## 部署
 
-待代码复审通过后补充二进制备份、原子替换、健康检查和协议 smoke 记录。
+- 业务提交 `6ea22c3`；服务器 Go 1.22.2 全仓测试、handler/model/dal race 和构建通过。候选及运行时二进制 SHA256 均为 `21024ffa93e42d44b2fc4ad1252956feebd99ad5c16309f2d40d11f389b38eb9`，运行时 `biz/handler/latency_trace.go` SHA256 为 `69eab9f64b56b882b1d48d157b1b463e5d4ae5225c8904fb4aa54703775db04e`，与构建输入一致。
+- 替换前二进制、源码和校验值备份到 `/home/ubuntu/ddbaby-backups/20261006-211121-before-6ea22c3`；候选在目标目录校验后原子替换。
+- 部署后 PID `1554013`、PPID `1`，`/proc/1554013/exe` SHA 与部署文件一致；SSH 重连后 `/ping` 返回 `pong`。
+- 无鉴权协议 smoke 验证 v2 stage 被解析为 `hero_turn_to_capture_ms=20`、`hero_turn_to_http_start_ms=73`；首次展示进入 `client_complete`，同 cycle 非首次展示进入 `client_complete_repeat`。smoke 未进行真实识别或决策，不作为用户时延样本。
