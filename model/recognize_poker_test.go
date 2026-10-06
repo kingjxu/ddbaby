@@ -834,6 +834,32 @@ func TestValidateTexasGtoDecisionRequestAcceptsMonotonicHistory(t *testing.T) {
 	}
 }
 
+func TestValidateTexasGtoDecisionRequestRejectsFutureStageHistory(t *testing.T) {
+	req := decisionRequest(0, 200, 0)
+	req.GameStage = "flop"
+	req.CommunityCards = []string{"2-S", "J-H", "K-C"}
+	req.ActionHistory = []TexasActionHistory{
+		{Stage: "preflop", Position: "BTN", Action: "call", Amount: 2, Timestamp: 0},
+		{Stage: "turn", Position: "BTN", Action: "check", Timestamp: 1},
+	}
+	if err := ValidateTexasGtoDecisionRequest(req); err == nil {
+		t.Fatal("history from a future street should be rejected")
+	}
+}
+
+func TestValidateTexasGtoDecisionRequestRejectsNonIncreasingTimestamp(t *testing.T) {
+	req := decisionRequest(0, 200, 0)
+	req.GameStage = "flop"
+	req.CommunityCards = []string{"2-S", "J-H", "K-C"}
+	req.ActionHistory = []TexasActionHistory{
+		{Stage: "preflop", Position: "BTN", Action: "call", Amount: 2, Timestamp: 0},
+		{Stage: "flop", Position: "BTN", Action: "check", Timestamp: 0},
+	}
+	if err := ValidateTexasGtoDecisionRequest(req); err == nil {
+		t.Fatal("history with a repeated timestamp should be rejected")
+	}
+}
+
 func TestValidateTexasGtoDecisionResponse(t *testing.T) {
 	tests := []struct {
 		name    string
