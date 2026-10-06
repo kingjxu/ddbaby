@@ -10,13 +10,19 @@
   "fixed_gto_http_200": 52,
   "fixed_ddbaby_accepted": 52,
   "fixed_normalized": 0,
-  "action_or_size_changes_after_history_fix": 0,
-  "probability_changes_after_history_fix": 1,
+  "paired_predeploy_replay_action_or_size_changes_after_history_fix": 0,
+  "paired_predeploy_replay_probability_changes_after_history_fix": 1,
   "effective_decision_occurrences": 47,
   "effective_unique_states": 19,
   "passed_obvious_error_screen": 16,
   "solver_sensitive_states": 3,
   "strict_errors": 0,
+  "production_dezhou_replay_http_200": 52,
+  "production_dezhou_false_hero_turn": 5,
+  "postdeploy_effective_requests": 47,
+  "postdeploy_history_stage_regressions": 0,
+  "postdeploy_gto_accepted": 47,
+  "postdeploy_gto_normalized": 0,
   "pending_total_over_3000_ms": 11,
   "latency_ms": {
     "queue_backlog": {"mean": 1096.27, "p50": 1103.5, "p95": 2237, "max": 2514},
@@ -31,6 +37,10 @@
     "production_recognition_replay_sha256": "9bb8d4e857c7a6521f69fd5cb6853c255829f99e27027ce380ece681c5e23feb",
     "fixed_recognition_replay_sha256": "938a2e293093fab06559cb3322b0e4ef02ffbe18cbdc2af247275f0e1ad1c8ee",
     "fixed_requests_sha256": "850838315c531bf71caa1ac77df12a8eb3ff56ed745c22ca1c93f1c4aad39655",
-    "fixed_decisions_sha256": "4da975f9348c14669f8bbd6823f00919d757971643e8404cc31606701e3455d8"
+    "fixed_decisions_sha256": "4da975f9348c14669f8bbd6823f00919d757971643e8404cc31606701e3455d8",
+    "production_dezhou_after_deploy_sha256": "2dbdc3db70868b3ca886f22b20fdf2595ce3f69673b49f71c464fad569f256ea",
+    "postdeploy_requests_sha256": "8f2f9f0a62343dd44a806e1225ec629d940fdf4d52db5588f7647c1474ffc1fd",
+    "postdeploy_decisions_sha256": "326fee5c2235efcd846148b485bb9788926264eedf50086de0b802b213d3623e",
+    "mixed_strategy_repeat_sha256": "a5f754035c11d3d88825a9539a1499283478ed87d9897043bbf839d6869813db"
   }
 }

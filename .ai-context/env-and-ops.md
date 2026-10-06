@@ -1,6 +1,6 @@
 ---
-version: "1.2"
-last_updated: "2026-10-05"
+version: "1.3"
+last_updated: "2026-10-06"
 status: "active"
 ---
 
@@ -128,6 +128,13 @@ status: "active"
   生产无参数 dry-run 显示 `retention_minutes=7200` 且匹配/删除/变化均为 0；cron
   表达式为 `17 3 * * *`、服务 active，ddbaby `/ping` 正常。替换前脚本和 cron
   已备份到既有回滚目录的 `cleanup-config` 子目录。
+
+## 2026-10-06 固定 BTN 手牌边界部署
+
+- 业务提交 `19a7163`，校验边界测试提交 `cc7987c`。连续完整识别通过 BTN 变化、街道回退或两张完整 Hero 手牌变化切分新手牌；GTO 前拒绝未来街道、街道回退和非递增时间戳。
+- 远端 Go 1.22.2 执行全仓测试、model/dal race 和 `build.sh` 均通过。运行时二进制 SHA256 为 `b46382170457d134538f99f8dc27685cbb7998ed23d4f1b1c0c3b3b6b8356275`；`model/recognize_poker.go` 与 `dal/local_mem.go` SHA256 分别为 `e351331cb3135bb62f3ca458825e75c352d8df2aafe75e53a48489a0350a0a35`、`53f8ecfbc3566185e91278a4df850ebbfa0ed9b8a2b29eb03cec470eef91c24a`。
+- 部署后 PID 1513243、PPID 1，`/proc/1513243/exe` 与部署文件 SHA 一致；SSH 重连后 `/ping` 返回 `pong`。
+- 回滚目录 `/home/ubuntu/ddbaby-backups/20261006-1837-before-cc7987c`。47 个真实可决策请求的隔离重放 history stage regression=0、生产 GTO 47/47 响应合法、归一化 0；未向真实用户缓存注入历史牌局。
 
 ## 2026-10-05 生产截图保留部署
 
