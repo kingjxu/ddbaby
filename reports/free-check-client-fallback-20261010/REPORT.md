@@ -24,3 +24,11 @@
 - 运行时二进制 SHA256 为 `f79b591b59c118af7578c42da5e8d8bb13da79b860ce0f7b7b9b97ded3f1b8cf`；`texas_poker_decision.go` 和 `recognize_poker.go` 分别为 `277b4d958f4f723d4d83cf3541725c0eba31f607b0198ff96581cd8bd81ccd22`、`35e2e7acce26fbffebc80d8c9cba7fda95b6a47071774079700ea8087468ae6b`，与构建输入一致。
 - 首版部署的运行时证据保留用于回滚审计，但不代表纠偏版本状态；纠偏版本部署结果在本轮完成后补录。
 - 问题页地址保持 `https://www.ddbaby.site/tyzs/strategy-issues-20261010.html`；生产页面将在本轮部署时原子替换并补录公网大小与 SHA。
+
+## 纠偏版本部署
+
+- 服务端提交 `ae84dd1` 在生产同版本 Go 1.22.2 环境通过 `go test ./... -count=1`、`go test -race ./biz/handler ./model ./dal -count=1` 和 `bash build.sh`。候选及运行时二进制 SHA256 均为 `57803792bb99ab24c24a8f22f50d2ceada27128a337bc5506b6982881527fb0b`；运行时 `texas_poker_decision.go`、`recognize_poker.go` SHA256 分别为 `0df08577bc1ada32a36f56203a27e51caa7d0d4bbeca363239285921ed8b04a9`、`428549aaf584f23af13b9e33f7d0d3cb9bf07dbd5628b4d843abea47ca8dfea1`。
+- 原服务资产备份到 `/home/ubuntu/ddbaby-backups/20261010-181328-before-ae84dd1`，候选经同目录临时文件校验后原子替换。部署后 PID `2887499`、PPID `1`，`/proc/2887499/exe` 与运行时文件 SHA 一致，监听 8888，本机 `/ping` 返回 `pong`。
+- 无鉴权空请求仅用于验证路由与兼容边界：响应仍为原 JSON，且已撤回的 `X-GTO-Decision-Action`、`X-GTO-Can-Check` 均不存在；该 smoke 不冒充合法决策验证，合法归一化分支由单元测试覆盖。
+- 修正问题页已原子替换。公网 HTTP 200、大小 `769358` bytes、SHA256 `881ff80880ebcbe6f3467d3802c3f46a667aa38995f9c829337c72b62e812e04`，与确定性构建产物一致。
+- 官网 APK 已从 1.0.28 恢复为已验证的 1.0.27，公网 HTTP 200、大小 `6913436` bytes、SHA256 `f5b80700112852b096a65004c38941e53d461975851b23f706d5c37538afefc4`。替换前 1.0.28 APK 与旧问题页备份在 `/home/ubuntu/taoyuan-backups/20261010-181328-freecheck-correction`。

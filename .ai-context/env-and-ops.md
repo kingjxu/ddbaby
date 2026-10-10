@@ -151,6 +151,12 @@ status: "active"
 - 绿桌问题页发布为 `https://www.ddbaby.site/tyzs/strategy-issues-20261010.html`，公网大小 `1031766` bytes、SHA256 `aa490cc94cacaea8312e1936fedb1276123783e3efea8107be8307582f7e4b3f`。
 - 补充原图复核发现 J♣K♥ 对手下注264被识别为26，首版审计误判为 free-fold；事实头/客户端方案不再作为最终设计。纠偏版本改为 ddbaby 服务端直接处理，并限制翻前仅 BB/straddle option，部署证据待完成后补录。
 
+## 2026-10-10 免费 check 纠偏版本部署
+
+- 业务提交 `ae84dd1`。生产同版本 Go 1.22.2 全仓测试、handler/model/dal race 与构建通过；运行时二进制 SHA256 为 `57803792bb99ab24c24a8f22f50d2ceada27128a337bc5506b6982881527fb0b`，handler/model 源码 SHA256 分别为 `0df08577bc1ada32a36f56203a27e51caa7d0d4bbeca363239285921ed8b04a9`、`428549aaf584f23af13b9e33f7d0d3cb9bf07dbd5628b4d843abea47ca8dfea1`。
+- 部署后 PID `2887499`、PPID `1`，`/proc/2887499/exe` 与运行时二进制 SHA 一致，监听 8888，本机 `/ping` 返回 `pong`；无鉴权 smoke 保持原 JSON，且不再输出首版两个决策事实头。
+- 服务端回滚目录为 `/home/ubuntu/ddbaby-backups/20261010-181328-before-ae84dd1`。官网恢复已验证的 1.0.27 APK，公网 SHA256 为 `f5b80700112852b096a65004c38941e53d461975851b23f706d5c37538afefc4`；修正问题页公网 SHA256 为 `881ff80880ebcbe6f3467d3802c3f46a667aa38995f9c829337c72b62e812e04`，Web 资产回滚目录为 `/home/ubuntu/taoyuan-backups/20261010-181328-freecheck-correction`。
+
 ## 2026-10-05 生产截图保留部署
 
 - 业务提交：`e557483`。服务器 Go 1.22.2 隔离目录通过 service、全仓、service race
