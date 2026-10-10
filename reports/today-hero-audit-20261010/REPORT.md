@@ -94,7 +94,7 @@
 
 ## 生产发布
 
-- 审计提交 `bd159b6`、识别提交 `c50ad37` 和客户端提交 `847ff00` 均经 CR LGTM。dezhou 已完成生产原子替换，5张识别问题图在线回放均恢复为原图可见的102/264；运行时与回滚证据见 dezhou 同轮部署报告。
+- 审计业务提交为 `bd159b6`，识别业务提交为 dezhou `c50ad37`，客户端业务提交为 taoyuan-assist `847ff00`，均经 CR LGTM。只记录本页发布事实的ddbaby提交为 `baff58b`，不代表ddbaby运行时代码部署。dezhou 已完成生产原子替换，5张识别问题图在线回放均恢复为原图可见的102/264；运行时与回滚证据见 dezhou 同轮部署报告。
 - 问题页已发布到 `https://www.ddbaby.site/tyzs/strategy-issues-20261010.html`。公网返回HTTP 200、大小2,263,318 bytes、SHA256 `cc167cd416c6b472f265b192f24334634eb3764ff8a7125efce7480e6100711f`，与确定性构建候选逐字节一致。
 - 页面统一列出两组5张识别错误原图、A♦J♠确定性动作错误、9♠9♣明显策略bad case及2个solver-sensitive状态。识别错误不进入策略分母，solver-sensitive不标记为已确认错误。
-- Web资产替换前版本与APK一起备份到 `/home/ubuntu/taoyuan-backups/20261010-210905-before-1.0.29`。本轮没有修改或重启ddbaby业务进程。
+- Web资产替换前版本与APK一起备份到 `/home/ubuntu/taoyuan-backups/20261010-210905-before-1.0.29`。taoyuan-assist 的部署事实记录提交为 `5266dc1`；dezhou 的部署事实记录提交为 `5ced119`。本轮没有修改或重启ddbaby业务进程。

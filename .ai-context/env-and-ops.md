@@ -159,7 +159,7 @@ status: "active"
 
 ## 2026-10-10 Hero 全量复核问题页发布
 
-- 审计提交 `bd159b6` 经 CR LGTM；本轮不修改、不重启ddbaby业务进程。识别修复由 dezhou `c50ad37` 承载，客户端悬浮窗拖拽和Hero cycle门控由桃园助手 `847ff00` 承载。
+- 审计业务提交为 `bd159b6`，识别业务提交为 dezhou `c50ad37`，客户端业务提交为 taoyuan-assist `847ff00`，均经 CR LGTM；只记录问题页发布事实的ddbaby提交为 `baff58b`。本轮不修改、不重启ddbaby业务进程，`baff58b` 不代表运行时代码部署。dezhou 与 taoyuan-assist 的部署事实记录提交分别为 `5ced119`、`5266dc1`。
 - 公网问题页 `https://www.ddbaby.site/tyzs/strategy-issues-20261010.html` 返回HTTP 200、2,263,318 bytes，SHA256 `cc167cd416c6b472f265b192f24334634eb3764ff8a7125efce7480e6100711f`，与候选一致。
 - 页面收录5张下注截断识别错误原图、A♦J♠免费check却fold、9♠9♣面对加注仍高概率fold，以及2个待solver复核状态；各分类保持独立。Web资产回滚目录为 `/home/ubuntu/taoyuan-backups/20261010-210905-before-1.0.29`。
 
