@@ -54,10 +54,10 @@
       "decision-relevant opponent bets"
     ],
     "accepted_core_field_visual_screen": {
-      "no_obvious_mismatch": 136,
+      "no_obvious_mismatch": 133,
       "reviewed": 138,
-      "note": "Visual screen includes decision-relevant opponent bets; two J-C/K-H frames show 264 while recognition/request contain 26.",
-      "obvious_mismatch": 2
+      "note": "All visible wager/action amounts were rechecked. Five frames have critical opponent-bet truncation: three 102→2 and two 264→26.",
+      "obvious_mismatch": 5
     },
     "selection_boundary": "The 158 files are complete is_hero_turn outputs saved with the -hero suffix. recognize-not-full requests are ordinary images and are outside this denominator.",
     "items": [
@@ -3086,8 +3086,8 @@
         "decision_cycle_id": "b0d19d55-1bc0-414c-8e83-811b8cd05764",
         "response_time": "2026-10-10T14:36:12+08:00",
         "capture_timestamp": "2026-10-10 14:36:10",
-        "classification": "accepted_core_fields_no_obvious_mismatch",
-        "invalid_reason": null,
+        "classification": "recognition_obvious_mismatch_opponent_bet",
+        "invalid_reason": "opponent current bet 102 was recognized as 2, so the request incorrectly treated Hero as checked through instead of facing a 90 call",
         "core_fields": {
           "hero_cards": [
             "7 梅花",
@@ -3109,8 +3109,8 @@
         "decision_cycle_id": "b0d19d55-1bc0-414c-8e83-811b8cd05764",
         "response_time": "2026-10-10T14:36:15+08:00",
         "capture_timestamp": "2026-10-10 14:36:13",
-        "classification": "accepted_core_fields_no_obvious_mismatch",
-        "invalid_reason": null,
+        "classification": "recognition_obvious_mismatch_opponent_bet",
+        "invalid_reason": "opponent current bet 102 was recognized as 2, so the request incorrectly treated Hero as checked through instead of facing a 90 call",
         "core_fields": {
           "hero_cards": [
             "7 梅花",
@@ -3132,8 +3132,8 @@
         "decision_cycle_id": "b0d19d55-1bc0-414c-8e83-811b8cd05764",
         "response_time": "2026-10-10T14:36:18+08:00",
         "capture_timestamp": "2026-10-10 14:36:16",
-        "classification": "accepted_core_fields_no_obvious_mismatch",
-        "invalid_reason": null,
+        "classification": "recognition_obvious_mismatch_opponent_bet",
+        "invalid_reason": "opponent current bet 102 was recognized as 2, so the request incorrectly treated Hero as checked through instead of facing a 90 call",
         "core_fields": {
           "hero_cards": [
             "7 梅花",
@@ -3892,35 +3892,43 @@
   },
   "decision": {
     "counts": {
-      "occurrences": 136,
-      "unique_request_states": 64,
+      "occurrences": 133,
+      "unique_request_states": 63,
       "response_actions": {
         "fold": 88,
         "call": 10,
-        "check": 27,
+        "check": 24,
         "bet": 4,
         "raise": 7
       },
       "state_classifications": {
-        "no_obvious_rule_error": 61,
+        "no_obvious_rule_error": 59,
         "solver_sensitive_review": 2,
-        "strict_free_fold_error": 1
+        "strict_free_fold_error": 1,
+        "strategy_bad_case": 1
       },
       "occurrence_classifications": {
-        "no_obvious_rule_error": 127,
+        "no_obvious_rule_error": 121,
         "solver_sensitive_review": 4,
-        "strict_free_fold_error": 5
+        "strict_free_fold_error": 5,
+        "strategy_bad_case": 3
       },
       "candidate_occurrences": 138,
       "candidate_request_states": 65,
-      "excluded_recognition_mismatch_occurrences": 2,
-      "excluded_recognition_mismatch_states": 1
+      "excluded_recognition_mismatch_occurrences": 5,
+      "excluded_recognition_mismatch_states": 2
     },
     "obvious_rule_screen_rates": {
-      "state_without_strict_error": 0.984375,
-      "occurrence_without_strict_error": 0.9632352941176471
+      "state_without_confirmed_error": 0.9682539682539683,
+      "occurrence_without_confirmed_error": 0.9398496240601504,
+      "state_no_obvious_issue_excluding_solver_sensitive": 0.9365079365079365,
+      "occurrence_no_obvious_issue_excluding_solver_sensitive": 0.9097744360902256,
+      "state_confirmed_error": 0.031746031746031744,
+      "occurrence_confirmed_error": 0.06015037593984962,
+      "state_solver_sensitive": 0.031746031746031744,
+      "occurrence_solver_sensitive": 0.03007518796992481
     },
-    "boundary": "The rule screen detects internally dominated or illegal actions. It does not prove GTO optimality without ranges, rake, EVs and the exact strategy tree.",
+    "boundary": "Visible-field and legality review plus explicitly identified strategic bad cases. Remaining actions are not proven GTO-optimal without independent ranges, rake, EVs and the exact strategy tree.",
     "states": [
       {
         "state_sha256": "303df5351227221261368b56315bb88350f3ae7eae85354a8a85d33f6866c9e3",
@@ -6075,7 +6083,7 @@
       },
       {
         "state_sha256": "3896e0bd42369429665c9a8b0427305c595b38bcbe727e44822e80295b613340",
-        "classification": "no_obvious_rule_error",
+        "classification": "strategy_bad_case",
         "occurrences": 3,
         "times": [
           "2026-10-10 14:27:58+08:00",
@@ -6161,7 +6169,8 @@
             "amount": 53,
             "timestamp": 7
           }
-        ]
+        ],
+        "review_note": "Heads-up after all earlier positions folded: Hero 99 in the straddle faces a BB raise to 53 and must add 41. A 90% fold discards a premium pair from the option and requires strategy correction."
       },
       {
         "state_sha256": "b567e7214a118fdf6e590a4156ae4091ffdad8221676dbe3ad6178dc78e76ffe",
@@ -7410,7 +7419,7 @@
       },
       {
         "state_sha256": "18452b437b6908d34a6e2d81fc75925819d737a801af72c2e52044ac3c3bdead",
-        "classification": "no_obvious_rule_error",
+        "classification": "excluded_recognition_mismatch",
         "occurrences": 3,
         "times": [
           "2026-10-10 14:36:12+08:00",
@@ -7482,7 +7491,8 @@
             "amount": 0,
             "timestamp": 5
           }
-        ]
+        ],
+        "recognition_mismatch": "opponent current bet 102 was recognized as 2, so the request incorrectly treated Hero as checked through instead of facing a 90 call"
       },
       {
         "state_sha256": "e854961721d975668492fc43caa941918b890659093c4b19fdd12268e763227b",
@@ -8599,6 +8609,14 @@
           }
         ]
       }
+    ]
+  },
+  "reaudit": {
+    "reviewed_at": "2026-10-10",
+    "scope": "all 138 green-table Hero images, including every visible wager/action amount and every one of 65 unique request states",
+    "corrections": [
+      "14:36:12-14:36:18: 102 was recognized as 2 in three frames",
+      "14:27:58-14:28:03: 99 fold at 90% was reclassified as a strategy bad case"
     ]
   }
 }
