@@ -89,12 +89,11 @@ type TexasGtoDecisionResp struct {
 	Detail            string  `json:"detail"`
 }
 
-// CanTexasGtoDecisionCheck reports whether Hero has matched the largest
-// current bet and can therefore continue without committing more chips.
-// Invalid requests return false; callers must still validate the full request
-// before treating this as a decision fact.
-func CanTexasGtoDecisionCheck(req *TexasGtoDecisionReq) bool {
-	if req == nil {
+// NormalizeTexasGtoFreeFoldToCheck replaces an impossible free fold with a
+// check. Hero may check when no other player has committed more chips in the
+// current betting round. The request and response are validated by the caller.
+func NormalizeTexasGtoFreeFoldToCheck(req *TexasGtoDecisionReq, resp *TexasGtoDecisionResp) bool {
+	if req == nil || resp == nil || resp.Action != "fold" {
 		return false
 	}
 	heroBet := 0
@@ -109,7 +108,20 @@ func CanTexasGtoDecisionCheck(req *TexasGtoDecisionReq) bool {
 			heroFound = true
 		}
 	}
-	return heroFound && heroBet >= maxBet
+	if !heroFound || heroBet < maxBet {
+		return false
+	}
+	// Before the flop, only the big blind or straddle can receive a genuine
+	// option to check. A matched bet at another position may be a stale or
+	// incomplete snapshot from an earlier action orbit.
+	if req.GameStage == "preflop" &&
+		req.CurrentPlayerPosition != "BB-Hero" &&
+		req.CurrentPlayerPosition != "straddle-Hero" {
+		return false
+	}
+	resp.Action = "check"
+	resp.RaiseSize = 0
+	return true
 }
 
 // ValidateTexasGtoDecisionRequest rejects recognition results that cannot

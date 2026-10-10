@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a self-contained review page for the four flagged green-table states."""
+"""Build a self-contained review page for flagged green-table decision states."""
 
 from __future__ import annotations
 
@@ -60,15 +60,18 @@ def build_page(audit: dict, decisions: dict, images_dir: Path) -> tuple[str, int
         if state["classification"] in INCLUDED_CLASSIFICATIONS
     ]
     states.sort(key=lambda state: (state["classification"], state["times"][0]))
-    if len(states) != 4:
-        raise ValueError(f"expected 4 flagged states, got {len(states)}")
+    if not states:
+        raise ValueError("no flagged decision states")
 
     cards: list[str] = []
     strict_count = 0
+    strict_occurrences = 0
     solver_count = 0
     for index, state in enumerate(states, start=1):
         classification = state["classification"]
         strict_count += classification == "strict_free_fold_error"
+        if classification == "strict_free_fold_error":
+            strict_occurrences += state["occurrences"]
         solver_count += classification == "solver_sensitive_review"
         trace_id = state["trace_ids"][0]
         item = items_by_trace[trace_id]
@@ -124,15 +127,15 @@ def build_page(audit: dict, decisions: dict, images_dir: Path) -> tuple[str, int
 </head>
 <body><main>
   <h1>绿桌 Hero 决策问题复核</h1>
-  <p class="lead">范围：2026-10-10 的 138 张绿桌 Hero 成功样本。页面只收录审计中被标记的 4 个独立状态；图片、请求与响应均来自同一 trace。</p>
+  <p class="lead">范围：2026-10-10 的 138 张绿桌 Hero 样本。页面只收录排除关键识别错误后仍被标记的 {len(states)} 个独立决策状态；图片、请求与响应均来自同一 trace。</p>
   <section class="summary">
     <div class="metric"><strong>{strict_count}</strong><span>确定性 free-fold 错误状态</span></div>
-    <div class="metric"><strong>7</strong><span>确定性错误响应次数</span></div>
+    <div class="metric"><strong>{strict_occurrences}</strong><span>确定性错误响应次数</span></div>
     <div class="metric"><strong>{solver_count}</strong><span>待 Solver 复核状态</span></div>
     <div class="metric"><strong>138</strong><span>绿桌专项样本</span></div>
   </section>
   <section class="issues">{''.join(cards)}</section>
-  <footer>判定边界：free-fold 是确定性规则错误；solver-sensitive 状态没有被判定为错误或正确。客户端 1.0.28 的展示兜底只在服务端同时确认原始 action=fold 且当前可免费 check 时生效。</footer>
+  <footer>判定边界：free-fold 是确定性规则错误；solver-sensitive 状态没有被判定为错误或正确。J♣K♥ 因原图下注264被识别成26，已从决策问题页移除并改列为识别错误。兜底由 ddbaby 在校验合法响应后执行，客户端不参与动作改写。</footer>
 </main></body></html>"""
     return page, strict_count, solver_count
 

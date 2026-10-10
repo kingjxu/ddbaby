@@ -892,22 +892,41 @@ func TestValidateTexasGtoDecisionResponse(t *testing.T) {
 	}
 }
 
-func TestCanTexasGtoDecisionCheck(t *testing.T) {
+func TestNormalizeTexasGtoFreeFoldToCheck(t *testing.T) {
 	tests := []struct {
-		name string
-		req  *TexasGtoDecisionReq
-		want bool
+		name       string
+		req        *TexasGtoDecisionReq
+		resp       *TexasGtoDecisionResp
+		wantChange bool
+		wantAction string
 	}{
-		{name: "matched maximum", req: decisionRequest(49, 200, 49), want: true},
-		{name: "no chips committed and no wager", req: decisionRequest(0, 200, 0), want: true},
-		{name: "facing wager", req: decisionRequest(12, 200, 49)},
-		{name: "missing Hero", req: &TexasGtoDecisionReq{CurrentPlayerPosition: "BTN-Hero", Players: []TexasPlayer{{Position: "SB", Bet: 1}}}},
-		{name: "nil request"},
+		{name: "preflop straddle option", req: func() *TexasGtoDecisionReq {
+			req := decisionRequest(12, 200, 12)
+			req.CurrentPlayerPosition = "straddle-Hero"
+			req.Players[0].Position = "straddle-Hero"
+			return req
+		}(), resp: &TexasGtoDecisionResp{Action: "fold"}, wantChange: true, wantAction: "check"},
+		{name: "preflop big blind option", req: func() *TexasGtoDecisionReq {
+			req := decisionRequest(6, 200, 6)
+			req.CurrentPlayerPosition = "BB-Hero"
+			req.Players[0].Position = "BB-Hero"
+			return req
+		}(), resp: &TexasGtoDecisionResp{Action: "fold"}, wantChange: true, wantAction: "check"},
+		{name: "postflop first to act without wager", req: func() *TexasGtoDecisionReq { req := decisionRequest(0, 200, 0); req.GameStage = "flop"; return req }(), resp: &TexasGtoDecisionResp{Action: "fold"}, wantChange: true, wantAction: "check"},
+		{name: "preflop non-blind matched snapshot", req: decisionRequest(49, 200, 49), resp: &TexasGtoDecisionResp{Action: "fold"}, wantAction: "fold"},
+		{name: "facing wager", req: decisionRequest(12, 200, 49), resp: &TexasGtoDecisionResp{Action: "fold"}, wantAction: "fold"},
+		{name: "non-fold unchanged", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "call"}, wantAction: "call"},
+		{name: "missing Hero", req: &TexasGtoDecisionReq{CurrentPlayerPosition: "BTN-Hero", Players: []TexasPlayer{{Position: "SB", Bet: 1}}}, resp: &TexasGtoDecisionResp{Action: "fold"}, wantAction: "fold"},
+		{name: "nil request", resp: &TexasGtoDecisionResp{Action: "fold"}, wantAction: "fold"},
+		{name: "nil response", req: decisionRequest(0, 200, 0)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := CanTexasGtoDecisionCheck(tt.req); got != tt.want {
-				t.Fatalf("CanTexasGtoDecisionCheck() = %v, want %v", got, tt.want)
+			if got := NormalizeTexasGtoFreeFoldToCheck(tt.req, tt.resp); got != tt.wantChange {
+				t.Fatalf("NormalizeTexasGtoFreeFoldToCheck() = %v, want %v", got, tt.wantChange)
+			}
+			if tt.resp != nil && tt.resp.Action != tt.wantAction {
+				t.Fatalf("action = %q, want %q", tt.resp.Action, tt.wantAction)
 			}
 		})
 	}

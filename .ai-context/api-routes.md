@@ -23,12 +23,9 @@ last_updated: "2026-10-10"
 
 1.0.27 客户端在 `X-GTO-Client-Stages` 和 `X-GTO-Previous-Trace` 的 v2 格式中附加随机 `decision_cycle_id`、Hero 控件首次检测时间和 cycle 起始/首次展示标记。服务端对 cycle id、字段数量、时间顺序、布尔值及 60 秒窗口做同等校验；同一 cycle 仅首次实际展示写入 `client_complete`，后续重复结果写入 `client_complete_repeat`。没有 cycle 的 v1 头继续按原格式解析。
 
-### 可选决策事实响应头
+### 免费 check 兜底
 
-- `X-GTO-Decision-Action`：仅在请求和决策响应均通过校验后返回 GTO 原始动作，如 `fold`、`check`、`call`、`bet`、`raise`。
-- `X-GTO-Can-Check: 1`：仅在同一已校验请求中 Hero 当前投入不低于本轮最大投入、无需补注即可 check 时返回。
-
-响应 JSON 保持原协议，旧客户端忽略这两个头。1.0.28 客户端只有在两个响应事实同时为 `action=fold`、`can-check=1`，且 JSON `Result` 恰为“弃牌”时，才把本地展示兜底为“过牌”；服务端原始响应、日志和决策审计保持不变。缺失、冲突或非法响应头都不触发兜底。
+决策服务返回合法 `fold` 后，ddbaby 会比较 Hero 当前投入与本轮所有玩家的最大投入。Hero 无需补注时，服务端将最终动作规范化为 `check`，并通过原有 JSON `Result` 返回“过牌”；面对更高下注时仍返回“弃牌”。客户端无需解析额外响应头或实现动作兜底。
 
 ## 其他路由
 

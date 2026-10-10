@@ -20,11 +20,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	decisionActionHeader = "X-GTO-Decision-Action"
-	canCheckHeader       = "X-GTO-Can-Check"
-)
-
 // TexasPokerDecision .
 // @router /lyxz/gto_decision [POST]
 func TexasPokerDecision(ctx context.Context, c *app.RequestContext) {
@@ -50,7 +45,6 @@ func TexasPokerDecision(ctx context.Context, c *app.RequestContext) {
 	handler := NewTexasPokerDecisionHandler(&req)
 	handler.latency = latency
 	resp, _ := handler.Handle(ctx)
-	handler.writeDecisionHeaders(c)
 	logrus.WithContext(ctx).Infof("[TexasPokerDecision] resp:%v", util.ToJSON(resp))
 	c.JSON(consts.StatusOK, resp)
 }
@@ -62,8 +56,6 @@ type TexasPokerDecisionHandler struct {
 	BetSize        int32
 	HeroCard       []string
 	CommunityCards []string
-	CanCheck       bool
-	HasDecision    bool
 	uuid           string
 	latency        *decisionLatency
 }
@@ -210,9 +202,10 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logger.Errorf("[TexasPokerDecisionHandler] invalid decision response:%v, resp:%v", err, util.ToJSON(resp))
 		return h.newResp(ctx, ""), nil
 	}
+	if model.NormalizeTexasGtoFreeFoldToCheck(decisionReq, resp) {
+		logger.Warn("[TexasPokerDecisionHandler] free fold normalized to check")
+	}
 	h.Action = resp.Action
-	h.CanCheck = model.CanTexasGtoDecisionCheck(decisionReq)
-	h.HasDecision = true
 	decisionSpends := time.Since(startTime).Milliseconds()
 	logger.Infof("[TexasPokerDecisionHandler] , recognize_spends:%v, decision_spends:%v, total_spends:%v",
 		recognizeSpends, decisionSpends-recognizeSpends, decisionSpends)
@@ -226,15 +219,6 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	return h.newResp(ctx, h.getFinalAction(resp)), nil
 }
 
-func (h *TexasPokerDecisionHandler) writeDecisionHeaders(ctx *app.RequestContext) {
-	if !h.HasDecision {
-		return
-	}
-	ctx.Header(decisionActionHeader, h.Action)
-	if h.CanCheck {
-		ctx.Header(canCheckHeader, "1")
-	}
-}
 func (h *TexasPokerDecisionHandler) getFinalAction(decision *model.TexasGtoDecisionResp) string {
 	if decision.Action == "check" {
 		return "过牌"

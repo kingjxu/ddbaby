@@ -50,12 +50,14 @@
       "hero_stack",
       "main_pot",
       "blind_size",
-      "button_seat"
+      "button_seat",
+      "decision-relevant opponent bets"
     ],
     "accepted_core_field_visual_screen": {
-      "no_obvious_mismatch": 138,
+      "no_obvious_mismatch": 136,
       "reviewed": 138,
-      "note": "Obvious-error visual screen, not per-pixel truth annotation of every player field."
+      "note": "Visual screen includes decision-relevant opponent bets; two J-C/K-H frames show 264 while recognition/request contain 26.",
+      "obvious_mismatch": 2
     },
     "selection_boundary": "The 158 files are complete is_hero_turn outputs saved with the -hero suffix. recognize-not-full requests are ordinary images and are outside this denominator.",
     "items": [
@@ -3245,8 +3247,8 @@
         "decision_cycle_id": "0f892d3e-dcb3-42a3-ad53-5ff52d3a1ecc",
         "response_time": "2026-10-10T14:39:22+08:00",
         "capture_timestamp": "2026-10-10 14:39:21",
-        "classification": "accepted_core_fields_no_obvious_mismatch",
-        "invalid_reason": null,
+        "classification": "recognition_obvious_mismatch_opponent_bet",
+        "invalid_reason": "opponent current bet 264 was recognized as 26, so the request understated the amount to call",
         "core_fields": {
           "hero_cards": [
             "J 梅花",
@@ -3268,8 +3270,8 @@
         "decision_cycle_id": "0f892d3e-dcb3-42a3-ad53-5ff52d3a1ecc",
         "response_time": "2026-10-10T14:39:25+08:00",
         "capture_timestamp": "2026-10-10 14:39:23",
-        "classification": "accepted_core_fields_no_obvious_mismatch",
-        "invalid_reason": null,
+        "classification": "recognition_obvious_mismatch_opponent_bet",
+        "invalid_reason": "opponent current bet 264 was recognized as 26, so the request understated the amount to call",
         "core_fields": {
           "hero_cards": [
             "J 梅花",
@@ -3890,10 +3892,10 @@
   },
   "decision": {
     "counts": {
-      "occurrences": 138,
-      "unique_request_states": 65,
+      "occurrences": 136,
+      "unique_request_states": 64,
       "response_actions": {
-        "fold": 90,
+        "fold": 88,
         "call": 10,
         "check": 27,
         "bet": 4,
@@ -3902,17 +3904,21 @@
       "state_classifications": {
         "no_obvious_rule_error": 61,
         "solver_sensitive_review": 2,
-        "strict_free_fold_error": 2
+        "strict_free_fold_error": 1
       },
       "occurrence_classifications": {
         "no_obvious_rule_error": 127,
         "solver_sensitive_review": 4,
-        "strict_free_fold_error": 7
-      }
+        "strict_free_fold_error": 5
+      },
+      "candidate_occurrences": 138,
+      "candidate_request_states": 65,
+      "excluded_recognition_mismatch_occurrences": 2,
+      "excluded_recognition_mismatch_states": 1
     },
     "obvious_rule_screen_rates": {
-      "state_without_strict_error": 0.9692307692307692,
-      "occurrence_without_strict_error": 0.9492753623188406
+      "state_without_strict_error": 0.984375,
+      "occurrence_without_strict_error": 0.9632352941176471
     },
     "boundary": "The rule screen detects internally dominated or illegal actions. It does not prove GTO optimality without ranges, rake, EVs and the exact strategy tree.",
     "states": [
@@ -7598,7 +7604,7 @@
       },
       {
         "state_sha256": "ede94995afe754f887de9d720e474e3013327c3ee7dc91571459c6981d4750d4",
-        "classification": "strict_free_fold_error",
+        "classification": "excluded_recognition_mismatch",
         "occurrences": 2,
         "times": [
           "2026-10-10 14:39:22+08:00",
@@ -7695,7 +7701,8 @@
             "amount": 0,
             "timestamp": 9
           }
-        ]
+        ],
+        "recognition_mismatch": "opponent current bet 264 was recognized as 26, so the request understated the amount to call"
       },
       {
         "state_sha256": "b44e348748585aea51e41bacac7aa57abc1d7d1b3cde00d68afa70f51d98cb00",

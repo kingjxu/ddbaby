@@ -14,9 +14,9 @@
   "recognition": {
     "complete_legal_requests": 138,
     "reviewed_images": 138,
-    "core_fields_no_obvious_mismatch": 138,
-    "core_field_obvious_mismatch": 0,
-    "obvious_screen_rate": 1.0,
+    "core_fields_no_obvious_mismatch": 136,
+    "core_field_obvious_mismatch": 2,
+    "obvious_screen_rate": 0.9855072463768116,
     "stage_occurrences": {
       "preflop": 98,
       "flop": 18,
@@ -29,35 +29,36 @@
       "hero_stack",
       "main_pot",
       "blind_size",
-      "button_seat"
+      "button_seat",
+      "decision-relevant opponent bets"
     ],
-    "boundary": "Obvious-error screen of visible core fields; not per-pixel truth annotation of every player field."
+    "boundary": "Obvious-error screen of visible core fields, including bets that determine the legal action; not per-pixel truth annotation of every player field."
   },
   "decision": {
-    "occurrences": 138,
-    "unique_states": 65,
+    "occurrences": 136,
+    "unique_states": 64,
     "state_classifications": {
       "no_obvious_rule_error": 61,
       "solver_sensitive_review": 2,
-      "strict_free_fold_error": 2
+      "strict_free_fold_error": 1
     },
     "occurrence_classifications": {
       "no_obvious_rule_error": 127,
       "solver_sensitive_review": 4,
-      "strict_free_fold_error": 7
+      "strict_free_fold_error": 5
     },
     "rates": {
-      "state_without_strict_error": 0.9692307692307692,
-      "occurrence_without_strict_error": 0.9492753623188406,
-      "state_no_obvious_issue_excluding_solver_sensitive": 0.9384615384615385,
-      "occurrence_no_obvious_issue_excluding_solver_sensitive": 0.9202898550724637,
-      "state_strict_error": 0.03076923076923077,
-      "occurrence_strict_error": 0.050724637681159424,
-      "state_solver_sensitive": 0.03076923076923077,
-      "occurrence_solver_sensitive": 0.028985507246376812
+      "state_without_strict_error": 0.984375,
+      "occurrence_without_strict_error": 0.9632352941176471,
+      "state_no_obvious_issue_excluding_solver_sensitive": 0.953125,
+      "occurrence_no_obvious_issue_excluding_solver_sensitive": 0.9338235294117647,
+      "state_strict_error": 0.015625,
+      "occurrence_strict_error": 0.03676470588235294,
+      "state_solver_sensitive": 0.03125,
+      "occurrence_solver_sensitive": 0.029411764705882353
     },
     "response_actions": {
-      "fold": 90,
+      "fold": 88,
       "call": 10,
       "check": 27,
       "bet": 4,
@@ -3747,7 +3748,7 @@
       },
       {
         "state_sha256": "ede94995afe754f887de9d720e474e3013327c3ee7dc91571459c6981d4750d4",
-        "classification": "strict_free_fold_error",
+        "classification": "excluded_recognition_mismatch",
         "occurrences": 2,
         "times": [
           "2026-10-10 14:39:22+08:00",
@@ -3844,7 +3845,8 @@
             "amount": 0,
             "timestamp": 9
           }
-        ]
+        ],
+        "recognition_mismatch": "opponent current bet 264 was recognized as 26, so the request understated the amount to call"
       },
       {
         "state_sha256": "b44e348748585aea51e41bacac7aa57abc1d7d1b3cde00d68afa70f51d98cb00",
@@ -4741,7 +4743,11 @@
           }
         ]
       }
-    ]
+    ],
+    "candidate_occurrences": 138,
+    "candidate_unique_states": 65,
+    "excluded_recognition_mismatch_occurrences": 2,
+    "excluded_recognition_mismatch_states": 1
   },
   "items": [
     {
@@ -7467,8 +7473,8 @@
       "decision_cycle_id": "0f892d3e-dcb3-42a3-ad53-5ff52d3a1ecc",
       "response_time": "2026-10-10T14:39:22+08:00",
       "capture_timestamp": "2026-10-10 14:39:21",
-      "classification": "accepted_core_fields_no_obvious_mismatch",
-      "invalid_reason": null,
+      "classification": "recognition_obvious_mismatch_opponent_bet",
+      "invalid_reason": "opponent current bet 264 was recognized as 26, so the request understated the amount to call",
       "core_fields": {
         "hero_cards": [
           "J 梅花",
@@ -7490,8 +7496,8 @@
       "decision_cycle_id": "0f892d3e-dcb3-42a3-ad53-5ff52d3a1ecc",
       "response_time": "2026-10-10T14:39:25+08:00",
       "capture_timestamp": "2026-10-10 14:39:23",
-      "classification": "accepted_core_fields_no_obvious_mismatch",
-      "invalid_reason": null,
+      "classification": "recognition_obvious_mismatch_opponent_bet",
+      "invalid_reason": "opponent current bet 264 was recognized as 26, so the request understated the amount to call",
       "core_fields": {
         "hero_cards": [
           "J 梅花",

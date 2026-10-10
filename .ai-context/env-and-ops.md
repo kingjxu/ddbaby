@@ -143,12 +143,13 @@ status: "active"
 - 部署后 PID `1554013`、PPID `1`，`/proc/1554013/exe` 与部署文件 SHA 一致；SSH 重连后 `/ping` 返回 `pong`。v2 smoke 验证首次展示进入 `client_complete`、重复展示进入 `client_complete_repeat`。
 - 回滚目录 `/home/ubuntu/ddbaby-backups/20261006-211121-before-6ea22c3`。smoke 未使用真实鉴权或图片；需等待 1.0.27 真机流量后再分析 `hero_turn_detected -> first_display`。
 
-## 2026-10-10 免费 check 决策事实部署
+## 2026-10-10 免费 check 首版部署（已确认需纠偏）
 
 - 业务提交 `a773067`，配套客户端提交 `792de53`。合法决策响应增加原始动作和 can-check 事实头，响应 JSON 与旧客户端行为保持兼容。
 - 服务器 Go 1.22.2 全仓测试、handler/model/dal race 和构建通过。运行时二进制 SHA256 为 `f79b591b59c118af7578c42da5e8d8bb13da79b860ce0f7b7b9b97ded3f1b8cf`；运行时 handler/model 源码 SHA256 为 `277b4d958f4f723d4d83cf3541725c0eba31f607b0198ff96581cd8bd81ccd22`、`35e2e7acce26fbffebc80d8c9cba7fda95b6a47071774079700ea8087468ae6b`，均与候选一致。
 - 部署后 PID `2880168`、PPID `1`，`/proc` 二进制匹配，端口 8888 和 `/ping` 正常；非法/无决策 smoke 不输出决策事实头。回滚目录为 `/home/ubuntu/ddbaby-backups/20261010-174934-before-a773067`。
 - 绿桌问题页发布为 `https://www.ddbaby.site/tyzs/strategy-issues-20261010.html`，公网大小 `1031766` bytes、SHA256 `aa490cc94cacaea8312e1936fedb1276123783e3efea8107be8307582f7e4b3f`。
+- 补充原图复核发现 J♣K♥ 对手下注264被识别为26，首版审计误判为 free-fold；事实头/客户端方案不再作为最终设计。纠偏版本改为 ddbaby 服务端直接处理，并限制翻前仅 BB/straddle option，部署证据待完成后补录。
 
 ## 2026-10-05 生产截图保留部署
 
