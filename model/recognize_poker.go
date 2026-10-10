@@ -89,6 +89,29 @@ type TexasGtoDecisionResp struct {
 	Detail            string  `json:"detail"`
 }
 
+// CanTexasGtoDecisionCheck reports whether Hero has matched the largest
+// current bet and can therefore continue without committing more chips.
+// Invalid requests return false; callers must still validate the full request
+// before treating this as a decision fact.
+func CanTexasGtoDecisionCheck(req *TexasGtoDecisionReq) bool {
+	if req == nil {
+		return false
+	}
+	heroBet := 0
+	heroFound := false
+	maxBet := 0
+	for _, player := range req.Players {
+		if player.Bet > maxBet {
+			maxBet = player.Bet
+		}
+		if player.Position == req.CurrentPlayerPosition {
+			heroBet = player.Bet
+			heroFound = true
+		}
+	}
+	return heroFound && heroBet >= maxBet
+}
+
 // ValidateTexasGtoDecisionRequest rejects recognition results that cannot
 // represent a player who is currently allowed to act. Sending such data to
 // the decision service can turn an OCR miss into an unsafe automated action.

@@ -892,6 +892,27 @@ func TestValidateTexasGtoDecisionResponse(t *testing.T) {
 	}
 }
 
+func TestCanTexasGtoDecisionCheck(t *testing.T) {
+	tests := []struct {
+		name string
+		req  *TexasGtoDecisionReq
+		want bool
+	}{
+		{name: "matched maximum", req: decisionRequest(49, 200, 49), want: true},
+		{name: "no chips committed and no wager", req: decisionRequest(0, 200, 0), want: true},
+		{name: "facing wager", req: decisionRequest(12, 200, 49)},
+		{name: "missing Hero", req: &TexasGtoDecisionReq{CurrentPlayerPosition: "BTN-Hero", Players: []TexasPlayer{{Position: "SB", Bet: 1}}}},
+		{name: "nil request"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := CanTexasGtoDecisionCheck(tt.req); got != tt.want {
+				t.Fatalf("CanTexasGtoDecisionCheck() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestNormalizeTexasGtoDecisionToStack(t *testing.T) {
 	tests := []struct {
 		name       string
