@@ -63,6 +63,8 @@ struct TexasPokerDecisionReq {
     2: optional i64 Timestamp (api.query="timestamp");
     3: optional string UUID (api.query="uuid");
     4: optional string ImageType (api.query="image_type");
+    5: optional i32 VPIP (api.query="vpip");
+    6: optional i32 PFR (api.query="pfr");
 }
 struct TexasPokerDecisionResp {
     1: optional string Result;

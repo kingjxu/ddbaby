@@ -507,6 +507,8 @@ type TexasPokerDecisionReq struct {
 	Timestamp *int64   `thrift:"Timestamp,2,optional" json:"Timestamp,omitempty" query:"timestamp"`
 	UUID      *string  `thrift:"UUID,3,optional" json:"UUID,omitempty" query:"uuid"`
 	ImageType *string  `thrift:"ImageType,4,optional" json:"ImageType,omitempty" query:"image_type"`
+	VPIP      *int32   `thrift:"VPIP,5,optional" json:"vpip,omitempty" query:"vpip"`
+	PFR       *int32   `thrift:"PFR,6,optional" json:"pfr,omitempty" query:"pfr"`
 }
 
 func NewTexasPokerDecisionReq() *TexasPokerDecisionReq {
@@ -552,6 +554,24 @@ func (p *TexasPokerDecisionReq) GetImageType() (v string) {
 	return *p.ImageType
 }
 
+var TexasPokerDecisionReq_VPIP_DEFAULT int32
+
+func (p *TexasPokerDecisionReq) GetVPIP() (v int32) {
+	if !p.IsSetVPIP() {
+		return TexasPokerDecisionReq_VPIP_DEFAULT
+	}
+	return *p.VPIP
+}
+
+var TexasPokerDecisionReq_PFR_DEFAULT int32
+
+func (p *TexasPokerDecisionReq) GetPFR() (v int32) {
+	if !p.IsSetPFR() {
+		return TexasPokerDecisionReq_PFR_DEFAULT
+	}
+	return *p.PFR
+}
+
 func (p *TexasPokerDecisionReq) IsSetImages() bool {
 	return p.Images != nil
 }
@@ -566,6 +586,14 @@ func (p *TexasPokerDecisionReq) IsSetUUID() bool {
 
 func (p *TexasPokerDecisionReq) IsSetImageType() bool {
 	return p.ImageType != nil
+}
+
+func (p *TexasPokerDecisionReq) IsSetVPIP() bool {
+	return p.VPIP != nil
+}
+
+func (p *TexasPokerDecisionReq) IsSetPFR() bool {
+	return p.PFR != nil
 }
 
 func (p *TexasPokerDecisionReq) String() string {

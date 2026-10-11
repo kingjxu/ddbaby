@@ -76,7 +76,31 @@ func (h *TexasPokerDecisionHandler) check() error {
 	if h.req.GetUUID() == "" {
 		return errors.New("uuid is empty")
 	}
+	if !isSupportedDecisionProfile(h.req.GetVPIP(), h.req.GetPFR()) {
+		return errors.New("unsupported vpip/pfr profile")
+	}
 	return nil
+}
+
+func isSupportedDecisionProfile(vpip int32, pfr int32) bool {
+	switch {
+	case vpip == 0 && pfr == 0:
+		return true
+	case vpip == 42 && pfr == 20:
+		return true
+	case vpip == 33 && pfr == 15:
+		return true
+	case vpip == 54 && pfr == 11:
+		return true
+	case vpip == 38 && pfr == 14:
+		return true
+	case vpip == 40 && pfr == 10:
+		return true
+	case vpip == 55 && pfr == 25:
+		return true
+	default:
+		return false
+	}
 }
 
 func (h *TexasPokerDecisionHandler) verifyActiveCode(ctx context.Context) error {
@@ -105,8 +129,9 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		h.latency.handleStartedAt = startTime
 	}
 	logger := logrus.WithContext(ctx).WithField("uuid", h.req.GetUUID())
-	logger.Infof("[TexasPokerDecisionHandler] imagesLen:%v, timestamp:%v, uuid:%v, imageType:%v",
-		len(h.req.GetImages()), time.Unix(h.req.GetTimestamp()/1000, 0).Format(time.DateTime), h.req.GetUUID(), h.req.GetImageType())
+	logger.Infof("[TexasPokerDecisionHandler] imagesLen:%v, timestamp:%v, uuid:%v, imageType:%v, vpip:%v, pfr:%v",
+		len(h.req.GetImages()), time.Unix(h.req.GetTimestamp()/1000, 0).Format(time.DateTime),
+		h.req.GetUUID(), h.req.GetImageType(), h.req.GetVPIP(), h.req.GetPFR())
 	//1 数据校验
 	var err error
 	if err = h.check(); err != nil {
@@ -187,7 +212,8 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	if h.latency != nil {
 		h.latency.decisionStartedAt = time.Now()
 	}
-	resp, err := service.GtoDecision(ctx, decisionReq)
+	resp, err := service.GtoDecisionByProfile(ctx, decisionReq,
+		h.req.GetVPIP(), h.req.GetPFR())
 	if h.latency != nil {
 		h.latency.decisionDoneAt = time.Now()
 	}

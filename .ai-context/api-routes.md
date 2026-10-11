@@ -1,13 +1,15 @@
 ---
-version: "1.2"
-last_updated: "2026-10-10"
+version: "1.3"
+last_updated: "2026-10-11"
 ---
 
 # API 路由
 
 ## `POST /lyxz/gto_decision`
 
-客户端提交一张屏幕截图，服务端完成授权校验、牌桌识别、状态缓存和 GTO 决策。JSON 请求继续使用 `images`、`timestamp`、`uuid` 和可选 `image_type`；响应继续使用 `Result`、`HeroCard`、`CommunityCard`，现有客户端协议不变。
+客户端提交一张屏幕截图，服务端完成授权校验、牌桌识别、状态缓存和 GTO 决策。JSON 请求使用 `images`、`timestamp`、`uuid`、可选 `image_type`，并支持可选整数 `vpip`、`pfr`；老客户端缺少两个策略字段时按 `0/0` 处理。响应继续使用 `Result`、`HeroCard`、`CommunityCard`。
+
+`vpip/pfr=0/0` 保持原 `/gto/decision` 上游链路。非默认策略只接受客户端设置中列出的六组固定组合，随后调用上游 `/gto/decision_v2`；上游 v2 的 VPIP 字段按其契约拼写为 `vvip`，ddbaby 将客户端 `vpip` 映射为上游 `vvip`。任意其他组合在授权和识别前拒绝，不允许外部请求构造任意策略参数。
 
 ### 可选时延追踪头
 

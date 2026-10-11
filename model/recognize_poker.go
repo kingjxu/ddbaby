@@ -80,6 +80,8 @@ type TexasGtoDecisionReq struct {
 	CurrentPlayerPosition string               `json:"current_player_position"`
 	RaiseRange            []int                `json:"raise_range"`
 	ActionHistory         []TexasActionHistory `json:"action_history"`
+	VVIP                  int32                `json:"vvip,omitempty"`
+	PFR                   int32                `json:"pfr,omitempty"`
 }
 
 type TexasGtoDecisionResp struct {

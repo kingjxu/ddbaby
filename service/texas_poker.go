@@ -31,6 +31,13 @@ type TexasPokerDecision struct {
 
 const recognizePokerURL = "http://127.0.0.1:5555/recognize"
 
+const (
+	gtoAPIKeyEnv   = "GTO_API_KEY"
+	gtoDecisionURL = "http://114.132.228.98/gto/decision"
+	// vvip is the field spelling defined by the upstream v2 API contract.
+	gtoDecisionV2URL = "http://114.132.228.98/gto/decision_v2"
+)
+
 func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32, error) {
 	req := GetCozeHttpRequestV3()
 	botParam := &BotReqParamV3{
@@ -231,15 +238,44 @@ func RecognizePoker(ctx context.Context, imageBase64 string, parseAll bool) (*mo
 }
 
 func GtoDecision(ctx context.Context, req *model.TexasGtoDecisionReq) (*model.TexasGtoDecisionResp, error) {
+	return doGtoDecision(ctx, req, gtoDecisionURL)
+}
+
+func GtoDecisionByProfile(
+	ctx context.Context,
+	req *model.TexasGtoDecisionReq,
+	vpip int32,
+	pfr int32,
+) (*model.TexasGtoDecisionResp, error) {
+	if vpip == 0 && pfr == 0 {
+		return GtoDecision(ctx, req)
+	}
+	if req == nil {
+		return nil, errors.New("[GtoDecision] request is nil")
+	}
+	v2Req := *req
+	v2Req.VVIP = vpip
+	v2Req.PFR = pfr
+	return doGtoDecision(ctx, &v2Req, gtoDecisionV2URL)
+}
+
+func doGtoDecision(
+	ctx context.Context,
+	req *model.TexasGtoDecisionReq,
+	url string,
+) (*model.TexasGtoDecisionResp, error) {
 	reqBytes := util.ToJSON(req)
-	url := "http://114.132.228.98/gto/decision"
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer([]byte(reqBytes)))
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("[GtoDecision] http.NewRequest err:%v", err)
 		return nil, err
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("X-API-Key", "5d654_tc4CvT5G5eroYfbbVTmKOky6DFTw9L1FCrpKI")
+	apiKey := strings.TrimSpace(os.Getenv(gtoAPIKeyEnv))
+	if apiKey == "" {
+		return nil, fmt.Errorf("[GtoDecision] %s is not configured", gtoAPIKeyEnv)
+	}
+	httpReq.Header.Set("X-API-Key", apiKey)
 
 	logrus.WithContext(ctx).Infof("[GtoDecision] request:%s", reqBytes)
 
