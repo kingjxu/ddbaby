@@ -877,6 +877,8 @@ func TestValidateTexasGtoDecisionResponse(t *testing.T) {
 		{name: "legal call", req: decisionRequest(20, 200, 77), resp: &TexasGtoDecisionResp{Action: "call"}},
 		{name: "call without wager", req: decisionRequest(20, 200, 20), resp: &TexasGtoDecisionResp{Action: "call"}, wantErr: true},
 		{name: "legal raise", req: decisionRequest(20, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 220}},
+		{name: "legal big blind option raise", req: decisionRequest(6, 207, 6), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 30}},
+		{name: "legal straddle option raise", req: decisionRequest(12, 207, 12), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 84}},
 		{name: "raise without wager", req: decisionRequest(0, 207, 0), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 50}, wantErr: true},
 		{name: "raise beyond stack", req: decisionRequest(99, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 420}, wantErr: true},
 		{name: "raise below current bet", req: decisionRequest(20, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 99}, wantErr: true},

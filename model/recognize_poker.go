@@ -310,7 +310,7 @@ func ValidateTexasGtoDecisionResponse(req *TexasGtoDecisionReq, resp *TexasGtoDe
 			return fmt.Errorf("bet target %d is outside (0, %d]", resp.RaiseSize, maxTarget)
 		}
 	case "raise":
-		if !facingBet {
+		if maxBet == 0 {
 			return errors.New("cannot raise without an outstanding bet")
 		}
 		if resp.RaiseSize <= maxBet || resp.RaiseSize > maxTarget {

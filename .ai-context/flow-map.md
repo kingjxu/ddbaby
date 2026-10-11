@@ -23,6 +23,6 @@ last_updated: "2026-10-11"
 - `action_history.amount` 保留每次动作当时的目标下注额，不能统一覆盖为阶段最大值。
 - `parse_all` 是一次性状态：Hero 行动帧把它置为 `true`，紧接着的一张有效非 Hero 完整识别结果保存后将它恢复为 `false`。这样可以补充 Hero 动作后的牌局变化，同时避免后续所有非 Hero 帧持续执行全桌 OCR。3bet/4bet 仍以 Hero 快照的最终下注额和行动顺序推断，并结合这一张后继帧或后续 Hero 快照累计可观察差分。
 - `is_hero_turn=true` 但 Hero stack<=0 属于不可用于决策的识别结果；不能继续请求决策服务。
-- 决策协议中的 `raise_size` 是目标总下注额。超过 Hero 可用总额时按 all-in 上限收敛；check/fold/call 必须为0；bet只允许在无人下注时；收敛后的 raise 仍必须高于当前最大下注。
+- 决策协议中的 `raise_size` 是目标总下注额。超过 Hero 可用总额时按 all-in 上限收敛；check/fold/call 必须为0；bet只允许在无人下注时；raise 要求牌桌已有下注且目标仍高于当前最大下注，因此 Hero 已匹配 BB/straddle 后的 option raise 也是合法动作。
 - 免费 check 兜底必须在决策响应通过校验后执行，并从同一决策请求的玩家投入计算；不能根据客户端显示文本或截图推断。
 - 缺少 `vpip/pfr` 与显式 `0/0` 等价，必须保持旧客户端和原决策接口兼容；非默认值必须成对命中固定白名单，不能只传一个值或透传任意百分比。
