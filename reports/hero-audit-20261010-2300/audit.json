@@ -1,0 +1,5450 @@
+{
+  "window": {
+    "start": "2026-10-10T23:00:00+08:00",
+    "end": "2026-10-11T14:10:00+08:00",
+    "first_hero_image": "2026-10-10 23:46:56-hero.jpg",
+    "last_hero_image": "2026-10-11 00:14:02-hero.jpg"
+  },
+  "evidence_sha256": {
+    "images.tgz": "50db9f6ce3d6b54d7aa77ac4e6f4c67ed34d817f5c8a1d212ff4c504deb393f0",
+    "nohup.snapshot.log.gz": "0c918018dc7166b18f45b2f520abdd0e7bb7f848a1ceb2ee480257bf160b7180",
+    "snapshot.json": "08ce7ec1471c36c02233a984bedd5061abd12e8d5c65ffc1794b53530afe3407",
+    "audit-concurrent.json": "0013e19e124291b28ecf47242383d29511af3e496b3a735d3e6950da6c2fd472",
+    "decisions.json": "faf716d94edffc7079bb2699eb419017eade7cafcd0590773ab714227206627e"
+  },
+  "recognition": {
+    "images": 150,
+    "no_obvious_core_field_error": 133,
+    "confirmed_error_images": 17,
+    "false_hero": 1,
+    "empty_seat_misclassified_active": 14,
+    "community_rank_7_misread_as_9": 2
+  },
+  "decision": {
+    "raw_responses": 149,
+    "raw_states": 67,
+    "accepted_responses": 145,
+    "accepted_states": 66,
+    "correct_input_responses": 133,
+    "correct_input_states": 59,
+    "no_obvious_issue_responses": 122,
+    "no_obvious_issue_states": 55,
+    "solver_sensitive_responses": 11,
+    "solver_sensitive_states": 4,
+    "confirmed_error_correct_input_responses": 0,
+    "confirmed_error_correct_input_states": 0,
+    "rejected_illegal_check_responses": 4,
+    "rejected_illegal_check_states": 1
+  },
+  "cycles": {
+    "total": 67,
+    "first_display_complete": 64,
+    "no_first_result": 3,
+    "invalid_request": 1,
+    "recognition_not_full": 1,
+    "invalid_response": 1,
+    "first_displays_from_confirmed_bad_input": 7
+  },
+  "latency_ms": {
+    "sample_first_displays": 64,
+    "hero_turn_to_first_display": {
+      "mean": 2074.8,
+      "p50": 1980.0,
+      "p95": 2690.8,
+      "max": 3703
+    },
+    "server_recognize": {
+      "mean": 1606.6,
+      "p50": 1553.0,
+      "p95": 2242.8,
+      "max": 2445
+    },
+    "server_decision": {
+      "mean": 81.8,
+      "p50": 59.5,
+      "p95": 211.6,
+      "max": 791
+    },
+    "server_total": {
+      "mean": 1690.1,
+      "p50": 1605.0,
+      "p95": 2344.7,
+      "max": 2656
+    },
+    "transport_outside_server": {
+      "mean": 155.1,
+      "p50": 148.0,
+      "p95": 237.1,
+      "max": 285
+    },
+    "over_3000_ms": 2,
+    "over_4000_ms": 0
+  },
+  "images": [
+    {
+      "index": 1,
+      "image": "2026-10-10 23:46:56-hero.jpg",
+      "image_sha256": "c368c3580c1ed9868e793e9c83826787ce1c8cf8a05305315c0ee51ac381e8db",
+      "trace_id": "1791647213622-24",
+      "cycle_id": "298f8835-7638-41dd-ba96-fd8846eea1f6",
+      "recognition_assessment": "false_hero_missing_cards_and_stack",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [],
+        "community_cards": [],
+        "main_pot": 34,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 7,
+        "hero_stack": 0,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_decision_request_rejected",
+      "response_accepted": false,
+      "decision": null,
+      "first_display_ms": null
+    },
+    {
+      "index": 2,
+      "image": "2026-10-10 23:47:45-hero.jpg",
+      "image_sha256": "1b6aefd27565f863483dad424640dd92ecb1706a3508df6dcf3b9585e7ed0942",
+      "trace_id": "1791647262986-532",
+      "cycle_id": "8f35c773-8fa0-4bdd-84da-9a0e506a76cc",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "J 红桃",
+          "6 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 47,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 196,
+        "hero_bet": 2
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "7f8181d2ea40ccaa95a74ddf8a6c7a735e8cf7901ca572d92f0e3a74f8e51e79",
+        "position": "SB-Hero",
+        "hero_bet": 2,
+        "max_bet": 23,
+        "to_call": 21,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2611
+    },
+    {
+      "index": 3,
+      "image": "2026-10-10 23:47:48-hero.jpg",
+      "image_sha256": "eb8bdcc6b4b0e928926b69a709393d590e7558cd023fb05f514164be5c2d47c0",
+      "trace_id": "1791647265526-557",
+      "cycle_id": "8f35c773-8fa0-4bdd-84da-9a0e506a76cc",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "J 红桃",
+          "6 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 47,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 196,
+        "hero_bet": 2
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "7f8181d2ea40ccaa95a74ddf8a6c7a735e8cf7901ca572d92f0e3a74f8e51e79",
+        "position": "SB-Hero",
+        "hero_bet": 2,
+        "max_bet": 23,
+        "to_call": 21,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 4,
+      "image": "2026-10-10 23:48:17-hero.jpg",
+      "image_sha256": "54b9243d902e9301f8427d75c7e2bef3e9b807f903f7c1f3e763716c02494ca7",
+      "trace_id": "1791647296058-862",
+      "cycle_id": "87772c83-91ef-42cf-a9ab-d56c8aeafd03",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "2 黑桃",
+          "2 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 31,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 194,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "190fc130c13168ed4ac19087d20dc29b23a3f17db63f9ca709427820b73f3096",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 0.85
+      },
+      "first_display_ms": 1798
+    },
+    {
+      "index": 5,
+      "image": "2026-10-10 23:48:19-hero.jpg",
+      "image_sha256": "05f53a9787b5fd5895e87236bd0999df06d479018b446884d0daf8056ac445b2",
+      "trace_id": "1791647297785-880",
+      "cycle_id": "87772c83-91ef-42cf-a9ab-d56c8aeafd03",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "2 黑桃",
+          "2 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 31,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 194,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "190fc130c13168ed4ac19087d20dc29b23a3f17db63f9ca709427820b73f3096",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 0.85
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 6,
+      "image": "2026-10-10 23:48:21-hero.jpg",
+      "image_sha256": "03f15d5f1eff85d18d3ce17292d559e72e6ba6edc9e64654f3858189f0345fe4",
+      "trace_id": "1791647299642-899",
+      "cycle_id": "87772c83-91ef-42cf-a9ab-d56c8aeafd03",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "2 黑桃",
+          "2 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 31,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 194,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "190fc130c13168ed4ac19087d20dc29b23a3f17db63f9ca709427820b73f3096",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 0.85
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 7,
+      "image": "2026-10-10 23:48:32-hero.jpg",
+      "image_sha256": "8e0ee6b2f35f52ddac0575fa16d13a74d1a7242be4dc859974a0c62bc65158d8",
+      "trace_id": "1791647311078-1013",
+      "cycle_id": "a7a131a3-108d-406a-bb13-2ed66c743f62",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "2 黑桃",
+          "2 红桃"
+        ],
+        "community_cards": [
+          "10 方块",
+          "J 黑桃",
+          "Q 梅花"
+        ],
+        "main_pot": 38,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 190,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "cde6c018a8a8e6c97321b6cc923d95a774b69ae57743a65b3afc9646ff6ec0a3",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.976
+      },
+      "first_display_ms": 1932
+    },
+    {
+      "index": 8,
+      "image": "2026-10-10 23:48:34-hero.jpg",
+      "image_sha256": "1ca8eb80bbc139df4e5b409e4ce48eb89af19d007adea9504bcbf80c56edcf4d",
+      "trace_id": "1791647312822-1030",
+      "cycle_id": "a7a131a3-108d-406a-bb13-2ed66c743f62",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "2 黑桃",
+          "2 红桃"
+        ],
+        "community_cards": [
+          "10 方块",
+          "J 黑桃",
+          "Q 梅花"
+        ],
+        "main_pot": 38,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 190,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "cde6c018a8a8e6c97321b6cc923d95a774b69ae57743a65b3afc9646ff6ec0a3",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.976
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 9,
+      "image": "2026-10-10 23:48:41-hero.jpg",
+      "image_sha256": "74e10f1ffa6cf4c1339047f097d6f1c438ca27693ae3ef2ac6ad6b70e5702848",
+      "trace_id": "1791647320122-1103",
+      "cycle_id": "0bc21dce-29d3-4142-86f7-c25f70aac515",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "2 黑桃",
+          "2 红桃"
+        ],
+        "community_cards": [
+          "10 方块",
+          "J 黑桃",
+          "Q 梅花",
+          "A 方块"
+        ],
+        "main_pot": 38,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 190,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "ec7e26a96f7119177d01cba92f675962579703f5f351f84123758eb1d41186e1",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.901
+      },
+      "first_display_ms": 1789
+    },
+    {
+      "index": 10,
+      "image": "2026-10-10 23:48:43-hero.jpg",
+      "image_sha256": "5d028b7368f4490b741fb6cb49966742242b689582cf30091c58de77ad5be0e2",
+      "trace_id": "1791647321700-1119",
+      "cycle_id": "0bc21dce-29d3-4142-86f7-c25f70aac515",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "2 黑桃",
+          "2 红桃"
+        ],
+        "community_cards": [
+          "10 方块",
+          "J 黑桃",
+          "Q 梅花",
+          "A 方块"
+        ],
+        "main_pot": 38,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 190,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "ec7e26a96f7119177d01cba92f675962579703f5f351f84123758eb1d41186e1",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.901
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 11,
+      "image": "2026-10-10 23:49:04-hero.jpg",
+      "image_sha256": "972654c97f07e9e319927d568103c7d631deb35894c9f3dc756477b02a20594c",
+      "trace_id": "1791647342169-1320",
+      "cycle_id": "06a859a9-8284-4165-b614-ed0e4a03cbe9",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "river",
+        "hero_cards": [
+          "2 黑桃",
+          "2 红桃"
+        ],
+        "community_cards": [
+          "10 方块",
+          "J 黑桃",
+          "Q 梅花",
+          "A 方块",
+          "J 方块"
+        ],
+        "main_pot": 38,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 190,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "0d36b8c13248e286a23c8b01d69187d4aa89db0d9062663bb00da288c0446e7c",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.901
+      },
+      "first_display_ms": 1965
+    },
+    {
+      "index": 12,
+      "image": "2026-10-10 23:49:05-hero.jpg",
+      "image_sha256": "d8d5933446f08cef9c73b5b13bc972f576daed16716e2bee463802aa10023091",
+      "trace_id": "1791647343966-1338",
+      "cycle_id": "06a859a9-8284-4165-b614-ed0e4a03cbe9",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "river",
+        "hero_cards": [
+          "2 黑桃",
+          "2 红桃"
+        ],
+        "community_cards": [
+          "10 方块",
+          "J 黑桃",
+          "Q 梅花",
+          "A 方块",
+          "J 方块"
+        ],
+        "main_pot": 38,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 190,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "0d36b8c13248e286a23c8b01d69187d4aa89db0d9062663bb00da288c0446e7c",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.901
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 13,
+      "image": "2026-10-10 23:49:19-hero.jpg",
+      "image_sha256": "c3add6ecfb48d2fe544d18a1978d90ea9d48579713c5be93570d25f026f52b98",
+      "trace_id": "1791647357589-1476",
+      "cycle_id": "2a0a9c74-b5cb-4dd2-a0f7-df31eaa31c23",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "7 方块",
+          "10 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 47,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 188,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "1728d1c4b50f4d5f3922efe7f7e2e264668e81b53d234a412c68e7d37bfa25ea",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 20,
+        "to_call": 20,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2015
+    },
+    {
+      "index": 14,
+      "image": "2026-10-10 23:49:21-hero.jpg",
+      "image_sha256": "aea51a0ff37ee9c1cf477577754e3b3b287185a22ff90466812b3753c69ec89a",
+      "trace_id": "1791647359400-1494",
+      "cycle_id": "2a0a9c74-b5cb-4dd2-a0f7-df31eaa31c23",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "7 方块",
+          "10 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 47,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 188,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "1728d1c4b50f4d5f3922efe7f7e2e264668e81b53d234a412c68e7d37bfa25ea",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 20,
+        "to_call": 20,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 15,
+      "image": "2026-10-10 23:50:00-hero.jpg",
+      "image_sha256": "0cf7fbba9a62e023cf06df2e5e58f4fb1b365969e021ca4f6f873ad9fb697333",
+      "trace_id": "1791647398170-1901",
+      "cycle_id": "b5e0d742-e143-473d-b22a-a48b498967de",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "K 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 21,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 186,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "177e86c35ca185185de075dbf83ae4f626070fd7004f0cd34b452e048a1c9b83",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": 2398
+    },
+    {
+      "index": 16,
+      "image": "2026-10-10 23:50:02-hero.jpg",
+      "image_sha256": "14c2e7d46866dc2821d62051e0d975f64af3252b059b04d5c030be772d66f1fb",
+      "trace_id": "1791647400410-1924",
+      "cycle_id": "b5e0d742-e143-473d-b22a-a48b498967de",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "K 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 21,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 186,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "177e86c35ca185185de075dbf83ae4f626070fd7004f0cd34b452e048a1c9b83",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 17,
+      "image": "2026-10-10 23:50:32-hero.jpg",
+      "image_sha256": "8884a01a1152a6a20420246564496878391239de13ad26e88947c6852f54326e",
+      "trace_id": "1791647430164-2226",
+      "cycle_id": "2a49d8cb-32a5-4cec-8fb0-2d758d73faff",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "K 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [
+          "2 方块",
+          "10 梅花",
+          "3 方块"
+        ],
+        "main_pot": 66,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 169,
+        "hero_bet": null
+      },
+      "decision_assessment": "excluded_recognition_error",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "3713d8f5901e0e524dc8801e582cfbf2dc78991fc8474e1ab19bd984eb78c2b2",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.56
+      },
+      "first_display_ms": 2248
+    },
+    {
+      "index": 18,
+      "image": "2026-10-10 23:50:34-hero.jpg",
+      "image_sha256": "df883f858fe4e44f3bf975bdbdd7997de2aa83ac115aaffae52093cfb5c8359e",
+      "trace_id": "1791647432339-2249",
+      "cycle_id": "2a49d8cb-32a5-4cec-8fb0-2d758d73faff",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "K 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [
+          "2 方块",
+          "10 梅花",
+          "3 方块"
+        ],
+        "main_pot": 66,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 169,
+        "hero_bet": null
+      },
+      "decision_assessment": "excluded_recognition_error",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "3713d8f5901e0e524dc8801e582cfbf2dc78991fc8474e1ab19bd984eb78c2b2",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.56
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 19,
+      "image": "2026-10-10 23:50:36-hero.jpg",
+      "image_sha256": "cc3fb6c9ae7472ced0db098316d6931277786bff8e479b5ed3ba771e72dc34a1",
+      "trace_id": "1791647434167-2270",
+      "cycle_id": "2a49d8cb-32a5-4cec-8fb0-2d758d73faff",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "K 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [
+          "2 方块",
+          "10 梅花",
+          "3 方块"
+        ],
+        "main_pot": 66,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 169,
+        "hero_bet": null
+      },
+      "decision_assessment": "excluded_recognition_error",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "3713d8f5901e0e524dc8801e582cfbf2dc78991fc8474e1ab19bd984eb78c2b2",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.56
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 20,
+      "image": "2026-10-10 23:50:45-hero.jpg",
+      "image_sha256": "b402d6f1c24d5494d35109312ddf947666398927b643ae7269b3f9ee39494856",
+      "trace_id": "1791647443526-2366",
+      "cycle_id": "4e236ba2-8185-402c-8a29-a4d9934e5fdd",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "K 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [
+          "2 方块",
+          "10 梅花",
+          "3 方块",
+          "7 红桃"
+        ],
+        "main_pot": 112,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 146,
+        "hero_bet": null
+      },
+      "decision_assessment": "excluded_recognition_error",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "2ff6086637a44db255d7d80a080bbb3332233152b3f21e68fa00cf583173c8f8",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.695
+      },
+      "first_display_ms": 1979
+    },
+    {
+      "index": 21,
+      "image": "2026-10-10 23:50:47-hero.jpg",
+      "image_sha256": "0f6f5ade72c149fc6c6e66b0661a5a5392e9c85c55bd89c3002b8eded23cce21",
+      "trace_id": "1791647445280-2384",
+      "cycle_id": "4e236ba2-8185-402c-8a29-a4d9934e5fdd",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "K 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [
+          "2 方块",
+          "10 梅花",
+          "3 方块",
+          "7 红桃"
+        ],
+        "main_pot": 112,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 146,
+        "hero_bet": null
+      },
+      "decision_assessment": "excluded_recognition_error",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "2ff6086637a44db255d7d80a080bbb3332233152b3f21e68fa00cf583173c8f8",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.695
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 22,
+      "image": "2026-10-10 23:50:51-hero.jpg",
+      "image_sha256": "31112aa043cf961f6aad34dafaf5b9bf26eeb9f91575dd5c99cedfe8e0b1ddec",
+      "trace_id": "1791647449348-2425",
+      "cycle_id": "24eb797a-cfbd-4313-8712-94a3078ba1a8",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "river",
+        "hero_cards": [
+          "K 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [
+          "2 方块",
+          "10 梅花",
+          "3 方块",
+          "7 红桃",
+          "J 红桃"
+        ],
+        "main_pot": 112,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 146,
+        "hero_bet": null
+      },
+      "decision_assessment": "excluded_recognition_error",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "199f07d0197661db5a12c25f74a38d56c82aa941eaace4e46135ad7ba7ff608a",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "bet",
+        "raise_size": 112,
+        "probability": 0.85
+      },
+      "first_display_ms": 2397
+    },
+    {
+      "index": 23,
+      "image": "2026-10-10 23:50:59-hero.jpg",
+      "image_sha256": "3a05c88b8afd01c82d9cd5c38e1528d9e1a22e9e2c61830f94e3ee47ad7eb6ec",
+      "trace_id": "1791647456897-2504",
+      "cycle_id": "c00b78c6-aa52-4687-8ccd-28f4586ec5dc",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "8 黑桃",
+          "6 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 21,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 4,
+        "hero_stack": 144,
+        "hero_bet": null
+      },
+      "decision_assessment": "excluded_recognition_error",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9f3796aac8e56ea896aa659685ed0dd53d7514daeba2d30370f2d9dcfb42adf5",
+        "position": "UTG+1-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2348
+    },
+    {
+      "index": 24,
+      "image": "2026-10-10 23:51:01-hero.jpg",
+      "image_sha256": "1fec4489c0983d72217b168ecb5000b10a84ee46b019a17573192d55c0b15c9c",
+      "trace_id": "1791647459126-2527",
+      "cycle_id": "c00b78c6-aa52-4687-8ccd-28f4586ec5dc",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "8 黑桃",
+          "6 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 21,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 4,
+        "hero_stack": 144,
+        "hero_bet": null
+      },
+      "decision_assessment": "excluded_recognition_error",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9f3796aac8e56ea896aa659685ed0dd53d7514daeba2d30370f2d9dcfb42adf5",
+        "position": "UTG+1-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 25,
+      "image": "2026-10-10 23:51:50-hero.jpg",
+      "image_sha256": "7069d0e97e3648c49a33fcffc325fcfda6352219336541bbd85642accb15f5ad",
+      "trace_id": "1791647509089-3057",
+      "cycle_id": "34bee5d1-c5fb-45e1-96b8-eb59631570d5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "10 方块",
+          "Q 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 142,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "37a43a6d4d74adc074531966bef5b5798326023384c63e39e1cb76245e838300",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 0.7
+      },
+      "first_display_ms": 1766
+    },
+    {
+      "index": 26,
+      "image": "2026-10-10 23:51:52-hero.jpg",
+      "image_sha256": "4636be96347de84489a3414fc9cbcc41dbac996f8cbb02e3cdd4a08df9f312fc",
+      "trace_id": "1791647510719-3074",
+      "cycle_id": "34bee5d1-c5fb-45e1-96b8-eb59631570d5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "10 方块",
+          "Q 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 142,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "37a43a6d4d74adc074531966bef5b5798326023384c63e39e1cb76245e838300",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 0.7
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 27,
+      "image": "2026-10-10 23:52:22-hero.jpg",
+      "image_sha256": "aa7e002dee07e79b4a3db52ec1ee083b1e110ffda00b81038f7bf899b2fe9f06",
+      "trace_id": "1791647540607-3383",
+      "cycle_id": "39b4e10c-e26d-407a-8e5f-af422f6e27a5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "10 方块",
+          "Q 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 50,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 138,
+        "hero_bet": 4
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9640b06c5597be09edcd727cbfce82eefde6bcb7be7d866ce8726a8191bfe16e",
+        "position": "UTG-Hero",
+        "hero_bet": 4,
+        "max_bet": 24,
+        "to_call": 20,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 1981
+    },
+    {
+      "index": 28,
+      "image": "2026-10-10 23:52:24-hero.jpg",
+      "image_sha256": "fd098f188b63a895335ec5f9eee8836a7671d33d3b453d663e47603c04cd5981",
+      "trace_id": "1791647542450-3402",
+      "cycle_id": "39b4e10c-e26d-407a-8e5f-af422f6e27a5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "10 方块",
+          "Q 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 50,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 138,
+        "hero_bet": 4
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9640b06c5597be09edcd727cbfce82eefde6bcb7be7d866ce8726a8191bfe16e",
+        "position": "UTG-Hero",
+        "hero_bet": 4,
+        "max_bet": 24,
+        "to_call": 20,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 29,
+      "image": "2026-10-10 23:52:26-hero.jpg",
+      "image_sha256": "c9418a827c5aede435b47779893483c28fce1d5fcdc45aa4d3572aa2156f402a",
+      "trace_id": "1791647544305-3421",
+      "cycle_id": "39b4e10c-e26d-407a-8e5f-af422f6e27a5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "10 方块",
+          "Q 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 50,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 138,
+        "hero_bet": 4
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9640b06c5597be09edcd727cbfce82eefde6bcb7be7d866ce8726a8191bfe16e",
+        "position": "UTG-Hero",
+        "hero_bet": 4,
+        "max_bet": 24,
+        "to_call": 20,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 30,
+      "image": "2026-10-10 23:52:28-hero.jpg",
+      "image_sha256": "8594ae1a866189b4398997093d6ddced7de5e0ad7a09beec6f3d811cd284d20c",
+      "trace_id": "1791647546248-3441",
+      "cycle_id": "39b4e10c-e26d-407a-8e5f-af422f6e27a5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "10 方块",
+          "Q 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 50,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 138,
+        "hero_bet": 4
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9640b06c5597be09edcd727cbfce82eefde6bcb7be7d866ce8726a8191bfe16e",
+        "position": "UTG-Hero",
+        "hero_bet": 4,
+        "max_bet": 24,
+        "to_call": 20,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 31,
+      "image": "2026-10-10 23:53:04-hero.jpg",
+      "image_sha256": "0671019bb4f6271a637217775b802b3fed7bc193a6c567c62bf51e36dc98e36a",
+      "trace_id": "1791647582724-3823",
+      "cycle_id": "f45e16ea-3d23-4b5f-97cf-3e23e40346ee",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "3 红桃",
+          "J 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 38,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 132,
+        "hero_bet": 4
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "5984682bd37e24a5cbbc1fc0ee3df0a6b9abf952efa2a22b540339126c4adaca",
+        "position": "straddle-Hero",
+        "hero_bet": 4,
+        "max_bet": 4,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2048
+    },
+    {
+      "index": 32,
+      "image": "2026-10-10 23:53:06-hero.jpg",
+      "image_sha256": "041954233337dbc7dc665a60e8f4b557e58f9d0d89e3f90491e67118cad09881",
+      "trace_id": "1791647584565-3842",
+      "cycle_id": "f45e16ea-3d23-4b5f-97cf-3e23e40346ee",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "3 红桃",
+          "J 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 38,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 132,
+        "hero_bet": 4
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "5984682bd37e24a5cbbc1fc0ee3df0a6b9abf952efa2a22b540339126c4adaca",
+        "position": "straddle-Hero",
+        "hero_bet": 4,
+        "max_bet": 4,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 33,
+      "image": "2026-10-10 23:53:11-hero.jpg",
+      "image_sha256": "d4e9d22b5f3272f13e41880860cbbb17e833e1f2da7c69070b7e17ed171ebe99",
+      "trace_id": "1791647589557-3894",
+      "cycle_id": "14924dc3-b001-4873-a1c3-5eed804f29cc",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "3 红桃",
+          "J 方块"
+        ],
+        "community_cards": [
+          "2 黑桃",
+          "A 方块",
+          "Q 红桃"
+        ],
+        "main_pot": 38,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 132,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "78b0e55aa071bf9547e5f3d71017d64d61852d5f80f6aa29ca04757bed845d6a",
+        "position": "straddle-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.995
+      },
+      "first_display_ms": 1866
+    },
+    {
+      "index": 34,
+      "image": "2026-10-10 23:53:13-hero.jpg",
+      "image_sha256": "5a734b58a67af5a593d56047ef6015fe852cb6b1478c54ffa59b65d24c0b48f6",
+      "trace_id": "1791647591186-3911",
+      "cycle_id": "14924dc3-b001-4873-a1c3-5eed804f29cc",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "3 红桃",
+          "J 方块"
+        ],
+        "community_cards": [
+          "2 黑桃",
+          "A 方块",
+          "Q 红桃"
+        ],
+        "main_pot": 38,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 132,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "78b0e55aa071bf9547e5f3d71017d64d61852d5f80f6aa29ca04757bed845d6a",
+        "position": "straddle-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.995
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 35,
+      "image": "2026-10-10 23:53:20-hero.jpg",
+      "image_sha256": "20d711d72a8df9b8ef2f32a789ea2be477345d535557df8f02417ecde574134b",
+      "trace_id": "1791647598583-3989",
+      "cycle_id": "aa10b7da-bafd-4fa0-81ba-04d5de3966c5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "3 红桃",
+          "J 方块"
+        ],
+        "community_cards": [
+          "2 黑桃",
+          "A 方块",
+          "Q 红桃"
+        ],
+        "main_pot": 57,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 132,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "4c520b3f76fb4dcd42229ba4c9bc3bfbe3df2ba0c2240cba886523ed61407d0d",
+        "position": "straddle-Hero",
+        "hero_bet": 0,
+        "max_bet": 19,
+        "to_call": 19,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 0.92
+      },
+      "first_display_ms": 1768
+    },
+    {
+      "index": 36,
+      "image": "2026-10-10 23:53:22-hero.jpg",
+      "image_sha256": "e433ffc926e2db2960fd8fec2f2376ad8bef140fe2a2f2873408a418c47bedc7",
+      "trace_id": "1791647600245-4006",
+      "cycle_id": "aa10b7da-bafd-4fa0-81ba-04d5de3966c5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "3 红桃",
+          "J 方块"
+        ],
+        "community_cards": [
+          "2 黑桃",
+          "A 方块",
+          "Q 红桃"
+        ],
+        "main_pot": 57,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 132,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "4c520b3f76fb4dcd42229ba4c9bc3bfbe3df2ba0c2240cba886523ed61407d0d",
+        "position": "straddle-Hero",
+        "hero_bet": 0,
+        "max_bet": 19,
+        "to_call": 19,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 0.92
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 37,
+      "image": "2026-10-10 23:53:46-hero.jpg",
+      "image_sha256": "7899496cf112626e30189376b4e68c1517c0eb4a2c15d6ba6b5899ad895ad34a",
+      "trace_id": "1791647624365-4259",
+      "cycle_id": "14b17853-e9b4-4317-bfc4-38fd87fe9d0e",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 梅花",
+          "J 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 27,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 7,
+        "hero_stack": 128,
+        "hero_bet": 2
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9e62ebc9a6b4b724d0061f3e6788f393a02eedb77e2516b61f6c0da0ba18dc3e",
+        "position": "BB-Hero",
+        "hero_bet": 2,
+        "max_bet": 4,
+        "to_call": 2,
+        "action": "raise",
+        "raise_size": 16,
+        "probability": 0.6
+      },
+      "first_display_ms": 1699
+    },
+    {
+      "index": 38,
+      "image": "2026-10-10 23:53:47-hero.jpg",
+      "image_sha256": "0509dc95606743a04c4d4d8cc3f0ac0576bc1e9ff08853115d4c272cc59deb4d",
+      "trace_id": "1791647625829-4275",
+      "cycle_id": "14b17853-e9b4-4317-bfc4-38fd87fe9d0e",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 梅花",
+          "J 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 27,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 7,
+        "hero_stack": 128,
+        "hero_bet": 2
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9e62ebc9a6b4b724d0061f3e6788f393a02eedb77e2516b61f6c0da0ba18dc3e",
+        "position": "BB-Hero",
+        "hero_bet": 2,
+        "max_bet": 4,
+        "to_call": 2,
+        "action": "raise",
+        "raise_size": 16,
+        "probability": 0.6
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 39,
+      "image": "2026-10-10 23:53:56-hero.jpg",
+      "image_sha256": "fbeb6a4d881f91d919ad27b87c504c5407a47f972ddf694b929d73e96ec2f8d4",
+      "trace_id": "1791647634672-4368",
+      "cycle_id": "2be9a9f6-a9e7-4ebd-a0fb-d4ccbe28934e",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 梅花",
+          "J 梅花"
+        ],
+        "community_cards": [
+          "A 黑桃",
+          "2 梅花",
+          "2 红桃"
+        ],
+        "main_pot": 69,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 7,
+        "hero_stack": 106,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "2b3825160c0d28a85ce4089824b152ec7ee674a7ac86352592dd5725ff3553b7",
+        "position": "BB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.97
+      },
+      "first_display_ms": 2596
+    },
+    {
+      "index": 40,
+      "image": "2026-10-10 23:53:57-hero.jpg",
+      "image_sha256": "4787cf9f70488bfa49ea6e216bbb660dd91b5c36e807bf873db34bc4af486d8f",
+      "trace_id": "1791647635949-4382",
+      "cycle_id": "2be9a9f6-a9e7-4ebd-a0fb-d4ccbe28934e",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 梅花",
+          "J 梅花"
+        ],
+        "community_cards": [
+          "A 黑桃",
+          "2 梅花",
+          "2 红桃"
+        ],
+        "main_pot": 69,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 7,
+        "hero_stack": 106,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "2b3825160c0d28a85ce4089824b152ec7ee674a7ac86352592dd5725ff3553b7",
+        "position": "BB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.97
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 41,
+      "image": "2026-10-10 23:54:01-hero.jpg",
+      "image_sha256": "d3cd719d8a3e0d4452fd9d4fa32598e77d08e1198ba8b2b31138475fc510bbaa",
+      "trace_id": "1791647639948-4424",
+      "cycle_id": "b43b87c3-5b6b-4e08-bee3-282f196e31c4",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "A 梅花",
+          "J 梅花"
+        ],
+        "community_cards": [
+          "A 黑桃",
+          "2 梅花",
+          "2 红桃",
+          "9 黑桃"
+        ],
+        "main_pot": 69,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 7,
+        "hero_stack": 106,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "37ba42d451b1c0967492425f184cb6108749eee039a1c03926b50e8e7d439b98",
+        "position": "BB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "bet",
+        "raise_size": 44,
+        "probability": 0.795
+      },
+      "first_display_ms": 1450
+    },
+    {
+      "index": 42,
+      "image": "2026-10-10 23:54:03-hero.jpg",
+      "image_sha256": "6eb954fe8873e510102fd385e9f02850d0b69250beeb6604c323cc16b851bf43",
+      "trace_id": "1791647641295-4438",
+      "cycle_id": "b43b87c3-5b6b-4e08-bee3-282f196e31c4",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "A 梅花",
+          "J 梅花"
+        ],
+        "community_cards": [
+          "A 黑桃",
+          "2 梅花",
+          "2 红桃",
+          "9 黑桃"
+        ],
+        "main_pot": 69,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 7,
+        "hero_stack": 106,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "37ba42d451b1c0967492425f184cb6108749eee039a1c03926b50e8e7d439b98",
+        "position": "BB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "bet",
+        "raise_size": 44,
+        "probability": 0.795
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 43,
+      "image": "2026-10-10 23:54:31-hero.jpg",
+      "image_sha256": "6bfa6966a1129315ad495a720c2762bdee2cd71b75a95b4e6492e3ac7837532a",
+      "trace_id": "1791647668927-4724",
+      "cycle_id": "6347a714-ee8d-4973-a020-0e1f2c31e743",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 梅花",
+          "7 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 27,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 168,
+        "hero_bet": 1
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "ee3e59b216900860d790b420565314c3953e6be0868e4a2388b50d83261323b7",
+        "position": "SB-Hero",
+        "hero_bet": 1,
+        "max_bet": 4,
+        "to_call": 3,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2796
+    },
+    {
+      "index": 44,
+      "image": "2026-10-10 23:54:34-hero.jpg",
+      "image_sha256": "1da0af0b3fa8961ebe177c345a5f2ab64aaac5ffc348360da9b2331964392695",
+      "trace_id": "1791647671636-4752",
+      "cycle_id": "6347a714-ee8d-4973-a020-0e1f2c31e743",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 梅花",
+          "7 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 27,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 168,
+        "hero_bet": 1
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "ee3e59b216900860d790b420565314c3953e6be0868e4a2388b50d83261323b7",
+        "position": "SB-Hero",
+        "hero_bet": 1,
+        "max_bet": 4,
+        "to_call": 3,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 45,
+      "image": "2026-10-10 23:54:40-hero.jpg",
+      "image_sha256": "790e2eb7ce2221a3b09a21d46f0b55d6a87b30655827394e14d34185c31dfcb7",
+      "trace_id": "1791647678887-4827",
+      "cycle_id": "634b8ce6-b6a3-413f-bc4f-00873ab97fd2",
+      "recognition_assessment": "community_rank_7_misread_as_9",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 梅花",
+          "7 梅花"
+        ],
+        "community_cards": [
+          "10 黑桃",
+          "4 黑桃",
+          "9 红桃"
+        ],
+        "main_pot": 32,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 165,
+        "hero_bet": null
+      },
+      "decision_assessment": "excluded_recognition_error",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "66a35ea8a5cc89d3697684d686a4c3fccdbceb853fe1069bee17ac49d76092a4",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.985
+      },
+      "first_display_ms": 2047
+    },
+    {
+      "index": 46,
+      "image": "2026-10-10 23:54:43-hero.jpg",
+      "image_sha256": "822fc71f94b296b8eac287e70ffcb60a044b2cd2bc1853bcbf50a7f7e8f29c90",
+      "trace_id": "1791647680879-4848",
+      "cycle_id": "634b8ce6-b6a3-413f-bc4f-00873ab97fd2",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 梅花",
+          "7 梅花"
+        ],
+        "community_cards": [
+          "10 黑桃",
+          "4 黑桃",
+          "7 红桃"
+        ],
+        "main_pot": 32,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 165,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "7b45cae70b2c3972af4ed6f59e8e414aa0534cf28b44705b6c3b5c973963456b",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.985
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 47,
+      "image": "2026-10-10 23:54:47-hero.jpg",
+      "image_sha256": "86fb5db3006f62de6019684ba212a5a4cebd4c15ecba9ce0bc3f53f11e69cabb",
+      "trace_id": "1791647685077-4891",
+      "cycle_id": "38e1c38c-353c-4748-824b-5646217a2968",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 梅花",
+          "7 梅花"
+        ],
+        "community_cards": [
+          "10 黑桃",
+          "4 黑桃",
+          "7 红桃"
+        ],
+        "main_pot": 48,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 165,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "4c306a77649c467d1aab2972a90225dc7e2d553aef780577efe9f2425b2b4741",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 16,
+        "to_call": 16,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.713
+      },
+      "first_display_ms": 2214
+    },
+    {
+      "index": 48,
+      "image": "2026-10-10 23:54:49-hero.jpg",
+      "image_sha256": "6a95473b3342bfeb86f1f08130cbf1b8794b04825d6eb88749e78e352274b229",
+      "trace_id": "1791647687168-4913",
+      "cycle_id": "38e1c38c-353c-4748-824b-5646217a2968",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 梅花",
+          "7 梅花"
+        ],
+        "community_cards": [
+          "10 黑桃",
+          "4 黑桃",
+          "7 红桃"
+        ],
+        "main_pot": 48,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 165,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "4c306a77649c467d1aab2972a90225dc7e2d553aef780577efe9f2425b2b4741",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 16,
+        "to_call": 16,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.713
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 49,
+      "image": "2026-10-10 23:54:58-hero.jpg",
+      "image_sha256": "e72d89c3ef9d0c67697ecbcd13599fe3a09fea078684e4c91314c246d6de11b4",
+      "trace_id": "1791647696711-5011",
+      "cycle_id": "a4e3b2ba-8293-4336-bb48-69bfc68599c5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "A 梅花",
+          "7 梅花"
+        ],
+        "community_cards": [
+          "10 黑桃",
+          "4 黑桃",
+          "7 红桃",
+          "Q 梅花"
+        ],
+        "main_pot": 64,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 149,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "d424799d01239dd0c188cfb941bb4088511452ea4cb589e5ade6f80171985bc3",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.879
+      },
+      "first_display_ms": 2147
+    },
+    {
+      "index": 50,
+      "image": "2026-10-10 23:55:00-hero.jpg",
+      "image_sha256": "138f8e615ebaeae8cdb26c79c9936b996eddd131eddb68729344108066dfb38a",
+      "trace_id": "1791647698788-5033",
+      "cycle_id": "a4e3b2ba-8293-4336-bb48-69bfc68599c5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "A 梅花",
+          "7 梅花"
+        ],
+        "community_cards": [
+          "10 黑桃",
+          "4 黑桃",
+          "7 红桃",
+          "Q 梅花"
+        ],
+        "main_pot": 64,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 149,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "d424799d01239dd0c188cfb941bb4088511452ea4cb589e5ade6f80171985bc3",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.879
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 51,
+      "image": "2026-10-10 23:55:05-hero.jpg",
+      "image_sha256": "efd57491fbc22b32f1ae83bc154b8f2e45539befc45c73e5253bbaf1507d450e",
+      "trace_id": "1791647703715-5083",
+      "cycle_id": "711a42b1-8cc5-47c0-a6fe-9f3cc13dde05",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "A 梅花",
+          "7 梅花"
+        ],
+        "community_cards": [
+          "10 黑桃",
+          "4 黑桃",
+          "7 红桃",
+          "Q 梅花"
+        ],
+        "main_pot": 107,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 149,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "be04f110823e9d7b407cd9f278658fd6a67faa0ddb70e5e9863ab045c27937b2",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 43,
+        "to_call": 43,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 0.88
+      },
+      "first_display_ms": 1748
+    },
+    {
+      "index": 52,
+      "image": "2026-10-10 23:55:07-hero.jpg",
+      "image_sha256": "60dabf2b1b8eadd4c689907ae011d14c7a22cf0ec71d1bb703d7befdc80ee351",
+      "trace_id": "1791647705326-5100",
+      "cycle_id": "711a42b1-8cc5-47c0-a6fe-9f3cc13dde05",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "A 梅花",
+          "7 梅花"
+        ],
+        "community_cards": [
+          "10 黑桃",
+          "4 黑桃",
+          "7 红桃",
+          "Q 梅花"
+        ],
+        "main_pot": 107,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 149,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "be04f110823e9d7b407cd9f278658fd6a67faa0ddb70e5e9863ab045c27937b2",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 43,
+        "to_call": 43,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 0.88
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 53,
+      "image": "2026-10-10 23:55:39-hero.jpg",
+      "image_sha256": "6d56050d39755072d549744d43be5bbd1b3c4febc8cf359f78607abd8296bcc4",
+      "trace_id": "1791647737809-5435",
+      "cycle_id": "2904931c-a735-450e-9735-539f63a8205e",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "Q 黑桃",
+          "9 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 62,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 147,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "35e9637e3f42c849a8c1331d499376dc7ea3537bef9b3d1b5a0fb8dc1bd8950d",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 35,
+        "to_call": 35,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 1895
+    },
+    {
+      "index": 54,
+      "image": "2026-10-10 23:55:41-hero.jpg",
+      "image_sha256": "efe35f76a443abd095fe6b298967f317f973da64999584bc2a39c499f3f18287",
+      "trace_id": "1791647739614-5454",
+      "cycle_id": "2904931c-a735-450e-9735-539f63a8205e",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "Q 黑桃",
+          "9 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 62,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 147,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "35e9637e3f42c849a8c1331d499376dc7ea3537bef9b3d1b5a0fb8dc1bd8950d",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 35,
+        "to_call": 35,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 55,
+      "image": "2026-10-10 23:55:59-hero.jpg",
+      "image_sha256": "6f63e6432712113c42878c41522c2f39b2b67b646244fcf06f2252afa2eac38b",
+      "trace_id": "1791647757543-5643",
+      "cycle_id": "c8803b6a-e0b7-4d21-8e28-6f8db9654efd",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "2 红桃",
+          "6 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 145,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "5e533d3e6ff94e15e050cae6cecd35adcbc5550c2adc34330d6a786b09374cc4",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 1833
+    },
+    {
+      "index": 56,
+      "image": "2026-10-10 23:56:01-hero.jpg",
+      "image_sha256": "c53e24ec9690ba50e56c87fc976a54c4f71f36e043865cae6c3560f5e068f1dc",
+      "trace_id": "1791647759286-5661",
+      "cycle_id": "c8803b6a-e0b7-4d21-8e28-6f8db9654efd",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "2 红桃",
+          "6 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 145,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "5e533d3e6ff94e15e050cae6cecd35adcbc5550c2adc34330d6a786b09374cc4",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 57,
+      "image": "2026-10-10 23:56:20-hero.jpg",
+      "image_sha256": "8f2ece84c1da5a80c1dc3769645ddf908d1798de45bcafa84e5d0a33dff0ba23",
+      "trace_id": "1791647778291-5864",
+      "cycle_id": "0c63d2da-67a5-4cf5-8c6e-a95c14e9a273",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "2 红桃",
+          "4 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 31,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 143,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "65bc2114507b5b5fb1f6e66b575aecafb353883fde3c2fa836fa53f53c231bd7",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2181
+    },
+    {
+      "index": 58,
+      "image": "2026-10-10 23:56:22-hero.jpg",
+      "image_sha256": "884ef3e4ab98683d964159b3726bc9f2cef6f71ea702146ebcbb2cf8b11b6a76",
+      "trace_id": "1791647780351-5886",
+      "cycle_id": "0c63d2da-67a5-4cf5-8c6e-a95c14e9a273",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "2 红桃",
+          "4 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 31,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 143,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "65bc2114507b5b5fb1f6e66b575aecafb353883fde3c2fa836fa53f53c231bd7",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 59,
+      "image": "2026-10-10 23:57:16-hero.jpg",
+      "image_sha256": "b5dab5b8281a79afe89ff3b122e40bde107d5bffdb791ead3d5f6628a331390e",
+      "trace_id": "1791647834233-6467",
+      "cycle_id": "8827f7a2-23c5-4742-ac23-cc8eaaeb3f6d",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "7 方块",
+          "5 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 4,
+        "hero_stack": 141,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "6b7ea0cf60740ba6dd01de55db2b3a9844ed62abf0cdb466613eaa8dd0192690",
+        "position": "UTG+1-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 1647
+    },
+    {
+      "index": 60,
+      "image": "2026-10-10 23:57:17-hero.jpg",
+      "image_sha256": "d2bf9a91f5b213175da5bad17da08a69c28453cbcd1e9a6edaca0e624d561c14",
+      "trace_id": "1791647835742-6483",
+      "cycle_id": "8827f7a2-23c5-4742-ac23-cc8eaaeb3f6d",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "7 方块",
+          "5 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 4,
+        "hero_stack": 141,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "6b7ea0cf60740ba6dd01de55db2b3a9844ed62abf0cdb466613eaa8dd0192690",
+        "position": "UTG+1-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 61,
+      "image": "2026-10-10 23:57:36-hero.jpg",
+      "image_sha256": "3d3c328be536420edd46b8bbcc9847aff9e3e53eb0f8b3aca6e29236e92dfb36",
+      "trace_id": "1791647855096-6693",
+      "cycle_id": "4aa2c148-4c71-4405-87fd-7076644aa786",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "K 红桃",
+          "9 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 139,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "0054bc290452e7d7528307b3e89503319497ed0eb2e0f234ee6ccd4a1718b255",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 1650
+    },
+    {
+      "index": 62,
+      "image": "2026-10-10 23:57:38-hero.jpg",
+      "image_sha256": "aa82ce8d912bac87f98f32db574086100fd87c18f544070490002f83cc0b8806",
+      "trace_id": "1791647856606-6709",
+      "cycle_id": "4aa2c148-4c71-4405-87fd-7076644aa786",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "K 红桃",
+          "9 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 139,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "0054bc290452e7d7528307b3e89503319497ed0eb2e0f234ee6ccd4a1718b255",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 63,
+      "image": "2026-10-10 23:58:52-hero.jpg",
+      "image_sha256": "6aae2d5ff1492cc2256b6102e8fd0e08e16c78729dcc7feee6ddfd9c63aa2e2d",
+      "trace_id": "1791647930686-7498",
+      "cycle_id": "aa2278c6-5188-4ccd-a881-34db01d9ce26",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "7 方块",
+          "A 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 62,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 133,
+        "hero_bet": 4
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "5b183bb5cde78692a75c7fa6f9462a04fa60e21829e003b72d0aabbd50aebb8e",
+        "position": "straddle-Hero",
+        "hero_bet": 4,
+        "max_bet": 35,
+        "to_call": 31,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 1947
+    },
+    {
+      "index": 64,
+      "image": "2026-10-10 23:58:54-hero.jpg",
+      "image_sha256": "fcb572d5c35c436ff8b92237f8366c2b1119982f9203b7337be6e8948e46c1e1",
+      "trace_id": "1791647932431-7516",
+      "cycle_id": "aa2278c6-5188-4ccd-a881-34db01d9ce26",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "7 方块",
+          "A 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 62,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 133,
+        "hero_bet": 4
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "5b183bb5cde78692a75c7fa6f9462a04fa60e21829e003b72d0aabbd50aebb8e",
+        "position": "straddle-Hero",
+        "hero_bet": 4,
+        "max_bet": 35,
+        "to_call": 31,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 65,
+      "image": "2026-10-10 23:59:19-hero.jpg",
+      "image_sha256": "4d82fd9f82b130ff8a6012ae9fdb503fd44f8bbb319a269c9e74a4f5c32ca69b",
+      "trace_id": "1791647957406-7785",
+      "cycle_id": "8b95a47f-d56e-4f6e-99b7-6c8210336a8a",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "8 红桃",
+          "5 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 29,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 7,
+        "hero_stack": 129,
+        "hero_bet": 2
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "79be2247870a41a7ee77558689696851e8b4547b31506ba7d03d535f38c28fd7",
+        "position": "BB-Hero",
+        "hero_bet": 2,
+        "max_bet": 4,
+        "to_call": 2,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 1930
+    },
+    {
+      "index": 66,
+      "image": "2026-10-10 23:59:21-hero.jpg",
+      "image_sha256": "8ebcb207576ba6f89dacd9836a881baa3685b1a258b43d519efecf4aab9f78de",
+      "trace_id": "1791647959130-7803",
+      "cycle_id": "8b95a47f-d56e-4f6e-99b7-6c8210336a8a",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "8 红桃",
+          "5 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 29,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 7,
+        "hero_stack": 129,
+        "hero_bet": 2
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "79be2247870a41a7ee77558689696851e8b4547b31506ba7d03d535f38c28fd7",
+        "position": "BB-Hero",
+        "hero_bet": 2,
+        "max_bet": 4,
+        "to_call": 2,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 67,
+      "image": "2026-10-10 23:59:53-hero.jpg",
+      "image_sha256": "57b2a3a5c8388a47d54e2fdc6b98df9d275eba5bbc0589558b9f160d7716ca55",
+      "trace_id": "1791647990515-8137",
+      "cycle_id": "5aa40257-80f2-46a6-a7bd-6dc7b0a184c7",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "3 红桃",
+          "2 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 31,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 126,
+        "hero_bet": 1
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "2540098860fd22df4cd43dbc9c6fcd0dbe324ab58f67eb4111f19ef3c0823360",
+        "position": "SB-Hero",
+        "hero_bet": 1,
+        "max_bet": 4,
+        "to_call": 3,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2529
+    },
+    {
+      "index": 68,
+      "image": "2026-10-10 23:59:55-hero.jpg",
+      "image_sha256": "d1abbb1600585b058cea90be2cfeb7fb89ac65bd892aceb92245fef11e5b15c4",
+      "trace_id": "1791647992818-8162",
+      "cycle_id": "5aa40257-80f2-46a6-a7bd-6dc7b0a184c7",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "3 红桃",
+          "2 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 31,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 126,
+        "hero_bet": 1
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "2540098860fd22df4cd43dbc9c6fcd0dbe324ab58f67eb4111f19ef3c0823360",
+        "position": "SB-Hero",
+        "hero_bet": 1,
+        "max_bet": 4,
+        "to_call": 3,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 69,
+      "image": "2026-10-11 00:00:44-hero.jpg",
+      "image_sha256": "ce02d876fdbe5f9de26d027ded2d3532a3c653bb2616bb29d9a9ea0dd7f266f8",
+      "trace_id": "1791648042302-8680",
+      "cycle_id": "733430c0-9aa4-4fd3-968b-4d982a1271c6",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "10 黑桃",
+          "3 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 27,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 124,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "7daf15edc2b8c2ec792a30addcf4178fb7c8893764ddd6e4e2715570ca019a67",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": 2380
+    },
+    {
+      "index": 70,
+      "image": "2026-10-11 00:00:46-hero.jpg",
+      "image_sha256": "824ef1eab2360dc107ec1dbd4799e081e81e16ac7495fd58466c256222821747",
+      "trace_id": "1791648044508-8703",
+      "cycle_id": "733430c0-9aa4-4fd3-968b-4d982a1271c6",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "10 黑桃",
+          "3 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 27,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 124,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "7daf15edc2b8c2ec792a30addcf4178fb7c8893764ddd6e4e2715570ca019a67",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 71,
+      "image": "2026-10-11 00:00:48-hero.jpg",
+      "image_sha256": "b9bb37f7be547dd36cb2019da0116f5268ae6834f4f3f656f831aa0e5185b3e8",
+      "trace_id": "1791648046403-8723",
+      "cycle_id": "733430c0-9aa4-4fd3-968b-4d982a1271c6",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "10 黑桃",
+          "3 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 27,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 124,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "7daf15edc2b8c2ec792a30addcf4178fb7c8893764ddd6e4e2715570ca019a67",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 72,
+      "image": "2026-10-11 00:00:50-hero.jpg",
+      "image_sha256": "b23bd0a6ed372ebef8c635a5b706b5d3202de27639fd15173a4ec881bc06508b",
+      "trace_id": "1791648048431-8744",
+      "cycle_id": "733430c0-9aa4-4fd3-968b-4d982a1271c6",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "10 黑桃",
+          "3 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 27,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 124,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "7daf15edc2b8c2ec792a30addcf4178fb7c8893764ddd6e4e2715570ca019a67",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 73,
+      "image": "2026-10-11 00:01:53-hero.jpg",
+      "image_sha256": "c8d68e66fe3d1390df4c23479b5b40fc659fd4302717a5d8e355d02fb0c8266d",
+      "trace_id": "1791648111891-9418",
+      "cycle_id": "ea1be1b8-187c-405c-8e00-4c8ecc75bc4f",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "5 黑桃",
+          "7 方块"
+        ],
+        "community_cards": [
+          "4 梅花",
+          "2 红桃",
+          "A 黑桃"
+        ],
+        "main_pot": 134,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 114,
+        "hero_bet": null
+      },
+      "decision_assessment": "solver_sensitive",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9dee7717833d24ac4a5f199ebd30b499cda5e6edbee981536af55b2e5c482a0c",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 54,
+        "to_call": 54,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.55
+      },
+      "first_display_ms": 2212
+    },
+    {
+      "index": 74,
+      "image": "2026-10-11 00:01:56-hero.jpg",
+      "image_sha256": "577eb7acf9b508deb516d192260df2aba7445a1479f6dca558690310b75e02cb",
+      "trace_id": "1791648113966-9440",
+      "cycle_id": "ea1be1b8-187c-405c-8e00-4c8ecc75bc4f",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "5 黑桃",
+          "7 方块"
+        ],
+        "community_cards": [
+          "4 梅花",
+          "2 红桃",
+          "A 黑桃"
+        ],
+        "main_pot": 134,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 114,
+        "hero_bet": null
+      },
+      "decision_assessment": "solver_sensitive",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9dee7717833d24ac4a5f199ebd30b499cda5e6edbee981536af55b2e5c482a0c",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 54,
+        "to_call": 54,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.55
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 75,
+      "image": "2026-10-11 00:01:58-hero.jpg",
+      "image_sha256": "eca2d4cd18d5c5b6cb8aeb7fb4c3eeba22c6047095fa9a7cead678a376c64611",
+      "trace_id": "1791648115908-9460",
+      "cycle_id": "ea1be1b8-187c-405c-8e00-4c8ecc75bc4f",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "5 黑桃",
+          "7 方块"
+        ],
+        "community_cards": [
+          "4 梅花",
+          "2 红桃",
+          "A 黑桃"
+        ],
+        "main_pot": 134,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 114,
+        "hero_bet": null
+      },
+      "decision_assessment": "solver_sensitive",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9dee7717833d24ac4a5f199ebd30b499cda5e6edbee981536af55b2e5c482a0c",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 54,
+        "to_call": 54,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.55
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 76,
+      "image": "2026-10-11 00:02:00-hero.jpg",
+      "image_sha256": "2d28a483d411dcfa4fb1ffdca419d4912ceef598a09a79dd9e75fd85c26030af",
+      "trace_id": "1791648117882-9481",
+      "cycle_id": "ea1be1b8-187c-405c-8e00-4c8ecc75bc4f",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "5 黑桃",
+          "7 方块"
+        ],
+        "community_cards": [
+          "4 梅花",
+          "2 红桃",
+          "A 黑桃"
+        ],
+        "main_pot": 134,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 114,
+        "hero_bet": null
+      },
+      "decision_assessment": "solver_sensitive",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9dee7717833d24ac4a5f199ebd30b499cda5e6edbee981536af55b2e5c482a0c",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 54,
+        "to_call": 54,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.55
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 77,
+      "image": "2026-10-11 00:02:13-hero.jpg",
+      "image_sha256": "7e6756d3406ce6a71b0d6e27e6bf86c4f33a006237f18f943a28fa8966b58d05",
+      "trace_id": "1791648130665-9621",
+      "cycle_id": "e84b1ae9-40f0-4499-8a41-f90a9f98983e",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "2 红桃",
+          "7 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 54,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 112,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "69583f7c959b6e0ed2d479566f98e1ffe208940ef35d2476b74d5eb6782e4a54",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 31,
+        "to_call": 31,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2479
+    },
+    {
+      "index": 78,
+      "image": "2026-10-11 00:02:15-hero.jpg",
+      "image_sha256": "0c2e34267e7b8528c6b4e3a298694a0892b9c15d8695bf34e02debd0687f2471",
+      "trace_id": "1791648133057-9646",
+      "cycle_id": "e84b1ae9-40f0-4499-8a41-f90a9f98983e",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "2 红桃",
+          "7 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 54,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 112,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "69583f7c959b6e0ed2d479566f98e1ffe208940ef35d2476b74d5eb6782e4a54",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 31,
+        "to_call": 31,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 79,
+      "image": "2026-10-11 00:03:07-hero.jpg",
+      "image_sha256": "8ad13bfb6f374f8b8db211beb8d1c9de348bc24979fab697a7411984f524836e",
+      "trace_id": "1791648185086-10211",
+      "cycle_id": "089e1d19-730b-40d3-8ac7-a387a4cff6a1",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "9 黑桃",
+          "K 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 4,
+        "hero_stack": 110,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "ed65259a2c8a2496b2f6b3a4d7657c61f1b15639879c8511a39d133ac5d89f2e",
+        "position": "UTG+1-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2628
+    },
+    {
+      "index": 80,
+      "image": "2026-10-11 00:03:10-hero.jpg",
+      "image_sha256": "9549430f28bd9a41152bcf9b4b3b949379399e460570b7ece87439d1eba93b01",
+      "trace_id": "1791648187659-10238",
+      "cycle_id": "089e1d19-730b-40d3-8ac7-a387a4cff6a1",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "9 黑桃",
+          "K 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 4,
+        "hero_stack": 110,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "ed65259a2c8a2496b2f6b3a4d7657c61f1b15639879c8511a39d133ac5d89f2e",
+        "position": "UTG+1-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 81,
+      "image": "2026-10-11 00:03:45-hero.jpg",
+      "image_sha256": "8f3e51ba10cf19f7bef785480ae9ca00597f20b7fa9dea9df51e45e7b67fe859",
+      "trace_id": "1791648223464-10626",
+      "cycle_id": "56ff2f67-f630-4b30-80ec-1ac3226e19c0",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "4 梅花",
+          "8 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 108,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "e48027e68690dc54a84a61f1d23d3ee4cf0756f55fdfae3249e378c31de16c98",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2245
+    },
+    {
+      "index": 82,
+      "image": "2026-10-11 00:03:47-hero.jpg",
+      "image_sha256": "69843d7f0a2065835bce8bcc2bcaf4dca35a0f4c2403d23f28f4625f0c9c6b2a",
+      "trace_id": "1791648225570-10648",
+      "cycle_id": "56ff2f67-f630-4b30-80ec-1ac3226e19c0",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "4 梅花",
+          "8 梅花"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 108,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "e48027e68690dc54a84a61f1d23d3ee4cf0756f55fdfae3249e378c31de16c98",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 83,
+      "image": "2026-10-11 00:04:41-hero.jpg",
+      "image_sha256": "cc218477813c012d6bc7d19487061d226c5f548ae34a994371f3f745e79d8e41",
+      "trace_id": "1791648278702-11215",
+      "cycle_id": "cb3db32c-5b45-4f2e-8d1e-a53f8fd32ccd",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 红桃",
+          "6 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 24,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 104,
+        "hero_bet": 2
+      },
+      "decision_assessment": "response_rejected_illegal_check",
+      "response_accepted": false,
+      "decision": {
+        "state_sha256": "be3c5f3f26bdf382f4169fce693e136d9f9a78dc797643dea89cce0a07b479a3",
+        "position": "straddle-Hero",
+        "hero_bet": 2,
+        "max_bet": 4,
+        "to_call": 2,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 84,
+      "image": "2026-10-11 00:04:43-hero.jpg",
+      "image_sha256": "33d58e928c4b3dacb09880804f07dabb468bf443c22736f2bb1e23fe17238785",
+      "trace_id": "1791648281426-11244",
+      "cycle_id": "cb3db32c-5b45-4f2e-8d1e-a53f8fd32ccd",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 红桃",
+          "6 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 24,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 104,
+        "hero_bet": 2
+      },
+      "decision_assessment": "response_rejected_illegal_check",
+      "response_accepted": false,
+      "decision": {
+        "state_sha256": "be3c5f3f26bdf382f4169fce693e136d9f9a78dc797643dea89cce0a07b479a3",
+        "position": "straddle-Hero",
+        "hero_bet": 2,
+        "max_bet": 4,
+        "to_call": 2,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 85,
+      "image": "2026-10-11 00:04:46-hero.jpg",
+      "image_sha256": "218707bd5602e54b327b4c11e9202ac24292211b0a61fa6b1a6ad0e6eb6ef721",
+      "trace_id": "1791648283550-11266",
+      "cycle_id": "cb3db32c-5b45-4f2e-8d1e-a53f8fd32ccd",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 红桃",
+          "6 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 24,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 104,
+        "hero_bet": 2
+      },
+      "decision_assessment": "response_rejected_illegal_check",
+      "response_accepted": false,
+      "decision": {
+        "state_sha256": "be3c5f3f26bdf382f4169fce693e136d9f9a78dc797643dea89cce0a07b479a3",
+        "position": "straddle-Hero",
+        "hero_bet": 2,
+        "max_bet": 4,
+        "to_call": 2,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 86,
+      "image": "2026-10-11 00:04:48-hero.jpg",
+      "image_sha256": "0ad674d5d81699382d45abbaec4c303c244a0ea9198ab69583be41d07a215e17",
+      "trace_id": "1791648285906-11291",
+      "cycle_id": "cb3db32c-5b45-4f2e-8d1e-a53f8fd32ccd",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 红桃",
+          "6 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 24,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 104,
+        "hero_bet": 2
+      },
+      "decision_assessment": "response_rejected_illegal_check",
+      "response_accepted": false,
+      "decision": {
+        "state_sha256": "be3c5f3f26bdf382f4169fce693e136d9f9a78dc797643dea89cce0a07b479a3",
+        "position": "straddle-Hero",
+        "hero_bet": 2,
+        "max_bet": 4,
+        "to_call": 2,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 87,
+      "image": "2026-10-11 00:04:54-hero.jpg",
+      "image_sha256": "6410b42c2af7bfa29c1f64e552cd5e32853c3f74c9bbe181d1f2bdbf856337f3",
+      "trace_id": "1791648291785-11351",
+      "cycle_id": "33b1e16d-3cd3-4f81-ad84-a0c48b3848dc",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 红桃",
+          "6 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 78,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 102,
+        "hero_bet": 4
+      },
+      "decision_assessment": "excluded_recognition_error",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "8760f3a0c275e1715f292f4dc519a95d5bb523fed4b4b386904bf7f2ebda1cbf",
+        "position": "straddle-Hero",
+        "hero_bet": 4,
+        "max_bet": 30,
+        "to_call": 26,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2628
+    },
+    {
+      "index": 88,
+      "image": "2026-10-11 00:04:57-hero.jpg",
+      "image_sha256": "e093c71f975dcffa6bb0b4f23a54e1814fcdbe2ba37919ce3618ce84f3ad358f",
+      "trace_id": "1791648294274-11377",
+      "cycle_id": "33b1e16d-3cd3-4f81-ad84-a0c48b3848dc",
+      "recognition_assessment": "empty_seat_misclassified_active",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 红桃",
+          "6 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 78,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 102,
+        "hero_bet": 4
+      },
+      "decision_assessment": "excluded_recognition_error",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "8760f3a0c275e1715f292f4dc519a95d5bb523fed4b4b386904bf7f2ebda1cbf",
+        "position": "straddle-Hero",
+        "hero_bet": 4,
+        "max_bet": 30,
+        "to_call": 26,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 89,
+      "image": "2026-10-11 00:05:29-hero.jpg",
+      "image_sha256": "e67843e86d27612ebdce0390a87d7d586edb6a10eba6050709204f874c5a5cac",
+      "trace_id": "1791648327588-11727",
+      "cycle_id": "c8cca629-86b1-43ac-90e0-b0c36a09d7e8",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "3 方块",
+          "5 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 25,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 99,
+        "hero_bet": 1
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "8b755fcf0a250685d51dda97c73794bd56f8ada3e263c17f9b084746aefd512b",
+        "position": "SB-Hero",
+        "hero_bet": 1,
+        "max_bet": 4,
+        "to_call": 3,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2376
+    },
+    {
+      "index": 90,
+      "image": "2026-10-11 00:05:32-hero.jpg",
+      "image_sha256": "152fc8d230238082a50e5e57ce92874f8c7e37a3012b90c35f9d43e31f8eea4d",
+      "trace_id": "1791648329873-11751",
+      "cycle_id": "c8cca629-86b1-43ac-90e0-b0c36a09d7e8",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "3 方块",
+          "5 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 25,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 99,
+        "hero_bet": 1
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "8b755fcf0a250685d51dda97c73794bd56f8ada3e263c17f9b084746aefd512b",
+        "position": "SB-Hero",
+        "hero_bet": 1,
+        "max_bet": 4,
+        "to_call": 3,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 91,
+      "image": "2026-10-11 00:06:28-hero.jpg",
+      "image_sha256": "db7438b6c3c94c7dc05e6128c3a0b31bc628a1544c23baf1db0c98946e8ae679",
+      "trace_id": "1791648386262-12352",
+      "cycle_id": "0c715f37-8044-4a4c-8adb-f0e72fe40599",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "6 黑桃",
+          "10 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 25,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 97,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "7f2a0f7e360a61add52c9c59e06f35066c412a220d96ba132dcc73f8d008a2e4",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": 1766
+    },
+    {
+      "index": 92,
+      "image": "2026-10-11 00:06:29-hero.jpg",
+      "image_sha256": "8d44bba81dd7a8970e7169e01c370c754473defed72575d9c195e4ed9d4fa228",
+      "trace_id": "1791648387888-12369",
+      "cycle_id": "0c715f37-8044-4a4c-8adb-f0e72fe40599",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "6 黑桃",
+          "10 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 25,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 97,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "7f2a0f7e360a61add52c9c59e06f35066c412a220d96ba132dcc73f8d008a2e4",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 93,
+      "image": "2026-10-11 00:06:31-hero.jpg",
+      "image_sha256": "1dcd6f8f31f60b534253ed8af31f3b2873523d643f775e261b4b87e388a100f4",
+      "trace_id": "1791648389747-12388",
+      "cycle_id": "0c715f37-8044-4a4c-8adb-f0e72fe40599",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "6 黑桃",
+          "10 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 25,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 97,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "7f2a0f7e360a61add52c9c59e06f35066c412a220d96ba132dcc73f8d008a2e4",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 94,
+      "image": "2026-10-11 00:07:07-hero.jpg",
+      "image_sha256": "d29c223e2039cdb7b9e8382d5b3a5c198e43f7266d37214cdfee0753a8017876",
+      "trace_id": "1791648425677-12723",
+      "cycle_id": "65ebc1f3-dfc4-4510-9e6e-a8cb989eb2c3",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "8 红桃",
+          "2 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 95,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "f4872367a605c755b4cc5afef8ed628efbda68d6a829e8d479eee6e903fc6827",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 1773
+    },
+    {
+      "index": 95,
+      "image": "2026-10-11 00:07:09-hero.jpg",
+      "image_sha256": "26da3b35cf61643cea4e0623fea06a2a6f0770ee8513c3d92395d33c59da5134",
+      "trace_id": "1791648427312-12743",
+      "cycle_id": "65ebc1f3-dfc4-4510-9e6e-a8cb989eb2c3",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "8 红桃",
+          "2 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 95,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "f4872367a605c755b4cc5afef8ed628efbda68d6a829e8d479eee6e903fc6827",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 96,
+      "image": "2026-10-11 00:07:11-hero.jpg",
+      "image_sha256": "c39da6752667ec5ea32935d70aed1eedb535be314f11840068419047fc7bb119",
+      "trace_id": "1791648429109-12764",
+      "cycle_id": "65ebc1f3-dfc4-4510-9e6e-a8cb989eb2c3",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "8 红桃",
+          "2 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 95,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "f4872367a605c755b4cc5afef8ed628efbda68d6a829e8d479eee6e903fc6827",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 97,
+      "image": "2026-10-11 00:07:12-hero.jpg",
+      "image_sha256": "a031f1a3a3356ca57ea34f5b6a1e0dd958209241aa1193425fcbf7c006e105db",
+      "trace_id": "1791648431019-12787",
+      "cycle_id": "65ebc1f3-dfc4-4510-9e6e-a8cb989eb2c3",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "8 红桃",
+          "2 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 95,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "f4872367a605c755b4cc5afef8ed628efbda68d6a829e8d479eee6e903fc6827",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 98,
+      "image": "2026-10-11 00:07:14-hero.jpg",
+      "image_sha256": "72759cd242799f28948ce2867a0dc3fa4a97c8167b7a7caf037d203e53d17cd1",
+      "trace_id": "1791648432775-12808",
+      "cycle_id": "65ebc1f3-dfc4-4510-9e6e-a8cb989eb2c3",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "8 红桃",
+          "2 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 95,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "f4872367a605c755b4cc5afef8ed628efbda68d6a829e8d479eee6e903fc6827",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 99,
+      "image": "2026-10-11 00:07:16-hero.jpg",
+      "image_sha256": "4d931b09af738481afab693c969e4a4b123a8146105cd46ebff16b0ad41a504b",
+      "trace_id": "1791648434607-12830",
+      "cycle_id": "65ebc1f3-dfc4-4510-9e6e-a8cb989eb2c3",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "8 红桃",
+          "2 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 95,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "f4872367a605c755b4cc5afef8ed628efbda68d6a829e8d479eee6e903fc6827",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 100,
+      "image": "2026-10-11 00:07:18-hero.jpg",
+      "image_sha256": "b2c0c8015d2248569fe62dfe5a1c3ba8dbfdb97c29ba36ca90cad16488b6382a",
+      "trace_id": "1791648436295-12845",
+      "cycle_id": "65ebc1f3-dfc4-4510-9e6e-a8cb989eb2c3",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "8 红桃",
+          "2 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 95,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "f4872367a605c755b4cc5afef8ed628efbda68d6a829e8d479eee6e903fc6827",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 101,
+      "image": "2026-10-11 00:07:20-hero.jpg",
+      "image_sha256": "65b0b27a59947e8048aa9fc9dd9f8135e717415418d2e4122bdca5be90259375",
+      "trace_id": "1791648438240-12868",
+      "cycle_id": "65ebc1f3-dfc4-4510-9e6e-a8cb989eb2c3",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "8 红桃",
+          "2 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 95,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "f4872367a605c755b4cc5afef8ed628efbda68d6a829e8d479eee6e903fc6827",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 102,
+      "image": "2026-10-11 00:07:59-hero.jpg",
+      "image_sha256": "e48811b881e442a80a12a8748f8c81abb4d693272e321194ba09e3c05bf3ed11",
+      "trace_id": "1791648477251-13319",
+      "cycle_id": "0802f86d-7e26-4493-a617-873b858100f5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "2 方块",
+          "K 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 93,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "5b64d8122e64a40dd51baa037b5dbd7b63e3ff3d6b7b18a8147effb2c48aba84",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2299
+    },
+    {
+      "index": 103,
+      "image": "2026-10-11 00:08:01-hero.jpg",
+      "image_sha256": "73852935387bdc95b768bb39cdef3b4867874de382a91d398d3724f3210c16f5",
+      "trace_id": "1791648479347-13342",
+      "cycle_id": "0802f86d-7e26-4493-a617-873b858100f5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "2 方块",
+          "K 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 23,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 3,
+        "hero_stack": 93,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "5b64d8122e64a40dd51baa037b5dbd7b63e3ff3d6b7b18a8147effb2c48aba84",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 104,
+      "image": "2026-10-11 00:08:46-hero.jpg",
+      "image_sha256": "c347617e04a8dcc84318a8904cafadac00a05a61df7ef2d13de1360efc7e53d6",
+      "trace_id": "1791648524348-13850",
+      "cycle_id": "3a56b654-a473-4ac9-ba00-f0f772ffad7b",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "Q 红桃",
+          "K 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 21,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 4,
+        "hero_stack": 91,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "f9fb2431902a0099d14b60b314eb19e5d5c5693eba7579f90d39e4c5ca3d4b3a",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": 1815
+    },
+    {
+      "index": 105,
+      "image": "2026-10-11 00:08:47-hero.jpg",
+      "image_sha256": "2a679dbf134fa7c2295b04b60ab99e8fc180ee2fb576bf9d87587de01d19af33",
+      "trace_id": "1791648526073-13869",
+      "cycle_id": "3a56b654-a473-4ac9-ba00-f0f772ffad7b",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "Q 红桃",
+          "K 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 21,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 4,
+        "hero_stack": 91,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "f9fb2431902a0099d14b60b314eb19e5d5c5693eba7579f90d39e4c5ca3d4b3a",
+        "position": "MP-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 106,
+      "image": "2026-10-11 00:09:08-hero.jpg",
+      "image_sha256": "151c39116220fa3b385992530dd4f5856de3a44018b31087a78d1c308e7fde0d",
+      "trace_id": "1791648547144-14095",
+      "cycle_id": "e412c9be-aaf9-450d-9f56-d971cfef2363",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "Q 红桃",
+          "K 黑桃"
+        ],
+        "community_cards": [
+          "Q 方块",
+          "3 红桃",
+          "K 梅花"
+        ],
+        "main_pot": 67,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 4,
+        "hero_stack": 74,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "a5c1ceb427867ec6b96a13b4c77911f4ad1ba5a81f8f85397c5b73381e1af604",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.935
+      },
+      "first_display_ms": 1415
+    },
+    {
+      "index": 107,
+      "image": "2026-10-11 00:09:09-hero.jpg",
+      "image_sha256": "757c774406d1592c6e7f7730ebca2a5137abffceaa70aab9a9c86452e0156126",
+      "trace_id": "1791648548328-14108",
+      "cycle_id": "e412c9be-aaf9-450d-9f56-d971cfef2363",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "Q 红桃",
+          "K 黑桃"
+        ],
+        "community_cards": [
+          "Q 方块",
+          "3 红桃",
+          "K 梅花"
+        ],
+        "main_pot": 67,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 4,
+        "hero_stack": 74,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "a5c1ceb427867ec6b96a13b4c77911f4ad1ba5a81f8f85397c5b73381e1af604",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.935
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 108,
+      "image": "2026-10-11 00:09:11-hero.jpg",
+      "image_sha256": "2d334996c51bc2abbf95788a6e81db46832277f3656a20a5c74037fd375f1bdc",
+      "trace_id": "1791648549619-14122",
+      "cycle_id": "e412c9be-aaf9-450d-9f56-d971cfef2363",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "Q 红桃",
+          "K 黑桃"
+        ],
+        "community_cards": [
+          "Q 方块",
+          "3 红桃",
+          "K 梅花"
+        ],
+        "main_pot": 67,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 4,
+        "hero_stack": 74,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "a5c1ceb427867ec6b96a13b4c77911f4ad1ba5a81f8f85397c5b73381e1af604",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.935
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 109,
+      "image": "2026-10-11 00:09:20-hero.jpg",
+      "image_sha256": "3742566871780dd7055d6e5102c57f8c1ee4035a766c02204b69195d206744a1",
+      "trace_id": "1791648559231-14229",
+      "cycle_id": "7b021732-68c0-4681-baaf-093e5e352228",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 红桃",
+          "9 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 19,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 135,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "d5266ce8dd778b04980403232a818c556f2054a0f6ce133270804918457125b4",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 0.5
+      },
+      "first_display_ms": 1494
+    },
+    {
+      "index": 110,
+      "image": "2026-10-11 00:09:22-hero.jpg",
+      "image_sha256": "98081733074bf95cf0c9892f44d92fbb15d29a18fc8191a13142047825940836",
+      "trace_id": "1791648560669-14245",
+      "cycle_id": "7b021732-68c0-4681-baaf-093e5e352228",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 红桃",
+          "9 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 19,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 135,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "d5266ce8dd778b04980403232a818c556f2054a0f6ce133270804918457125b4",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 0.5
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 111,
+      "image": "2026-10-11 00:09:38-hero.jpg",
+      "image_sha256": "96a3a8dc226a0ddce898391dfe6c4af9fd35ae32671b7b1fbad1d91a22ec232b",
+      "trace_id": "1791648576723-14419",
+      "cycle_id": "dbf705cd-debb-4855-98f2-6b1d2274d919",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 红桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "Q 梅花",
+          "3 黑桃",
+          "6 红桃"
+        ],
+        "main_pot": 27,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 131,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "382e36469831814c0f436aee85950a638eb06e1e4c387a3672a3ddf7ae76e70d",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.97
+      },
+      "first_display_ms": 1335
+    },
+    {
+      "index": 112,
+      "image": "2026-10-11 00:09:39-hero.jpg",
+      "image_sha256": "dbc2db81f0d587ca2365ca2dfba82843dfe68f20f1ffeff3c090150341f09df1",
+      "trace_id": "1791648577917-14432",
+      "cycle_id": "dbf705cd-debb-4855-98f2-6b1d2274d919",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 红桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "Q 梅花",
+          "3 黑桃",
+          "6 红桃"
+        ],
+        "main_pot": 27,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 131,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "382e36469831814c0f436aee85950a638eb06e1e4c387a3672a3ddf7ae76e70d",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.97
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 113,
+      "image": "2026-10-11 00:09:44-hero.jpg",
+      "image_sha256": "9ca513026de904ee2c944e73fffe00561d781a9666928397ce5f9c1f1949c8ca",
+      "trace_id": "1791648582999-14487",
+      "cycle_id": "f32dac52-e212-4d9a-baf6-67ff77140454",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "A 红桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "Q 梅花",
+          "3 黑桃",
+          "6 红桃",
+          "3 红桃"
+        ],
+        "main_pot": 41,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 131,
+        "hero_bet": null
+      },
+      "decision_assessment": "solver_sensitive",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "3c9a595331b9a375f82b0c5ec6500b182211e38c0d4e000110c1b5cd6552d068",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 14,
+        "to_call": 14,
+        "action": "raise",
+        "raise_size": 42,
+        "probability": 0.45
+      },
+      "first_display_ms": 1317
+    },
+    {
+      "index": 114,
+      "image": "2026-10-11 00:09:45-hero.jpg",
+      "image_sha256": "bedbdb6b936e96009b25270df5d763d106b53556f31d63ca20e46fb94f663d9c",
+      "trace_id": "1791648584160-14500",
+      "cycle_id": "f32dac52-e212-4d9a-baf6-67ff77140454",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "A 红桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "Q 梅花",
+          "3 黑桃",
+          "6 红桃",
+          "3 红桃"
+        ],
+        "main_pot": 41,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 131,
+        "hero_bet": null
+      },
+      "decision_assessment": "solver_sensitive",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "3c9a595331b9a375f82b0c5ec6500b182211e38c0d4e000110c1b5cd6552d068",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 14,
+        "to_call": 14,
+        "action": "raise",
+        "raise_size": 42,
+        "probability": 0.45
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 115,
+      "image": "2026-10-11 00:09:51-hero.jpg",
+      "image_sha256": "2cacb54a97373d072ca4f3815761dfcab569eb17d2d596a19bf24d34ca428bc2",
+      "trace_id": "1791648590604-14571",
+      "cycle_id": "72ddfaf3-5c06-46c4-a649-b91bdc91d204",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "river",
+        "hero_cards": [
+          "A 红桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "Q 梅花",
+          "3 黑桃",
+          "6 红桃",
+          "3 红桃",
+          "J 黑桃"
+        ],
+        "main_pot": 55,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 117,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "b7522f73e65bcf4f9a3160a1624fe580fbe2dc10ea443cefac6abe92d7f6884a",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "bet",
+        "raise_size": 71,
+        "probability": 0.61
+      },
+      "first_display_ms": 1402
+    },
+    {
+      "index": 116,
+      "image": "2026-10-11 00:09:53-hero.jpg",
+      "image_sha256": "c660a6f34fe17175dfa629f5cb8dce07064ccf6262183fd9daa6e9a2d278cc5a",
+      "trace_id": "1791648591800-14584",
+      "cycle_id": "72ddfaf3-5c06-46c4-a649-b91bdc91d204",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "river",
+        "hero_cards": [
+          "A 红桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "Q 梅花",
+          "3 黑桃",
+          "6 红桃",
+          "3 红桃",
+          "J 黑桃"
+        ],
+        "main_pot": 55,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 117,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "b7522f73e65bcf4f9a3160a1624fe580fbe2dc10ea443cefac6abe92d7f6884a",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "bet",
+        "raise_size": 71,
+        "probability": 0.61
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 117,
+      "image": "2026-10-11 00:09:54-hero.jpg",
+      "image_sha256": "52b08ad2ea3489a2a5f207d2094e02cc3743fbd07b44bb87503a3859adcda216",
+      "trace_id": "1791648593161-14599",
+      "cycle_id": "72ddfaf3-5c06-46c4-a649-b91bdc91d204",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "river",
+        "hero_cards": [
+          "A 红桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "Q 梅花",
+          "3 黑桃",
+          "6 红桃",
+          "3 红桃",
+          "J 黑桃"
+        ],
+        "main_pot": 55,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 117,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "b7522f73e65bcf4f9a3160a1624fe580fbe2dc10ea443cefac6abe92d7f6884a",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "bet",
+        "raise_size": 71,
+        "probability": 0.61
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 118,
+      "image": "2026-10-11 00:10:12-hero.jpg",
+      "image_sha256": "5992cb123a4310344b47ad79559beadf61be158fcd49380be57cd0716e82184b",
+      "trace_id": "1791648610424-14790",
+      "cycle_id": "3577843d-21ff-418f-aeaf-b0b59a0ebf28",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "10 方块",
+          "4 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 36,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 165,
+        "hero_bet": 4
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "ff2afa4d6c177c32a6b00ffdc2c6a2de28e9a8f30c0c99ae51568f90cb8a5e72",
+        "position": "straddle-Hero",
+        "hero_bet": 4,
+        "max_bet": 4,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 1933
+    },
+    {
+      "index": 119,
+      "image": "2026-10-11 00:10:14-hero.jpg",
+      "image_sha256": "b25122fe47c33873ed7790e5ba4159587ee6d73581047627c7f1260255569298",
+      "trace_id": "1791648612169-14809",
+      "cycle_id": "3577843d-21ff-418f-aeaf-b0b59a0ebf28",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "10 方块",
+          "4 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 36,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 165,
+        "hero_bet": 4
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "ff2afa4d6c177c32a6b00ffdc2c6a2de28e9a8f30c0c99ae51568f90cb8a5e72",
+        "position": "straddle-Hero",
+        "hero_bet": 4,
+        "max_bet": 4,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 120,
+      "image": "2026-10-11 00:10:18-hero.jpg",
+      "image_sha256": "d65524b1b6cd88d5ab6ef65ffdb6dd96c2d8bff93760eef22c965fdb2a20e6d4",
+      "trace_id": "1791648616980-14862",
+      "cycle_id": "ec03fa0a-eee8-4768-88cb-19b5f0a6c750",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "10 方块",
+          "4 黑桃"
+        ],
+        "community_cards": [
+          "7 方块",
+          "9 梅花",
+          "4 梅花"
+        ],
+        "main_pot": 36,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 165,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "a8bb4b9a8b37b2e0550141f9525a38c974841fe3047fc7b166d4d84155811d8a",
+        "position": "straddle-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.985
+      },
+      "first_display_ms": 1749
+    },
+    {
+      "index": 121,
+      "image": "2026-10-11 00:10:20-hero.jpg",
+      "image_sha256": "db474df43c86fbfd081311c095f319c3fa5e06bbc168a52ed5f45262d6b11705",
+      "trace_id": "1791648618627-14880",
+      "cycle_id": "ec03fa0a-eee8-4768-88cb-19b5f0a6c750",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "10 方块",
+          "4 黑桃"
+        ],
+        "community_cards": [
+          "7 方块",
+          "9 梅花",
+          "4 梅花"
+        ],
+        "main_pot": 36,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 165,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "a8bb4b9a8b37b2e0550141f9525a38c974841fe3047fc7b166d4d84155811d8a",
+        "position": "straddle-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.985
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 122,
+      "image": "2026-10-11 00:10:28-hero.jpg",
+      "image_sha256": "24b206dd9a3ba5ccef6bc21a7206f94b84deb08b4181afc5de3e001df67949d0",
+      "trace_id": "1791648626674-14968",
+      "cycle_id": "cf2ac0d0-3873-49f4-9cd6-2b4a18e9e4e1",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "10 方块",
+          "4 黑桃"
+        ],
+        "community_cards": [
+          "7 方块",
+          "9 梅花",
+          "4 梅花"
+        ],
+        "main_pot": 90,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 165,
+        "hero_bet": null
+      },
+      "decision_assessment": "solver_sensitive",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "c8ee6172979547b07053c2f4f8f92538f5154fb4578ab2918a629743aa39b504",
+        "position": "straddle-Hero",
+        "hero_bet": 0,
+        "max_bet": 18,
+        "to_call": 18,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.678
+      },
+      "first_display_ms": 2496
+    },
+    {
+      "index": 123,
+      "image": "2026-10-11 00:10:31-hero.jpg",
+      "image_sha256": "d0543f8c386a761f13ccbfbe2a6a2a9b72a8ea24d9ad8d4fd840d004c7c4a012",
+      "trace_id": "1791648629019-14994",
+      "cycle_id": "cf2ac0d0-3873-49f4-9cd6-2b4a18e9e4e1",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "10 方块",
+          "4 黑桃"
+        ],
+        "community_cards": [
+          "7 方块",
+          "9 梅花",
+          "4 梅花"
+        ],
+        "main_pot": 90,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 165,
+        "hero_bet": null
+      },
+      "decision_assessment": "solver_sensitive",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "c8ee6172979547b07053c2f4f8f92538f5154fb4578ab2918a629743aa39b504",
+        "position": "straddle-Hero",
+        "hero_bet": 0,
+        "max_bet": 18,
+        "to_call": 18,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.678
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 124,
+      "image": "2026-10-11 00:10:32-hero.jpg",
+      "image_sha256": "5a591777bb82dd38eb6534f71cdfbbabf9d09248b96fee87f026b8072d8e066f",
+      "trace_id": "1791648630909-15015",
+      "cycle_id": "cf2ac0d0-3873-49f4-9cd6-2b4a18e9e4e1",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "10 方块",
+          "4 黑桃"
+        ],
+        "community_cards": [
+          "7 方块",
+          "9 梅花",
+          "4 梅花"
+        ],
+        "main_pot": 90,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 6,
+        "hero_stack": 165,
+        "hero_bet": null
+      },
+      "decision_assessment": "solver_sensitive",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "c8ee6172979547b07053c2f4f8f92538f5154fb4578ab2918a629743aa39b504",
+        "position": "straddle-Hero",
+        "hero_bet": 0,
+        "max_bet": 18,
+        "to_call": 18,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.678
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 125,
+      "image": "2026-10-11 00:11:22-hero.jpg",
+      "image_sha256": "4073b0321765e355ed6b4af0595d332526a1303e3926415f81a931a4f18d9d6c",
+      "trace_id": "1791648680430-15569",
+      "cycle_id": "e7424ec1-2639-49c4-a0b7-8c6cf1a430d5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "Q 方块",
+          "4 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 25,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 7,
+        "hero_stack": 161,
+        "hero_bet": 2
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "eaaafd54cc551b9c0205fb6c1f1a28ee8a75b9930296acdbb887f3b74af503b0",
+        "position": "BB-Hero",
+        "hero_bet": 2,
+        "max_bet": 4,
+        "to_call": 2,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2693
+    },
+    {
+      "index": 126,
+      "image": "2026-10-11 00:11:25-hero.jpg",
+      "image_sha256": "29f56421620c4f707c63e16db06fed3284b03aed99b616bc9d548eed862b6357",
+      "trace_id": "1791648682904-15597",
+      "cycle_id": "e7424ec1-2639-49c4-a0b7-8c6cf1a430d5",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "Q 方块",
+          "4 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 25,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 7,
+        "hero_stack": 161,
+        "hero_bet": 2
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "eaaafd54cc551b9c0205fb6c1f1a28ee8a75b9930296acdbb887f3b74af503b0",
+        "position": "BB-Hero",
+        "hero_bet": 2,
+        "max_bet": 4,
+        "to_call": 2,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 127,
+      "image": "2026-10-11 00:11:59-hero.jpg",
+      "image_sha256": "ed2059afc2d3034bf9c003c24db9616105d2f1138d92378f4bf0bef017161b14",
+      "trace_id": "1791648716305-15971",
+      "cycle_id": "62f79861-711e-4ace-9263-f38887fc38c7",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 25,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 158,
+        "hero_bet": 1
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "b34cb2eb7bd12e9d1cabf01fd70d36420e9361805d836fbe2bae292a1cef5f7e",
+        "position": "SB-Hero",
+        "hero_bet": 1,
+        "max_bet": 4,
+        "to_call": 3,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 3061
+    },
+    {
+      "index": 128,
+      "image": "2026-10-11 00:12:05-hero.jpg",
+      "image_sha256": "3125e1f5eb85b83bf527557c942802fd04ec7cf664dd1702f695a42cf56c150e",
+      "trace_id": "1791648723808-16051",
+      "cycle_id": "da9db511-841a-4beb-9d46-1834b4d53d2f",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 34,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 155,
+        "hero_bet": 4
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9289fa54e1165deee2460998afd1185926dd9af7b5e3ce9410202fa372ec274d",
+        "position": "SB-Hero",
+        "hero_bet": 4,
+        "max_bet": 6,
+        "to_call": 2,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 2212
+    },
+    {
+      "index": 129,
+      "image": "2026-10-11 00:12:07-hero.jpg",
+      "image_sha256": "f15d451d1538507136478ba04c41583ea3a968db85e9c5bcbd6111b9e650f693",
+      "trace_id": "1791648725851-16074",
+      "cycle_id": "da9db511-841a-4beb-9d46-1834b4d53d2f",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [],
+        "main_pot": 34,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 155,
+        "hero_bet": 4
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9289fa54e1165deee2460998afd1185926dd9af7b5e3ce9410202fa372ec274d",
+        "position": "SB-Hero",
+        "hero_bet": 4,
+        "max_bet": 6,
+        "to_call": 2,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 130,
+      "image": "2026-10-11 00:12:13-hero.jpg",
+      "image_sha256": "7aad278b05affb91cd6bfc4363f380a4ddb71481e352b0980faf9ab7ee549ef4",
+      "trace_id": "1791648731327-16135",
+      "cycle_id": "527c3472-8a6f-4fb8-868f-6fe5c6c69775",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "2 方块",
+          "J 红桃",
+          "A 方块"
+        ],
+        "main_pot": 38,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 153,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "81f565e0971ab6843b087757e912f543369b2b31727cfdb41db2d3f361eeb4a0",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.995
+      },
+      "first_display_ms": 1882
+    },
+    {
+      "index": 131,
+      "image": "2026-10-11 00:12:14-hero.jpg",
+      "image_sha256": "1826586005df5a82c31c32e49f49f5feaed27722f93ccb55ffd69d0772b08780",
+      "trace_id": "1791648733120-16155",
+      "cycle_id": "527c3472-8a6f-4fb8-868f-6fe5c6c69775",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "2 方块",
+          "J 红桃",
+          "A 方块"
+        ],
+        "main_pot": 38,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 153,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "81f565e0971ab6843b087757e912f543369b2b31727cfdb41db2d3f361eeb4a0",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.995
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 132,
+      "image": "2026-10-11 00:12:22-hero.jpg",
+      "image_sha256": "2b830ec9dea6c3943580772cdb69cf7d41179b18d5ecb938155dc74969a5fae5",
+      "trace_id": "1791648740139-16231",
+      "cycle_id": "fea7ad8e-caa5-4e18-8443-2e1b00c0032a",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "2 方块",
+          "J 红桃",
+          "A 方块"
+        ],
+        "main_pot": 76,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 153,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "02b69ddc8e3a9e478618379ab5392ba610284c0bf41c275ae5e33e0c7973c7aa",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 38,
+        "to_call": 38,
+        "action": "raise",
+        "raise_size": 95,
+        "probability": 0.8
+      },
+      "first_display_ms": 2181
+    },
+    {
+      "index": 133,
+      "image": "2026-10-11 00:12:24-hero.jpg",
+      "image_sha256": "62e1a483b8d4a3c8963867d252c8fef23f6750433ffad68595ce19937160199c",
+      "trace_id": "1791648742187-16254",
+      "cycle_id": "fea7ad8e-caa5-4e18-8443-2e1b00c0032a",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "2 方块",
+          "J 红桃",
+          "A 方块"
+        ],
+        "main_pot": 76,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 153,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "02b69ddc8e3a9e478618379ab5392ba610284c0bf41c275ae5e33e0c7973c7aa",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 38,
+        "to_call": 38,
+        "action": "raise",
+        "raise_size": 95,
+        "probability": 0.8
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 134,
+      "image": "2026-10-11 00:12:29-hero.jpg",
+      "image_sha256": "2786ffc5b8b7731a8ddf046a4f9a1b9f09fa396e9911b321dd7a9984868a9376",
+      "trace_id": "1791648747143-16308",
+      "cycle_id": "f4eb842c-2609-4c0b-9a6c-bd300107b745",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "2 方块",
+          "J 红桃",
+          "A 方块",
+          "6 黑桃"
+        ],
+        "main_pot": 114,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 115,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "752c8a1414bbf3a775375e96cf3d685578388332de02b3d9c7642b1c278259ee",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "bet",
+        "raise_size": 73,
+        "probability": 0.795
+      },
+      "first_display_ms": 2147
+    },
+    {
+      "index": 135,
+      "image": "2026-10-11 00:12:31-hero.jpg",
+      "image_sha256": "bd7a90de8d8af7bd9f59117180220f2d3a7cd9806f62c0b6c9ea90c4a9a7f28d",
+      "trace_id": "1791648749202-16330",
+      "cycle_id": "f4eb842c-2609-4c0b-9a6c-bd300107b745",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "2 方块",
+          "J 红桃",
+          "A 方块",
+          "6 黑桃"
+        ],
+        "main_pot": 114,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 115,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "752c8a1414bbf3a775375e96cf3d685578388332de02b3d9c7642b1c278259ee",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "bet",
+        "raise_size": 73,
+        "probability": 0.795
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 136,
+      "image": "2026-10-11 00:12:33-hero.jpg",
+      "image_sha256": "c57f9fc6b2ac96ca59804020f8dec0de82a40b4a3dc1523d2404714911a48231",
+      "trace_id": "1791648751158-16351",
+      "cycle_id": "f4eb842c-2609-4c0b-9a6c-bd300107b745",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "turn",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "2 方块",
+          "J 红桃",
+          "A 方块",
+          "6 黑桃"
+        ],
+        "main_pot": 114,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 115,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "752c8a1414bbf3a775375e96cf3d685578388332de02b3d9c7642b1c278259ee",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "bet",
+        "raise_size": 73,
+        "probability": 0.795
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 137,
+      "image": "2026-10-11 00:12:37-hero.jpg",
+      "image_sha256": "2c739a7f2dbf1a771be1ac44099336be4a908ea293d7ba264e0ff3bbda018a3a",
+      "trace_id": "1791648754836-16392",
+      "cycle_id": "d0461ddb-01cc-4b22-967e-f7f51583c0ef",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "river",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "2 方块",
+          "J 红桃",
+          "A 方块",
+          "6 黑桃",
+          "5 方块"
+        ],
+        "main_pot": 114,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 115,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "2541d3bd68372adc478234b8d3f9dfe3c70443a5b59b8e35f60ad67035326d6f",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "bet",
+        "raise_size": 114,
+        "probability": 0.76
+      },
+      "first_display_ms": 3703
+    },
+    {
+      "index": 138,
+      "image": "2026-10-11 00:12:41-hero.jpg",
+      "image_sha256": "022f7c4d5c8d4252e3a15925e5bfaac2c0bc2bce64aad00b267583ae16ada18d",
+      "trace_id": "1791648758762-16435",
+      "cycle_id": "4c56ed85-871a-4d6f-8d0a-6f35aca65edd",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "river",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "2 方块",
+          "J 红桃",
+          "A 方块",
+          "6 黑桃",
+          "5 方块"
+        ],
+        "main_pot": 190,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 115,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "b16e6e58dbe657cc7750cf5e85ca665ea93c7262d4a57d35d860e22055eec210",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 76,
+        "to_call": 76,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.815
+      },
+      "first_display_ms": 2678
+    },
+    {
+      "index": 139,
+      "image": "2026-10-11 00:12:43-hero.jpg",
+      "image_sha256": "9c0111cac1f8d49d5d44741b5405e7504ee20dcac59626fb9970e07a4d9d072c",
+      "trace_id": "1791648760784-16458",
+      "cycle_id": "4c56ed85-871a-4d6f-8d0a-6f35aca65edd",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "river",
+        "hero_cards": [
+          "A 黑桃",
+          "9 红桃"
+        ],
+        "community_cards": [
+          "2 方块",
+          "J 红桃",
+          "A 方块",
+          "6 黑桃",
+          "5 方块"
+        ],
+        "main_pot": 190,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 8,
+        "hero_stack": 115,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "b16e6e58dbe657cc7750cf5e85ca665ea93c7262d4a57d35d860e22055eec210",
+        "position": "SB-Hero",
+        "hero_bet": 0,
+        "max_bet": 76,
+        "to_call": 76,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.824
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 140,
+      "image": "2026-10-11 00:12:56-hero.jpg",
+      "image_sha256": "07e7208f36e954578b7dc91fa90e7e0e9a4f6ec9d1e5a4f0c3362c18ae1ed89c",
+      "trace_id": "1791648774297-16608",
+      "cycle_id": "31977b15-e011-4386-be25-a394f9843d6b",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "3 梅花",
+          "J 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 29,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 295,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "f1324528363f24cf241574514226973cb12a12ae269b85b81fc838a333ad685e",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 7,
+        "to_call": 7,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 1931
+    },
+    {
+      "index": 141,
+      "image": "2026-10-11 00:12:58-hero.jpg",
+      "image_sha256": "79764090a5dc932a04bb659d08f4c2a45315e1664360187709b7e44fc7894eb5",
+      "trace_id": "1791648776010-16627",
+      "cycle_id": "31977b15-e011-4386-be25-a394f9843d6b",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "3 梅花",
+          "J 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 29,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 1,
+        "hero_stack": 295,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "f1324528363f24cf241574514226973cb12a12ae269b85b81fc838a333ad685e",
+        "position": "BTN-Hero",
+        "hero_bet": 0,
+        "max_bet": 7,
+        "to_call": 7,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 142,
+      "image": "2026-10-11 00:13:36-hero.jpg",
+      "image_sha256": "f5018dae4caa0a499d5dc698a39279a924536ddda38cf16df1654a52c6a26ed5",
+      "trace_id": "1791648814332-17061",
+      "cycle_id": "2c997e1b-383b-48ea-a2bf-9f7d2dd1cfaa",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 19,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 293,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "79975a16c8b22b4473335ad7ea6bea0e96c378fcac9d1575df5a1935572d0832",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": 1897
+    },
+    {
+      "index": 143,
+      "image": "2026-10-11 00:13:37-hero.jpg",
+      "image_sha256": "adda78c09f3b306dc9d4781d6dcaec95a4c11ea7eb186fc6aca909a914902ad0",
+      "trace_id": "1791648816108-17081",
+      "cycle_id": "2c997e1b-383b-48ea-a2bf-9f7d2dd1cfaa",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 19,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 293,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "79975a16c8b22b4473335ad7ea6bea0e96c378fcac9d1575df5a1935572d0832",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 144,
+      "image": "2026-10-11 00:13:39-hero.jpg",
+      "image_sha256": "3c9079ff51188a27c232693895f692b400c84064f09fe9289400d7e947bf8bf3",
+      "trace_id": "1791648817704-17099",
+      "cycle_id": "2c997e1b-383b-48ea-a2bf-9f7d2dd1cfaa",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "A 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [],
+        "main_pot": 19,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 293,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "79975a16c8b22b4473335ad7ea6bea0e96c378fcac9d1575df5a1935572d0832",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "raise",
+        "raise_size": 15,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 145,
+      "image": "2026-10-11 00:13:48-hero.jpg",
+      "image_sha256": "c07b777157565ac6631bcbe4ecaa283f7dd36ce3e638df0e7557ecab9f599bc4",
+      "trace_id": "1791648827030-17202",
+      "cycle_id": "eb9dd68d-5e41-40b9-bf0a-9e901ba1f635",
+      "recognition_assessment": "community_rank_7_misread_as_9",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [
+          "K 黑桃",
+          "4 黑桃",
+          "9 梅花"
+        ],
+        "main_pot": 51,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 277,
+        "hero_bet": null
+      },
+      "decision_assessment": "excluded_recognition_error",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "6d34009498f6884ad056bfbf6d3dad4e5ae9b5303af60ff7775d89852fb6718a",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.825
+      },
+      "first_display_ms": 1715
+    },
+    {
+      "index": 146,
+      "image": "2026-10-11 00:13:50-hero.jpg",
+      "image_sha256": "9d84dc849776eba014b6e4e0564dfe09139ad1e8f378a8015b78ed3d982c6d81",
+      "trace_id": "1791648828639-17221",
+      "cycle_id": "eb9dd68d-5e41-40b9-bf0a-9e901ba1f635",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [
+          "K 黑桃",
+          "4 黑桃",
+          "7 梅花"
+        ],
+        "main_pot": 51,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 277,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "8973e985b3453ba54cd1091ca2945ab54b718ea4f191d9a28849352bae3c9955",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 0,
+        "to_call": 0,
+        "action": "check",
+        "raise_size": 0,
+        "probability": 0.825
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 147,
+      "image": "2026-10-11 00:13:53-hero.jpg",
+      "image_sha256": "a071cf60626fa8bee867345767cba3c854bbda2700c48d51586587184eb709d1",
+      "trace_id": "1791648831843-17256",
+      "cycle_id": "7110f476-0281-45d0-a397-fa2db728e8a9",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [
+          "K 黑桃",
+          "4 黑桃",
+          "7 梅花"
+        ],
+        "main_pot": 85,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 277,
+        "hero_bet": null
+      },
+      "decision_assessment": "solver_sensitive",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "ddbfad08919545dd520239142d5af43ad930bfd7a3bb4e7cdff5cf386f09b0ae",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 34,
+        "to_call": 34,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.609
+      },
+      "first_display_ms": 2061
+    },
+    {
+      "index": 148,
+      "image": "2026-10-11 00:13:54-hero.jpg",
+      "image_sha256": "2e59924d2bfb49aab625cfe4db3936eab7d44e929ea524136f439e51a45c7e1e",
+      "trace_id": "1791648833286-17272",
+      "cycle_id": "7110f476-0281-45d0-a397-fa2db728e8a9",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "flop",
+        "hero_cards": [
+          "A 梅花",
+          "Q 方块"
+        ],
+        "community_cards": [
+          "K 黑桃",
+          "4 黑桃",
+          "7 梅花"
+        ],
+        "main_pot": 85,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 2,
+        "hero_stack": 277,
+        "hero_bet": null
+      },
+      "decision_assessment": "solver_sensitive",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "ddbfad08919545dd520239142d5af43ad930bfd7a3bb4e7cdff5cf386f09b0ae",
+        "position": "CO-Hero",
+        "hero_bet": 0,
+        "max_bet": 34,
+        "to_call": 34,
+        "action": "call",
+        "raise_size": 0,
+        "probability": 0.609
+      },
+      "first_display_ms": null
+    },
+    {
+      "index": 149,
+      "image": "2026-10-11 00:14:01-hero.jpg",
+      "image_sha256": "334868e7c7a7cf88a56e8176b68feeac1b66b07d49d0c438f40bb73c4135bcab",
+      "trace_id": "1791648839381-17340",
+      "cycle_id": "d7591586-3df8-4454-8a00-3bfb52e1e636",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "7 红桃",
+          "5 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 19,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 275,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9c8a491374aca5331c7f188906630941b0bfa4c69d404250601489ccd4aac974",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": 1663
+    },
+    {
+      "index": 150,
+      "image": "2026-10-11 00:14:02-hero.jpg",
+      "image_sha256": "3da4a68fec2b177736ddb7ebfbc69a8fd62baa4a93e2da308f865c194f9ac793",
+      "trace_id": "1791648840955-17358",
+      "cycle_id": "d7591586-3df8-4454-8a00-3bfb52e1e636",
+      "recognition_assessment": "no_obvious_core_field_error",
+      "recognition": {
+        "stage": "preflop",
+        "hero_cards": [
+          "7 红桃",
+          "5 黑桃"
+        ],
+        "community_cards": [],
+        "main_pot": 19,
+        "blind_size": "1/2/4(2)",
+        "button_seat": 5,
+        "hero_stack": 275,
+        "hero_bet": null
+      },
+      "decision_assessment": "no_obvious_rule_or_strategy_issue",
+      "response_accepted": true,
+      "decision": {
+        "state_sha256": "9c8a491374aca5331c7f188906630941b0bfa4c69d404250601489ccd4aac974",
+        "position": "UTG-Hero",
+        "hero_bet": 0,
+        "max_bet": 4,
+        "to_call": 4,
+        "action": "fold",
+        "raise_size": 0,
+        "probability": 1.0
+      },
+      "first_display_ms": null
+    }
+  ]
+}
