@@ -151,3 +151,11 @@
 5. **P2：4个solver-sensitive状态。** 使用相同盲注、ante、有效筹码、人数、action history、rake和对手范围跑独立solver，再决定是否进入决策bad case页面。
 
 本报告先冻结问题与证据，不包含修复方案的代码落地，也没有部署变更。
+
+## 审计页面发布
+
+- 审计数据提交：`15036ed`；自包含页面生成器提交：`c59cba3`。两项均已通过 CR，本次发布没有修改或重启 ddbaby 业务进程。
+- 访问地址：`https://www.ddbaby.site/tyzs/hero-audit-20261010-2300.html`。
+- 公网重新下载返回 HTTP 200，文件大小为 `5,401,473` bytes，SHA256 为 `d19db8bc538980c2fe924dfba7a6266f53546e0be77527e463da32f7cfe91779`，与审核候选逐字节一致。
+- 页面完整内嵌17张确认识别问题图、2张下一帧恢复对照图，以及4个 solver-sensitive 状态的代表图；不依赖外部图片、脚本或样式。
+- 发布前目标文件不存在，缺省状态记录在回滚目录 `/home/ubuntu/taoyuan-backups/20261011-hero-audit-2300-page/TARGET_WAS_ABSENT`。既有问题页发布后仍返回 HTTP 200。

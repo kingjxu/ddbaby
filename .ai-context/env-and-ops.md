@@ -163,6 +163,12 @@ status: "active"
 - 公网问题页 `https://www.ddbaby.site/tyzs/strategy-issues-20261010.html` 返回HTTP 200、2,263,318 bytes，SHA256 `cc167cd416c6b472f265b192f24334634eb3764ff8a7125efce7480e6100711f`，与候选一致。
 - 页面收录5张下注截断识别错误原图、A♦J♠免费check却fold、9♠9♣面对加注仍高概率fold，以及2个待solver复核状态；各分类保持独立。Web资产回滚目录为 `/home/ubuntu/taoyuan-backups/20261010-210905-before-1.0.29`。
 
+## 2026-10-11 23点起 Hero 审计页面发布
+
+- 审计数据提交为 `15036ed`，自包含页面生成器提交为 `c59cba3`，均经 CR LGTM。本次仅发布静态审计附件，没有修改或重启 ddbaby 业务进程。
+- 公网地址 `https://www.ddbaby.site/tyzs/hero-audit-20261010-2300.html` 返回 HTTP 200、`5,401,473` bytes，SHA256 为 `d19db8bc538980c2fe924dfba7a6266f53546e0be77527e463da32f7cfe91779`，与候选一致。
+- 页面内嵌17张确认识别问题图、2张恢复对照图和4个 solver-sensitive 状态代表图。发布前目标文件不存在，回滚目录 `/home/ubuntu/taoyuan-backups/20261011-hero-audit-2300-page` 记录该事实；原 `strategy-issues-20261010.html` 回验仍为 HTTP 200。
+
 ## 2026-10-05 生产截图保留部署
 
 - 业务提交：`e557483`。服务器 Go 1.22.2 隔离目录通过 service、全仓、service race
