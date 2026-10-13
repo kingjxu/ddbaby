@@ -1078,7 +1078,11 @@ func inferStageCompletion(previous, current *TexasResult) []TexasActionHistory {
 				accounted = blind
 			}
 		}
-		if stageMax == 0 {
+		isPreflopOptionCheck := stage == "preflop" &&
+			stageMax > 0 &&
+			forcedBlind(player.position, sbSize, bbSize) == stageMax &&
+			lastAmount[player.position] == 0
+		if stageMax == 0 || isPreflopOptionCheck {
 			pending = append(pending, TexasActionHistory{
 				Stage: stage, Position: player.position, Action: "check", Status: player.status,
 			})

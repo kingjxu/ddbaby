@@ -642,18 +642,67 @@ func TestPrepareActionHistoryInfersMinimumSequenceFromFirstHeroFrame(t *testing.
 	}
 }
 
-func TestPrepareActionHistoryDoesNotRewriteChecksOrForcedBlinds(t *testing.T) {
+func TestPrepareActionHistoryRecordsStraddleOptionCheck(t *testing.T) {
 	preflop := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
 	PrepareActionHistory(nil, preflop)
 	flop := preflopSnapshot(t, nil)
 	flop.TableInfo.Stage = "flop"
 	PrepareActionHistory(preflop, flop)
 
+	straddleChecks := 0
 	for _, action := range flop.ObservedActionHistory {
 		if action.Action == "check" && action.Amount != 0 {
 			t.Fatalf("invalid check amount: %+v", action)
 		}
+		if action.Stage == "preflop" && action.Position == "straddle" && action.Action == "check" {
+			straddleChecks++
+		}
 	}
+	if straddleChecks != 1 {
+		t.Fatalf("straddle option check count = %d, want 1; history=%+v", straddleChecks, flop.ObservedActionHistory)
+	}
+}
+
+func TestPrepareActionHistoryRecordsStraddleCheckForTJFlopRegression(t *testing.T) {
+	preflop := makeTexasResultWithSeats(t, 7, 1, []map[string]interface{}{
+		{"seat": 2, "status": "active", "stack": 459, "current_bet": 4},
+		{"seat": 3, "status": "active", "stack": 194, "current_bet": 4},
+		{"seat": 4, "status": "folded", "stack": 171, "current_bet": 0},
+		{"seat": 5, "status": "folded", "stack": 601, "current_bet": 0},
+		{"seat": 6, "status": "folded", "stack": 907, "current_bet": 0},
+		{"seat": 7, "status": "folded", "stack": 838, "current_bet": 0},
+		{"seat": 8, "status": "active", "stack": 96, "current_bet": 4},
+	})
+	preflop.TableInfo.Stage = "preflop"
+	preflop.TableInfo.BlindSize = "1/2/4(2)"
+	preflop.HeroInfo.Stack = 251
+	preflop.HeroInfo.CurrentBet = 4
+	preflop.HeroInfo.HeroCards = []string{"J 方块", "10 梅花"}
+	PrepareActionHistory(nil, preflop)
+
+	flop := makeTexasResultWithSeats(t, 7, 1, []map[string]interface{}{
+		{"seat": 2, "status": "active", "stack": 459, "current_bet": 0},
+		{"seat": 3, "status": "active", "stack": 194, "current_bet": 0},
+		{"seat": 4, "status": "folded", "stack": 171, "current_bet": 0},
+		{"seat": 5, "status": "folded", "stack": 601, "current_bet": 0},
+		{"seat": 6, "status": "folded", "stack": 907, "current_bet": 0},
+		{"seat": 7, "status": "folded", "stack": 838, "current_bet": 0},
+		{"seat": 8, "status": "active", "stack": 96, "current_bet": 0},
+	})
+	flop.TableInfo.Stage = "flop"
+	flop.TableInfo.BlindSize = "1/2/4(2)"
+	flop.TableInfo.CommunityCards = []string{"3 黑桃", "10 方块", "8 梅花"}
+	flop.HeroInfo.Stack = 251
+	flop.HeroInfo.HeroCards = []string{"J 方块", "10 梅花"}
+	PrepareActionHistory(preflop, flop)
+
+	request := Conv2TexasGtoDecisionReq(context.Background(), []*TexasResult{flop})
+	for _, action := range request.ActionHistory {
+		if action.Stage == "preflop" && action.Position == "straddle" && action.Action == "check" {
+			return
+		}
+	}
+	t.Fatalf("TJ flop request omitted preflop straddle check: %+v", request.ActionHistory)
 }
 
 func TestPrepareActionHistoryIgnoresDuplicateSnapshot(t *testing.T) {
@@ -703,9 +752,6 @@ func TestPrepareActionHistoryCompletesPreviousStreetWithMinimumLegalActions(t *t
 	for _, action := range flop.ObservedActionHistory {
 		if action.Stage != "preflop" {
 			t.Fatalf("first flop snapshot invented a flop action: %+v", action)
-		}
-		if action.Action == "check" {
-			t.Fatalf("preflop completion emitted check: %+v", action)
 		}
 		if action.Action == "call" {
 			calls[action.Position] = action.Amount
