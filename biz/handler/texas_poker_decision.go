@@ -4,6 +4,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -221,6 +222,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logger.Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
+	rawDecisionResp := *resp
 	if model.NormalizeTexasGtoDecisionToStack(decisionReq, resp) {
 		logger.Warnf("[TexasPokerDecisionHandler] decision size exceeds hero stack, normalized to all-in:%v", util.ToJSON(resp))
 	}
@@ -232,6 +234,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logger.Warn("[TexasPokerDecisionHandler] free fold normalized to check")
 	}
 	h.Action = resp.Action
+	h.saveDecisionRecordAsync(decisionReq, &rawDecisionResp, resp)
 	decisionSpends := time.Since(startTime).Milliseconds()
 	logger.Infof("[TexasPokerDecisionHandler] , recognize_spends:%v, decision_spends:%v, total_spends:%v",
 		recognizeSpends, decisionSpends-recognizeSpends, decisionSpends)
@@ -243,6 +246,100 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		_ = poker.UpsertUserActiveCode(ctx, h.activeCodeInfo)
 	}
 	return h.newResp(ctx, h.getFinalAction(resp)), nil
+}
+
+const decisionRecordWriteTimeout = 3 * time.Second
+
+func (h *TexasPokerDecisionHandler) saveDecisionRecordAsync(
+	decisionReq *model.TexasGtoDecisionReq,
+	rawDecisionResp *model.TexasGtoDecisionResp,
+	decisionResp *model.TexasGtoDecisionResp,
+) {
+	if decisionReq == nil || rawDecisionResp == nil || decisionResp == nil {
+		return
+	}
+
+	requestCopy := cloneDecisionRequest(decisionReq)
+	if h.req.GetVPIP() != 0 || h.req.GetPFR() != 0 {
+		requestCopy.VVIP = h.req.GetVPIP()
+		requestCopy.PFR = h.req.GetPFR()
+	}
+	rawResponseCopy := *rawDecisionResp
+	finalResponseCopy := *decisionResp
+	uid := h.req.GetUUID()
+	decisionTime := time.Now()
+
+	go func() {
+		record, err := buildGtoDecisionRecord(uid, decisionTime, &requestCopy, &rawResponseCopy, &finalResponseCopy)
+		if err != nil {
+			logrus.WithField("uuid", uid).Errorf("[TexasPokerDecisionHandler] build decision record err:%v", err)
+			return
+		}
+		writeCtx, cancel := context.WithTimeout(context.Background(), decisionRecordWriteTimeout)
+		defer cancel()
+		if err = poker.CreateGtoDecisionRecord(writeCtx, record); err != nil {
+			logrus.WithField("uuid", uid).Errorf("[TexasPokerDecisionHandler] create decision record err:%v", err)
+		}
+	}()
+}
+
+func cloneDecisionRequest(req *model.TexasGtoDecisionReq) model.TexasGtoDecisionReq {
+	cloned := *req
+	cloned.CommunityCards = append([]string(nil), req.CommunityCards...)
+	cloned.Players = append([]model.TexasPlayer(nil), req.Players...)
+	for i := range cloned.Players {
+		cloned.Players[i].HoleCards = append([]string(nil), req.Players[i].HoleCards...)
+	}
+	cloned.RaiseRange = append([]int(nil), req.RaiseRange...)
+	cloned.ActionHistory = append([]model.TexasActionHistory(nil), req.ActionHistory...)
+	return cloned
+}
+
+func buildGtoDecisionRecord(
+	uid string,
+	decisionTime time.Time,
+	decisionReq *model.TexasGtoDecisionReq,
+	rawDecisionResp *model.TexasGtoDecisionResp,
+	decisionResp *model.TexasGtoDecisionResp,
+) (*poker.GtoDecisionRecord, error) {
+	if decisionReq == nil || rawDecisionResp == nil || decisionResp == nil {
+		return nil, errors.New("decision request or response is nil")
+	}
+
+	var heroCards []string
+	for _, player := range decisionReq.Players {
+		if player.Position == decisionReq.CurrentPlayerPosition {
+			heroCards = append([]string(nil), player.HoleCards...)
+			break
+		}
+	}
+	requestJSON, err := json.Marshal(decisionReq)
+	if err != nil {
+		return nil, fmt.Errorf("marshal decision request: %w", err)
+	}
+	rawResponseJSON, err := json.Marshal(rawDecisionResp)
+	if err != nil {
+		return nil, fmt.Errorf("marshal raw decision response: %w", err)
+	}
+	finalResponseJSON, err := json.Marshal(decisionResp)
+	if err != nil {
+		return nil, fmt.Errorf("marshal final decision response: %w", err)
+	}
+	heroCardsJSON, err := json.Marshal(heroCards)
+	if err != nil {
+		return nil, fmt.Errorf("marshal hero cards: %w", err)
+	}
+
+	return &poker.GtoDecisionRecord{
+		UID:              uid,
+		DecisionTime:     decisionTime,
+		HeroCards:        string(heroCardsJSON),
+		Position:         decisionReq.CurrentPlayerPosition,
+		Stage:            decisionReq.GameStage,
+		DecisionRequest:  string(requestJSON),
+		DecisionResponse: string(rawResponseJSON),
+		FinalResponse:    string(finalResponseJSON),
+	}, nil
 }
 
 func (h *TexasPokerDecisionHandler) getFinalAction(decision *model.TexasGtoDecisionResp) string {

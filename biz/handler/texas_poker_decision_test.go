@@ -2,14 +2,17 @@ package handler
 
 import (
 	"context"
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/app/server/binding"
-	"github.com/kingjxu/ddbaby/biz/model/ddbaby"
-	"github.com/kingjxu/ddbaby/util"
-	"github.com/stretchr/testify/assert"
+	"encoding/json"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/app/server/binding"
+	"github.com/kingjxu/ddbaby/biz/model/ddbaby"
+	"github.com/kingjxu/ddbaby/model"
+	"github.com/kingjxu/ddbaby/util"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestTexasPokerDecisionRequestBindsLowercaseProfileFields(t *testing.T) {
@@ -97,4 +100,62 @@ func TestTexasPokerDecisionHandlerRejectsUnsupportedDecisionProfile(t *testing.T
 			}
 		})
 	}
+}
+
+func TestBuildGtoDecisionRecord(t *testing.T) {
+	decisionTime := time.Date(2026, 10, 13, 10, 30, 0, 123000000, time.Local)
+	req := &model.TexasGtoDecisionReq{
+		GameType:              "no_limit_holdem",
+		GameStage:             "flop",
+		CurrentPlayerPosition: "BTN-Hero",
+		CommunityCards:        []string{"2-S", "3-H", "4-C"},
+		Players: []model.TexasPlayer{
+			{Position: "BTN-Hero", HoleCards: []string{"A-H", "J-D"}, Stack: 100},
+			{Position: "BB", Stack: 100},
+		},
+		VVIP: 42,
+		PFR:  20,
+	}
+	rawResp := &model.TexasGtoDecisionResp{Action: "fold", ActionProbability: 0.8}
+	finalResp := &model.TexasGtoDecisionResp{Action: "check", ActionProbability: 0.8}
+
+	record, err := buildGtoDecisionRecord("user-1", decisionTime, req, rawResp, finalResp)
+	assert.NoError(t, err)
+	assert.Equal(t, "user-1", record.UID)
+	assert.Equal(t, decisionTime, record.DecisionTime)
+	assert.Equal(t, "BTN-Hero", record.Position)
+	assert.Equal(t, "flop", record.Stage)
+	assert.JSONEq(t, `["A-H","J-D"]`, record.HeroCards)
+	assert.JSONEq(t, `{"action":"fold","raise_size":0,"action_probability":0.8,"detail":""}`, record.DecisionResponse)
+	assert.JSONEq(t, `{"action":"check","raise_size":0,"action_probability":0.8,"detail":""}`, record.FinalResponse)
+
+	var storedReq model.TexasGtoDecisionReq
+	assert.NoError(t, json.Unmarshal([]byte(record.DecisionRequest), &storedReq))
+	assert.Equal(t, int32(42), storedReq.VVIP)
+	assert.Equal(t, int32(20), storedReq.PFR)
+	assert.Equal(t, []string{"A-H", "J-D"}, storedReq.Players[0].HoleCards)
+}
+
+func TestCloneDecisionRequestDoesNotShareSlices(t *testing.T) {
+	req := &model.TexasGtoDecisionReq{
+		CommunityCards: []string{"2-S"},
+		Players: []model.TexasPlayer{{
+			Position: "BTN-Hero", HoleCards: []string{"A-H", "J-D"},
+		}},
+		RaiseRange:    []int{20},
+		ActionHistory: []model.TexasActionHistory{{Stage: "preflop", Action: "call"}},
+	}
+	cloned := cloneDecisionRequest(req)
+
+	req.CommunityCards[0] = "9-S"
+	req.Players[0].Position = "SB"
+	req.Players[0].HoleCards[0] = "K-H"
+	req.RaiseRange[0] = 99
+	req.ActionHistory[0].Action = "fold"
+
+	assert.Equal(t, []string{"2-S"}, cloned.CommunityCards)
+	assert.Equal(t, "BTN-Hero", cloned.Players[0].Position)
+	assert.Equal(t, []string{"A-H", "J-D"}, cloned.Players[0].HoleCards)
+	assert.Equal(t, []int{20}, cloned.RaiseRange)
+	assert.Equal(t, "call", cloned.ActionHistory[0].Action)
 }
