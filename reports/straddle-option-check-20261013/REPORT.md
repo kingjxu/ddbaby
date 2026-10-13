@@ -24,4 +24,14 @@ straddle 的牌局中该位置是 straddle；没有 straddle 时对应 BB option
 - 同时覆盖通用 straddle option，以及既有跨街最小合法动作补全。
 - Go 1.22.2：目标测试、`go test -race ./model ./dal -count=1`、
   `go test ./... -count=1` 和 `build.sh` 均通过。
-- 本报告仅记录本地修复与验证，尚未部署生产。
+
+## 部署
+
+- 业务提交 `03b8a6b` 已推送到远端 `master`。
+- 生产二进制 SHA256 为
+  `7cea4efc9ea4e695078cc6c15b12c497e4bc846560b639d0395eacf9a3641fc5`；
+  部署后 PID `3924762`、PPID `1`，运行中 `/proc/3924762/exe` 与磁盘文件
+  SHA256 一致，端口 8888 正常监听，`/ping` 返回 `{"message":"pong"}`。
+- 本次只部署已完成本地回归和 CR 的候选，没有在线上执行全量回归或注入模拟牌局。
+  启动后的日志没有新增业务错误。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261013-133505-before-03b8a6b`。

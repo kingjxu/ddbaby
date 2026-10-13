@@ -214,3 +214,15 @@ status: "active"
   且返回 `raise`；入库分别验证缺省 wire 字段与 `vvip=42,pfr=20`，并确认
   raw/final 响应分列。验证用激活码及审计行已删除。
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261013-115907-before-bcc0ee1`。
+
+## 2026-10-13 翻前 option check 补全部署
+
+- 业务提交 `03b8a6b`。跨街补全会为未记录主动动作的最终强制盲注位补上
+  preflop option check；有 straddle 时作用于 straddle，无 straddle 时作用于 BB。
+- Go 1.22.2 下真实 J♦T♣ 回归、通用 straddle/BB option、既有跨街序列、
+  model/dal race、全仓测试和构建均通过；CR 已确认 LGTM。
+- 运行时二进制 SHA256 为
+  `7cea4efc9ea4e695078cc6c15b12c497e4bc846560b639d0395eacf9a3641fc5`；
+  部署后 PID `3924762`、PPID `1`，`/proc` 与磁盘二进制一致，端口 8888
+  正常监听且 `/ping` 返回 `pong`。本轮未在线上执行全量回归或注入模拟牌局。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261013-133505-before-03b8a6b`。
