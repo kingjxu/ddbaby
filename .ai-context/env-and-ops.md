@@ -133,12 +133,17 @@ status: "active"
 
 - 普通 `*.jpg` 保留期由 5 天缩短为 1 天；`*-hero.jpg` 和
   `*-decided.jpg` 的长期保留规则不变，cron 仍每天 03:17 执行。
-- 生产首次按 1 天规则 dry-run 匹配 20,624 张、3,368,503,831 bytes；正式清理及
-  边界补清理合计删除 20,635 张、3,370,372,703 bytes，`changed_files=0`，最终
-  dry-run 匹配 0。
-- 清理前 Hero/decided 分别为 5,030/3,646 张；清理后 Hero 因实时流量增加至
-  5,032 张，decided 保持 3,646 张。根盘可用空间由 742,875,136 bytes 增至
-  4,153,307,136 bytes，服务 `/ping` 保持正常。
+- 生产首次按 1 天规则 dry-run 匹配 20,624 张、3,368,503,831 bytes；正式清理、
+  边界补清理和配置替换后的最终补清理共删除 20,754 张、3,390,399,087 bytes，
+  `changed_files=0`，最终 dry-run 匹配 0。
+- 清理前 Hero/decided 分别为 5,030/3,646 张；最终因实时流量增加至
+  5,046/3,654 张，均未减少。根盘可用空间由 742,875,136 bytes 增至
+  4,154,245,120 bytes，服务 `/ping` 保持正常。
+- 生产脚本与 cron 已原子替换，SHA256 分别为
+  `6d42be352292192a86d6dac8584a1e7635a2d7379b27e33f1f16b1327422f989` 和
+  `18f55ad93045d5ea34c8d1a1e8905fa7cd7be7b17ccd843395e9a8bc3671dd26`；
+  权限为 root:root/0755 和 root:root/0644，cron active，回滚目录为
+  `/home/ubuntu/ddbaby-backups/20261013-083636-before-image-retention-1d`。
 
 ## 2026-10-06 固定 BTN 手牌边界部署
 
