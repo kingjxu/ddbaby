@@ -3,13 +3,13 @@
 ## 目标
 
 定期删除 `/usr/local/webserver/images` 中不用于牌局证据的普通 JPEG 截图，持续保留
-`*-hero.jpg` 和 `*-decided.jpg`。普通截图保留最近 5 天，便于故障回溯。
+`*-hero.jpg` 和 `*-decided.jpg`。普通截图当前保留最近 1 天。
 
 ## 实现
 
 - `scripts/cleanup_images.py` 仅遍历目标目录的直接子文件；跳过子目录、符号链接、
   非 JPEG、Hero 和 decided 文件。
-- 默认只删除修改时间早于 7,200 分钟（5 天）的普通 `*.jpg`，支持 `--dry-run` 先统计。
+- 默认只删除修改时间早于 1,440 分钟（1 天）的普通 `*.jpg`，支持 `--dry-run` 先统计。
 - 使用 `/run/lock/ddbaby-image-cleanup.lock` 防止定时任务重入；单个文件删除失败时记录
   错误并以非零状态退出。
 - ddbaby 的两条生产图片落盘入口与清理脚本共同使用跨进程排他锁
@@ -82,3 +82,14 @@
 - 替换前脚本和 cron 分别备份为回滚目录 `cleanup-config` 下的
   `ddbaby-cleanup-images.before-b5eb1ba` 和
   `ddbaby-image-cleanup.cron.before-b5eb1ba`。
+
+## 2026-10-13 保留周期调整
+
+- 按用户要求将普通截图保留期由 5 天缩短为 1 天，Hero/decided 长期保留规则、
+  共享写删锁、目录边界和每天 03:17 的执行频率不变。
+- 生产首次 dry-run 匹配 20,624 张、3,368,503,831 bytes；正式清理期间仍有实时
+  图片写入，第一次删除 20,631 张、3,369,672,062 bytes，边界补清理再删除 4 张、
+  700,641 bytes，最终 dry-run 匹配 0，所有删除的 `changed_files` 均为 0。
+- Hero/decided 清理前为 5,030/3,646 张，清理后为 5,032/3,646 张；Hero 增量来自
+  清理期间实时流量。根盘可用空间从 742,875,136 bytes 增至 4,153,307,136 bytes，
+  使用率从 99% 降至 90%，ddbaby `/ping` 返回 `pong`。

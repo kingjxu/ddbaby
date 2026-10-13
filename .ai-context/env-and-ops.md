@@ -114,7 +114,7 @@ status: "active"
 ## 生产截图保留策略
 
 - `/usr/local/webserver/images` 中 `*-hero.jpg` 和 `*-decided.jpg` 长期保留，
-  普通 `*.jpg` 保留最近 5 天。
+  普通 `*.jpg` 保留最近 1 天。
 - 清理脚本为 `/usr/local/sbin/ddbaby-cleanup-images`，cron 每天 03:17 执行；
   运行日志写入 `/var/log/ddbaby-image-cleanup.log` 并按周轮转。
 - 清理与 ddbaby 图片落盘共用 `/run/lock/ddbaby-images.lock`；清理持锁完成最终身份校验
@@ -128,6 +128,17 @@ status: "active"
   生产无参数 dry-run 显示 `retention_minutes=7200` 且匹配/删除/变化均为 0；cron
   表达式为 `17 3 * * *`、服务 active，ddbaby `/ping` 正常。替换前脚本和 cron
   已备份到既有回滚目录的 `cleanup-config` 子目录。
+
+### 2026-10-13 普通截图保留期调整
+
+- 普通 `*.jpg` 保留期由 5 天缩短为 1 天；`*-hero.jpg` 和
+  `*-decided.jpg` 的长期保留规则不变，cron 仍每天 03:17 执行。
+- 生产首次按 1 天规则 dry-run 匹配 20,624 张、3,368,503,831 bytes；正式清理及
+  边界补清理合计删除 20,635 张、3,370,372,703 bytes，`changed_files=0`，最终
+  dry-run 匹配 0。
+- 清理前 Hero/decided 分别为 5,030/3,646 张；清理后 Hero 因实时流量增加至
+  5,032 张，decided 保持 3,646 张。根盘可用空间由 742,875,136 bytes 增至
+  4,153,307,136 bytes，服务 `/ping` 保持正常。
 
 ## 2026-10-06 固定 BTN 手牌边界部署
 
