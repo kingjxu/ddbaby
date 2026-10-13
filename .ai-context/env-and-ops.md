@@ -199,3 +199,18 @@ status: "active"
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261005-135714-before-e557483`，包含旧二进制、
   运行时源码、清理配置备份、替换前 logrotate 规则、候选/旧二进制校验值和清理前
   保留图片 SHA256 清单。
+
+## 2026-10-13 GTO 决策审计入库部署
+
+- 业务提交 `bcc0ee1`，生产已创建 `gto_decision_record`：`id` 自增主键，
+  `uid`、`decision_time` 分别建索引，请求、原始响应、最终响应使用 JSON 列。
+- 运行时二进制 SHA256 为
+  `56e16bba37b6cbc29eb1059d21be0964aa723a7157eda8d37ced30b2ca9d0ad7`；
+  部署后 PID `3901582`、PPID `1`，`/proc` 二进制一致且 `/ping` 正常。
+- `GTO_API_KEY` 由 root-only `/etc/ddbaby/runtime.env` 提供，权限 0600；
+  `/home/ubuntu/ddbaby/run.sh` 只负责加载环境并 exec 服务。密钥不得写入仓库、
+  群聊、日志或进程命令行。手工重启必须使用该 launcher，避免环境丢失。
+- default 与 `42/20` v2 使用同一张真实 preflop Hero 图回验，均 HTTP 200
+  且返回 `raise`；入库分别验证缺省 wire 字段与 `vvip=42,pfr=20`，并确认
+  raw/final 响应分列。验证用激活码及审计行已删除。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261013-115907-before-bcc0ee1`。

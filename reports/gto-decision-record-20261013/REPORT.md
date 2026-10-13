@@ -17,4 +17,17 @@
 - `GOTOOLCHAIN=go1.20.14 go test ./... -count=1`：通过。
 - `GOTOOLCHAIN=go1.20.14 go test -race ./biz/handler ./dal ./model ./dal/mysql/texas_poker -count=1`：通过。
 - 2026-10-13 已在生产 MySQL 应用版本化 DDL；复核确认自增主键、`uid`/`decision_time` 两个独立索引以及 JSON 列与脚本一致。
-- default 与 v2 的真实写入回验在代码部署后补录。
+- 生产部署二进制 SHA256 为
+  `56e16bba37b6cbc29eb1059d21be0964aa723a7157eda8d37ced30b2ca9d0ad7`；
+  部署后 PID `3901582`、PPID `1`，`/proc/3901582/exe` 与候选一致，
+  `/ping` 返回 `{"message":"pong"}`。回滚目录为
+  `/home/ubuntu/ddbaby-backups/20261013-115907-before-bcc0ee1`。
+- 首次部署 smoke 发现手工重启未继承 `GTO_API_KEY`，因此未将该次空决策当作通过。
+  已将密钥迁移到 root-only 的 `/etc/ddbaby/runtime.env`（0600），通过
+  `/home/ubuntu/ddbaby/run.sh` 注入环境后重启；密钥未写入仓库、命令行或报告。
+- 使用同一张真实 preflop Hero 图分别回验 default 与 v2：两次 HTTP 均为 200，
+  Hero 手牌均为 `K-D,9-D`、位置 `BTN-Hero`、stage `preflop`，响应动作均为
+  `raise`。default 入库请求没有 `vvip/pfr` 字段；v2 入库值为 `42/20`；
+  两条记录的 `decision_response.action` 和 `final_response.action` 均为 `raise`。
+- 异步写入在接口返回后可查询到，证明生产表、连接和 goroutine 写入路径可用。
+  回验使用的临时激活码及两条审计记录随后删除，未残留测试数据。
