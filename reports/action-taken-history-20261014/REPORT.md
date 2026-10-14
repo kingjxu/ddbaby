@@ -34,7 +34,7 @@ K9 回归后的关键结果为：
 - 新增边界回归：合法免费过牌才补 Hero check；Hero 面对未跟注下注时不补造 check。
 - 原有多轮 3bet/4bet、短码 all-in、fold、跨街和 straddle option check 用例继续通过。
 
-本机 `go test ./...` 受仓库既有 `sonic/loader v0.1.1` 与本机 Go 1.24 不兼容影响，在未涉及本次改动的依赖编译阶段失败；model/dal 目标包及 race 回归均已通过。部署前需在服务器既有 Go 1.20 构建环境完成全量构建和隔离回放。
+本机 `go test ./...` 受仓库既有 `sonic/loader v0.1.1` 与本机 Go 1.24 不兼容影响，在未涉及本次改动的依赖编译阶段失败；model/dal 目标包及 race 回归均已通过。部署前需在服务器既有 Go 1.22.2 构建环境完成全量构建和隔离回放。
 
 ## 风险与回滚
 
