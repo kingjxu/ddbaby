@@ -1,0 +1,135 @@
+# 2026-10-13 至 2026-10-14 Hero 异常决策归因审计
+
+## 结论
+
+这两天用户感知到的“不合理决策”不是同一个故障造成的，而是四类问题叠加：
+
+1. **识别输入错误**会漏掉或截断最新下注，也会在空座位场景把 Hero 的位置整体错位。代表案例是 `1308→130`、`84→34`、漏掉 `340/315/123/1221`，以及实际为 straddle 的 Hero 被写成 UTG。
+2. **行动历史重建错误**曾漏记 Hero check，并让 `players.action_taken` 停留在首圈快照。该问题会让请求语义不完整，但对已抽取的 19 个代表状态做 A/B 后，当前 GTO 核心动作均未变化。因此它是需要修复的真实缺陷，却不能解释 K9 首次 `raise 252`。
+3. **决策服务自身存在策略和牌力分析问题**。K9、K5 在完整正确输入下仍对顶对选择 3 倍加注；Q8 河牌两对被称为 `river nuts`，且服务自己算出 `EV(call) > EV(raise)` 后仍选择 raise。
+4. **ddbaby 输出保护仍有缺口**。straddle option raise 的误拒绝已经修复并部署；最低合法加注校验目前只有本地候选，生产版本仍可能放行类似 `raise 102` 的非法小加注。
+
+因此不能只通过修 OCR 或只修 `action_history` 来解决“翻后过激”。识别、状态重建、策略服务和输出校验必须分别设指标和回归集。
+
+## 数据范围
+
+本次覆盖两个可完整取证的窗口，不把中间没有完整日志关联的时段冒充为连续两天全量：
+
+| 窗口 | 决策次数 | 唯一请求状态 | 主要证据 |
+|---|---:|---:|---|
+| 2026-10-13 07:06:58–12:08:28 | 1,007 | 494 | 1,026 张 Hero 图、识别日志、GTO 请求/响应、Handler 结果 |
+| 2026-10-13 22:48:53–2026-10-14 10:03:56 | 728 | 409 | SQL 中完整 request/raw response/final response、服务器原图 |
+| 合计 | 1,735 | 903 | 两个不重叠窗口 |
+
+第二个窗口中 409 个唯一状态的街道分布为 preflop 259、flop 82、turn 47、river 21；最终动作分布为 fold 225、check 88、call 53、raise 33、bet 10。这里只描述系统实际输出，不等同于策略正确率。
+
+## 逐案归因
+
+| 案例 | 原图/事实 | 请求或响应 | 归因 | 结论 |
+|---|---|---|---|---|
+| K9，Q♥K♥4♣，10:04 | 对手 bet84，另一人 call84；Hero 此前 check | 初始返回 raise252；后续某帧把84读成34并返回 raise102 | 策略问题 + OCR 抖动 + 历史缺口 | 首次 3 倍加注即使完整修正 history 仍存在；raise102 另由 OCR 导致且金额非法 |
+| K5，K♥6♥9♦，06:46:42 | SB bet88、MP+1 call88，Hero K♣5♣，底池308 | 完整 history 下返回 raise264，`strength=0.47,class=value` | 决策策略 | 顶对弱踢脚、多人底池仍固定按 3 倍价值加注，输入无误 |
+| Q8，K♠3♣Q♥T♦8♦，07:21:43 | 原图 BB bet1308，Hero 剩1488 | 请求写成130并返回 raise390；修为1308后仍返回 all-in1488，称“两对”为 `river nuts` | OCR + 决策逻辑 | 修金额只能修尺寸，不能修动作；服务内部还出现 `EV(call)=3107.8 > EV(raise)=2213.1` 却选 raise |
+| J9，06:37:31 | 原图 Hero 明确标记 `STR`、已投12，可免费 option | 请求把 Hero 写成 UTG，并额外构造 active straddle；最终 fold | 座位/身份识别 | 空座位导致位置链偏移，后续 free-fold→check 保护因 Hero 身份错误而未触发 |
+| 33，07:52:58 | 对手已经 raise340，Hero 已投70 | 请求最高注仍为70 | 识别输入 | 最终 fold 碰巧合理，但决策服务看到的是错误局面 |
+| 56，08:31:06 | 对手已经 raise315，Hero 已投111 | 请求最高注仍为111 | 识别输入 | 最终 fold 碰巧合理，不能算链路正确 |
+| A9，07:49:27 | 原图最新下注123 | 请求漏掉123，GTO 返回 raise96，Handler拒绝 | 识别输入 | 最新行动未进入请求 |
+| AK，08:13:10 | 对手 all-in1221，Hero 已投408 | 请求漏掉1221，GTO 返回 raise1632，Handler拒绝 | 识别输入 | all-in 识别遗漏 |
+| T7，2♦8♥7♠T♣，23:09:48 | CO bet338，Hero转牌两对，剩884 | 返回 all-in884 | 未发现链路错误 | 原图、request、history一致；价值加注激进但可解释，不能据此判 bug |
+| 99 四黑桃牌面，09:36 | 实际 9 高同花 | 分析为 pair/bluffcatch，strength=0.2 | 决策牌力分析 | 最终 check/call 未必错，但推理基础错误 |
+| 88，2♣Q♠J♠J♣J♥，09:51 | 实际 JJJ88 葫芦 | 分析为底两对/bluffcatch，strength=0.38 | 决策牌力分析 | 系统性低估牌力 |
+
+### A3 用户反馈的定位边界
+
+可访问数据里没有找到“Hero A3、翻牌中 A、对手下注后建议 3 倍 raise”的完全匹配记录：
+
+- 23:29 的 A♥3♦ 在 A♠T♣8♣ 上，历史生产响应是 check；随后 turn/river 是无人下注时的 bet。
+- 23:47 的 A♦3♣ 在 5♥6♦Q♣ 上先 check，面对下注后 fold。
+- 其余 A3 均为 preflop。
+
+所以不能把任意 A3 记录强行当成用户描述的那手；还需要具体时间、UID 或原图才能完成该案定责。
+
+## K9 完整 A/B 更正
+
+此前曾通报“K9 修正 action_taken 后会从 raise252 变为 call84”。这个结论不准确，原因是把预期结果当成了实际重放结果。
+
+本次使用两组完整请求各连续重放三次：
+
+| 输入 | 三次结果 | 概率 |
+|---|---|---:|
+| 历史请求 | raise252 × 3 | 0.657 |
+| 修正为 `Hero check → BTN bet84 → SB call84 → BB fold`，并同步 players.action_taken | raise252 × 3 | 0.661 |
+
+重放证明：K9 的 history bug 是事实，但首次 `raise252` 的直接原因是策略服务把顶对按 `strength=0.55,class=value` 处理，并在 4 个对手、SPR 16.7 的局面仍选择 3 倍加注。
+
+## action_history / action_taken 的实际影响
+
+SQL 窗口共找到 18 个唯一状态，`action_history` 已经记录了 Hero 首次行动后的对手动作，但 `players.action_taken` 仍保留旧快照或空值；加上 K9 共 19 个代表状态。
+
+对这 19 个状态逐个把 `players.action_taken` 按最后一次 Hero 行动后的累计 history 修正，再调用当前 GTO：
+
+- 19/19 的 `action / raise_size / action_probability` 均未变化。
+- 包括 QJ 顶对面对 raise、88 超对面对 raise，以及 K9 顶对案例。
+
+这不能证明 action_taken 永远不影响策略，只能说明已捕获样本中它不是异常动作的直接触发器。修复 `362c927` 已把第二圈动作从累计 history 回填到 players，并于 2026-10-14 部署。
+
+## 决策服务的横向问题
+
+### 1. 顶对被统一当作价值 3 倍加注
+
+K9 与 K5 的输入、人次和 SPR 不同，但均走到同一模式：
+
+- `class=value`
+- `raise for value (+EV)`
+- `raise_to = facing_bet × 3`
+
+K9 是 4 个对手、SPR 16.7；K5 是 2 个对手、SPR 4.4。两手修正 action_taken 后输出完全不变，说明多人底池、踢脚和深筹码惩罚不足，属于策略模型问题。
+
+### 2. 动作选择没有遵守自身 EV
+
+Q8 将 `two_pair` 错称为 `river nuts`。把对手下注从 OCR 的130修正为原图1308后，服务计算：
+
+- `EV(call)=3107.8`
+- `EV(raise)=2213.1`
+
+但仍以0.803概率选择 raise/all-in。这是内部决策规则与分析结果自相矛盾，不能由 ddbaby 输入层解释。
+
+### 3. 同一请求的服务版本存在漂移
+
+将 SQL 窗口的 150 个唯一翻后请求重放到当前 v1 GTO：
+
+- 118/150 的核心三元组与历史相同；
+- 25/150 动作相同但概率变化；
+- 7/150 从历史 check 变为当前 bet；
+- 没有 raise size 单独变化。
+
+这说明决策服务在窗口后发生过规则或参数变化，但接口没有返回策略版本。以后报告必须同时保存 `strategy_version/model_version`，否则“当时为什么这样决策”和“现在重放是否一致”会混在一起。
+
+## 已修复与仍开放
+
+| 层 | 状态 | 证据/风险 |
+|---|---|---|
+| preflop BB/straddle option check | 已部署 | `03b8a6b`，修复 3 个合法 raise 被拒绝 |
+| 第二圈 Hero check 与 action_taken | 已部署 | `362c927`，服务器 Go1.22.2 全仓、race、专项及运行验证通过 |
+| 最低合法加注校验 | **未部署** | 当前生产源码不含 `minimumRaiseTarget`；类似 raise102 仍缺少最终安全网。本地工作区已有候选和测试，但不属于本报告提交 |
+| 1308→130 OCR | **未确认修复** | 需要用原图 `2026-10-14 07:21:43-hero.jpg` 在生产识别器隔离回放 |
+| 空座位导致 Hero STR→UTG | **未修复** | 需要修 seat active 判定和 position 旋转，并用 `06:37:31` 原图回归 |
+| GTO 顶对过激、牌力分类、EV选择 | **未修复** | 属于上游决策服务；ddbaby 只能做合法性/严格支配保护，不能猜测替换策略 |
+
+## 建议优先级
+
+1. **P0：修 GTO 选择一致性。** 选择动作必须与同一响应里的 EV 排序一致；两对不能标成 nuts；补 paired-board full house、单手牌成花和 trips/set 回归。
+2. **P0：部署最低合法加注保护。** 即便 OCR 或 GTO 出错，也不能把低于最小加注的 raise 返回客户端；短码 all-in 保留例外。
+3. **P0：识别结果做跨字段一致性校验。** 玩家下注、跟注按钮金额、底池与 decided 帧互相校验；`1308` 对 `130` 这类数量级冲突应拒绝决策并等待下一帧，不能直接调用 GTO。
+4. **P1：修空座位 position 旋转。** inactive/empty seat 不能参与 SB/BB/straddle 推导；Hero UI 的 STR/盲注标识应作为强约束。
+5. **P1：建立分层回归集。** 每个 case 同时保存原图、recognition JSON、最终 request、raw/final response和策略版本；分别判定识别正确率、history一致性、动作合法性和策略合理性。
+
+## 证据与边界
+
+- SQL 导出 SHA256：`63ee89d8091e3251ebf2de72cc932a92f5e26be22dd134c392934480877c55aa`
+- 19 个 action_taken A/B SHA256：`1ef6496361cca36cce47b1b5705ee00d6afba9e40d27e85fe8475cb40ecebe3b`
+- K9 完整 history A/B SHA256：`a11922c06671cb22c94b9c85b7a7936ead0f9b26e57c18b999b509483033c6eb`
+- Q8/K5 专项 A/B SHA256：`5628aab9c9ef7432027614a83168f69c0f81ae7bc706bca99c19ef9a14fad561`
+- 150 个翻后当前重放 SHA256：`fec532fa26dd6f7a399f8dc14e35d2b42c05fd7bb03df6e6c79aa1eaf62d04a7`
+- 原始证据保存在 `/data00/home/xujin.xj/outputs/two-day-decision-audit-20261014/`，未写入生产缓存或用户会话。
+- 本报告能确认输入一致性、状态重建、动作合法性和内部决策矛盾；除严格支配、明显牌力错误及内部 EV 冲突外，不宣称逐手达到 solver 最优。
