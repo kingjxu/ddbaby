@@ -226,3 +226,17 @@ status: "active"
   部署后 PID `3924762`、PPID `1`，`/proc` 与磁盘二进制一致，端口 8888
   正常监听且 `/ping` 返回 `pong`。本轮未在线上执行全量回归或注入模拟牌局。
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261013-133505-before-03b8a6b`。
+
+## 2026-10-14 同街第二圈 action_taken 修复部署
+
+- 业务提交 `362c927`。decided 帧会在满足合法免费过牌条件时记录 Hero check；
+  当前街已有 Hero 动作且其后观察到对手动作时，`players.action_taken` 按累计
+  history 恢复第二圈顺序，首圈继续使用既有快照推断。
+- 服务器 Go 1.22.2 隔离目录完成全仓测试、model/dal race、K9 三个专项回归
+  和构建，均通过。运行时二进制 SHA256 为
+  `76135e36cb599bf332d9f6ad0b0e18640a760e59736a1fecef0267a7787ab3b5`；
+  `model/recognize_poker.go` SHA256 为
+  `b7ffe32d8072574d187985b5d819df67da75273d4f74d1351318b45afd72029b`。
+- 部署后 PID `39301`、PPID `1`，`/proc` 与磁盘二进制一致，8888 正常监听，
+  SSH 重连后 `/ping` 返回 `pong`，启动日志未发现 panic/fatal。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261014-101927-before-362c927`。

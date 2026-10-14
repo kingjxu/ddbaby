@@ -34,7 +34,33 @@ K9 回归后的关键结果为：
 - 新增边界回归：合法免费过牌才补 Hero check；Hero 面对未跟注下注时不补造 check。
 - 原有多轮 3bet/4bet、短码 all-in、fold、跨街和 straddle option check 用例继续通过。
 
-本机 `go test ./...` 受仓库既有 `sonic/loader v0.1.1` 与本机 Go 1.24 不兼容影响，在未涉及本次改动的依赖编译阶段失败；model/dal 目标包及 race 回归均已通过。部署前需在服务器既有 Go 1.22.2 构建环境完成全量构建和隔离回放。
+本机 `go test ./...` 受仓库既有 `sonic/loader v0.1.1` 与本机 Go 1.24 不兼容影响，在未涉及本次改动的依赖编译阶段失败；model/dal 目标包及 race 回归均已通过。
+
+服务器使用 Go 1.22.2 在隔离目录
+`/home/ubuntu/ddbaby-action-taken-candidate-39aa4c8` 完成部署前验证：
+
+- `go test ./... -count=1`：通过；
+- `go test -race ./model ./dal -count=1`：通过；
+- K9 第二圈、合法 Hero check、面对未跟注下注不补 check 三个专项用例：通过；
+- `bash build.sh`：通过；候选二进制 SHA256 为
+  `76135e36cb599bf332d9f6ad0b0e18640a760e59736a1fecef0267a7787ab3b5`。
+
+## 部署结果
+
+代码提交 `362c927` 与报告修正 `39aa4c8` 均经 CR 确认 LGTM。2026-10-14
+10:19:27 +08:00 将隔离构建产物原子部署到生产：
+
+- 运行时二进制 SHA256 与候选一致，为
+  `76135e36cb599bf332d9f6ad0b0e18640a760e59736a1fecef0267a7787ab3b5`；
+- 运行时 `model/recognize_poker.go` SHA256 为
+  `b7ffe32d8072574d187985b5d819df67da75273d4f74d1351318b45afd72029b`，
+  与提交构建输入一致；
+- 部署后 PID `39301`、PPID `1`，`/proc/39301/exe` 与磁盘二进制一致，
+  8888 正常监听，本机 `/ping` 返回 `{"message":"pong"}`；重新建立 SSH
+  连接后复核仍正常，启动日志未发现 panic/fatal；
+- 回滚目录为
+  `/home/ubuntu/ddbaby-backups/20261014-101927-before-362c927`，保存上一版二进制、
+  运行时源码及 SHA256 清单。
 
 ## 风险与回滚
 
