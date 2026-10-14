@@ -6,7 +6,7 @@
 
 1. **识别输入错误**会漏掉或截断最新下注，也会在空座位场景把 Hero 的位置整体错位。代表案例是 `1308→130`、`84→34`、漏掉 `340/315/123/1221`，以及实际为 straddle 的 Hero 被写成 UTG。
 2. **行动历史重建错误**曾漏记 Hero check，并让 `players.action_taken` 停留在首圈快照。该问题会让请求语义不完整，但对已抽取的 19 个代表状态做 A/B 后，当前 GTO 核心动作均未变化。因此它是需要修复的真实缺陷，却不能解释 K9 首次 `raise 252`。
-3. **决策服务存在已确认的内部分析矛盾，也有需要 solver 复核的激进策略。** K9、K5 在完整正确输入下仍对顶对选择 3 倍加注，这只能证明动作来自当前策略启发式，不能在缺少同配置 solver、范围和 rake 的情况下判定为错误；Q8 河牌两对被称为 `river nuts`，且服务自己算出 `EV(call) > EV(raise)` 后仍选择 raise，属于可确认的内部一致性问题。
+3. **决策服务存在已确认的内部分析矛盾，也有需要 solver 复核的激进策略。** K9、K5 在完整正确输入下仍对顶对选择 3 倍加注；K9 面对 BTN 后续再加注到687时，又以67.5%概率返回 raise1188。这只能证明动作来自当前策略启发式，不能在缺少同配置 solver、范围和 rake 的情况下判定为错误；Q8 河牌两对被称为 `river nuts`，且服务自己算出 `EV(call) > EV(raise)` 后仍选择 raise，属于可确认的内部一致性问题。
 4. **ddbaby 输出保护仍有缺口**。straddle option raise 的误拒绝已经修复并部署；最低合法加注校验目前只有本地候选，生产版本仍可能放行类似 `raise 102` 的非法小加注。
 
 因此不能只通过修 OCR 或只修 `action_history` 来解决“翻后过激”。识别、状态重建、策略服务和输出校验必须分别设指标和回归集。
@@ -27,7 +27,7 @@
 
 | 案例 | 原图/事实 | 请求或响应 | 归因 | 结论 |
 |---|---|---|---|---|
-| K9，Q♥K♥4♣，10:04 | 对手 bet84，另一人 call84；Hero 此前 check | 初始返回 raise252；后续某帧把84读成34并返回 raise102 | 策略高疑似 + OCR 抖动 + 历史缺口 | 首次 3 倍加注即使完整修正 history 仍存在，需同配置 solver 复核；raise102 另由 OCR 导致且金额非法 |
+| K9，Q♥K♥4♣，10:04–10:05 | 对手 bet84，另一人 call84；Hero raise 后 BTN 再加注到687 | 首次返回 raise252；面对 BTN 再加注后又返回 raise1188 | 策略高疑似 + OCR 抖动 + 历史缺口 | 首次及后续加注均需同配置 solver 复核；后续请求已正确包含 Hero raise291 与 BTN raise687，不能由漏记 4-bet 解释 |
 | K5，K♥6♥9♦，06:46:42 | SB bet88、MP+1 call88，Hero K♣5♣，底池308 | 完整 history 下返回 raise264，`strength=0.47,class=value` | 策略高疑似 | 输入无误，当前启发式在多人底池仍采用 3 倍价值加注；是否错误需 solver 复核 |
 | Q8，K♠3♣Q♥T♦8♦，07:21:43 | 原图 BB bet1308，Hero 剩1488 | 请求写成130并返回 raise390；修为1308后仍返回 all-in1488，称“两对”为 `river nuts` | OCR + 决策逻辑 | 修金额只能修尺寸，不能修动作；服务内部还出现 `EV(call)=3107.8 > EV(raise)=2213.1` 却选 raise |
 | J9，06:37:31 | 原图 Hero 明确标记 `STR`、已投12，可免费 option | 请求把 Hero 写成 UTG，并额外构造 active straddle；最终 fold | 座位/身份识别 | 空座位导致位置链偏移，后续 free-fold→check 保护因 Hero 身份错误而未触发 |
@@ -61,6 +61,18 @@
 | 修正为 `Hero check → BTN bet84 → SB call84 → BB fold`，并同步 players.action_taken | raise252 × 3 | 0.661 |
 
 重放证明：K9 的 history bug 是事实，但它不是首次 `raise252` 的直接触发因素。完整输入下，策略服务仍把顶对按 `strength=0.55,class=value` 处理，并在 4 个对手、SPR 16.7 的局面选择 3 倍加注；该动作是否为负 EV 仍需同配置 solver 复核。
+
+### K9 面对后续再加注的线上决策
+
+Hero 首次加注后牌局继续。10:05:10、10:05:13、10:05:16、10:05:19 四次生产日志记录了完全一致的请求和响应：
+
+- Hero 已投入291，BTN 已投入687，Hero 面对的补齐金额为396，底池为1188；
+- `action_history` 已明确包含 `straddle-Hero raise291 → BTN raise687 → SB fold`；
+- 决策服务四次均返回 `raise 1188`，概率0.675；call概率0.325，fold概率0；
+- 服务继续把 K9 顶对标为 `strength=0.55,class=value`，内部估算 `EV(call)=608.3`、`EV(raise)=785.3`；
+- 10:05:22 decided 帧显示“加注1188”，与生产响应一致。
+
+因此，这手牌的最终建议不是 call84，也不是面对再加注弃牌，而是再次加注到1188。后续输入已经记录对手再加注，不能归因于 action_history 漏掉 4-bet；它属于策略高疑似，需要同配置 solver、范围和 rake 复核，当前证据不足以直接断言其 solver EV 为负。
 
 ## action_history / action_taken 的实际影响
 
@@ -129,6 +141,7 @@ Q8 将 `two_pair` 错称为 `river nuts`。把对手下注从 OCR 的130修正�
 - SQL 导出 SHA256：`63ee89d8091e3251ebf2de72cc932a92f5e26be22dd134c392934480877c55aa`
 - 19 个 action_taken A/B SHA256：`1ef6496361cca36cce47b1b5705ee00d6afba9e40d27e85fe8475cb40ecebe3b`
 - K9 完整 history A/B SHA256：`a11922c06671cb22c94b9c85b7a7936ead0f9b26e57c18b999b509483033c6eb`
+- K9 面对再加注的四次生产请求/响应 SHA256：`86362078c0666871cd2a21fe8ec3edb00e698107d778be85c881397bca2ba674`
 - Q8/K5 专项 A/B SHA256：`5628aab9c9ef7432027614a83168f69c0f81ae7bc706bca99c19ef9a14fad561`
 - 150 个翻后当前重放 SHA256：`fec532fa26dd6f7a399f8dc14e35d2b42c05fd7bb03df6e6c79aa1eaf62d04a7`
 - 原始证据保存在 `/data00/home/xujin.xj/outputs/two-day-decision-audit-20261014/`，未写入生产缓存或用户会话。
