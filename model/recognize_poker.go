@@ -331,8 +331,9 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 
 	sbSize, bbSize := parseBlindSize(currentResult.TableInfo.BlindSize)
 
-	players, currentPlayerPos := buildPlayers(currentResult, bbSize)
 	actionHistory := buildActionHistory(ctx, recResult)
+	players, currentPlayerPos := buildPlayers(currentResult, bbSize)
+	applyObservedActionTaken(players, currentPlayerPos, currentResult.TableInfo.Stage, actionHistory)
 
 	return &TexasGtoDecisionReq{
 		GameType:              "no_limit_holdem",
@@ -348,6 +349,45 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 		Players:               players,
 		CurrentPlayerPosition: currentPlayerPos,
 		ActionHistory:         actionHistory,
+	}
+}
+
+// applyObservedActionTaken replaces the single-snapshot guess once the current
+// street has already passed Hero at least once. In later action orbits the
+// static chip totals cannot distinguish the original bettor from callers, but
+// the accumulated history preserves that order.
+func applyObservedActionTaken(players []TexasPlayer, heroPosition, stage string, history []TexasActionHistory) {
+	stage = normalizeStage(stage)
+	lastHeroAction := -1
+	for i, action := range history {
+		if normalizeStage(action.Stage) == stage && action.Position == heroPosition {
+			lastHeroAction = i
+		}
+	}
+	if lastHeroAction < 0 {
+		return
+	}
+
+	latestByPosition := make(map[string]string)
+	for _, action := range history[lastHeroAction+1:] {
+		if normalizeStage(action.Stage) == stage && action.Position != heroPosition {
+			latestByPosition[action.Position] = action.Action
+		}
+	}
+	if len(latestByPosition) == 0 {
+		return
+	}
+
+	for i := range players {
+		if players[i].Position == heroPosition {
+			continue
+		}
+		if players[i].IsActive {
+			players[i].ActionTaken = ""
+		}
+		if action, ok := latestByPosition[players[i].Position]; ok {
+			players[i].ActionTaken = action
+		}
 	}
 }
 
@@ -941,6 +981,43 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 		}
 	}
 
+	lastOrder := -1
+	orderByPosition := make(map[string]int, len(previousSeats))
+	for _, player := range previousSeats {
+		orderByPosition[player.position] = player.order
+	}
+	for _, action := range previous.ObservedActionHistory {
+		if normalizeStage(action.Stage) != stage {
+			continue
+		}
+		if order, ok := orderByPosition[action.Position]; ok {
+			lastOrder = order
+		}
+	}
+
+	timestamp := nextTimestamp(previous.ObservedActionHistory)
+	history := make([]TexasActionHistory, 0)
+	for _, player := range previousSeats {
+		if player.seat != previous.HeroInfo.Seat {
+			continue
+		}
+		canCheck := stage != "preflop" ||
+			(currentMax > 0 && forcedBlind(player.position, sbSize, bbSize) == currentMax)
+		if previous.HeroInfo.IsHeroTurn && !current.HeroInfo.IsHeroTurn &&
+			previous.HeroInfo.Seat == current.HeroInfo.Seat &&
+			previous.HeroInfo.Status == "active" && current.HeroInfo.Status == "active" &&
+			previous.HeroInfo.CurrentBet == current.HeroInfo.CurrentBet &&
+			previous.HeroInfo.CurrentBet >= currentMax && canCheck {
+			history = append(history, TexasActionHistory{
+				Stage: stage, Position: player.position, Action: "check",
+				Amount: 0, Timestamp: timestamp, Status: current.HeroInfo.Status,
+			})
+			timestamp++
+			lastOrder = player.order
+		}
+		break
+	}
+
 	events := make([]inferredActionEvent, 0)
 	for _, player := range currentSeats {
 		old, ok := previousBySeat[player.seat]
@@ -957,23 +1034,8 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 		}
 	}
 
-	lastOrder := -1
-	orderByPosition := make(map[string]int, len(previousSeats))
-	for _, player := range previousSeats {
-		orderByPosition[player.position] = player.order
-	}
-	for _, action := range previous.ObservedActionHistory {
-		if normalizeStage(action.Stage) != stage {
-			continue
-		}
-		if order, ok := orderByPosition[action.Position]; ok {
-			lastOrder = order
-		}
-	}
 	events = orderInferredEvents(events, lastOrder, len(previousSeats))
 
-	timestamp := nextTimestamp(previous.ObservedActionHistory)
-	history := make([]TexasActionHistory, 0, len(events))
 	for _, event := range events {
 		player := event.player
 		if !isActiveStatus(player.status) {
