@@ -27,7 +27,7 @@
 
 | 案例 | 原图/事实 | 请求或响应 | 归因 | 结论 |
 |---|---|---|---|---|
-| K9，Q♥K♥4♣，10:04–10:05 | 对手 bet84，另一人 call84；Hero raise 后 BTN 再加注到687 | 首次返回 raise252；面对 BTN 再加注后又返回 raise1188 | 策略高疑似 + OCR 抖动 + 历史缺口 | 首次及后续加注均需同配置 solver 复核；后续请求已正确包含 Hero raise291 与 BTN raise687，不能由漏记 4-bet 解释 |
+| K9，Q♥K♥4♣，10:04–10:05 | 对手 bet84，另一人 call84；Hero raise 后 BTN 再加注到687 | 首次返回 raise252；面对 BTN 再加注后又返回 raise1188 | 策略高疑似 + OCR 抖动 + 历史缺口 | 首次及后续加注均需同配置 solver 复核；后续请求已正确包含 Hero raise291 与 BTN raise687，不能由漏记 BTN 再加注解释 |
 | K5，K♥6♥9♦，06:46:42 | SB bet88、MP+1 call88，Hero K♣5♣，底池308 | 完整 history 下返回 raise264，`strength=0.47,class=value` | 策略高疑似 | 输入无误，当前启发式在多人底池仍采用 3 倍价值加注；是否错误需 solver 复核 |
 | Q8，K♠3♣Q♥T♦8♦，07:21:43 | 原图 BB bet1308，Hero 剩1488 | 请求写成130并返回 raise390；修为1308后仍返回 all-in1488，称“两对”为 `river nuts` | OCR + 决策逻辑 | 修金额只能修尺寸，不能修动作；服务内部还出现 `EV(call)=3107.8 > EV(raise)=2213.1` 却选 raise |
 | J9，06:37:31 | 原图 Hero 明确标记 `STR`、已投12，可免费 option | 请求把 Hero 写成 UTG，并额外构造 active straddle；最终 fold | 座位/身份识别 | 空座位导致位置链偏移，后续 free-fold→check 保护因 Hero 身份错误而未触发 |
@@ -72,7 +72,7 @@ Hero 首次加注后牌局继续。10:05:10、10:05:13、10:05:16、10:05:19 四
 - 服务继续把 K9 顶对标为 `strength=0.55,class=value`，内部估算 `EV(call)=608.3`、`EV(raise)=785.3`；
 - 10:05:22 decided 帧显示“加注1188”，与生产响应一致。
 
-因此，这手牌的最终建议不是 call84，也不是面对再加注弃牌，而是再次加注到1188。后续输入已经记录对手再加注，不能归因于 action_history 漏掉 4-bet；它属于策略高疑似，需要同配置 solver、范围和 rake 复核，当前证据不足以直接断言其 solver EV 为负。
+因此，这手牌的最终建议不是 call84，也不是面对再加注弃牌，而是再次加注到1188。后续输入已经记录 BTN 的翻后再加注（3-bet），不能归因于 action_history 漏掉 BTN 再加注；它属于策略高疑似，需要同配置 solver、范围和 rake 复核，当前证据不足以直接断言其 solver EV 为负。
 
 ## action_history / action_taken 的实际影响
 
