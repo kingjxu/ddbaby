@@ -1018,7 +1018,8 @@ func TestValidateTexasGtoDecisionResponse(t *testing.T) {
 		{name: "legal raise", req: decisionRequest(20, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 220}},
 		{name: "legal big blind option raise", req: decisionRequest(6, 207, 6), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 30}},
 		{name: "legal straddle option raise", req: decisionRequest(12, 207, 12), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 84}},
-		{name: "raise without wager", req: decisionRequest(0, 207, 0), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 50}, wantErr: true},
+		{name: "open raise without recorded wager", req: decisionRequest(0, 207, 0), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 50}},
+		{name: "zero open raise", req: decisionRequest(0, 207, 0), resp: &TexasGtoDecisionResp{Action: "raise"}, wantErr: true},
 		{name: "raise beyond stack", req: decisionRequest(99, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 420}, wantErr: true},
 		{name: "raise below current bet", req: decisionRequest(20, 207, 99), resp: &TexasGtoDecisionResp{Action: "raise", RaiseSize: 99}, wantErr: true},
 		{name: "unknown action", req: decisionRequest(0, 200, 0), resp: &TexasGtoDecisionResp{Action: "jam"}, wantErr: true},
@@ -1030,6 +1031,18 @@ func TestValidateTexasGtoDecisionResponse(t *testing.T) {
 				t.Fatalf("error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
+	}
+}
+
+func TestValidateTexasGtoDecisionResponseAcceptsPocketNinesOpenRaise(t *testing.T) {
+	req := decisionRequest(0, 207, 0)
+	req.BbSize = 2
+	req.Straddle = 4
+	req.Players[0].HoleCards = []string{"9-C", "9-H"}
+	resp := &TexasGtoDecisionResp{Action: "raise", RaiseSize: 24}
+
+	if err := ValidateTexasGtoDecisionResponse(req, resp); err != nil {
+		t.Fatalf("preflop open raise was rejected: %v", err)
 	}
 }
 
