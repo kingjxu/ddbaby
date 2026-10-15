@@ -845,6 +845,7 @@ func initialStreetBet(stage string, seats []actionSeat, sbSize, bbSize int) int 
 type inferredActionEvent struct {
 	player actionSeat
 	target int
+	action string
 }
 
 func circularDistance(order, afterOrder, playerCount int) int {
@@ -914,6 +915,30 @@ func inferSnapshotActions(result *TexasResult) []TexasActionHistory {
 	currentMax := initialStreetBet(stage, seats, sbSize, bbSize)
 
 	events := make([]inferredActionEvent, 0, len(seats))
+	if stage != "preflop" && result.HeroInfo.IsHeroTurn {
+		heroOrder := -1
+		visibleMax := 0
+		for _, player := range seats {
+			if player.seat == result.HeroInfo.Seat {
+				heroOrder = player.order
+			}
+			if player.currentBet > visibleMax {
+				visibleMax = player.currentBet
+			}
+		}
+		// A Hero-turn snapshot with no wager proves that every active player
+		// before Hero has checked. Preserve those zero-chip actions explicitly;
+		// currentBet alone cannot distinguish a check from no action.
+		if heroOrder >= 0 && visibleMax == 0 {
+			for _, player := range seats {
+				if player.status == "active" && player.order < heroOrder {
+					events = append(events, inferredActionEvent{
+						player: player, action: "check",
+					})
+				}
+			}
+		}
+	}
 	for _, player := range seats {
 		if !isActiveStatus(player.status) {
 			// A static snapshot cannot reveal which raise caused a fold. Place
@@ -943,14 +968,17 @@ func inferSnapshotActions(result *TexasResult) []TexasActionHistory {
 			})
 			continue
 		}
-		action := "call"
-		if player.currentBet > currentMax {
-			if stage != "preflop" && currentMax == 0 {
-				action = "bet"
-			} else {
-				action = "raise"
+		action := event.action
+		if action == "" {
+			action = "call"
+			if player.currentBet > currentMax {
+				if stage != "preflop" && currentMax == 0 {
+					action = "bet"
+				} else {
+					action = "raise"
+				}
+				currentMax = player.currentBet
 			}
-			currentMax = player.currentBet
 		}
 		history = append(history, TexasActionHistory{
 			Stage: stage, Position: player.position, Action: action,
@@ -1084,15 +1112,22 @@ func inferStageCompletion(previous, current *TexasResult) []TexasActionHistory {
 	}
 
 	lastAmount := make(map[string]int)
+	lastActionSequence := make(map[string]int)
+	lastAggressionSequence := 0
 	folded := make(map[string]bool)
 	lastOrder := -1
 	orderByPosition := make(map[string]int, len(previousSeats))
 	for _, player := range previousSeats {
 		orderByPosition[player.position] = player.order
 	}
-	for _, action := range previous.ObservedActionHistory {
+	for index, action := range previous.ObservedActionHistory {
 		if normalizeStage(action.Stage) != stage {
 			continue
+		}
+		sequence := index + 1
+		lastActionSequence[action.Position] = sequence
+		if action.Action == "bet" || action.Action == "raise" {
+			lastAggressionSequence = sequence
 		}
 		if action.Amount > lastAmount[action.Position] {
 			lastAmount[action.Position] = action.Amount
@@ -1120,7 +1155,8 @@ func inferStageCompletion(previous, current *TexasResult) []TexasActionHistory {
 			continue
 		}
 		if !isActiveStatus(next.status) {
-			if isActiveStatus(player.status) && !folded[player.position] {
+			if isActiveStatus(player.status) && !folded[player.position] &&
+				lastActionSequence[player.position] <= lastAggressionSequence {
 				pending = append(pending, TexasActionHistory{
 					Stage: stage, Position: player.position, Action: "fold", Status: next.status,
 				})
@@ -1142,6 +1178,9 @@ func inferStageCompletion(previous, current *TexasResult) []TexasActionHistory {
 			forcedBlind(player.position, sbSize, bbSize) == stageMax &&
 			lastAmount[player.position] == 0
 		if stageMax == 0 || isPreflopOptionCheck {
+			if lastActionSequence[player.position] > lastAggressionSequence {
+				continue
+			}
 			pending = append(pending, TexasActionHistory{
 				Stage: stage, Position: player.position, Action: "check", Status: player.status,
 			})

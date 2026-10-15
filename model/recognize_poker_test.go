@@ -568,10 +568,146 @@ func TestPrepareActionHistoryRecordsHeroCheckFromDecidedFrame(t *testing.T) {
 	PrepareActionHistory(beforeHero, decided)
 
 	want := []TexasActionHistory{
-		{Stage: "flop", Position: "straddle-Hero", Action: "check", Amount: 0, Timestamp: 0, Status: "active"},
+		{Stage: "flop", Position: "SB", Action: "check", Amount: 0, Timestamp: 0, Status: "active"},
+		{Stage: "flop", Position: "BB", Action: "check", Amount: 0, Timestamp: 1, Status: "active"},
+		{Stage: "flop", Position: "straddle-Hero", Action: "check", Amount: 0, Timestamp: 2, Status: "active"},
 	}
 	if !reflect.DeepEqual(decided.ObservedActionHistory, want) {
 		t.Fatalf("decided-frame history = %+v, want %+v", decided.ObservedActionHistory, want)
+	}
+}
+
+func TestInferSnapshotActionsDoesNotInventCheckBeforeFirstActor(t *testing.T) {
+	firstActor := makeTexasResultWithSeats(t, 1, 2, []map[string]interface{}{
+		{"seat": 1, "status": "active", "stack": 500, "current_bet": 0},
+		{"seat": 3, "status": "active", "stack": 500, "current_bet": 0},
+		{"seat": 4, "status": "active", "stack": 500, "current_bet": 0},
+		{"seat": 5, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 6, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 7, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 8, "status": "empty", "stack": 0, "current_bet": 0},
+	})
+	firstActor.TableInfo.Stage = "flop"
+	firstActor.HeroInfo.IsHeroTurn = true
+
+	if history := inferSnapshotActions(firstActor); len(history) != 0 {
+		t.Fatalf("first actor received invented prior actions: %+v", history)
+	}
+}
+
+func TestInferSnapshotActionsRecordsChecksOnlyBeforeMiddleActor(t *testing.T) {
+	middleActor := makeTexasResultWithSeats(t, 1, 3, []map[string]interface{}{
+		{"seat": 1, "status": "active", "stack": 500, "current_bet": 0},
+		{"seat": 2, "status": "active", "stack": 500, "current_bet": 0},
+		{"seat": 4, "status": "active", "stack": 500, "current_bet": 0},
+		{"seat": 5, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 6, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 7, "status": "empty", "stack": 0, "current_bet": 0},
+		{"seat": 8, "status": "empty", "stack": 0, "current_bet": 0},
+	})
+	middleActor.TableInfo.Stage = "flop"
+	middleActor.HeroInfo.IsHeroTurn = true
+
+	want := []TexasActionHistory{
+		{Stage: "flop", Position: "SB", Action: "check", Amount: 0, Timestamp: 0, Status: "active"},
+	}
+	if history := inferSnapshotActions(middleActor); !reflect.DeepEqual(history, want) {
+		t.Fatalf("middle actor history = %+v, want %+v", history, want)
+	}
+}
+
+func TestPrepareActionHistoryKeepsPriorCheckBeforeHeroWithoutDuplicate(t *testing.T) {
+	preflop := makeTexasResultWithSeats(t, 1, 1, []map[string]interface{}{
+		{"seat": 2, "status": "active", "stack": 110, "current_bet": 24},
+		{"seat": 3, "status": "folded", "stack": 1972, "current_bet": 0},
+		{"seat": 4, "status": "waiting", "stack": 0, "current_bet": 0},
+		{"seat": 5, "status": "folded", "stack": 892, "current_bet": 0},
+		{"seat": 6, "status": "folded", "stack": 203, "current_bet": 0},
+		{"seat": 7, "status": "folded", "stack": 352, "current_bet": 0},
+		{"seat": 8, "status": "folded", "stack": 507, "current_bet": 0},
+	})
+	preflop.TableInfo.Stage = "preflop"
+	preflop.TableInfo.BlindSize = "1/2/4(2)"
+	preflop.HeroInfo.CurrentBet = 24
+	preflop.ObservedActionHistory = []TexasActionHistory{
+		{Stage: "preflop", Position: "BTN-Hero", Action: "raise", Amount: 24, Timestamp: 0, Status: "active"},
+		{Stage: "preflop", Position: "SB", Action: "call", Amount: 24, Timestamp: 1, Status: "active"},
+	}
+
+	flopHero := makeTexasResultWithSeats(t, 1, 1, []map[string]interface{}{
+		{"seat": 2, "status": "active", "stack": 110, "current_bet": 0},
+		{"seat": 3, "status": "folded", "stack": 1972, "current_bet": 0},
+		{"seat": 4, "status": "waiting", "stack": 0, "current_bet": 0},
+		{"seat": 5, "status": "folded", "stack": 892, "current_bet": 0},
+		{"seat": 6, "status": "folded", "stack": 203, "current_bet": 0},
+		{"seat": 7, "status": "folded", "stack": 352, "current_bet": 0},
+		{"seat": 8, "status": "folded", "stack": 507, "current_bet": 0},
+	})
+	flopHero.TableInfo.Stage = "flop"
+	flopHero.TableInfo.BlindSize = "1/2/4(2)"
+	flopHero.HeroInfo.IsHeroTurn = true
+	PrepareActionHistory(preflop, flopHero)
+
+	decided := *flopHero
+	decided.HeroInfo.IsHeroTurn = false
+	PrepareActionHistory(flopHero, &decided)
+
+	turn := decided
+	turn.TableInfo.Stage = "turn"
+	turn.HeroInfo.IsHeroTurn = true
+	setSeatBet(&turn, 2, 36)
+	PrepareActionHistory(&decided, &turn)
+
+	checks := make([]TexasActionHistory, 0, 2)
+	for _, action := range turn.ObservedActionHistory {
+		if action.Stage == "flop" && action.Action == "check" {
+			checks = append(checks, action)
+		}
+	}
+	want := []TexasActionHistory{
+		{Stage: "flop", Position: "SB", Action: "check", Amount: 0, Timestamp: 2, Status: "active"},
+		{Stage: "flop", Position: "BTN-Hero", Action: "check", Amount: 0, Timestamp: 3, Status: "active"},
+	}
+	if !reflect.DeepEqual(checks, want) {
+		t.Fatalf("flop checks = %+v, want %+v; history=%+v", checks, want, turn.ObservedActionHistory)
+	}
+}
+
+func TestInferStageCompletionAllowsActionAfterNewBet(t *testing.T) {
+	previous := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	previous.ObservedActionHistory = []TexasActionHistory{
+		{Stage: "flop", Position: "BTN", Action: "check", Timestamp: 0, Status: "active"},
+		{Stage: "flop", Position: "SB", Action: "bet", Amount: 20, Timestamp: 1, Status: "active"},
+	}
+	setSeatBet(previous, 2, 20)
+	nextStreet := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	nextStreet.TableInfo.Stage = "turn"
+	setSeatBet(nextStreet, 2, 0)
+
+	completion := inferStageCompletion(previous, nextStreet)
+	foundCall := false
+	for _, action := range completion {
+		if action.Position == "BTN" && action.Action == "call" && action.Amount == 20 {
+			foundCall = true
+		}
+	}
+	if !foundCall {
+		t.Fatalf("prior check prevented required call after a new bet: %+v", completion)
+	}
+}
+
+func TestInferStageCompletionDoesNotFoldPlayerTwiceWithoutNewBet(t *testing.T) {
+	previous := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	previous.ObservedActionHistory = []TexasActionHistory{
+		{Stage: "flop", Position: "BB", Action: "check", Timestamp: 0, Status: "active"},
+	}
+	nextStreet := fourPlayerFlopSnapshot(t, false, 0, 0, "folded")
+	nextStreet.TableInfo.Stage = "turn"
+
+	for _, action := range inferStageCompletion(previous, nextStreet) {
+		if action.Position == "BB" {
+			t.Fatalf("player acted twice without a new bet: %+v", action)
+		}
 	}
 }
 
