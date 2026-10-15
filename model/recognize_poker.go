@@ -411,13 +411,33 @@ func PrepareActionHistory(previous, result *TexasResult) {
 		return
 	}
 
-	result.ObservedActionHistory = append(result.ObservedActionHistory, inferStageCompletion(previous, result)...)
+	completion := inferStageCompletion(previous, result)
+	result.ObservedActionHistory = append(result.ObservedActionHistory, completion...)
+	previousStatus := make(map[string]string)
+	currentStatus := make(map[string]string)
+	completedFold := make(map[string]bool)
+	for _, player := range actionSeats(previous) {
+		previousStatus[player.position] = player.status
+	}
+	for _, player := range actionSeats(result) {
+		currentStatus[player.position] = player.status
+	}
+	for _, action := range completion {
+		if action.Action == "fold" {
+			completedFold[action.Position] = true
+		}
+	}
 	stageActions := inferSnapshotActions(result)
 	for _, action := range stageActions {
-		// A player already folded in the first snapshot of a new street must
-		// have folded while completing the previous street.
 		if action.Action == "fold" {
-			continue
+			// A fold first visible after a street change belongs to the old
+			// street when completion still owed that player a response. If the
+			// player had already completed the old street, the status change
+			// happened on the new street and must remain in its action order.
+			if !isActiveStatus(previousStatus[action.Position]) ||
+				isActiveStatus(currentStatus[action.Position]) || completedFold[action.Position] {
+				continue
+			}
 		}
 		action.Timestamp = nextTimestamp(result.ObservedActionHistory)
 		result.ObservedActionHistory = append(result.ObservedActionHistory, action)
@@ -1060,15 +1080,53 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 	}
 
 	events = orderInferredEvents(events, lastOrder, len(previousSeats))
+	currentBySeat := make(map[int]actionSeat, len(currentSeats))
+	previousByOrder := make(map[int]actionSeat, len(previousSeats))
+	changedSeats := make(map[int]bool, len(events))
+	for _, player := range previousSeats {
+		previousByOrder[player.order] = player
+	}
+	for _, player := range currentSeats {
+		currentBySeat[player.seat] = player
+	}
+	for _, event := range events {
+		changedSeats[event.player.seat] = true
+	}
 
 	for _, event := range events {
 		player := event.player
+		if stage != "preflop" && currentMax == 0 && isActiveStatus(player.status) && player.currentBet > 0 {
+			// When a later-position player is first seen betting after Hero (or
+			// another recorded actor) checked, every unchanged active player
+			// passed in between must also have checked. Their zero-chip actions
+			// are invisible in the next screenshot, so restore them from seat
+			// order before appending the observed bet.
+			for distance := 1; distance < len(previousSeats); distance++ {
+				order := (lastOrder + distance + len(previousSeats)) % len(previousSeats)
+				if order == player.order {
+					break
+				}
+				candidate := previousByOrder[order]
+				next, ok := currentBySeat[candidate.seat]
+				if !ok || changedSeats[candidate.seat] ||
+					!isActiveStatus(candidate.status) || !isActiveStatus(next.status) ||
+					candidate.status == "all_in" || candidate.currentBet != next.currentBet {
+					continue
+				}
+				history = append(history, TexasActionHistory{
+					Stage: stage, Position: candidate.position, Action: "check",
+					Amount: 0, Timestamp: timestamp, Status: next.status,
+				})
+				timestamp++
+			}
+		}
 		if !isActiveStatus(player.status) {
 			history = append(history, TexasActionHistory{
 				Stage: stage, Position: player.position, Action: "fold",
 				Amount: 0, Timestamp: timestamp, Status: player.status,
 			})
 			timestamp++
+			lastOrder = player.order
 			continue
 		}
 		action := "call"
@@ -1085,6 +1143,7 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 			Amount: player.currentBet, Timestamp: timestamp, Status: player.status,
 		})
 		timestamp++
+		lastOrder = player.order
 	}
 	return history
 }
@@ -1154,9 +1213,16 @@ func inferStageCompletion(previous, current *TexasResult) []TexasActionHistory {
 		if player.status == "all_in" {
 			continue
 		}
+		accounted := lastAmount[player.position]
+		if stage == "preflop" {
+			if blind := forcedBlind(player.position, sbSize, bbSize); blind > accounted {
+				accounted = blind
+			}
+		}
 		if !isActiveStatus(next.status) {
+			owesResponse := lastActionSequence[player.position] == 0 || accounted < stageMax
 			if isActiveStatus(player.status) && !folded[player.position] &&
-				lastActionSequence[player.position] <= lastAggressionSequence {
+				owesResponse {
 				pending = append(pending, TexasActionHistory{
 					Stage: stage, Position: player.position, Action: "fold", Status: next.status,
 				})
@@ -1167,12 +1233,6 @@ func inferStageCompletion(previous, current *TexasResult) []TexasActionHistory {
 			continue
 		}
 
-		accounted := lastAmount[player.position]
-		if stage == "preflop" {
-			if blind := forcedBlind(player.position, sbSize, bbSize); blind > accounted {
-				accounted = blind
-			}
-		}
 		isPreflopOptionCheck := stage == "preflop" &&
 			stageMax > 0 &&
 			forcedBlind(player.position, sbSize, bbSize) == stageMax &&

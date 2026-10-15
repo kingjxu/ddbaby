@@ -420,6 +420,15 @@ func preflopSnapshot(t *testing.T, bets map[int]int) *TexasResult {
 	return result
 }
 
+func historyContainsAction(history []TexasActionHistory, stage, position, action string, amount int) bool {
+	for _, item := range history {
+		if item.Stage == stage && item.Position == position && item.Action == action && item.Amount == amount {
+			return true
+		}
+	}
+	return false
+}
+
 func TestPrepareActionHistoryPreservesMultiRaiseSequence(t *testing.T) {
 	initial := preflopSnapshot(t, map[int]int{1: 1, 2: 2, 3: 4})
 	PrepareActionHistory(nil, initial)
@@ -577,6 +586,43 @@ func TestPrepareActionHistoryRecordsHeroCheckFromDecidedFrame(t *testing.T) {
 	}
 }
 
+func TestPrepareActionHistoryFillsChecksBetweenHeroAndLaterBet(t *testing.T) {
+	beforeHero := makeTexasResultWithSeats(t, 1, 3, []map[string]interface{}{
+		{"seat": 1, "status": "active", "stack": 500, "current_bet": 0},
+		{"seat": 2, "status": "folded", "stack": 500, "current_bet": 0},
+		{"seat": 4, "status": "active", "stack": 500, "current_bet": 0},
+		{"seat": 5, "status": "active", "stack": 500, "current_bet": 0},
+		{"seat": 6, "status": "folded", "stack": 500, "current_bet": 0},
+		{"seat": 7, "status": "folded", "stack": 500, "current_bet": 0},
+		{"seat": 8, "status": "folded", "stack": 500, "current_bet": 0},
+	})
+	beforeHero.TableInfo.Stage = "flop"
+	beforeHero.HeroInfo.IsHeroTurn = true
+	PrepareActionHistory(nil, beforeHero)
+
+	afterHero := *beforeHero
+	afterHero.VillainsInfo = append(afterHero.VillainsInfo[:0:0], afterHero.VillainsInfo...)
+	afterHero.HeroInfo.IsHeroTurn = false
+	PrepareActionHistory(beforeHero, &afterHero)
+
+	backToHero := afterHero
+	backToHero.VillainsInfo = append(backToHero.VillainsInfo[:0:0], backToHero.VillainsInfo...)
+	backToHero.HeroInfo.IsHeroTurn = true
+	setSeatBet(&backToHero, 1, 20)
+	PrepareActionHistory(&afterHero, &backToHero)
+
+	wantTail := []TexasActionHistory{
+		{Stage: "flop", Position: "BB-Hero", Action: "check", Amount: 0, Timestamp: 4, Status: "active"},
+		{Stage: "flop", Position: "straddle", Action: "check", Amount: 0, Timestamp: 5, Status: "active"},
+		{Stage: "flop", Position: "UTG", Action: "check", Amount: 0, Timestamp: 6, Status: "active"},
+		{Stage: "flop", Position: "BTN", Action: "bet", Amount: 20, Timestamp: 7, Status: "active"},
+	}
+	gotTail := backToHero.ObservedActionHistory[len(backToHero.ObservedActionHistory)-len(wantTail):]
+	if !reflect.DeepEqual(gotTail, wantTail) {
+		t.Fatalf("history tail = %+v, want %+v; full=%+v", gotTail, wantTail, backToHero.ObservedActionHistory)
+	}
+}
+
 func TestInferSnapshotActionsDoesNotInventCheckBeforeFirstActor(t *testing.T) {
 	firstActor := makeTexasResultWithSeats(t, 1, 2, []map[string]interface{}{
 		{"seat": 1, "status": "active", "stack": 500, "current_bet": 0},
@@ -673,6 +719,85 @@ func TestPrepareActionHistoryKeepsPriorCheckBeforeHeroWithoutDuplicate(t *testin
 	}
 }
 
+func TestPrepareActionHistoryKeepsFoldFirstSeenOnNewStreet(t *testing.T) {
+	flop := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	flop.ObservedActionHistory = []TexasActionHistory{
+		{Stage: "flop", Position: "SB", Action: "check", Timestamp: 0, Status: "active"},
+		{Stage: "flop", Position: "BB", Action: "check", Timestamp: 1, Status: "active"},
+		{Stage: "flop", Position: "straddle-Hero", Action: "check", Timestamp: 2, Status: "active"},
+		{Stage: "flop", Position: "BTN", Action: "check", Timestamp: 3, Status: "active"},
+	}
+
+	turn := fourPlayerFlopSnapshot(t, true, 0, 20, "folded")
+	turn.TableInfo.Stage = "turn"
+	PrepareActionHistory(flop, turn)
+
+	wantTail := []TexasActionHistory{
+		{Stage: "turn", Position: "SB", Action: "bet", Amount: 20, Timestamp: 4, Status: "active"},
+		{Stage: "turn", Position: "BB", Action: "fold", Amount: 0, Timestamp: 5, Status: "folded"},
+	}
+	gotTail := turn.ObservedActionHistory[len(turn.ObservedActionHistory)-len(wantTail):]
+	if !reflect.DeepEqual(gotTail, wantTail) {
+		t.Fatalf("new-street history tail = %+v, want %+v; full=%+v", gotTail, wantTail, turn.ObservedActionHistory)
+	}
+}
+
+func TestPrepareActionHistoryKeepsPriorStreetAggressorFoldOnNewStreet(t *testing.T) {
+	flop := fourPlayerFlopSnapshot(t, false, 20, 20, "active")
+	setSeatBet(flop, 3, 20)
+	flop.HeroInfo.CurrentBet = 20
+	flop.ObservedActionHistory = []TexasActionHistory{
+		{Stage: "flop", Position: "BTN", Action: "bet", Amount: 20, Timestamp: 0, Status: "active"},
+		{Stage: "flop", Position: "SB", Action: "call", Amount: 20, Timestamp: 1, Status: "active"},
+		{Stage: "flop", Position: "BB", Action: "call", Amount: 20, Timestamp: 2, Status: "active"},
+		{Stage: "flop", Position: "straddle-Hero", Action: "call", Amount: 20, Timestamp: 3, Status: "active"},
+	}
+
+	turn := makeTexasResultWithSeats(t, 1, 4, []map[string]interface{}{
+		{"seat": 1, "status": "folded", "stack": 480, "current_bet": 0},
+		{"seat": 2, "status": "active", "stack": 460, "current_bet": 20},
+		{"seat": 3, "status": "active", "stack": 480, "current_bet": 0},
+	})
+	turn.TableInfo.Stage = "turn"
+	turn.HeroInfo.IsHeroTurn = true
+	PrepareActionHistory(flop, turn)
+
+	for _, action := range turn.ObservedActionHistory {
+		if action.Position == "BTN" && action.Action == "fold" && action.Stage != "turn" {
+			t.Fatalf("prior aggressor fold assigned to %s, want turn: %+v", action.Stage, turn.ObservedActionHistory)
+		}
+	}
+	if !historyContainsAction(turn.ObservedActionHistory, "turn", "BTN", "fold", 0) {
+		t.Fatalf("turn does not contain prior aggressor fold: %+v", turn.ObservedActionHistory)
+	}
+}
+
+func TestPrepareActionHistoryKeepsUnansweredFoldOnPriorStreet(t *testing.T) {
+	flop := fourPlayerFlopSnapshot(t, false, 20, 20, "active")
+	setSeatBet(flop, 3, 0)
+	flop.HeroInfo.CurrentBet = 20
+	flop.ObservedActionHistory = []TexasActionHistory{
+		{Stage: "flop", Position: "BTN", Action: "bet", Amount: 20, Timestamp: 0, Status: "active"},
+		{Stage: "flop", Position: "SB", Action: "call", Amount: 20, Timestamp: 1, Status: "active"},
+	}
+
+	turn := makeTexasResultWithSeats(t, 1, 4, []map[string]interface{}{
+		{"seat": 1, "status": "active", "stack": 480, "current_bet": 0},
+		{"seat": 2, "status": "active", "stack": 480, "current_bet": 0},
+		{"seat": 3, "status": "folded", "stack": 500, "current_bet": 0},
+	})
+	turn.TableInfo.Stage = "turn"
+	turn.HeroInfo.IsHeroTurn = true
+	PrepareActionHistory(flop, turn)
+
+	if !historyContainsAction(turn.ObservedActionHistory, "flop", "BB", "fold", 0) {
+		t.Fatalf("unanswered fold was not assigned to flop: %+v", turn.ObservedActionHistory)
+	}
+	if historyContainsAction(turn.ObservedActionHistory, "turn", "BB", "fold", 0) {
+		t.Fatalf("unanswered fold was duplicated on turn: %+v", turn.ObservedActionHistory)
+	}
+}
+
 func TestInferStageCompletionAllowsActionAfterNewBet(t *testing.T) {
 	previous := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
 	previous.ObservedActionHistory = []TexasActionHistory{
@@ -737,9 +862,11 @@ func TestConv2TexasGtoDecisionReqUsesSecondOrbitActionOrder(t *testing.T) {
 
 	wantTail := []TexasActionHistory{
 		{Stage: "flop", Position: "straddle-Hero", Action: "check", Amount: 0, Timestamp: 8, Status: "active"},
-		{Stage: "flop", Position: "BTN", Action: "bet", Amount: 84, Timestamp: 9, Status: "active"},
-		{Stage: "flop", Position: "SB", Action: "call", Amount: 84, Timestamp: 10, Status: "active"},
-		{Stage: "flop", Position: "BB", Action: "fold", Amount: 0, Timestamp: 11, Status: "folded"},
+		{Stage: "flop", Position: "UTG+1", Action: "check", Amount: 0, Timestamp: 9, Status: "active"},
+		{Stage: "flop", Position: "MP", Action: "check", Amount: 0, Timestamp: 10, Status: "active"},
+		{Stage: "flop", Position: "BTN", Action: "bet", Amount: 84, Timestamp: 11, Status: "active"},
+		{Stage: "flop", Position: "SB", Action: "call", Amount: 84, Timestamp: 12, Status: "active"},
+		{Stage: "flop", Position: "BB", Action: "fold", Amount: 0, Timestamp: 13, Status: "folded"},
 	}
 	gotTail := backToHero.ObservedActionHistory[len(backToHero.ObservedActionHistory)-len(wantTail):]
 	if !reflect.DeepEqual(gotTail, wantTail) {

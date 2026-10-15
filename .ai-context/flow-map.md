@@ -8,7 +8,7 @@ last_updated: "2026-10-15"
 1. `TexasPokerDecisionHandler.Handle` 默认以 `parse_all=false` 调用 `service.RecognizePoker`，先做轻量 Hero 轮次检测。每次识别到 Hero 行动帧后，仅将紧接着的一帧设为 `parse_all=true`；该后继帧完整识别为非 Hero 后恢复轻量检测。
 2. Hero 行动帧以及它后面一次完整解析的牌局帧写入 `dal.SaveUserData`；同一 BTN、同一 stage 的快照在覆盖前比较状态，把确定的下注、加注、跟注或弃牌追加到内存动作历史。更后面的非 Hero 帧不做全桌 OCR，也不进入缓存。
 3. `dal.GetLastUserData` 从最近一次 BTN 变化之后取出当前手牌的全部阶段。
-4. `model.Conv2TexasGtoDecisionReq` 调用 `buildPlayers` 与 `buildActionHistory`；优先输出连续快照累计的动作，首次进入阶段或发生漏帧时按最终下注额生成最小合法历史。翻后 Hero 可行动且桌面无人下注时，Hero 之前仍 active 的玩家被记录为已经 check；Hero 可行动帧到 decided 帧若下注不变且当时没有未跟注金额，再记录 Hero check。同街再次轮到 Hero 时，`players.action_taken` 取 Hero 上一次动作后的已观测行动，不能再按 SB 起始的单帧筹码顺序重算。
+4. `model.Conv2TexasGtoDecisionReq` 调用 `buildPlayers` 与 `buildActionHistory`；优先输出连续快照累计的动作，首次进入阶段或发生漏帧时按最终下注额生成最小合法历史。翻后 Hero 可行动且桌面无人下注时，Hero 之前仍 active 的玩家被记录为已经 check；Hero 可行动帧到 decided 帧若下注不变且当时没有未跟注金额，再记录 Hero check。Hero check 后首次看到后位玩家 bet 时，按座位顺序补齐两者之间状态与投入均未变化的 active 玩家 check。跨街第一帧中新出现的 fold，若该玩家已经完成上一街行动，则归入新街；仍欠上一街响应的 fold 继续归入上一街。同街再次轮到 Hero 时，`players.action_taken` 取 Hero 上一次动作后的已观测行动，不能再按 SB 起始的单帧筹码顺序重算。
 5. 位置映射从 `ButtonSeat` 开始遍历物理座位，只保留本手实际参与者：`empty` 和 `waiting` 不占位置，弃牌玩家仍占位置。若按钮或后续强制位置对应的物理座位无人，`BTN`、`SB`、`BB`、`straddle` 依次顺延给下一名实际参与者。
 6. 转换后先校验当前行动玩家存在、active 且剩余筹码大于0。客户端策略为默认 `0/0` 时交给原 `service.GtoDecision`；六组白名单 VPIP/PFR 之一则映射为上游 `vvip/pfr` 并走 v2。策略值不进入牌局缓存，也不改变识别、位置和行动历史。
 7. 决策返回的 bet/raise 若超过 Hero 可用总额，先保留动作并把目标额收敛为 `hero.bet + hero.stack`（all-in），再校验动作与当前下注是否相容；其余非法结果返回空动作且不计次。
