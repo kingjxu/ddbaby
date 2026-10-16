@@ -257,3 +257,32 @@ status: "active"
   Hero请求、重复行动0；逐街审计只剩2手已确认的识别输入异常。99 open-raise 和最近
   进攻者/未响应玩家跨街 fold 聚焦测试通过；未额外调用策略服务。
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261016-101549-before-c5b0f2e`。
+
+## 2026-10-16 Hero 延迟显露行动修复部署
+
+- 最终业务提交 `e2febba`，已完成 CR 并获得 LGTM。decided 只建立待确认的 Hero
+  行动段；同街仅由 Hero 自身可见投入或状态变化解析，行动权再次回到 Hero 不作为
+  check 证据。第二圈 call/raise 保留在第二圈，跨街按最短合法序列完成上一街。
+- pending 未解析时，模型转换和 handler 均拒绝生成策略请求；门禁位于策略调用、
+  决策审计写入、成功响应和计费之前。handler counter 回归确认策略 stub 调用为 0，
+  pending 解析或跨街清空后恢复正常请求。
+- 候选归档 SHA256 为
+  `32341bef0b754eb4b8811f0039baee2509229e3a6cfa0a0cd2fd42312d23b379`。
+  服务器使用 Go 1.22.2 对干净归档执行全仓测试、`dal/model/biz/handler` race 测试
+  和构建，均通过。运行时二进制 SHA256 为
+  `cebc09100a7c8184ae936572a8871766a699f453deb685cdeeb7ba4a96fc7053`；
+  `model/recognize_poker.go` 与 `biz/handler/texas_poker_decision.go` SHA256 分别为
+  `e93f0757fd63e2abb9cdee70c5dfed761187b53e9c94c92e3d4aaca2d7946c2e`、
+  `8df2bad53fb76381653c6196811ad24b287fe2fcd4124d78f24fec69abc1dc25`。
+- 生产于 2026-10-16 22:23:57 +08:00 开始切换，22:23:59 完成；PID 从
+  `751841` 切换为 `928025`，新进程 PPID 为 1。`/proc/928025/exe` 与磁盘二进制
+  SHA256 一致，8888 正常监听，`/ping` 返回 HTTP 200 和 `pong`，启动日志未发现
+  panic/fatal。
+- 单 Worker 对 2,227 个连续链路帧重放：Hero 帧 1,726，pending 门禁抑制 48，
+  可生成策略请求 1,678，原始识别输入校验失败 2，重复行动 0。23:04 序列为
+  `SB check -> BB check -> Hero bet37 -> SB fold -> BB raise121`；06:46 序列包含
+  `Hero check -> MP+1 bet88 -> SB call88 -> Hero call88`，均保持合法时序。重放未调用
+  生产策略服务，也未写生产审计或计费数据。
+- 替换前二进制 SHA256 为
+  `a526f0a386781fcff598b2a2420f40ab43303ef6d9ede8872daadd765c288d07`；回滚目录为
+  `/home/ubuntu/ddbaby-backups/20261016-222357-before-e2febba`。
