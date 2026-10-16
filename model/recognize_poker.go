@@ -47,6 +47,10 @@ type TexasResult struct {
 	// preserve actions observed between consecutive screenshots without changing
 	// the recognition or decision protocols.
 	ObservedActionHistory []TexasActionHistory `json:"-"`
+	// HeroActionPending marks a Hero-turn snapshot whose following decided frame
+	// did not contain enough table-state evidence to distinguish check from bet.
+	// It is resolved only by a later wager/status change or street completion.
+	HeroActionPending bool `json:"-"`
 }
 
 type TexasPlayer struct {
@@ -406,10 +410,12 @@ func PrepareActionHistory(previous, result *TexasResult) {
 		make([]TexasActionHistory, 0, len(previous.ObservedActionHistory)),
 		previous.ObservedActionHistory...,
 	)
+	result.HeroActionPending = previous.HeroActionPending
 	if normalizeStage(previous.TableInfo.Stage) == normalizeStage(result.TableInfo.Stage) {
 		result.ObservedActionHistory = append(result.ObservedActionHistory, inferSnapshotDelta(previous, result)...)
 		return
 	}
+	result.HeroActionPending = false
 
 	completion := inferStageCompletion(previous, result)
 	result.ObservedActionHistory = append(result.ObservedActionHistory, completion...)
@@ -1053,12 +1059,7 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 			previous.HeroInfo.Status == "active" && current.HeroInfo.Status == "active" &&
 			previous.HeroInfo.CurrentBet == current.HeroInfo.CurrentBet &&
 			previous.HeroInfo.CurrentBet >= currentMax && canCheck {
-			history = append(history, TexasActionHistory{
-				Stage: stage, Position: player.position, Action: "check",
-				Amount: 0, Timestamp: timestamp, Status: current.HeroInfo.Status,
-			})
-			timestamp++
-			lastOrder = player.order
+			current.HeroActionPending = true
 		}
 		break
 	}
@@ -1079,7 +1080,6 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 		}
 	}
 
-	events = orderInferredEvents(events, lastOrder, len(previousSeats))
 	currentBySeat := make(map[int]actionSeat, len(currentSeats))
 	previousByOrder := make(map[int]actionSeat, len(previousSeats))
 	changedSeats := make(map[int]bool, len(events))
@@ -1092,6 +1092,42 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 	for _, event := range events {
 		changedSeats[event.player.seat] = true
 	}
+
+	if current.HeroActionPending {
+		heroChanged := changedSeats[current.HeroInfo.Seat]
+		opponentWagerChanged := false
+		for _, event := range events {
+			if event.player.seat != current.HeroInfo.Seat &&
+				isActiveStatus(event.player.status) && event.player.currentBet > 0 {
+				opponentWagerChanged = true
+				break
+			}
+		}
+		if heroChanged {
+			// The later snapshot reveals Hero's actual bet/raise. The decided
+			// frame did not prove a check, so let the normal event path record it.
+			current.HeroActionPending = false
+		} else if opponentWagerChanged {
+			// A later opponent wager with Hero's chips unchanged proves Hero
+			// checked before that wager. Defer until this evidence exists because
+			// the decided overlay itself is outside the recognizer's input scope.
+			heroOrder := -1
+			for _, player := range previousSeats {
+				if player.seat == current.HeroInfo.Seat {
+					heroOrder = player.order
+					history = append(history, TexasActionHistory{
+						Stage: stage, Position: player.position, Action: "check",
+						Amount: 0, Timestamp: timestamp, Status: current.HeroInfo.Status,
+					})
+					timestamp++
+					break
+				}
+			}
+			lastOrder = heroOrder
+			current.HeroActionPending = false
+		}
+	}
+	events = orderInferredEvents(events, lastOrder, len(previousSeats))
 
 	for _, event := range events {
 		player := event.player

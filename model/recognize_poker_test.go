@@ -569,7 +569,7 @@ func k9FlopSnapshot(t *testing.T, heroTurn bool, btnBet, sbBet int, bbStatus str
 	return result
 }
 
-func TestPrepareActionHistoryRecordsHeroCheckFromDecidedFrame(t *testing.T) {
+func TestPrepareActionHistoryDefersHeroCheckFromDecidedFrame(t *testing.T) {
 	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
 	PrepareActionHistory(nil, beforeHero)
 
@@ -579,10 +579,42 @@ func TestPrepareActionHistoryRecordsHeroCheckFromDecidedFrame(t *testing.T) {
 	want := []TexasActionHistory{
 		{Stage: "flop", Position: "SB", Action: "check", Amount: 0, Timestamp: 0, Status: "active"},
 		{Stage: "flop", Position: "BB", Action: "check", Amount: 0, Timestamp: 1, Status: "active"},
-		{Stage: "flop", Position: "straddle-Hero", Action: "check", Amount: 0, Timestamp: 2, Status: "active"},
 	}
 	if !reflect.DeepEqual(decided.ObservedActionHistory, want) {
 		t.Fatalf("decided-frame history = %+v, want %+v", decided.ObservedActionHistory, want)
+	}
+	if !decided.HeroActionPending {
+		t.Fatal("decided frame should leave Hero action pending")
+	}
+}
+
+func TestPrepareActionHistoryResolvesPendingHeroAsBetInsteadOfCheck(t *testing.T) {
+	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(nil, beforeHero)
+
+	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	PrepareActionHistory(beforeHero, decided)
+
+	later := fourPlayerFlopSnapshot(t, false, 121, 0, "active")
+	later.HeroInfo.CurrentBet = 37
+	later.HeroInfo.Stack = decided.HeroInfo.Stack - 37
+	PrepareActionHistory(decided, later)
+
+	wantTail := []TexasActionHistory{
+		{Stage: "flop", Position: "straddle-Hero", Action: "bet", Amount: 37, Timestamp: 2, Status: "active"},
+		{Stage: "flop", Position: "BTN", Action: "raise", Amount: 121, Timestamp: 3, Status: "active"},
+	}
+	gotTail := later.ObservedActionHistory[len(later.ObservedActionHistory)-len(wantTail):]
+	if !reflect.DeepEqual(gotTail, wantTail) {
+		t.Fatalf("pending Hero action tail = %+v, want %+v; full=%+v", gotTail, wantTail, later.ObservedActionHistory)
+	}
+	for _, action := range later.ObservedActionHistory {
+		if action.Position == "straddle-Hero" && action.Action == "check" {
+			t.Fatalf("decided frame invented Hero check before visible bet: %+v", later.ObservedActionHistory)
+		}
+	}
+	if later.HeroActionPending {
+		t.Fatal("visible Hero bet should resolve pending action")
 	}
 }
 
@@ -699,6 +731,7 @@ func TestPrepareActionHistoryKeepsPriorCheckBeforeHeroWithoutDuplicate(t *testin
 	PrepareActionHistory(flopHero, &decided)
 
 	turn := decided
+	turn.VillainsInfo = append(turn.VillainsInfo[:0:0], turn.VillainsInfo...)
 	turn.TableInfo.Stage = "turn"
 	turn.HeroInfo.IsHeroTurn = true
 	setSeatBet(&turn, 2, 36)
