@@ -1,6 +1,6 @@
 ---
-version: "1.4"
-last_updated: "2026-10-10"
+version: "1.5"
+last_updated: "2026-10-16"
 status: "active"
 ---
 
@@ -240,3 +240,20 @@ status: "active"
 - 部署后 PID `39301`、PPID `1`，`/proc` 与磁盘二进制一致，8888 正常监听，
   SSH 重连后 `/ping` 返回 `pong`，启动日志未发现 panic/fatal。
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261014-101927-before-362c927`。
+
+## 2026-10-16 逐街 action history 修复部署
+
+- 业务提交链为 `439edb4`、`e9e3626`、`c5b0f2e`，均已通过 CR。最终行为包括：
+  允许 `players.bet` 未记录强制盲注时的合法翻前 open raise；按实际翻后行动顺序补齐
+  Hero 前方的零金额 check；跨街首帧 fold 根据上一街是否仍欠响应归入正确街道。
+- 服务器使用 Go 1.22.2 对 `c5b0f2e` 干净 Git 归档执行全仓测试、`dal/model`
+  race 测试和构建，均通过。运行时二进制 SHA256 为
+  `a526f0a386781fcff598b2a2420f40ab43303ef6d9ede8872daadd765c288d07`；
+  `model/recognize_poker.go` SHA256 为
+  `f1287cad8567f3219b0d006c50c59113870d3292658464063be58b1db908673b`。
+- 部署后 PID `751841`、PPID `1`，`/proc/751841/exe` 与磁盘二进制一致，8888
+  正常监听，本机 `/ping` 返回 `pong`，启动后未发现 panic/fatal。
+- 部署后使用同一候选源码重放 2026-10-15 21:00 后的 191 张识别结果：生成100个
+  Hero请求、重复行动0；逐街审计只剩2手已确认的识别输入异常。99 open-raise 和最近
+  进攻者/未响应玩家跨街 fold 聚焦测试通过；未额外调用策略服务。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261016-101549-before-c5b0f2e`。
