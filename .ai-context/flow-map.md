@@ -1,6 +1,6 @@
 ---
-version: "1.6"
-last_updated: "2026-10-15"
+version: "1.7"
+last_updated: "2026-10-17"
 ---
 
 # 德州扑克决策数据流
@@ -13,7 +13,7 @@ last_updated: "2026-10-15"
 6. 转换前先检查最新快照没有未决 Hero 行动；`PendingHeroBefore` 或逐帧 pending 快照仍存在时直接停止本次决策，不能把“players 已变化、history 尚未结算”的混合时点请求发给策略服务。转换后再校验当前行动玩家存在、active 且剩余筹码大于0。客户端策略为默认 `0/0` 时交给原 `service.GtoDecision`；六组白名单 VPIP/PFR 之一则映射为上游 `vvip/pfr` 并走 v2。策略值不进入牌局缓存，也不改变识别、位置和行动历史。
 7. 决策返回的 bet/raise 若超过 Hero 可用总额，先保留动作并把目标额收敛为 `hero.bet + hero.stack`（all-in），再校验动作与当前下注是否相容；其余非法结果返回空动作且不计次。
 8. 合法决策为 `fold` 且 Hero 当前投入不低于本轮最大投入时，ddbaby 将最终动作规范化为 `check`；面对更高下注时不改写。客户端只消费原有 JSON 响应。
-9. 合法决策完成 all-in/free-check 规范化后，复制实际上游请求、原始上游响应和最终响应，通过独立 goroutine 写入 `gto_decision_record`；写库失败只记录日志，不阻塞或改写客户端响应。
+9. 合法决策完成 all-in/free-check 规范化后，复制实际上游请求、原始上游响应和最终响应，通过独立 goroutine 写入 `gto_decision_record`；写库失败只记录日志，不阻塞或改写客户端响应。最终生成原有 `Result` 时，bet/raise 的目标总额若达到同一请求中的 `hero.bet + hero.stack`，展示为 `All in`；不新增客户端协议字段。
 
 ## 修改约束
 

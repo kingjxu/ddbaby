@@ -241,7 +241,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		h.activeCodeInfo.InvokeCnt++
 		_ = poker.UpsertUserActiveCode(ctx, h.activeCodeInfo)
 	}
-	return h.newResp(ctx, h.getFinalAction(resp)), nil
+	return h.newResp(ctx, h.getFinalAction(decisionReq, resp)), nil
 }
 
 func buildTexasGtoDecisionRequest(ctx context.Context, latestData []*model.TexasResult) (*model.TexasGtoDecisionReq, error) {
@@ -374,19 +374,40 @@ func buildGtoDecisionRecord(
 	}, nil
 }
 
-func (h *TexasPokerDecisionHandler) getFinalAction(decision *model.TexasGtoDecisionResp) string {
+func (h *TexasPokerDecisionHandler) getFinalAction(
+	request *model.TexasGtoDecisionReq,
+	decision *model.TexasGtoDecisionResp,
+) string {
 	if decision.Action == "check" {
 		return "过牌"
 	} else if decision.Action == "bet" {
+		if isHeroAllInTarget(request, decision.RaiseSize) {
+			return "All in"
+		}
 		return fmt.Sprintf("下注 %d", decision.RaiseSize)
 	} else if decision.Action == "call" {
 		return "跟注"
 	} else if decision.Action == "raise" {
+		if isHeroAllInTarget(request, decision.RaiseSize) {
+			return "All in"
+		}
 		return fmt.Sprintf("加注 %d", decision.RaiseSize)
 	} else if decision.Action == "fold" {
 		return "弃牌"
 	}
 	return ""
+}
+
+func isHeroAllInTarget(request *model.TexasGtoDecisionReq, target int) bool {
+	if request == nil {
+		return false
+	}
+	for _, player := range request.Players {
+		if player.Position == request.CurrentPlayerPosition {
+			return target >= player.Bet+player.Stack
+		}
+	}
+	return false
 }
 func (h *TexasPokerDecisionHandler) newResp(ctx context.Context, result string) *ddbaby.TexasPokerDecisionResp {
 	resp := &ddbaby.TexasPokerDecisionResp{

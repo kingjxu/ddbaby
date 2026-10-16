@@ -1,6 +1,6 @@
 ---
-version: "1.3"
-last_updated: "2026-10-11"
+version: "1.4"
+last_updated: "2026-10-17"
 ---
 
 # API 路由
@@ -28,6 +28,10 @@ last_updated: "2026-10-11"
 ### 免费 check 兜底
 
 决策服务返回合法 `fold` 后，ddbaby 会比较 Hero 当前投入与本轮所有玩家的最大投入。Hero 无需补注时，服务端将最终动作规范化为 `check`，并通过原有 JSON `Result` 返回“过牌”；面对更高下注时仍返回“弃牌”。客户端无需解析额外响应头或实现动作兜底。
+
+### All in 展示兜底
+
+决策服务返回合法 `bet` 或 `raise` 后，ddbaby 使用同一份已校验请求计算 Hero 的全下目标总额 `hero.bet + hero.stack`。当决策目标总额达到该上限时，原有 JSON `Result` 直接返回 `All in`；未达到时继续返回原有“下注 N”或“加注 N”。响应协议不增加字段，客户端无需新增判断。
 
 ## 其他路由
 
