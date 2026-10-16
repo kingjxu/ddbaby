@@ -159,3 +159,34 @@ func TestCloneDecisionRequestDoesNotShareSlices(t *testing.T) {
 	assert.Equal(t, []int{20}, cloned.RaiseRange)
 	assert.Equal(t, "call", cloned.ActionHistory[0].Action)
 }
+
+func TestBuildTexasGtoDecisionRequestRejectsPendingHeroAction(t *testing.T) {
+	pending := &model.TexasResult{
+		PendingHeroBefore:    &model.TexasResult{},
+		PendingHeroSnapshots: []*model.TexasResult{{}},
+	}
+
+	req, err := buildTexasGtoDecisionRequest(context.Background(), []*model.TexasResult{pending})
+	assert.Nil(t, req)
+	assert.EqualError(t, err, "hero action is still pending")
+}
+
+func TestRequestTexasGtoDecisionDoesNotCallStrategyWhileHeroActionPending(t *testing.T) {
+	pending := &model.TexasResult{
+		PendingHeroBefore:    &model.TexasResult{},
+		PendingHeroSnapshots: []*model.TexasResult{{}},
+	}
+	calls := 0
+	decide := func(context.Context, *model.TexasGtoDecisionReq, int32, int32) (*model.TexasGtoDecisionResp, error) {
+		calls++
+		return &model.TexasGtoDecisionResp{Action: "check"}, nil
+	}
+
+	req, resp, err := requestTexasGtoDecision(
+		context.Background(), []*model.TexasResult{pending}, 0, 0, decide,
+	)
+	assert.Nil(t, req)
+	assert.Nil(t, resp)
+	assert.EqualError(t, err, "hero action is still pending")
+	assert.Zero(t, calls)
+}

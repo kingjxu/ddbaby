@@ -10,7 +10,7 @@ last_updated: "2026-10-15"
 3. `dal.GetLastUserData` 从最近一次 BTN 变化之后取出当前手牌的全部阶段。
 4. `model.Conv2TexasGtoDecisionReq` 调用 `buildPlayers` 与 `buildActionHistory`；优先输出连续快照累计的动作，首次进入阶段或发生漏帧时按最终下注额生成最小合法历史。翻后 Hero 可行动且桌面无人下注时，Hero 之前仍 active 的玩家被记录为已经 check；Hero 可行动帧到 decided 帧保存行动前基线，Hero 动作及 decided 后新出现的 fold/下注逐帧暂存而不提交，避免只看最后一帧丢掉已完成 call 后消失的下注。后续同街快照只有在 Hero 自身投入或状态发生可见变化时，才从基线按时间顺序重放 Hero 动作及后续事件；单独出现对手投入或行动再次回到 Hero 仍保持暂存，因为 Hero 筹码也可能延迟显露。行动再次回到投入未变的 Hero 只记录为行动圈边界：若 Hero 随后才出现合法 call/raise/fold，该变化归入第二圈，不能倒灌成第一圈 bet。若直接跨街，则重放完整暂存序列，再由阶段完成逻辑补齐剩余的最小合法动作。跨街第一帧中新出现的 fold，若该玩家已经完成上一街行动，则归入新街；仍欠上一街响应的 fold 继续归入上一街。同街再次轮到 Hero 时，`players.action_taken` 只有在 Hero 上次动作已经确认后才从累计历史还原，不能从 HeroTurn 或 SB 起始的单帧筹码顺序猜造。
 5. 位置映射从 `ButtonSeat` 开始遍历物理座位，只保留本手实际参与者：`empty` 和 `waiting` 不占位置，弃牌玩家仍占位置。若按钮或后续强制位置对应的物理座位无人，`BTN`、`SB`、`BB`、`straddle` 依次顺延给下一名实际参与者。
-6. 转换后先校验当前行动玩家存在、active 且剩余筹码大于0。客户端策略为默认 `0/0` 时交给原 `service.GtoDecision`；六组白名单 VPIP/PFR 之一则映射为上游 `vvip/pfr` 并走 v2。策略值不进入牌局缓存，也不改变识别、位置和行动历史。
+6. 转换前先检查最新快照没有未决 Hero 行动；`PendingHeroBefore` 或逐帧 pending 快照仍存在时直接停止本次决策，不能把“players 已变化、history 尚未结算”的混合时点请求发给策略服务。转换后再校验当前行动玩家存在、active 且剩余筹码大于0。客户端策略为默认 `0/0` 时交给原 `service.GtoDecision`；六组白名单 VPIP/PFR 之一则映射为上游 `vvip/pfr` 并走 v2。策略值不进入牌局缓存，也不改变识别、位置和行动历史。
 7. 决策返回的 bet/raise 若超过 Hero 可用总额，先保留动作并把目标额收敛为 `hero.bet + hero.stack`（all-in），再校验动作与当前下注是否相容；其余非法结果返回空动作且不计次。
 8. 合法决策为 `fold` 且 Hero 当前投入不低于本轮最大投入时，ddbaby 将最终动作规范化为 `check`；面对更高下注时不改写。客户端只消费原有 JSON 响应。
 9. 合法决策完成 all-in/free-check 规范化后，复制实际上游请求、原始上游响应和最终响应，通过独立 goroutine 写入 `gto_decision_record`；写库失败只记录日志，不阻塞或改写客户端响应。

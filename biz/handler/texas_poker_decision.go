@@ -205,21 +205,17 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	}
 	logger.Infof("[TexasPokerDecisionHandler] latestData:%v", util.ToJSON(latestData))
 	//5 决策
-	decisionReq := model.Conv2TexasGtoDecisionReq(ctx, latestData)
-	if err = model.ValidateTexasGtoDecisionRequest(decisionReq); err != nil {
-		logger.Errorf("[TexasPokerDecisionHandler] invalid decision request:%v", err)
-		return h.newResp(ctx, ""), nil
-	}
 	if h.latency != nil {
 		h.latency.decisionStartedAt = time.Now()
 	}
-	resp, err := service.GtoDecisionByProfile(ctx, decisionReq,
-		h.req.GetVPIP(), h.req.GetPFR())
+	decisionReq, resp, err := requestTexasGtoDecision(
+		ctx, latestData, h.req.GetVPIP(), h.req.GetPFR(), service.GtoDecisionByProfile,
+	)
 	if h.latency != nil {
 		h.latency.decisionDoneAt = time.Now()
 	}
 	if err != nil {
-		logger.Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
+		logger.Errorf("[TexasPokerDecisionHandler] decision request/call err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
 	rawDecisionResp := *resp
@@ -246,6 +242,42 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		_ = poker.UpsertUserActiveCode(ctx, h.activeCodeInfo)
 	}
 	return h.newResp(ctx, h.getFinalAction(resp)), nil
+}
+
+func buildTexasGtoDecisionRequest(ctx context.Context, latestData []*model.TexasResult) (*model.TexasGtoDecisionReq, error) {
+	if len(latestData) == 0 {
+		return nil, errors.New("decision history is empty")
+	}
+	if model.HasPendingHeroAction(latestData[len(latestData)-1]) {
+		return nil, errors.New("hero action is still pending")
+	}
+	req := model.Conv2TexasGtoDecisionReq(ctx, latestData)
+	if err := model.ValidateTexasGtoDecisionRequest(req); err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
+type texasGtoDecisionFunc func(
+	context.Context, *model.TexasGtoDecisionReq, int32, int32,
+) (*model.TexasGtoDecisionResp, error)
+
+func requestTexasGtoDecision(
+	ctx context.Context,
+	latestData []*model.TexasResult,
+	vpip int32,
+	pfr int32,
+	decide texasGtoDecisionFunc,
+) (*model.TexasGtoDecisionReq, *model.TexasGtoDecisionResp, error) {
+	req, err := buildTexasGtoDecisionRequest(ctx, latestData)
+	if err != nil {
+		return nil, nil, err
+	}
+	resp, err := decide(ctx, req, vpip, pfr)
+	if err != nil {
+		return req, nil, err
+	}
+	return req, resp, nil
 }
 
 const decisionRecordWriteTimeout = 3 * time.Second

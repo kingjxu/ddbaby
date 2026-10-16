@@ -698,6 +698,9 @@ func TestPrepareActionHistoryKeepsOpponentWagerPending(t *testing.T) {
 			t.Fatalf("opponent wager invented Hero check: %+v", opponentOnly.ObservedActionHistory)
 		}
 	}
+	if req := Conv2TexasGtoDecisionReq(context.Background(), []*TexasResult{opponentOnly}); req != nil {
+		t.Fatalf("unresolved pending snapshot generated decision request: %+v", req)
+	}
 }
 
 func TestPrepareActionHistoryResolvesEqualPendingWagersAsHeroBetThenCall(t *testing.T) {
@@ -767,6 +770,9 @@ func TestPrepareActionHistoryResolvesSecondOrbitHeroCall(t *testing.T) {
 	gotTail := heroCall.ObservedActionHistory[len(heroCall.ObservedActionHistory)-len(wantTail):]
 	if !reflect.DeepEqual(gotTail, wantTail) {
 		t.Fatalf("second-orbit call tail = %+v, want %+v; history=%+v", gotTail, wantTail, heroCall.ObservedActionHistory)
+	}
+	if req := Conv2TexasGtoDecisionReq(context.Background(), []*TexasResult{heroCall}); req == nil {
+		t.Fatal("resolved second-orbit call did not restore decision requests")
 	}
 }
 
@@ -866,6 +872,9 @@ func TestPrepareActionHistoryCompletesPendingOpponentWagerAcrossStreet(t *testin
 	if counts["straddle-Hero:check"] != 1 || counts["straddle-Hero:call"] != 1 ||
 		counts["BTN:bet"] != 1 {
 		t.Fatalf("pending cross-street completion is not one legal sequence: counts=%v history=%+v", counts, turn.ObservedActionHistory)
+	}
+	if req := Conv2TexasGtoDecisionReq(context.Background(), []*TexasResult{turn}); req == nil {
+		t.Fatal("street completion did not restore decision requests")
 	}
 }
 

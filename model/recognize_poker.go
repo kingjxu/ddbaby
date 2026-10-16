@@ -333,6 +333,9 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 	}
 
 	currentResult := recResult[len(recResult)-1]
+	if HasPendingHeroAction(currentResult) {
+		return nil
+	}
 
 	sbSize, bbSize := parseBlindSize(currentResult.TableInfo.BlindSize)
 
@@ -355,6 +358,15 @@ func Conv2TexasGtoDecisionReq(ctx context.Context, recResult []*TexasResult) *Te
 		CurrentPlayerPosition: currentPlayerPos,
 		ActionHistory:         actionHistory,
 	}
+}
+
+// HasPendingHeroAction reports whether the latest snapshot still contains an
+// unresolved Hero action segment. Such a snapshot must not reach the strategy
+// service because its visible bets and committed history describe different
+// points in time.
+func HasPendingHeroAction(result *TexasResult) bool {
+	return result != nil &&
+		(result.PendingHeroBefore != nil || len(result.PendingHeroSnapshots) > 0)
 }
 
 // applyObservedActionTaken replaces the single-snapshot guess once the current
