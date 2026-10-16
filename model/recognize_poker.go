@@ -415,18 +415,37 @@ func appendPendingHeroSnapshot(existing []*TexasResult, result *TexasResult) []*
 	return append(snapshots, clonePendingHeroSnapshot(result))
 }
 
+func heroActionReturnedBeforeChange(baseline *TexasResult, snapshots []*TexasResult) bool {
+	for i := 0; i+1 < len(snapshots); i++ {
+		snapshot := snapshots[i]
+		if snapshot.HeroInfo.IsHeroTurn &&
+			snapshot.HeroInfo.CurrentBet == baseline.HeroInfo.CurrentBet &&
+			snapshot.HeroInfo.Status == baseline.HeroInfo.Status {
+			return true
+		}
+	}
+	return false
+}
+
 // replayPendingHeroSnapshots resolves an ambiguous segment in timestamp order.
-// When revealed is non-nil, Hero's later visible wager/status is injected into
-// the earlier delayed frames so the action is ordered before subsequent calls,
-// raises, or folds. A nil revealed value selects the shortest legal check path;
-// it is used after a street change or when Hero later folds without wagering.
+// When Hero changes before action returns, the visible state belongs to the
+// first pending action and can be applied to the earlier delayed frames. If an
+// unchanged Hero-turn frame was already observed, the later Hero change belongs
+// to the next action orbit; the shortest legal first action is a check and the
+// later change is replayed at its actual frame instead of being backfilled.
 func replayPendingHeroSnapshots(baseline *TexasResult, snapshots []*TexasResult, revealed *TexasResult) *TexasResult {
 	state := clonePendingHeroSnapshot(baseline)
+	if revealed != nil && heroActionReturnedBeforeChange(baseline, snapshots) {
+		// Seeing action return to an unchanged Hero does not by itself prove the
+		// previous action was a check. It does prove that a Hero change observed
+		// only afterwards belongs to the next orbit, so it must not be injected
+		// into the first pending action.
+		revealed = nil
+	}
 	if revealed == nil {
-		// No Hero chip/status change became visible before the street ended.
-		// The shortest legal completion starts with Hero checking. Recording it
-		// before replaying transient opponent wagers also anchors their true
-		// post-Hero seat order.
+		// No first-orbit Hero change became visible. The shortest legal
+		// completion starts with Hero checking. Recording it before replaying
+		// transient opponent wagers anchors their true post-Hero seat order.
 		for _, player := range actionSeats(state) {
 			if player.seat != state.HeroInfo.Seat {
 				continue
@@ -1113,19 +1132,28 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 		current.PendingHeroBefore = previous.PendingHeroBefore
 		current.PendingHeroSnapshots = appendPendingHeroSnapshot(previous.PendingHeroSnapshots, current)
 		baseline := previous.PendingHeroBefore
-		heroBetChanged := baseline.HeroInfo.CurrentBet != current.HeroInfo.CurrentBet
-		heroStatusChanged := baseline.HeroInfo.Status != current.HeroInfo.Status
-		heroChanged := heroBetChanged || heroStatusChanged
+		heroChanged := baseline.HeroInfo.CurrentBet != current.HeroInfo.CurrentBet ||
+			baseline.HeroInfo.Status != current.HeroInfo.Status
 		if !heroChanged {
 			return nil
 		}
-
-		var revealedWager *TexasResult
-		if heroBetChanged {
-			revealedWager = current
+		if baseline.HeroInfo.CurrentBet != current.HeroInfo.CurrentBet &&
+			heroActionReturnedBeforeChange(baseline, current.PendingHeroSnapshots) {
+			currentMax := 0
+			for _, player := range actionSeats(current) {
+				if player.currentBet > currentMax {
+					currentMax = player.currentBet
+				}
+			}
+			if current.HeroInfo.CurrentBet < currentMax && current.HeroInfo.Status != "all_in" {
+				// A partial chip value cannot be a legal response to the visible
+				// wager. Keep the segment pending for a later trustworthy frame.
+				return nil
+			}
 		}
+
 		resolved := replayPendingHeroSnapshots(
-			baseline, current.PendingHeroSnapshots, revealedWager,
+			baseline, current.PendingHeroSnapshots, current,
 		)
 		baselineHistoryLen := len(baseline.ObservedActionHistory)
 		current.PendingHeroBefore = nil

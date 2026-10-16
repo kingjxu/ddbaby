@@ -723,7 +723,7 @@ func TestPrepareActionHistoryResolvesEqualPendingWagersAsHeroBetThenCall(t *test
 	}
 }
 
-func TestPrepareActionHistoryResolvesPendingWagersAsHeroBetThenRaise(t *testing.T) {
+func TestPrepareActionHistoryKeepsAmbiguousPartialWagerPending(t *testing.T) {
 	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
 	PrepareActionHistory(nil, beforeHero)
 	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
@@ -739,13 +739,84 @@ func TestPrepareActionHistoryResolvesPendingWagersAsHeroBetThenRaise(t *testing.
 	heroVisible.HeroInfo.CurrentBet = 20
 	PrepareActionHistory(opponentFirst, heroVisible)
 
+	if heroVisible.PendingHeroBefore == nil {
+		t.Fatal("partial Hero wager after action returned should remain pending")
+	}
+	if !reflect.DeepEqual(heroVisible.ObservedActionHistory, beforeHero.ObservedActionHistory) {
+		t.Fatalf("ambiguous partial wager committed history: %+v", heroVisible.ObservedActionHistory)
+	}
+}
+
+func TestPrepareActionHistoryResolvesSecondOrbitHeroCall(t *testing.T) {
+	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(nil, beforeHero)
+	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	PrepareActionHistory(beforeHero, decided)
+
+	backToHero := fourPlayerFlopSnapshot(t, true, 60, 0, "active")
+	PrepareActionHistory(decided, backToHero)
+	heroCall := fourPlayerFlopSnapshot(t, false, 60, 0, "active")
+	heroCall.HeroInfo.CurrentBet = 60
+	PrepareActionHistory(backToHero, heroCall)
+
+	wantTail := []TexasActionHistory{
+		{Stage: "flop", Position: "straddle-Hero", Action: "check", Amount: 0, Timestamp: 2, Status: "active"},
+		{Stage: "flop", Position: "BTN", Action: "bet", Amount: 60, Timestamp: 3, Status: "active"},
+		{Stage: "flop", Position: "straddle-Hero", Action: "call", Amount: 60, Timestamp: 4, Status: "active"},
+	}
+	gotTail := heroCall.ObservedActionHistory[len(heroCall.ObservedActionHistory)-len(wantTail):]
+	if !reflect.DeepEqual(gotTail, wantTail) {
+		t.Fatalf("second-orbit call tail = %+v, want %+v; history=%+v", gotTail, wantTail, heroCall.ObservedActionHistory)
+	}
+}
+
+func TestPrepareActionHistoryResolvesSecondOrbitHeroRaise(t *testing.T) {
+	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(nil, beforeHero)
+	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	PrepareActionHistory(beforeHero, decided)
+
+	backToHero := fourPlayerFlopSnapshot(t, true, 60, 0, "active")
+	PrepareActionHistory(decided, backToHero)
+	heroRaise := fourPlayerFlopSnapshot(t, false, 60, 0, "active")
+	heroRaise.HeroInfo.CurrentBet = 180
+	PrepareActionHistory(backToHero, heroRaise)
+
+	wantTail := []TexasActionHistory{
+		{Stage: "flop", Position: "straddle-Hero", Action: "check", Amount: 0, Timestamp: 2, Status: "active"},
+		{Stage: "flop", Position: "BTN", Action: "bet", Amount: 60, Timestamp: 3, Status: "active"},
+		{Stage: "flop", Position: "straddle-Hero", Action: "raise", Amount: 180, Timestamp: 4, Status: "active"},
+	}
+	gotTail := heroRaise.ObservedActionHistory[len(heroRaise.ObservedActionHistory)-len(wantTail):]
+	if !reflect.DeepEqual(gotTail, wantTail) {
+		t.Fatalf("second-orbit raise tail = %+v, want %+v; history=%+v", gotTail, wantTail, heroRaise.ObservedActionHistory)
+	}
+}
+
+func TestPrepareActionHistoryKeepsFirstBetBeforeSecondOrbitCall(t *testing.T) {
+	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(nil, beforeHero)
+	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	PrepareActionHistory(beforeHero, decided)
+
+	heroBet := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	heroBet.HeroInfo.CurrentBet = 20
+	PrepareActionHistory(decided, heroBet)
+	opponentRaise := fourPlayerFlopSnapshot(t, true, 60, 0, "active")
+	opponentRaise.HeroInfo.CurrentBet = 20
+	PrepareActionHistory(heroBet, opponentRaise)
+	heroCall := fourPlayerFlopSnapshot(t, false, 60, 0, "active")
+	heroCall.HeroInfo.CurrentBet = 60
+	PrepareActionHistory(opponentRaise, heroCall)
+
 	wantTail := []TexasActionHistory{
 		{Stage: "flop", Position: "straddle-Hero", Action: "bet", Amount: 20, Timestamp: 2, Status: "active"},
 		{Stage: "flop", Position: "BTN", Action: "raise", Amount: 60, Timestamp: 3, Status: "active"},
+		{Stage: "flop", Position: "straddle-Hero", Action: "call", Amount: 60, Timestamp: 4, Status: "active"},
 	}
-	gotTail := heroVisible.ObservedActionHistory[len(heroVisible.ObservedActionHistory)-len(wantTail):]
+	gotTail := heroCall.ObservedActionHistory[len(heroCall.ObservedActionHistory)-len(wantTail):]
 	if !reflect.DeepEqual(gotTail, wantTail) {
-		t.Fatalf("raised pending wagers tail = %+v, want %+v", gotTail, wantTail)
+		t.Fatalf("two-orbit history tail = %+v, want %+v; history=%+v", gotTail, wantTail, heroCall.ObservedActionHistory)
 	}
 }
 
