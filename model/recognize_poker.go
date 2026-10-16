@@ -49,8 +49,12 @@ type TexasResult struct {
 	ObservedActionHistory []TexasActionHistory `json:"-"`
 	// PendingHeroBefore preserves the last trustworthy snapshot before Hero acted.
 	// A decided frame can hide Hero's updated chips, so all following table events
-	// stay pending until a later snapshot proves check, bet/raise, or street end.
+	// stay pending until Hero changes visibly or the street ends.
 	PendingHeroBefore *TexasResult `json:"-"`
+	// PendingHeroSnapshots keeps every unresolved same-street observation. Bets
+	// can disappear again after calls, so retaining only the last snapshot would
+	// lose evidence needed to reconstruct the completed betting round.
+	PendingHeroSnapshots []*TexasResult `json:"-"`
 }
 
 type TexasPlayer struct {
@@ -402,7 +406,60 @@ func clonePendingHeroSnapshot(result *TexasResult) *TexasResult {
 	cloned.VillainsInfo = append(cloned.VillainsInfo[:0:0], result.VillainsInfo...)
 	cloned.ObservedActionHistory = append([]TexasActionHistory(nil), result.ObservedActionHistory...)
 	cloned.PendingHeroBefore = nil
+	cloned.PendingHeroSnapshots = nil
 	return &cloned
+}
+
+func appendPendingHeroSnapshot(existing []*TexasResult, result *TexasResult) []*TexasResult {
+	snapshots := append([]*TexasResult(nil), existing...)
+	return append(snapshots, clonePendingHeroSnapshot(result))
+}
+
+// replayPendingHeroSnapshots resolves an ambiguous segment in timestamp order.
+// When revealed is non-nil, Hero's later visible wager/status is injected into
+// the earlier delayed frames so the action is ordered before subsequent calls,
+// raises, or folds. A nil revealed value is used only after a street change,
+// when completion proves the round ended and the shortest legal history is safe.
+func replayPendingHeroSnapshots(baseline *TexasResult, snapshots []*TexasResult, revealed *TexasResult) *TexasResult {
+	state := clonePendingHeroSnapshot(baseline)
+	if revealed == nil {
+		// No Hero chip/status change became visible before the street ended.
+		// The shortest legal completion starts with Hero checking. Recording it
+		// before replaying transient opponent wagers also anchors their true
+		// post-Hero seat order.
+		for _, player := range actionSeats(state) {
+			if player.seat != state.HeroInfo.Seat {
+				continue
+			}
+			state.ObservedActionHistory = append(state.ObservedActionHistory, TexasActionHistory{
+				Stage: normalizeStage(state.TableInfo.Stage), Position: player.position,
+				Action: "check", Amount: 0,
+				Timestamp: nextTimestamp(state.ObservedActionHistory), Status: state.HeroInfo.Status,
+			})
+			break
+		}
+	}
+	for _, snapshot := range snapshots {
+		next := clonePendingHeroSnapshot(snapshot)
+		next.ObservedActionHistory = append([]TexasActionHistory(nil), state.ObservedActionHistory...)
+		if revealed != nil {
+			next.HeroInfo.Status = revealed.HeroInfo.Status
+			next.HeroInfo.Stack = revealed.HeroInfo.Stack
+			next.HeroInfo.CurrentBet = revealed.HeroInfo.CurrentBet
+		}
+
+		// The pending decision has already been made. Equalize the turn flag so
+		// replay cannot open another pending segment while preserving all chip
+		// and status deltas.
+		previous := clonePendingHeroSnapshot(state)
+		previous.HeroInfo.IsHeroTurn = next.HeroInfo.IsHeroTurn
+		next.ObservedActionHistory = append(
+			next.ObservedActionHistory,
+			inferSnapshotDelta(previous, next)...,
+		)
+		state = next
+	}
+	return state
 }
 
 // resolvePendingHeroAtStreetEnd reconstructs the unresolved same-street delta
@@ -416,22 +473,7 @@ func resolvePendingHeroAtStreetEnd(previous *TexasResult) *TexasResult {
 		return previous
 	}
 
-	baseline := clonePendingHeroSnapshot(previous.PendingHeroBefore)
-	latest := clonePendingHeroSnapshot(previous)
-	latest.ObservedActionHistory = append(
-		[]TexasActionHistory(nil), baseline.ObservedActionHistory...,
-	)
-
-	// Suppress creation of a new pending marker while replaying the final
-	// same-street snapshot. The following stage transition is the evidence that
-	// lets inferStageCompletion finish the betting round.
-	baseline.HeroInfo.IsHeroTurn = latest.HeroInfo.IsHeroTurn
-	latest.ObservedActionHistory = append(
-		latest.ObservedActionHistory,
-		inferSnapshotDelta(baseline, latest)...,
-	)
-	latest.PendingHeroBefore = nil
-	return latest
+	return replayPendingHeroSnapshots(previous.PendingHeroBefore, previous.PendingHeroSnapshots, nil)
 }
 
 // PrepareActionHistory carries the current hand's accumulated action events to
@@ -445,6 +487,7 @@ func PrepareActionHistory(previous, result *TexasResult) {
 
 	if IsNewHand(previous, result) {
 		result.PendingHeroBefore = nil
+		result.PendingHeroSnapshots = nil
 		result.ObservedActionHistory = inferSnapshotActions(result)
 		return
 	}
@@ -454,6 +497,7 @@ func PrepareActionHistory(previous, result *TexasResult) {
 		previous.ObservedActionHistory...,
 	)
 	result.PendingHeroBefore = previous.PendingHeroBefore
+	result.PendingHeroSnapshots = append([]*TexasResult(nil), previous.PendingHeroSnapshots...)
 	if normalizeStage(previous.TableInfo.Stage) == normalizeStage(result.TableInfo.Stage) {
 		result.ObservedActionHistory = append(result.ObservedActionHistory, inferSnapshotDelta(previous, result)...)
 		return
@@ -465,6 +509,7 @@ func PrepareActionHistory(previous, result *TexasResult) {
 		)
 	}
 	result.PendingHeroBefore = nil
+	result.PendingHeroSnapshots = nil
 
 	completion := inferStageCompletion(completionPrevious, result)
 	result.ObservedActionHistory = append(result.ObservedActionHistory, completion...)
@@ -1064,11 +1109,25 @@ func inferSnapshotActions(result *TexasResult) []TexasActionHistory {
 }
 
 func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
-	observationStart := previous
 	if previous.PendingHeroBefore != nil {
-		observationStart = previous.PendingHeroBefore
 		current.PendingHeroBefore = previous.PendingHeroBefore
+		current.PendingHeroSnapshots = appendPendingHeroSnapshot(previous.PendingHeroSnapshots, current)
+		baseline := previous.PendingHeroBefore
+		heroChanged := baseline.HeroInfo.CurrentBet != current.HeroInfo.CurrentBet ||
+			baseline.HeroInfo.Status != current.HeroInfo.Status
+		if !heroChanged {
+			return nil
+		}
+
+		resolved := replayPendingHeroSnapshots(
+			baseline, current.PendingHeroSnapshots, current,
+		)
+		baselineHistoryLen := len(baseline.ObservedActionHistory)
+		current.PendingHeroBefore = nil
+		current.PendingHeroSnapshots = nil
+		return append([]TexasActionHistory(nil), resolved.ObservedActionHistory[baselineHistoryLen:]...)
 	}
+	observationStart := previous
 
 	previousSeats := actionSeats(observationStart)
 	currentSeats := actionSeats(current)
@@ -1116,6 +1175,8 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 			observationStart.HeroInfo.CurrentBet >= currentMax && canCheck &&
 			current.PendingHeroBefore == nil {
 			current.PendingHeroBefore = clonePendingHeroSnapshot(observationStart)
+			current.PendingHeroSnapshots = appendPendingHeroSnapshot(nil, current)
+			return nil
 		}
 		break
 	}
@@ -1149,37 +1210,6 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 		changedSeats[event.player.seat] = true
 	}
 
-	if current.PendingHeroBefore != nil {
-		heroChanged := changedSeats[current.HeroInfo.Seat]
-		if heroChanged {
-			// The later snapshot reveals Hero's actual bet/raise. The decided
-			// frame did not prove a check, so let the normal event path record it.
-			current.PendingHeroBefore = nil
-		} else if current.HeroInfo.IsHeroTurn {
-			// Action returning to Hero on the same street proves that Hero's
-			// previous turn completed without a visible wager. Record that check
-			// before replaying the opponents' now-visible actions.
-			heroOrder := -1
-			for _, player := range previousSeats {
-				if player.seat == current.HeroInfo.Seat {
-					heroOrder = player.order
-					history = append(history, TexasActionHistory{
-						Stage: stage, Position: player.position, Action: "check",
-						Amount: 0, Timestamp: timestamp, Status: current.HeroInfo.Status,
-					})
-					timestamp++
-					break
-				}
-			}
-			lastOrder = heroOrder
-			current.PendingHeroBefore = nil
-		} else {
-			// Neither a decided overlay nor an opponent's wager proves Hero's
-			// action: Hero's own chip update may still be delayed. Hold the entire
-			// delta until Hero changes visibly or the street completes.
-			return nil
-		}
-	}
 	events = orderInferredEvents(events, lastOrder, len(previousSeats))
 
 	for _, event := range events {

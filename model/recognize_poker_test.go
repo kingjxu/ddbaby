@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -613,7 +614,7 @@ func TestPrepareActionHistoryResolvesPendingHeroAsBetInsteadOfCheck(t *testing.T
 			t.Fatalf("decided frame invented Hero check before visible bet: %+v", later.ObservedActionHistory)
 		}
 	}
-	if later.PendingHeroBefore != nil {
+	if later.PendingHeroBefore != nil || len(later.PendingHeroSnapshots) != 0 {
 		t.Fatal("visible Hero bet should resolve pending action")
 	}
 }
@@ -664,7 +665,7 @@ func TestPrepareActionHistoryKeepsWholeDeltaPendingAcrossSnapshots(t *testing.T)
 	setSeatStatus(confirmed, 1, "folded")
 	confirmed.HeroInfo.CurrentBet = 37
 	PrepareActionHistory(secondPending, confirmed)
-	if confirmed.PendingHeroBefore != nil {
+	if confirmed.PendingHeroBefore != nil || len(confirmed.PendingHeroSnapshots) != 0 {
 		t.Fatal("confirmed Hero bet did not clear pending baseline")
 	}
 	wantTail := []TexasActionHistory{
@@ -728,10 +729,13 @@ func TestPrepareActionHistoryResolvesPendingWagersAsHeroBetThenRaise(t *testing.
 	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
 	PrepareActionHistory(beforeHero, decided)
 
-	opponentFirst := fourPlayerFlopSnapshot(t, false, 60, 0, "active")
+	opponentFirst := fourPlayerFlopSnapshot(t, true, 60, 0, "active")
 	PrepareActionHistory(decided, opponentFirst)
+	if opponentFirst.PendingHeroBefore == nil || len(opponentFirst.ObservedActionHistory) != 2 {
+		t.Fatalf("returning Hero turn guessed an unresolved action: history=%+v pending=%v", opponentFirst.ObservedActionHistory, opponentFirst.PendingHeroBefore != nil)
+	}
 
-	heroVisible := fourPlayerFlopSnapshot(t, false, 60, 0, "active")
+	heroVisible := fourPlayerFlopSnapshot(t, true, 60, 0, "active")
 	heroVisible.HeroInfo.CurrentBet = 20
 	PrepareActionHistory(opponentFirst, heroVisible)
 
@@ -771,6 +775,45 @@ func TestPrepareActionHistoryCompletesPendingOpponentWagerAcrossStreet(t *testin
 	}
 }
 
+func TestPrepareActionHistoryKeepsTransientPendingWagerUntilStreetEnd(t *testing.T) {
+	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(nil, beforeHero)
+	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	PrepareActionHistory(beforeHero, decided)
+
+	wagerVisible := fourPlayerFlopSnapshot(t, true, 20, 0, "active")
+	PrepareActionHistory(decided, wagerVisible)
+	wagerCleared := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	PrepareActionHistory(wagerVisible, wagerCleared)
+
+	turn := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	turn.TableInfo.Stage = "turn"
+	PrepareActionHistory(wagerCleared, turn)
+
+	wantSequence := []string{
+		"straddle-Hero:check:0",
+		"BTN:bet:20",
+		"SB:call:20",
+		"BB:call:20",
+		"straddle-Hero:call:20",
+	}
+	gotSequence := make([]string, 0, len(wantSequence))
+	for _, action := range turn.ObservedActionHistory {
+		if action.Stage != "flop" {
+			continue
+		}
+		key := fmt.Sprintf("%s:%s:%d", action.Position, action.Action, action.Amount)
+		for _, want := range wantSequence {
+			if key == want {
+				gotSequence = append(gotSequence, key)
+			}
+		}
+	}
+	if !reflect.DeepEqual(gotSequence, wantSequence) {
+		t.Fatalf("transient wager sequence = %v, want %v; history=%+v", gotSequence, wantSequence, turn.ObservedActionHistory)
+	}
+}
+
 func TestPrepareActionHistoryClearsPendingAcrossStreetOnce(t *testing.T) {
 	flopHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
 	PrepareActionHistory(nil, flopHero)
@@ -780,7 +823,7 @@ func TestPrepareActionHistoryClearsPendingAcrossStreetOnce(t *testing.T) {
 	turn := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
 	turn.TableInfo.Stage = "turn"
 	PrepareActionHistory(decided, turn)
-	if turn.PendingHeroBefore != nil {
+	if turn.PendingHeroBefore != nil || len(turn.PendingHeroSnapshots) != 0 {
 		t.Fatal("street transition did not clear pending baseline")
 	}
 	checks := 0
@@ -803,7 +846,7 @@ func TestPrepareActionHistoryClearsPendingOnNewHand(t *testing.T) {
 	newHand := fourPlayerPreflopSnapshot(t, 0, 1, 2, 4)
 	newHand.TableInfo.ButtonSeat = 2
 	PrepareActionHistory(decided, newHand)
-	if newHand.PendingHeroBefore != nil {
+	if newHand.PendingHeroBefore != nil || len(newHand.PendingHeroSnapshots) != 0 {
 		t.Fatal("new hand retained pending Hero baseline")
 	}
 	for _, action := range newHand.ObservedActionHistory {
@@ -813,7 +856,7 @@ func TestPrepareActionHistoryClearsPendingOnNewHand(t *testing.T) {
 	}
 }
 
-func TestPrepareActionHistoryFillsChecksBetweenHeroAndLaterBet(t *testing.T) {
+func TestPrepareActionHistoryKeepsReturnedHeroTurnPending(t *testing.T) {
 	beforeHero := makeTexasResultWithSeats(t, 1, 3, []map[string]interface{}{
 		{"seat": 1, "status": "active", "stack": 500, "current_bet": 0},
 		{"seat": 2, "status": "folded", "stack": 500, "current_bet": 0},
@@ -838,15 +881,11 @@ func TestPrepareActionHistoryFillsChecksBetweenHeroAndLaterBet(t *testing.T) {
 	setSeatBet(&backToHero, 1, 20)
 	PrepareActionHistory(&afterHero, &backToHero)
 
-	wantTail := []TexasActionHistory{
-		{Stage: "flop", Position: "BB-Hero", Action: "check", Amount: 0, Timestamp: 4, Status: "active"},
-		{Stage: "flop", Position: "straddle", Action: "check", Amount: 0, Timestamp: 5, Status: "active"},
-		{Stage: "flop", Position: "UTG", Action: "check", Amount: 0, Timestamp: 6, Status: "active"},
-		{Stage: "flop", Position: "BTN", Action: "bet", Amount: 20, Timestamp: 7, Status: "active"},
+	if backToHero.PendingHeroBefore == nil {
+		t.Fatal("returning Hero turn incorrectly resolved pending action")
 	}
-	gotTail := backToHero.ObservedActionHistory[len(backToHero.ObservedActionHistory)-len(wantTail):]
-	if !reflect.DeepEqual(gotTail, wantTail) {
-		t.Fatalf("history tail = %+v, want %+v; full=%+v", gotTail, wantTail, backToHero.ObservedActionHistory)
+	if !reflect.DeepEqual(backToHero.ObservedActionHistory, afterHero.ObservedActionHistory) {
+		t.Fatalf("returning Hero turn committed ambiguous actions: before=%+v after=%+v", afterHero.ObservedActionHistory, backToHero.ObservedActionHistory)
 	}
 }
 
@@ -1077,7 +1116,7 @@ func TestPrepareActionHistoryDoesNotTurnUnmatchedBetIntoHeroCheck(t *testing.T) 
 	}
 }
 
-func TestConv2TexasGtoDecisionReqUsesSecondOrbitActionOrder(t *testing.T) {
+func TestPrepareActionHistoryKeepsSecondOrbitPendingWithoutVisibleHeroAction(t *testing.T) {
 	beforeHero := k9FlopSnapshot(t, true, 0, 0, "active")
 	beforeHero.ObservedActionHistory = []TexasActionHistory{
 		{Stage: "preflop", Position: "BB", Action: "call", Amount: 12, Timestamp: 7, Status: "active"},
@@ -1088,25 +1127,12 @@ func TestConv2TexasGtoDecisionReqUsesSecondOrbitActionOrder(t *testing.T) {
 	backToHero := k9FlopSnapshot(t, true, 84, 84, "folded")
 	PrepareActionHistory(decided, backToHero)
 
-	wantTail := []TexasActionHistory{
-		{Stage: "flop", Position: "straddle-Hero", Action: "check", Amount: 0, Timestamp: 8, Status: "active"},
-		{Stage: "flop", Position: "UTG+1", Action: "check", Amount: 0, Timestamp: 9, Status: "active"},
-		{Stage: "flop", Position: "MP", Action: "check", Amount: 0, Timestamp: 10, Status: "active"},
-		{Stage: "flop", Position: "BTN", Action: "bet", Amount: 84, Timestamp: 11, Status: "active"},
-		{Stage: "flop", Position: "SB", Action: "call", Amount: 84, Timestamp: 12, Status: "active"},
-		{Stage: "flop", Position: "BB", Action: "fold", Amount: 0, Timestamp: 13, Status: "folded"},
+	if backToHero.PendingHeroBefore == nil {
+		t.Fatal("K9 returning Hero turn incorrectly resolved pending action")
 	}
-	gotTail := backToHero.ObservedActionHistory[len(backToHero.ObservedActionHistory)-len(wantTail):]
-	if !reflect.DeepEqual(gotTail, wantTail) {
-		t.Fatalf("K9 second-orbit history tail = %+v, want %+v", gotTail, wantTail)
-	}
-
-	request := Conv2TexasGtoDecisionReq(context.Background(), []*TexasResult{backToHero})
-	wantActions := map[string]string{"BTN": "bet", "SB": "call", "BB": "fold", "straddle-Hero": ""}
-	for _, player := range request.Players {
-		want, relevant := wantActions[player.Position]
-		if relevant && player.ActionTaken != want {
-			t.Errorf("K9 %s action_taken = %q, want %q", player.Position, player.ActionTaken, want)
+	for _, action := range backToHero.ObservedActionHistory {
+		if action.Stage == "flop" {
+			t.Fatalf("K9 pending segment committed ambiguous flop action: %+v", backToHero.ObservedActionHistory)
 		}
 	}
 }
