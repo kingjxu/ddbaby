@@ -1,10 +1,30 @@
 ---
-version: "1.5"
-last_updated: "2026-10-16"
+version: "1.6"
+last_updated: "2026-10-17"
 status: "active"
 ---
 
 # 环境与运维
+
+## 2026-10-17 Result All in 展示兜底部署
+
+- 业务提交：`145d733`。仅在 ddbaby 生成原有 `Result` 时，将达到
+  `hero.bet + hero.stack` 全下目标的合法 bet/raise 显示为 `All in`；未修改
+  IDL、响应字段、Android 或 APK。
+- 部署前已撤销错误的双端实现方向：ddbaby 恢复至上一版二进制
+  `cebc09100a7c8184ae936572a8871766a699f453deb685cdeeb7ba4a96fc7053`，官网 APK
+  恢复 1.0.33/code26，公网文件 SHA256 为
+  `f942589b9c86b0c7dab5d8e9c8a72e32ad6651588b0e5e47b13165f02269ce43`。
+- 远端 Go 1.22.2 执行全仓测试、race
+  `./dal ./model ./biz/handler`、专项 Result 边界测试和构建均通过。部署二进制
+  SHA256 为 `acf4ee79f53ab964b5b2781210ff7e791e890befc58abfe976132d72011554f1`；
+  handler 源码 SHA256 为
+  `aa5d89cf85bde5624e59e3947baeed75767df48599ad6accddc74bcdf582ec08`。
+- 2026-10-17 01:09:37 CST 完成原子切换，PID `970065 -> 972663`，新进程
+  PPID=1，磁盘和运行中二进制 SHA 一致，监听 8888；本机 `/ping` 返回
+  `{"message":"pong"}`，启动日志延迟扫描无 panic、fatal 或 error。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261017-010928-before-145d733`，包含
+  上一版二进制、运行时源码归档以及部署前后事实。
 
 ## 生产服务器
 
