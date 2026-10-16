@@ -677,6 +677,100 @@ func TestPrepareActionHistoryKeepsWholeDeltaPendingAcrossSnapshots(t *testing.T)
 	}
 }
 
+func TestPrepareActionHistoryKeepsOpponentWagerPending(t *testing.T) {
+	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(nil, beforeHero)
+
+	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	PrepareActionHistory(beforeHero, decided)
+
+	opponentOnly := fourPlayerFlopSnapshot(t, false, 20, 0, "active")
+	PrepareActionHistory(decided, opponentOnly)
+	if opponentOnly.PendingHeroBefore == nil {
+		t.Fatal("opponent wager incorrectly resolved pending Hero action")
+	}
+	if len(opponentOnly.ObservedActionHistory) != 2 {
+		t.Fatalf("opponent wager committed an ambiguous delta: %+v", opponentOnly.ObservedActionHistory)
+	}
+	for _, action := range opponentOnly.ObservedActionHistory {
+		if action.Position == "straddle-Hero" && action.Action == "check" {
+			t.Fatalf("opponent wager invented Hero check: %+v", opponentOnly.ObservedActionHistory)
+		}
+	}
+}
+
+func TestPrepareActionHistoryResolvesEqualPendingWagersAsHeroBetThenCall(t *testing.T) {
+	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(nil, beforeHero)
+	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	PrepareActionHistory(beforeHero, decided)
+
+	opponentFirst := fourPlayerFlopSnapshot(t, false, 20, 0, "active")
+	PrepareActionHistory(decided, opponentFirst)
+
+	heroVisible := fourPlayerFlopSnapshot(t, false, 20, 0, "active")
+	heroVisible.HeroInfo.CurrentBet = 20
+	PrepareActionHistory(opponentFirst, heroVisible)
+
+	wantTail := []TexasActionHistory{
+		{Stage: "flop", Position: "straddle-Hero", Action: "bet", Amount: 20, Timestamp: 2, Status: "active"},
+		{Stage: "flop", Position: "BTN", Action: "call", Amount: 20, Timestamp: 3, Status: "active"},
+	}
+	gotTail := heroVisible.ObservedActionHistory[len(heroVisible.ObservedActionHistory)-len(wantTail):]
+	if !reflect.DeepEqual(gotTail, wantTail) {
+		t.Fatalf("equal pending wagers tail = %+v, want %+v", gotTail, wantTail)
+	}
+}
+
+func TestPrepareActionHistoryResolvesPendingWagersAsHeroBetThenRaise(t *testing.T) {
+	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(nil, beforeHero)
+	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	PrepareActionHistory(beforeHero, decided)
+
+	opponentFirst := fourPlayerFlopSnapshot(t, false, 60, 0, "active")
+	PrepareActionHistory(decided, opponentFirst)
+
+	heroVisible := fourPlayerFlopSnapshot(t, false, 60, 0, "active")
+	heroVisible.HeroInfo.CurrentBet = 20
+	PrepareActionHistory(opponentFirst, heroVisible)
+
+	wantTail := []TexasActionHistory{
+		{Stage: "flop", Position: "straddle-Hero", Action: "bet", Amount: 20, Timestamp: 2, Status: "active"},
+		{Stage: "flop", Position: "BTN", Action: "raise", Amount: 60, Timestamp: 3, Status: "active"},
+	}
+	gotTail := heroVisible.ObservedActionHistory[len(heroVisible.ObservedActionHistory)-len(wantTail):]
+	if !reflect.DeepEqual(gotTail, wantTail) {
+		t.Fatalf("raised pending wagers tail = %+v, want %+v", gotTail, wantTail)
+	}
+}
+
+func TestPrepareActionHistoryCompletesPendingOpponentWagerAcrossStreet(t *testing.T) {
+	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(nil, beforeHero)
+	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	PrepareActionHistory(beforeHero, decided)
+
+	opponentWager := fourPlayerFlopSnapshot(t, false, 20, 0, "active")
+	PrepareActionHistory(decided, opponentWager)
+
+	turn := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	turn.TableInfo.Stage = "turn"
+	PrepareActionHistory(opponentWager, turn)
+
+	counts := make(map[string]int)
+	for _, action := range turn.ObservedActionHistory {
+		if action.Stage != "flop" {
+			continue
+		}
+		counts[action.Position+":"+action.Action]++
+	}
+	if counts["straddle-Hero:check"] != 1 || counts["straddle-Hero:call"] != 1 ||
+		counts["BTN:bet"] != 1 {
+		t.Fatalf("pending cross-street completion is not one legal sequence: counts=%v history=%+v", counts, turn.ObservedActionHistory)
+	}
+}
+
 func TestPrepareActionHistoryClearsPendingAcrossStreetOnce(t *testing.T) {
 	flopHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
 	PrepareActionHistory(nil, flopHero)
