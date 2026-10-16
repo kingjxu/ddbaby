@@ -418,8 +418,8 @@ func appendPendingHeroSnapshot(existing []*TexasResult, result *TexasResult) []*
 // replayPendingHeroSnapshots resolves an ambiguous segment in timestamp order.
 // When revealed is non-nil, Hero's later visible wager/status is injected into
 // the earlier delayed frames so the action is ordered before subsequent calls,
-// raises, or folds. A nil revealed value is used only after a street change,
-// when completion proves the round ended and the shortest legal history is safe.
+// raises, or folds. A nil revealed value selects the shortest legal check path;
+// it is used after a street change or when Hero later folds without wagering.
 func replayPendingHeroSnapshots(baseline *TexasResult, snapshots []*TexasResult, revealed *TexasResult) *TexasResult {
 	state := clonePendingHeroSnapshot(baseline)
 	if revealed == nil {
@@ -1113,14 +1113,19 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 		current.PendingHeroBefore = previous.PendingHeroBefore
 		current.PendingHeroSnapshots = appendPendingHeroSnapshot(previous.PendingHeroSnapshots, current)
 		baseline := previous.PendingHeroBefore
-		heroChanged := baseline.HeroInfo.CurrentBet != current.HeroInfo.CurrentBet ||
-			baseline.HeroInfo.Status != current.HeroInfo.Status
+		heroBetChanged := baseline.HeroInfo.CurrentBet != current.HeroInfo.CurrentBet
+		heroStatusChanged := baseline.HeroInfo.Status != current.HeroInfo.Status
+		heroChanged := heroBetChanged || heroStatusChanged
 		if !heroChanged {
 			return nil
 		}
 
+		var revealedWager *TexasResult
+		if heroBetChanged {
+			revealedWager = current
+		}
 		resolved := replayPendingHeroSnapshots(
-			baseline, current.PendingHeroSnapshots, current,
+			baseline, current.PendingHeroSnapshots, revealedWager,
 		)
 		baselineHistoryLen := len(baseline.ObservedActionHistory)
 		current.PendingHeroBefore = nil

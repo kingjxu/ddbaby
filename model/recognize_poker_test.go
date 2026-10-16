@@ -749,6 +749,29 @@ func TestPrepareActionHistoryResolvesPendingWagersAsHeroBetThenRaise(t *testing.
 	}
 }
 
+func TestPrepareActionHistoryOrdersPendingHeroFoldAfterOpponentBet(t *testing.T) {
+	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(nil, beforeHero)
+	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	PrepareActionHistory(beforeHero, decided)
+
+	opponentBet := fourPlayerFlopSnapshot(t, true, 20, 0, "active")
+	PrepareActionHistory(decided, opponentBet)
+	heroFolded := fourPlayerFlopSnapshot(t, false, 20, 0, "active")
+	heroFolded.HeroInfo.Status = "folded"
+	PrepareActionHistory(opponentBet, heroFolded)
+
+	wantTail := []TexasActionHistory{
+		{Stage: "flop", Position: "straddle-Hero", Action: "check", Amount: 0, Timestamp: 2, Status: "active"},
+		{Stage: "flop", Position: "BTN", Action: "bet", Amount: 20, Timestamp: 3, Status: "active"},
+		{Stage: "flop", Position: "straddle-Hero", Action: "fold", Amount: 0, Timestamp: 4, Status: "folded"},
+	}
+	gotTail := heroFolded.ObservedActionHistory[len(heroFolded.ObservedActionHistory)-len(wantTail):]
+	if !reflect.DeepEqual(gotTail, wantTail) {
+		t.Fatalf("pending Hero fold tail = %+v, want %+v; history=%+v", gotTail, wantTail, heroFolded.ObservedActionHistory)
+	}
+}
+
 func TestPrepareActionHistoryCompletesPendingOpponentWagerAcrossStreet(t *testing.T) {
 	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
 	PrepareActionHistory(nil, beforeHero)
