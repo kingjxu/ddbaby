@@ -439,6 +439,59 @@ func heroActionReturnedBeforeChange(baseline *TexasResult, snapshots []*TexasRes
 	return false
 }
 
+// stableReturnedHeroTurn reports whether two consecutive full observations
+// prove that action has completed an orbit and returned to an unchanged Hero.
+// One returned frame is deliberately insufficient: a transient recognition can
+// briefly restore the Hero-turn marker before the chips from Hero's first action
+// become visible. Requiring the same actionable table state twice preserves
+// that protection while allowing a real check -> opponent action -> Hero orbit
+// to continue on the same street.
+func stableReturnedHeroTurn(baseline *TexasResult, snapshots []*TexasResult) bool {
+	if baseline == nil || len(snapshots) < 2 {
+		return false
+	}
+	first := snapshots[len(snapshots)-2]
+	second := snapshots[len(snapshots)-1]
+	if first == nil || second == nil ||
+		!first.HeroInfo.IsHeroTurn || !second.HeroInfo.IsHeroTurn ||
+		first.HeroInfo.CurrentBet != baseline.HeroInfo.CurrentBet ||
+		second.HeroInfo.CurrentBet != baseline.HeroInfo.CurrentBet ||
+		first.HeroInfo.Status != baseline.HeroInfo.Status ||
+		second.HeroInfo.Status != baseline.HeroInfo.Status ||
+		normalizeStage(first.TableInfo.Stage) != normalizeStage(second.TableInfo.Stage) ||
+		first.TableInfo.ButtonSeat != second.TableInfo.ButtonSeat {
+		return false
+	}
+
+	firstSeats := actionSeats(first)
+	secondSeats := actionSeats(second)
+	if len(firstSeats) != len(secondSeats) {
+		return false
+	}
+	for i := range firstSeats {
+		if firstSeats[i].seat != secondSeats[i].seat ||
+			firstSeats[i].status != secondSeats[i].status ||
+			firstSeats[i].currentBet != secondSeats[i].currentBet {
+			return false
+		}
+	}
+
+	baselineBySeat := make(map[int]actionSeat)
+	for _, player := range actionSeats(baseline) {
+		baselineBySeat[player.seat] = player
+	}
+	for _, player := range secondSeats {
+		if player.seat == baseline.HeroInfo.Seat {
+			continue
+		}
+		before, ok := baselineBySeat[player.seat]
+		if !ok || before.status != player.status || before.currentBet != player.currentBet {
+			return true
+		}
+	}
+	return false
+}
+
 // replayPendingHeroSnapshots resolves an ambiguous segment in timestamp order.
 // When Hero changes before action returns, the visible state belongs to the
 // first pending action and can be applied to the earlier delayed frames. If an
@@ -1147,6 +1200,15 @@ func inferSnapshotDelta(previous, current *TexasResult) []TexasActionHistory {
 		heroChanged := baseline.HeroInfo.CurrentBet != current.HeroInfo.CurrentBet ||
 			baseline.HeroInfo.Status != current.HeroInfo.Status
 		if !heroChanged {
+			if stableReturnedHeroTurn(baseline, current.PendingHeroSnapshots) {
+				resolved := replayPendingHeroSnapshots(
+					baseline, current.PendingHeroSnapshots, nil,
+				)
+				baselineHistoryLen := len(baseline.ObservedActionHistory)
+				current.PendingHeroBefore = nil
+				current.PendingHeroSnapshots = nil
+				return append([]TexasActionHistory(nil), resolved.ObservedActionHistory[baselineHistoryLen:]...)
+			}
 			return nil
 		}
 		if baseline.HeroInfo.CurrentBet != current.HeroInfo.CurrentBet &&

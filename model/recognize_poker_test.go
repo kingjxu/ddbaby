@@ -992,6 +992,63 @@ func TestPrepareActionHistoryKeepsReturnedHeroTurnPending(t *testing.T) {
 	}
 }
 
+func TestPrepareActionHistoryResolvesStableQ9ReturnedHeroTurn(t *testing.T) {
+	beforeHero := k9FlopSnapshot(t, true, 0, 0, "active")
+	beforeHero.TableInfo.CommunityCards = []string{"7 黑桃", "7 红桃", "6 红桃"}
+	beforeHero.HeroInfo.HeroCards = []string{"Q 方块", "9 方块"}
+	PrepareActionHistory(nil, beforeHero)
+
+	decided := k9FlopSnapshot(t, false, 0, 0, "active")
+	decided.TableInfo.CommunityCards = append([]string(nil), beforeHero.TableInfo.CommunityCards...)
+	decided.HeroInfo.HeroCards = append([]string(nil), beforeHero.HeroInfo.HeroCards...)
+	PrepareActionHistory(beforeHero, decided)
+
+	firstReturned := k9FlopSnapshot(t, true, 18, 18, "active")
+	firstReturned.TableInfo.CommunityCards = append([]string(nil), beforeHero.TableInfo.CommunityCards...)
+	firstReturned.HeroInfo.HeroCards = append([]string(nil), beforeHero.HeroInfo.HeroCards...)
+	PrepareActionHistory(decided, firstReturned)
+	if firstReturned.PendingHeroBefore == nil {
+		t.Fatal("one returned-Hero frame must remain pending")
+	}
+
+	secondReturned := k9FlopSnapshot(t, true, 18, 18, "active")
+	secondReturned.TableInfo.CommunityCards = append([]string(nil), beforeHero.TableInfo.CommunityCards...)
+	secondReturned.HeroInfo.HeroCards = append([]string(nil), beforeHero.HeroInfo.HeroCards...)
+	PrepareActionHistory(firstReturned, secondReturned)
+	if HasPendingHeroAction(secondReturned) {
+		t.Fatal("two stable returned-Hero frames did not resolve the prior check")
+	}
+	if !historyContainsAction(secondReturned.ObservedActionHistory, "flop", "straddle-Hero", "check", 0) {
+		t.Fatalf("resolved history omitted Hero check: %+v", secondReturned.ObservedActionHistory)
+	}
+	if !historyContainsAction(secondReturned.ObservedActionHistory, "flop", "BTN", "bet", 18) {
+		t.Fatalf("resolved history omitted BTN bet: %+v", secondReturned.ObservedActionHistory)
+	}
+	if !historyContainsAction(secondReturned.ObservedActionHistory, "flop", "SB", "call", 18) {
+		t.Fatalf("resolved history omitted SB call: %+v", secondReturned.ObservedActionHistory)
+	}
+	request := Conv2TexasGtoDecisionReq(context.Background(), []*TexasResult{secondReturned})
+	if request == nil || request.CurrentPlayerPosition != "straddle-Hero" {
+		t.Fatalf("second Hero opportunity did not produce a decision request: %+v", request)
+	}
+}
+
+func TestPrepareActionHistoryKeepsStableReturnedHeroWithoutOpponentDeltaPending(t *testing.T) {
+	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(nil, beforeHero)
+	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	PrepareActionHistory(beforeHero, decided)
+
+	firstReturned := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(decided, firstReturned)
+	secondReturned := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	PrepareActionHistory(firstReturned, secondReturned)
+
+	if !HasPendingHeroAction(secondReturned) {
+		t.Fatal("returned Hero marker without an opponent action incorrectly resolved pending state")
+	}
+}
+
 func TestInferSnapshotActionsDoesNotInventCheckBeforeFirstActor(t *testing.T) {
 	firstActor := makeTexasResultWithSeats(t, 1, 2, []map[string]interface{}{
 		{"seat": 1, "status": "active", "stack": 500, "current_bet": 0},
