@@ -33,5 +33,5 @@ status: "active"
 ## 同一条街第二次轮到 Hero 但端上无提示
 
 - 先按同一个 `decision_cycle_id` 对齐识别、handler 和客户端日志。识别成功但 handler 返回 `hero action is still pending` 且 `Result` 为空时，端上没有可展示内容，问题在服务端动作历史门禁。
-- Hero 上一圈 check 后投入仍为0，不能只靠投入变化解除 pending。若连续两个完整 Hero 帧的街道、按钮、Hero 投入/状态及各座位投入/状态完全一致，并且相对上一圈基线已有对手下注或状态变化，服务端应把上一圈 Hero 结算为 check 并恢复决策。
+- Hero 上一圈 check 后投入仍为0，不能只靠投入变化解除 pending。若连续两个完整 Hero 帧的街道、按钮、Hero 投入/后手/状态及各座位投入/状态完全一致，这些 Hero 字段也与上一圈基线一致，并且已有对手下注或状态变化，服务端应把上一圈 Hero 结算为 check 并恢复决策。Hero 后手下降但投入仍未显露时继续 pending。
 - 只有一个返回 Hero 帧、两帧桌面状态不一致或没有对手可见变化时继续保持 pending，避免把 OCR 抖动或 Hero 筹码延迟显露误判成 check。

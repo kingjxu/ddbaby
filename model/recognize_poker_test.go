@@ -1049,6 +1049,31 @@ func TestPrepareActionHistoryKeepsStableReturnedHeroWithoutOpponentDeltaPending(
 	}
 }
 
+func TestPrepareActionHistoryKeepsStableReturnedHeroWithDelayedBetPending(t *testing.T) {
+	beforeHero := fourPlayerFlopSnapshot(t, true, 0, 0, "active")
+	beforeHero.HeroInfo.Stack = 100
+	PrepareActionHistory(nil, beforeHero)
+	decided := fourPlayerFlopSnapshot(t, false, 0, 0, "active")
+	decided.HeroInfo.Stack = 100
+	PrepareActionHistory(beforeHero, decided)
+
+	firstReturned := fourPlayerFlopSnapshot(t, true, 20, 0, "active")
+	firstReturned.HeroInfo.Stack = 90
+	PrepareActionHistory(decided, firstReturned)
+	secondReturned := fourPlayerFlopSnapshot(t, true, 20, 0, "active")
+	secondReturned.HeroInfo.Stack = 90
+	PrepareActionHistory(firstReturned, secondReturned)
+
+	if !HasPendingHeroAction(secondReturned) {
+		t.Fatal("Hero stack decrease with delayed bet ROI incorrectly resolved pending state")
+	}
+	for _, action := range secondReturned.ObservedActionHistory {
+		if action.Position == "straddle-Hero" && action.Action == "check" {
+			t.Fatalf("Hero stack decrease was incorrectly recorded as check: %+v", secondReturned.ObservedActionHistory)
+		}
+	}
+}
+
 func TestInferSnapshotActionsDoesNotInventCheckBeforeFirstActor(t *testing.T) {
 	firstActor := makeTexasResultWithSeats(t, 1, 2, []map[string]interface{}{
 		{"seat": 1, "status": "active", "stack": 500, "current_bet": 0},

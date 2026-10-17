@@ -456,6 +456,8 @@ func stableReturnedHeroTurn(baseline *TexasResult, snapshots []*TexasResult) boo
 		!first.HeroInfo.IsHeroTurn || !second.HeroInfo.IsHeroTurn ||
 		first.HeroInfo.CurrentBet != baseline.HeroInfo.CurrentBet ||
 		second.HeroInfo.CurrentBet != baseline.HeroInfo.CurrentBet ||
+		first.HeroInfo.Stack != baseline.HeroInfo.Stack ||
+		second.HeroInfo.Stack != baseline.HeroInfo.Stack ||
 		first.HeroInfo.Status != baseline.HeroInfo.Status ||
 		second.HeroInfo.Status != baseline.HeroInfo.Status ||
 		normalizeStage(first.TableInfo.Stage) != normalizeStage(second.TableInfo.Stage) ||
