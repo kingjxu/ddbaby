@@ -3,13 +3,52 @@
 package main
 
 import (
+	"context"
+	"io"
+
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/kingjxu/ddbaby/dal/mysql"
 )
 
+const defaultMaxRequestBodyBytes = 4 * 1024 * 1024
+
 func main() {
-	h := server.Default()
+	h := newHertzServer()
+	h.Use(preserveDefaultRequestBodyLimit)
 	mysql.Init()
 	register(h)
 	h.Spin()
+}
+
+// preserveDefaultRequestBodyLimit keeps Hertz's former 4 MiB buffering limit
+// for existing routes while /lyxz/gto_event applies its smaller streaming
+// limit inside the handler.
+func preserveDefaultRequestBodyLimit(ctx context.Context, c *app.RequestContext) {
+	if string(c.Path()) == "/lyxz/gto_event" || !c.Request.IsBodyStream() {
+		c.Next(ctx)
+		return
+	}
+
+	contentLength := c.Request.Header.ContentLength()
+	if contentLength > defaultMaxRequestBodyBytes {
+		c.AbortWithStatus(consts.StatusRequestEntityTooLarge)
+		return
+	}
+	body, err := io.ReadAll(io.LimitReader(
+		c.RequestBodyStream(), int64(defaultMaxRequestBodyBytes)+1,
+	))
+	if err != nil || len(body) > defaultMaxRequestBodyBytes {
+		c.AbortWithStatus(consts.StatusRequestEntityTooLarge)
+		return
+	}
+	c.Request.SetBody(body)
+	c.Next(ctx)
+}
+
+func newHertzServer() *server.Hertz {
+	// Keep request bodies as streams so handlers can enforce route-specific
+	// limits before Hertz buffers the complete payload.
+	return server.Default(server.WithStreamBody(true))
 }

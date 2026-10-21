@@ -7,9 +7,9 @@ last_updated: "2026-10-21"
 
 ## `POST /lyxz/gto_event`
 
-接收桃园助手从 AAPoker 分析模块透传的一条规范化牌局事件。请求体保持 `timestamp/pid/uid/PacketId/cmd/direction/data/location/seq/dataExtra` 结构；`direction` 只接受 `ServerToClient` 或 `ClientToServer`，`location` 只接受 `TABLE/LOBBY/UNKNOWN`。请求体上限512 KiB，`data`必须为合法JSON值。
+接收桃园助手从 AAPoker 分析模块透传的一条规范化牌局事件。请求体保持 `timestamp/pid/uid/PacketId/cmd/direction/data/location/seq/dataExtra` 结构；`direction` 只接受 `ServerToClient` 或 `ClientToServer`，`location` 只接受 `TABLE/LOBBY/UNKNOWN`。服务启用流式请求体读取，该路由最多读取512 KiB加1字节后拒绝超限输入；`data`必须为合法JSON值且编码后不超过480 KiB。
 
-首版只确认接收并返回 `BaseResp.StatusCode=0`，尚未把事件接入牌局状态重建、策略决策、计费或数据库持久化。接口暂不校验用户身份；因此不得把游戏uid解释为桃园账号身份。处理日志只记录cmd、方向、位置和payload大小，不记录完整牌局数据。
+首版只确认接收并返回 `BaseResp.StatusCode=0`，尚未把事件接入牌局状态重建、策略决策、计费或数据库持久化。接口暂不校验用户身份；因此不得把游戏uid解释为桃园账号身份。为分析首批真实协议，校验通过后日志会以`[TexasPokerEvent] accepted`记录完整事件JSON以及cmd、方向、位置和payload大小；该诊断日志可能包含牌局与用户标识，应限制日志访问并在协议收敛后改为脱敏记录。
 
 ## `POST /lyxz/gto_decision`
 

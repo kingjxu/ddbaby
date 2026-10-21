@@ -34,8 +34,8 @@ type texasPokerEvent struct {
 // intentionally acknowledges receipt only; state reconstruction is connected
 // behind this boundary in a later change.
 func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
-	body := c.Request.Body()
-	if len(body) == 0 || len(body) > maxTexasPokerEventBytes {
+	body, err := readTexasPokerEventBody(c)
+	if err != nil {
 		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_body_size")
 		return
 	}
@@ -51,6 +51,7 @@ func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 		"direction":    event.Direction,
 		"location":     event.Location,
 		"payload_size": len(event.Data),
+		"event":        string(body),
 	}).Info("[TexasPokerEvent] accepted")
 
 	c.JSON(consts.StatusOK, map[string]any{
@@ -59,6 +60,29 @@ func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 			"StatusMessage": "success",
 		},
 	})
+}
+
+func readTexasPokerEventBody(c *app.RequestContext) ([]byte, error) {
+	if !c.Request.IsBodyStream() {
+		body := c.Request.Body()
+		if len(body) == 0 || len(body) > maxTexasPokerEventBytes {
+			return nil, errors.New("invalid body size")
+		}
+		return body, nil
+	}
+
+	contentLength := c.Request.Header.ContentLength()
+	if contentLength == 0 || contentLength > maxTexasPokerEventBytes {
+		return nil, errors.New("invalid body size")
+	}
+
+	body, err := io.ReadAll(io.LimitReader(
+		c.RequestBodyStream(), int64(maxTexasPokerEventBytes)+1,
+	))
+	if err != nil || len(body) == 0 || len(body) > maxTexasPokerEventBytes {
+		return nil, errors.New("invalid body size")
+	}
+	return body, nil
 }
 
 func parseTexasPokerEvent(body []byte) (*texasPokerEvent, error) {

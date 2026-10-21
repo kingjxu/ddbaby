@@ -1,13 +1,26 @@
 package handler
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"strings"
 	"testing"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
+
+type countingReader struct {
+	reader io.Reader
+	read   int
+}
+
+func (r *countingReader) Read(p []byte) (int, error) {
+	n, err := r.reader.Read(p)
+	r.read += n
+	return n, err
+}
 
 func TestParseTexasPokerEvent(t *testing.T) {
 	body := []byte(`{"timestamp":1792526400000,"pid":"42","uid":"42",` +
@@ -43,6 +56,34 @@ func TestTexasPokerEventHTTPResponse(t *testing.T) {
 	}
 }
 
+func TestReadTexasPokerEventBodyLimitsStreamBeforeFullBuffer(t *testing.T) {
+	source := &countingReader{reader: bytes.NewReader(
+		bytes.Repeat([]byte("x"), maxTexasPokerEventBytes+64*1024),
+	)}
+	var requestContext app.RequestContext
+	requestContext.Request.SetBodyStream(source, -1)
+
+	if _, err := readTexasPokerEventBody(&requestContext); err == nil {
+		t.Fatal("expected oversized stream to be rejected")
+	}
+	if source.read != maxTexasPokerEventBytes+1 {
+		t.Fatalf("read %d bytes, want %d", source.read, maxTexasPokerEventBytes+1)
+	}
+}
+
+func TestReadTexasPokerEventBodyRejectsOversizedContentLengthWithoutReading(t *testing.T) {
+	source := &countingReader{reader: strings.NewReader("not read")}
+	var requestContext app.RequestContext
+	requestContext.Request.SetBodyStream(source, maxTexasPokerEventBytes+1)
+
+	if _, err := readTexasPokerEventBody(&requestContext); err == nil {
+		t.Fatal("expected oversized content length to be rejected")
+	}
+	if source.read != 0 {
+		t.Fatalf("read %d bytes, want 0", source.read)
+	}
+}
+
 func TestParseTexasPokerEventRejectsInvalidInput(t *testing.T) {
 	tests := map[string]string{
 		"bad json":      `{`,
@@ -50,6 +91,8 @@ func TestParseTexasPokerEventRejectsInvalidInput(t *testing.T) {
 		"bad command":   `{"timestamp":1,"cmd":"bad command","direction":"ServerToClient","location":"TABLE","data":{}}`,
 		"bad direction": `{"timestamp":1,"cmd":"STATE","direction":"sideways","location":"TABLE","data":{}}`,
 		"bad location":  `{"timestamp":1,"cmd":"STATE","direction":"ServerToClient","location":"LOGIN","data":{}}`,
+		"fractional ts": `{"timestamp":1.5,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
+		"exponent ts":   `{"timestamp":1e3,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
 		"large uid":     `{"timestamp":1,"uid":"` + strings.Repeat("a", 129) + `","cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
 		"boolean uid":   `{"timestamp":1,"uid":true,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
 	}
@@ -68,5 +111,21 @@ func TestParseTexasPokerEventAcceptsNumericMetadata(t *testing.T) {
 		`"data":"opaque-payload","location":"TABLE","seq":"opaque","dataExtra":9}`)
 	if _, err := parseTexasPokerEvent(body); err != nil {
 		t.Fatalf("parseTexasPokerEvent() error = %v", err)
+	}
+}
+
+func TestParseTexasPokerEventDataSizeBoundary(t *testing.T) {
+	dataAtLimit := `"` + strings.Repeat("a", 480*1024-2) + `"`
+	bodyAtLimit := `{"timestamp":1,"cmd":"STATE","direction":"ServerToClient",` +
+		`"location":"TABLE","data":` + dataAtLimit + `}`
+	if _, err := parseTexasPokerEvent([]byte(bodyAtLimit)); err != nil {
+		t.Fatalf("480 KiB data rejected: %v", err)
+	}
+
+	dataOverLimit := `"` + strings.Repeat("a", 480*1024-1) + `"`
+	bodyOverLimit := `{"timestamp":1,"cmd":"STATE","direction":"ServerToClient",` +
+		`"location":"TABLE","data":` + dataOverLimit + `}`
+	if _, err := parseTexasPokerEvent([]byte(bodyOverLimit)); err == nil {
+		t.Fatal("expected data over 480 KiB to be rejected")
 	}
 }
