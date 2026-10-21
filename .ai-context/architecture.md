@@ -1,6 +1,6 @@
 ---
-version: "1.0"
-last_updated: "2026-10-02"
+version: "1.1"
+last_updated: "2026-10-21"
 ---
 
 # 架构
@@ -13,6 +13,7 @@ last_updated: "2026-10-02"
 - `service/texas_poker.go` 调用外部识别服务与 GTO 决策服务。
 - `dal/local_mem.go` 按用户保存同一手牌各阶段的识别结果。
 - `model/recognize_poker.go` 把识别结果转换为玩家、位置和行动历史。
+- `router.go` 的 `POST /lyxz/gto_event` 与 `biz/handler/texas_poker_event.go` 接收桃园助手透传的AAPoker规范化事件；首版仅做大小/字段校验和确认，不写缓存、不触发策略。
 
 ## 当前覆盖边界
 
