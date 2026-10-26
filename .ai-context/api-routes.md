@@ -9,6 +9,8 @@ last_updated: "2026-10-26"
 
 接收桃园助手从 AAPoker 分析模块透传的一条规范化牌局事件。请求体保持 `timestamp/pid/uid/PacketId/cmd/direction/data/location/seq/dataExtra` 结构，并由桃园补充当前登录账号 `uuid` 及策略档位 `vpip/pfr`；`direction` 只接受 `ServerToClient` 或 `ClientToServer`，`location` 只接受 `TABLE/LOBBY/UNKNOWN`。服务启用流式请求体读取，该路由最多读取512 KiB加1字节后拒绝超限输入；`data`必须为合法JSON值且编码后不超过480 KiB。
 
+当前Android 17770入口没有本机调用方认证；任意同机App可伪造事件，再由桃园补入当前登录用户的uuid和Bearer token，从而触发GTO、次数计费和审计。用户已明确接受该风险以简化本轮真机验证；不得将该入口表述为可信来源或已防护，后续需单独补齐。
+
 服务端按 `uuid + AAPoker uid + dataExtra(牌桌)` 隔离有界、30分钟过期的状态，只有服务端下行事件参与重建。登录账号必须已经坐下并能由 `uid/playerIDArray/mySeatID` 一致定位 Hero；旁观者不触发决策。服务从 `START_INFOR` 开始收集本手参与者、位置、盲注/ante/straddle、筹码与手牌，并用 `RECV_ACTION/RECV_CARDS/SHOW_SIDE_POTS` 累计逐街行动、公共牌和底池。当 `operationID` 指向 Hero、手牌和公共牌完整且请求通过原 GTO 请求校验时，服务端先用Bearer token调用认证服务，确认有效会话里的email与`uuid`一致，再按`uuid`校验激活状态并调用对应 VPIP/PFR 策略。认证失败不能回退信任请求体uuid。每个 `handNum + operationRound + stage` 在进程内只允许一个并发决策；认证、激活、GTO或审计编排失败不消费重试资格并返回HTTP 503，Android必须保留当前事件重试。成功后以`uuid + AAPoker uid + table + hand/turn`为键缓存最终完整响应，命中只回放，不重新认证、GTO、计费或审计。缓存由互斥锁保护，最多1024条、30分钟过期。合法结果沿用 `Result`，并返回 `DecisionAction/DecisionAmount/HeroMaxTarget` 供悬浮窗显示保护。
 
 成功决策与截图接口使用同一 `gto_decision_record`：保存桃园 `uuid`、Hero 手牌/位置/街道、实际 GTO 请求、原始响应和规范化最终响应；按次数激活码只在合法结果后计费。AAPoker 的游戏 uid 只用于同一上报流里的 Hero/座位匹配，不能替代桃园 uuid。`operationRound`出现缺口说明行动事件丢失，本手立即停止决策并等待下一次`START_INFOR`重建，不能用不完整路线猜测。未携带 uuid 的旧客户端事件仍可被接收和记录，但不建立决策状态、不调用 GTO、不计费。
