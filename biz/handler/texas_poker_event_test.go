@@ -62,7 +62,7 @@ func TestTexasPokerEventLimitsHighFrequencyLargePayloadAndLogBytes(t *testing.T)
 	data := strings.Repeat("a", 200*1024)
 	body := `{"timestamp":1792526400000,"cmd":"STATE",` +
 		`"direction":"ServerToClient","location":"TABLE","data":"` + data + `"}`
-	guard := newEventIngressGuard(3, 2, len(body)+128, true)
+	guard := newEventIngressGuard(3, 2, eventFullLogCost(len(body))+128, true)
 	now := time.Unix(1792526400, 0)
 
 	var logs bytes.Buffer

@@ -25,6 +25,7 @@ const (
 	defaultSourceRequestsPerMinute = 120
 	defaultEventLogBytesPerMinute  = 6 * 1024 * 1024
 	eventSourceBucketCount         = 256
+	eventLogRecordOverheadBytes    = 1024
 )
 
 var eventCommandPattern = regexp.MustCompile(`^[A-Za-z0-9._:/-]{1,128}$`)
@@ -144,6 +145,12 @@ func (g *eventIngressGuard) allowFullLog(now time.Time, bytes int) bool {
 	return true
 }
 
+func eventFullLogCost(bodyBytes int) int {
+	// Logrus quotes string fields, so quotes and backslashes can expand the
+	// serialized record. Charge twice the body plus fixed metadata overhead.
+	return bodyBytes*2 + eventLogRecordOverheadBytes
+}
+
 type texasPokerEvent struct {
 	Timestamp int64           `json:"timestamp"`
 	PID       json.RawMessage `json:"pid"`
@@ -193,7 +200,7 @@ func texasPokerEventWithIngress(ctx context.Context, c *app.RequestContext, ingr
 		"location":     event.Location,
 		"payload_size": len(event.Data),
 	}
-	if ingress.allowFullLog(now, len(body)) {
+	if ingress.allowFullLog(now, eventFullLogCost(len(body))) {
 		fields["event"] = string(body)
 		fields["full_event_logged"] = true
 	} else {
