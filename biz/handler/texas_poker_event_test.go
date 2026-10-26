@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/kingjxu/ddbaby/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -231,4 +233,75 @@ func TestTexasPokerEventBearerToken(t *testing.T) {
 	if got := texasPokerEventBearerToken(&requestContext); got != "" {
 		t.Fatalf("invalid token accepted: %q", got)
 	}
+}
+
+func TestTexasPokerEventRetriesFailureAndReplaysSuccessfulTurn(t *testing.T) {
+	previousRegistry := texasPokerEventStates
+	previousExecute := executeAAPokerDecisionForEvent
+	texasPokerEventStates = newAAPokerEventRegistry()
+	calls := 0
+	executeAAPokerDecisionForEvent = func(
+		_ context.Context, _, _ string, _, _ int32, _ *model.TexasGtoDecisionReq,
+	) (*aapokerDecisionResult, error) {
+		calls++
+		if calls == 1 {
+			return nil, fmt.Errorf("temporary auth failure")
+		}
+		return &aapokerDecisionResult{
+			Result: "Call 8", HeroCard: []string{"A-D", "K-C"},
+			DecisionAction: "call", DecisionAmount: 8, HeroMaxTarget: 8,
+		}, nil
+	}
+	t.Cleanup(func() {
+		texasPokerEventStates = previousRegistry
+		executeAAPokerDecisionForEvent = previousExecute
+	})
+
+	guard := newEventIngressGuard(100, 100, 0, time.Time{})
+	now := time.Unix(1792526400, 0)
+	events := []string{
+		`{"mySeatID":0,"playerIDArray":[1762080,2836313,2646258,2838496,2859796,-1,2860755,1081977],"operationID":4,"operationRound":16}`,
+		`{"bankerID":0,"operationID":4,"firstCardArray":[12,-1,-1,-1,-1,-1,-1,-1],"SecondCardArray":[24,-1,-1,-1,-1,-1,-1,-1],"smallChip":2,"bigChip":4,"chipsArray":[762,996,392,1557,606,-1,768,1020],"canPlayStatus":[1,1,1,1,1,0,1,1],"seatStatus":[2,2,2,2,2,0,2,2],"handNum":3,"straddlePop":[0,0,0,8,0,0,0,0],"operationRound":17,"mushroomPool":40,"pool_chips":42,"anteCountArray":[4,6,8,12,4,0,4,4]}`,
+		`{"seatID":4,"action":6,"operationID":6,"anteNumber":0,"operationRound":18}`,
+		`{"seatID":6,"action":2,"operationID":7,"anteNumber":8,"operationRound":19}`,
+		`{"seatID":7,"action":2,"operationID":0,"anteNumber":8,"operationRound":20}`,
+	}
+	commands := []string{"REQ_GAME_ENTER_ROOM", "REQ_GAME_RECV_START_INFOR", "REQ_GAME_RECV_ACTION", "REQ_GAME_RECV_ACTION", "REQ_GAME_RECV_ACTION"}
+	for i := 0; i < len(events)-1; i++ {
+		ctx := postAAPokerTestEvent(t, guard, now, commands[i], events[i])
+		if ctx.Response.StatusCode() != consts.StatusOK {
+			t.Fatalf("setup event %d status = %d", i, ctx.Response.StatusCode())
+		}
+		now = now.Add(time.Millisecond)
+	}
+
+	failed := postAAPokerTestEvent(t, guard, now, commands[4], events[4])
+	if failed.Response.StatusCode() != consts.StatusServiceUnavailable || calls != 1 {
+		t.Fatalf("temporary failure status/calls = %d/%d", failed.Response.StatusCode(), calls)
+	}
+	now = now.Add(time.Millisecond)
+	succeeded := postAAPokerTestEvent(t, guard, now, commands[4], events[4])
+	if succeeded.Response.StatusCode() != consts.StatusOK ||
+		!strings.Contains(string(succeeded.Response.Body()), `"Result":"Call 8"`) || calls != 2 {
+		t.Fatalf("retry response/calls = %s/%d", succeeded.Response.Body(), calls)
+	}
+	now = now.Add(time.Millisecond)
+	replayed := postAAPokerTestEvent(t, guard, now, commands[4], events[4])
+	if replayed.Response.StatusCode() != consts.StatusOK ||
+		!strings.Contains(string(replayed.Response.Body()), `"Result":"Call 8"`) || calls != 2 {
+		t.Fatalf("cached replay/calls = %s/%d", replayed.Response.Body(), calls)
+	}
+}
+
+func postAAPokerTestEvent(
+	t *testing.T, guard *eventIngressGuard, now time.Time, command, data string,
+) *app.RequestContext {
+	t.Helper()
+	body := fmt.Sprintf(`{"uuid":"user@example.com","vpip":0,"pfr":0,"timestamp":%d,"uid":1762080,"cmd":%q,"direction":"ServerToClient","location":"TABLE","dataExtra":99,"data":%s}`,
+		now.UnixMilli(), command, data)
+	requestContext := &app.RequestContext{}
+	requestContext.Request.SetBodyString(body)
+	requestContext.Request.Header.Set("Authorization", "Bearer session-token")
+	texasPokerEventWithIngress(context.Background(), requestContext, guard, now)
+	return requestContext
 }

@@ -40,6 +40,7 @@ var texasPokerEventIngress = newEventIngressGuard(
 )
 
 var texasPokerEventStates = newAAPokerEventRegistry()
+var executeAAPokerDecisionForEvent = executeAAPokerDecision
 
 type eventIngressWindow struct {
 	minute   int64
@@ -237,25 +238,37 @@ func texasPokerEventWithIngress(ctx context.Context, c *app.RequestContext, ingr
 		logrus.WithContext(ctx).WithFields(fields).
 			Warnf("[TexasPokerEvent] state update ignored:%v", stateErr)
 	} else if candidate != nil {
-		token := texasPokerEventBearerToken(c)
-		decision, decisionErr := executeAAPokerDecision(
-			ctx, event.UUID, token, event.VPIP, event.PFR, candidate.Request,
-		)
-		if decisionErr != nil {
-			texasPokerEventStates.complete(candidate, false)
-			logrus.WithContext(ctx).WithFields(fields).
-				Warnf("[TexasPokerEvent] decision skipped:%v", decisionErr)
-		} else {
-			texasPokerEventStates.complete(candidate, true)
-			response["Result"] = decision.Result
-			response["HeroCard"] = decision.HeroCard
-			response["CommunityCard"] = decision.CommunityCard
-			response["DecisionAction"] = decision.DecisionAction
-			response["DecisionAmount"] = decision.DecisionAmount
-			response["HeroMaxTarget"] = decision.HeroMaxTarget
+		decision := candidate.Cached
+		if decision == nil {
+			token := texasPokerEventBearerToken(c)
+			var decisionErr error
+			decision, decisionErr = executeAAPokerDecisionForEvent(
+				ctx, event.UUID, token, event.VPIP, event.PFR, candidate.Request,
+			)
+			if decisionErr != nil {
+				texasPokerEventStates.complete(candidate, nil, now)
+				logrus.WithContext(ctx).WithFields(fields).
+					Warnf("[TexasPokerEvent] decision retry required:%v", decisionErr)
+				writeTexasPokerEventError(c, consts.StatusServiceUnavailable, "decision_retry")
+				return
+			}
+			texasPokerEventStates.complete(candidate, decision, now)
 		}
+		writeAAPokerDecisionResponse(response, decision)
 	}
 	c.JSON(consts.StatusOK, response)
+}
+
+func writeAAPokerDecisionResponse(response map[string]any, decision *aapokerDecisionResult) {
+	if decision == nil {
+		return
+	}
+	response["Result"] = decision.Result
+	response["HeroCard"] = decision.HeroCard
+	response["CommunityCard"] = decision.CommunityCard
+	response["DecisionAction"] = decision.DecisionAction
+	response["DecisionAmount"] = decision.DecisionAmount
+	response["HeroMaxTarget"] = decision.HeroMaxTarget
 }
 
 func texasPokerEventBearerToken(c *app.RequestContext) string {

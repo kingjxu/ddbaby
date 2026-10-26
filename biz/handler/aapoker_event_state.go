@@ -14,19 +14,28 @@ import (
 )
 
 const (
-	maxAAPokerSessions = 512
-	aapokerSessionTTL  = 30 * time.Minute
+	maxAAPokerSessions        = 512
+	aapokerSessionTTL         = 30 * time.Minute
+	maxAAPokerDecisionResults = 1024
+	aapokerDecisionResultTTL  = 30 * time.Minute
 )
 
 type aapokerDecisionCandidate struct {
 	SessionKey string
 	TurnKey    string
 	Request    *model.TexasGtoDecisionReq
+	Cached     *aapokerDecisionResult
 }
 
 type aapokerEventRegistry struct {
 	mu       sync.Mutex
 	sessions map[string]*aapokerTableState
+	results  map[string]aapokerDecisionCacheEntry
+}
+
+type aapokerDecisionCacheEntry struct {
+	createdAt time.Time
+	result    *aapokerDecisionResult
 }
 
 type aapokerTableState struct {
@@ -121,7 +130,10 @@ type aapokerSeatDownPayload struct {
 }
 
 func newAAPokerEventRegistry() *aapokerEventRegistry {
-	return &aapokerEventRegistry{sessions: make(map[string]*aapokerTableState)}
+	return &aapokerEventRegistry{
+		sessions: make(map[string]*aapokerTableState),
+		results:  make(map[string]aapokerDecisionCacheEntry),
+	}
 }
 
 func (r *aapokerEventRegistry) process(event *texasPokerEvent, now time.Time) (*aapokerDecisionCandidate, error) {
@@ -145,6 +157,7 @@ func (r *aapokerEventRegistry) process(event *texasPokerEvent, now time.Time) (*
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.removeExpired(now)
+	r.removeExpiredResults(now)
 	state := r.sessions[sessionKey]
 	if state == nil {
 		if len(r.sessions) >= maxAAPokerSessions {
@@ -158,14 +171,29 @@ func (r *aapokerEventRegistry) process(event *texasPokerEvent, now time.Time) (*
 		return nil, err
 	}
 	request, turnKey := state.decisionRequest()
-	if request == nil || turnKey == state.decidedTurn || turnKey == state.inFlightTurn {
+	if request == nil {
+		return nil, nil
+	}
+	cacheKey := decisionCacheKey(sessionKey, turnKey)
+	if cached, ok := r.results[cacheKey]; ok {
+		return &aapokerDecisionCandidate{
+			SessionKey: sessionKey,
+			TurnKey:    turnKey,
+			Cached:     cloneAAPokerDecisionResult(cached.result),
+		}, nil
+	}
+	if turnKey == state.decidedTurn || turnKey == state.inFlightTurn {
 		return nil, nil
 	}
 	state.inFlightTurn = turnKey
 	return &aapokerDecisionCandidate{SessionKey: sessionKey, TurnKey: turnKey, Request: request}, nil
 }
 
-func (r *aapokerEventRegistry) complete(candidate *aapokerDecisionCandidate, success bool) {
+func (r *aapokerEventRegistry) complete(
+	candidate *aapokerDecisionCandidate,
+	result *aapokerDecisionResult,
+	now time.Time,
+) {
 	if candidate == nil {
 		return
 	}
@@ -176,9 +204,51 @@ func (r *aapokerEventRegistry) complete(candidate *aapokerDecisionCandidate, suc
 		return
 	}
 	state.inFlightTurn = ""
-	if success {
+	if result != nil {
 		state.decidedTurn = candidate.TurnKey
+		r.removeExpiredResults(now)
+		if len(r.results) >= maxAAPokerDecisionResults {
+			r.removeOldestResult()
+		}
+		r.results[decisionCacheKey(candidate.SessionKey, candidate.TurnKey)] =
+			aapokerDecisionCacheEntry{
+				createdAt: now,
+				result:    cloneAAPokerDecisionResult(result),
+			}
 	}
+}
+
+func decisionCacheKey(sessionKey, turnKey string) string {
+	return sessionKey + "\x00" + turnKey
+}
+
+func cloneAAPokerDecisionResult(result *aapokerDecisionResult) *aapokerDecisionResult {
+	if result == nil {
+		return nil
+	}
+	cloned := *result
+	cloned.HeroCard = append([]string(nil), result.HeroCard...)
+	cloned.CommunityCard = append([]string(nil), result.CommunityCard...)
+	return &cloned
+}
+
+func (r *aapokerEventRegistry) removeExpiredResults(now time.Time) {
+	for key, entry := range r.results {
+		if now.Sub(entry.createdAt) > aapokerDecisionResultTTL {
+			delete(r.results, key)
+		}
+	}
+}
+
+func (r *aapokerEventRegistry) removeOldestResult() {
+	var oldestKey string
+	var oldest time.Time
+	for key, entry := range r.results {
+		if oldestKey == "" || entry.createdAt.Before(oldest) {
+			oldestKey, oldest = key, entry.createdAt
+		}
+	}
+	delete(r.results, oldestKey)
 }
 
 func (r *aapokerEventRegistry) removeExpired(now time.Time) {
