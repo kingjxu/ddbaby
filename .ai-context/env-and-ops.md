@@ -1,6 +1,6 @@
 ---
-version: "1.6"
-last_updated: "2026-10-17"
+version: "1.7"
+last_updated: "2026-10-26"
 status: "active"
 ---
 
@@ -306,3 +306,21 @@ status: "active"
 - 替换前二进制 SHA256 为
   `a526f0a386781fcff598b2a2420f40ab43303ef6d9ede8872daadd765c288d07`；回滚目录为
   `/home/ubuntu/ddbaby-backups/20261016-222357-before-e2febba`。
+
+## 2026-10-26 AAPoker event 接收入口部署
+
+- 最终业务提交 `67520a7`，将生产运行线 `6b8c7d3` 与 `/lyxz/gto_event` 合入
+  `master`；CR 已确认 LGTM。入口只确认接收规范化事件，不参与牌局状态重建、策略、
+  计费或持久化，并受请求体边界、全局/来源限流和完整日志字节预算保护。
+- 服务器使用 Go 1.22.2 对干净归档执行全仓测试和构建，均通过。候选归档 SHA256 为
+  `9dc7143abb5d759f621bc69452fa8e97dc8546dbb378fb52887e1a21c072764d`；
+  运行时二进制 SHA256 为
+  `47141a506fd940384caab4e42d03bc977ee0af00b26ebaf75a35e4ce2bb28288`。
+- 部署后 PID 从 `1291086` 切换为 `125807`，新进程 PPID 为1；`/proc/125807/exe`
+  与磁盘二进制一致，8888正常监听，`/ping` 返回HTTP 200。合法合成事件返回200和
+  `BaseResp.StatusCode=0`，非法事件在本机与公网均返回400；新日志未发现 panic/fatal。
+- 为采集首批真实协议，完整事件日志临时开启至 `2026-10-26 20:20:14 +08:00`，到期
+  后由进程自动恢复为元数据日志。部署 smoke 只使用不含用户身份的合成事件；截至
+  `2026-10-26 18:20:48 +08:00` 尚未观察到新的真实 AAPoker 事件。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261026-182014-before-67520a7`；运行日志：
+  `/home/ubuntu/ddbaby/output/deploy-67520a7-20261026-182014.log`。
