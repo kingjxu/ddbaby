@@ -205,21 +205,17 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 	}
 	logger.Infof("[TexasPokerDecisionHandler] latestData:%v", util.ToJSON(latestData))
 	//5 决策
-	decisionReq := model.Conv2TexasGtoDecisionReq(ctx, latestData)
-	if err = model.ValidateTexasGtoDecisionRequest(decisionReq); err != nil {
-		logger.Errorf("[TexasPokerDecisionHandler] invalid decision request:%v", err)
-		return h.newResp(ctx, ""), nil
-	}
 	if h.latency != nil {
 		h.latency.decisionStartedAt = time.Now()
 	}
-	resp, err := service.GtoDecisionByProfile(ctx, decisionReq,
-		h.req.GetVPIP(), h.req.GetPFR())
+	decisionReq, resp, err := requestTexasGtoDecision(
+		ctx, latestData, h.req.GetVPIP(), h.req.GetPFR(), service.GtoDecisionByProfile,
+	)
 	if h.latency != nil {
 		h.latency.decisionDoneAt = time.Now()
 	}
 	if err != nil {
-		logger.Errorf("[TexasPokerDecisionHandler] GtoDecision err:%v", err)
+		logger.Errorf("[TexasPokerDecisionHandler] decision request/call err:%v", err)
 		return h.newResp(ctx, ""), nil
 	}
 	rawDecisionResp := *resp
@@ -245,7 +241,43 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		h.activeCodeInfo.InvokeCnt++
 		_ = poker.UpsertUserActiveCode(ctx, h.activeCodeInfo)
 	}
-	return h.newResp(ctx, h.getFinalAction(resp)), nil
+	return h.newResp(ctx, h.getFinalAction(decisionReq, resp)), nil
+}
+
+func buildTexasGtoDecisionRequest(ctx context.Context, latestData []*model.TexasResult) (*model.TexasGtoDecisionReq, error) {
+	if len(latestData) == 0 {
+		return nil, errors.New("decision history is empty")
+	}
+	if model.HasPendingHeroAction(latestData[len(latestData)-1]) {
+		return nil, errors.New("hero action is still pending")
+	}
+	req := model.Conv2TexasGtoDecisionReq(ctx, latestData)
+	if err := model.ValidateTexasGtoDecisionRequest(req); err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
+type texasGtoDecisionFunc func(
+	context.Context, *model.TexasGtoDecisionReq, int32, int32,
+) (*model.TexasGtoDecisionResp, error)
+
+func requestTexasGtoDecision(
+	ctx context.Context,
+	latestData []*model.TexasResult,
+	vpip int32,
+	pfr int32,
+	decide texasGtoDecisionFunc,
+) (*model.TexasGtoDecisionReq, *model.TexasGtoDecisionResp, error) {
+	req, err := buildTexasGtoDecisionRequest(ctx, latestData)
+	if err != nil {
+		return nil, nil, err
+	}
+	resp, err := decide(ctx, req, vpip, pfr)
+	if err != nil {
+		return req, nil, err
+	}
+	return req, resp, nil
 }
 
 const decisionRecordWriteTimeout = 3 * time.Second
@@ -342,19 +374,40 @@ func buildGtoDecisionRecord(
 	}, nil
 }
 
-func (h *TexasPokerDecisionHandler) getFinalAction(decision *model.TexasGtoDecisionResp) string {
+func (h *TexasPokerDecisionHandler) getFinalAction(
+	request *model.TexasGtoDecisionReq,
+	decision *model.TexasGtoDecisionResp,
+) string {
 	if decision.Action == "check" {
 		return "过牌"
 	} else if decision.Action == "bet" {
+		if isHeroAllInTarget(request, decision.RaiseSize) {
+			return "All in"
+		}
 		return fmt.Sprintf("下注 %d", decision.RaiseSize)
 	} else if decision.Action == "call" {
 		return "跟注"
 	} else if decision.Action == "raise" {
+		if isHeroAllInTarget(request, decision.RaiseSize) {
+			return "All in"
+		}
 		return fmt.Sprintf("加注 %d", decision.RaiseSize)
 	} else if decision.Action == "fold" {
 		return "弃牌"
 	}
 	return ""
+}
+
+func isHeroAllInTarget(request *model.TexasGtoDecisionReq, target int) bool {
+	if request == nil {
+		return false
+	}
+	for _, player := range request.Players {
+		if player.Position == request.CurrentPlayerPosition {
+			return target >= player.Bet+player.Stack
+		}
+	}
+	return false
 }
 func (h *TexasPokerDecisionHandler) newResp(ctx context.Context, result string) *ddbaby.TexasPokerDecisionResp {
 	resp := &ddbaby.TexasPokerDecisionResp{

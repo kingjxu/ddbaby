@@ -159,3 +159,80 @@ func TestCloneDecisionRequestDoesNotShareSlices(t *testing.T) {
 	assert.Equal(t, []int{20}, cloned.RaiseRange)
 	assert.Equal(t, "call", cloned.ActionHistory[0].Action)
 }
+
+func TestBuildTexasGtoDecisionRequestRejectsPendingHeroAction(t *testing.T) {
+	pending := &model.TexasResult{
+		PendingHeroBefore:    &model.TexasResult{},
+		PendingHeroSnapshots: []*model.TexasResult{{}},
+	}
+
+	req, err := buildTexasGtoDecisionRequest(context.Background(), []*model.TexasResult{pending})
+	assert.Nil(t, req)
+	assert.EqualError(t, err, "hero action is still pending")
+}
+
+func TestRequestTexasGtoDecisionDoesNotCallStrategyWhileHeroActionPending(t *testing.T) {
+	pending := &model.TexasResult{
+		PendingHeroBefore:    &model.TexasResult{},
+		PendingHeroSnapshots: []*model.TexasResult{{}},
+	}
+	calls := 0
+	decide := func(context.Context, *model.TexasGtoDecisionReq, int32, int32) (*model.TexasGtoDecisionResp, error) {
+		calls++
+		return &model.TexasGtoDecisionResp{Action: "check"}, nil
+	}
+
+	req, resp, err := requestTexasGtoDecision(
+		context.Background(), []*model.TexasResult{pending}, 0, 0, decide,
+	)
+	assert.Nil(t, req)
+	assert.Nil(t, resp)
+	assert.EqualError(t, err, "hero action is still pending")
+	assert.Zero(t, calls)
+}
+
+func TestGetFinalActionUsesAllInAtHeroMaximumTarget(t *testing.T) {
+	handler := &TexasPokerDecisionHandler{}
+	tests := []struct {
+		name      string
+		heroBet   int
+		heroStack int
+		action    string
+		target    int
+		want      string
+	}{
+		{name: "existing bet below maximum", heroBet: 20, heroStack: 207, action: "raise", target: 220, want: "加注 220"},
+		{name: "existing bet reaches maximum", heroBet: 20, heroStack: 207, action: "raise", target: 227, want: "All in"},
+		{name: "target equal to remaining stack is not maximum", heroBet: 28, heroStack: 108, action: "raise", target: 108, want: "加注 108"},
+		{name: "second existing bet reaches maximum", heroBet: 28, heroStack: 108, action: "raise", target: 136, want: "All in"},
+		{name: "zero bet below stack", heroBet: 0, heroStack: 100, action: "bet", target: 99, want: "下注 99"},
+		{name: "zero bet reaches stack", heroBet: 0, heroStack: 100, action: "bet", target: 100, want: "All in"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			request := &model.TexasGtoDecisionReq{
+				CurrentPlayerPosition: "BTN-Hero",
+				Players: []model.TexasPlayer{{
+					Position: "BTN-Hero",
+					Bet:      tt.heroBet,
+					Stack:    tt.heroStack,
+				}},
+			}
+			decision := &model.TexasGtoDecisionResp{Action: tt.action, RaiseSize: tt.target}
+			assert.Equal(t, tt.want, handler.getFinalAction(request, decision))
+		})
+	}
+}
+
+func TestGetFinalActionLeavesNonBetActionsUnchanged(t *testing.T) {
+	handler := &TexasPokerDecisionHandler{}
+	request := &model.TexasGtoDecisionReq{
+		CurrentPlayerPosition: "BTN-Hero",
+		Players:               []model.TexasPlayer{{Position: "BTN-Hero", Stack: 100}},
+	}
+
+	assert.Equal(t, "过牌", handler.getFinalAction(request, &model.TexasGtoDecisionResp{Action: "check"}))
+	assert.Equal(t, "跟注", handler.getFinalAction(request, &model.TexasGtoDecisionResp{Action: "call"}))
+	assert.Equal(t, "弃牌", handler.getFinalAction(request, &model.TexasGtoDecisionResp{Action: "fold"}))
+}
