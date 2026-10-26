@@ -1,9 +1,19 @@
 ---
-version: "1.8"
-last_updated: "2026-10-17"
+version: "1.9"
+last_updated: "2026-10-26"
 ---
 
 # 德州扑克决策数据流
+
+## AAPoker事件链路
+
+1. 桃园将规范化事件与当前登录账号`uuid`、VPIP/PFR一起串行上报；ddbaby先执行原有大小、字段、来源限流和日志预算校验。
+2. 服务端只消费`TABLE + ServerToClient`状态，按`uuid + AAPoker uid + dataExtra`隔离牌桌；`ENTER_ROOM/SEAT_DOWN`用内部userId确认Hero座位，旁观状态不推断Hero。
+3. `START_INFOR`建立新手，`RECV_ACTION`按`operationRound`幂等累计动作与目标下注额，`RECV_CARDS`推进街道并清零本街下注，`SHOW_SIDE_POTS`校正底池。物理座位从banker开始映射到与截图链路一致的位置名。
+4. `operationID`轮到Hero时，只有两张Hero手牌、对应街道公共牌、active状态和剩余后手全部有效才生成`TexasGtoDecisionReq`。同一行动点只有一个请求在途；调用失败保留资格，成功后忽略重传。
+5. Hero决策前先用Bearer token向认证服务确认当前会话email与请求uuid一致，不允许认证失败后回退到请求身份；随后执行UUID激活校验、策略白名单、上游调用、响应合法性、all-in/free-check规范化、次数计费和`gto_decision_record`审计。带非空`Result`的响应由桃园转给现有悬浮窗。
+
+## 截图链路
 
 1. `TexasPokerDecisionHandler.Handle` 默认以 `parse_all=false` 调用 `service.RecognizePoker`，先做轻量 Hero 轮次检测。每次识别到 Hero 行动帧后，仅将紧接着的一帧设为 `parse_all=true`；该后继帧完整识别为非 Hero 后恢复轻量检测。
 2. Hero 行动帧以及它后面一次完整解析的牌局帧写入 `dal.SaveUserData`；同一 BTN、同一 stage 的快照在覆盖前比较状态，把确定的下注、加注、跟注或弃牌追加到内存动作历史。更后面的非 Hero 帧不做全桌 OCR，也不进入缓存。

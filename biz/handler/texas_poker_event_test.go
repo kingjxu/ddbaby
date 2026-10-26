@@ -220,3 +220,15 @@ func TestParseTexasPokerEventDataSizeBoundary(t *testing.T) {
 		t.Fatal("expected data over 480 KiB to be rejected")
 	}
 }
+
+func TestTexasPokerEventBearerToken(t *testing.T) {
+	var requestContext app.RequestContext
+	requestContext.Request.Header.Set("Authorization", "Bearer session-token")
+	if got := texasPokerEventBearerToken(&requestContext); got != "session-token" {
+		t.Fatalf("token = %q", got)
+	}
+	requestContext.Request.Header.Set("Authorization", "Bearer token with spaces")
+	if got := texasPokerEventBearerToken(&requestContext); got != "" {
+		t.Fatalf("invalid token accepted: %q", got)
+	}
+}

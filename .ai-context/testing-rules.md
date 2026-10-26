@@ -1,5 +1,5 @@
 ---
-version: "1.5"
+version: "1.6"
 last_updated: "2026-10-26"
 ---
 
@@ -7,6 +7,8 @@ last_updated: "2026-10-26"
 
 - 项目声明 Go 1.20；本地验证使用 `GOTOOLCHAIN=go1.20.14 go test ./... -count=1`。
 - AAPoker事件入口必须覆盖合法事件、非法JSON、缺少data、非法cmd/direction/location和超长身份字段；还必须用高频合法大payload覆盖全局/来源限流、完整日志字节预算和聚合丢弃计数。测试通过只证明服务端接收边界，不代表注入模块或Android跨进程链路已真机打通。
+- AAPoker牌局状态回归必须从`ENTER_ROOM → START_INFOR → RECV_ACTION`回放到Hero行动点，核对Hero身份、按钮位位置、手牌编号、ante/盲注/straddle、底池、目标下注额和行动顺序；旁观者、缺牌、非法公共牌不得触发。相同`operationRound`重传不能重复累计，中间round缺失必须阻断本手后续决策；GTO失败必须保留同一行动点的重试资格，成功后不得再次触发；`RECV_CARDS`与上一动作共享round时允许首次推进，但相同发牌事件只能处理一次。
+- AAPoker事件调用GTO前必须校验Bearer token有效且认证账号email与桃园uuid一致，再使用uuid校验激活状态；认证失败不得回退信任请求字段，游戏uid也不得当作桃园身份。成功决策必须复用`gto_decision_record`记录实际请求、原始响应和规范化响应，且只有合法决策可以计次。
 - 缓存与座位转换的快速回归使用 `go test -race ./dal ./model -count=1`。
 - `biz/handler/texas_poker_decision_test.go` 依赖 MySQL、识别服务、决策服务和本地图片，属于集成测试；仅在 `DDBABY_INTEGRATION_TEST=1` 时运行。
 - 座位相关改动必须覆盖：8/9 人桌、单/多空座、waiting、fold、按钮位为空、强制位置连续顺延，以及 `buildPlayers`、`actionSeats` 与 `buildActionHistory` 的位置一致性。

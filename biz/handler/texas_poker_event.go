@@ -39,6 +39,8 @@ var texasPokerEventIngress = newEventIngressGuard(
 	fullEventLoggingUntil(time.Now()),
 )
 
+var texasPokerEventStates = newAAPokerEventRegistry()
+
 type eventIngressWindow struct {
 	minute   int64
 	requests int
@@ -165,6 +167,9 @@ func eventFullLogCost(bodyBytes int) int {
 }
 
 type texasPokerEvent struct {
+	UUID      string          `json:"uuid"`
+	VPIP      int32           `json:"vpip"`
+	PFR       int32           `json:"pfr"`
 	Timestamp int64           `json:"timestamp"`
 	PID       json.RawMessage `json:"pid"`
 	UID       json.RawMessage `json:"uid"`
@@ -221,12 +226,48 @@ func texasPokerEventWithIngress(ctx context.Context, c *app.RequestContext, ingr
 	}
 	logrus.WithContext(ctx).WithFields(fields).Info("[TexasPokerEvent] accepted")
 
-	c.JSON(consts.StatusOK, map[string]any{
+	response := map[string]any{
 		"BaseResp": map[string]any{
 			"StatusCode":    0,
 			"StatusMessage": "success",
 		},
-	})
+	}
+	candidate, stateErr := texasPokerEventStates.process(event, now)
+	if stateErr != nil {
+		logrus.WithContext(ctx).WithFields(fields).
+			Warnf("[TexasPokerEvent] state update ignored:%v", stateErr)
+	} else if candidate != nil {
+		token := texasPokerEventBearerToken(c)
+		decision, decisionErr := executeAAPokerDecision(
+			ctx, event.UUID, token, event.VPIP, event.PFR, candidate.Request,
+		)
+		if decisionErr != nil {
+			texasPokerEventStates.complete(candidate, false)
+			logrus.WithContext(ctx).WithFields(fields).
+				Warnf("[TexasPokerEvent] decision skipped:%v", decisionErr)
+		} else {
+			texasPokerEventStates.complete(candidate, true)
+			response["Result"] = decision.Result
+			response["HeroCard"] = decision.HeroCard
+			response["CommunityCard"] = decision.CommunityCard
+			response["DecisionAction"] = decision.DecisionAction
+			response["DecisionAmount"] = decision.DecisionAmount
+			response["HeroMaxTarget"] = decision.HeroMaxTarget
+		}
+	}
+	c.JSON(consts.StatusOK, response)
+}
+
+func texasPokerEventBearerToken(c *app.RequestContext) string {
+	header := strings.TrimSpace(string(c.Request.Header.Peek("Authorization")))
+	if len(header) < 8 || !strings.EqualFold(header[:7], "Bearer ") {
+		return ""
+	}
+	token := strings.TrimSpace(header[7:])
+	if token == "" || strings.ContainsAny(token, " \t\r\n") || len(token) > 4096 {
+		return ""
+	}
+	return token
 }
 
 func readTexasPokerEventBody(c *app.RequestContext) ([]byte, error) {
@@ -265,6 +306,10 @@ func parseTexasPokerEvent(body []byte) (*texasPokerEvent, error) {
 	}
 	if event.Timestamp <= 0 || !eventCommandPattern.MatchString(event.Cmd) {
 		return nil, errors.New("invalid timestamp or command")
+	}
+	if len(event.UUID) > 128 || (event.UUID != "" && strings.TrimSpace(event.UUID) != event.UUID) ||
+		!isSupportedDecisionProfile(event.VPIP, event.PFR) {
+		return nil, errors.New("invalid decision identity or profile")
 	}
 	if event.Direction != "ServerToClient" && event.Direction != "ClientToServer" {
 		return nil, errors.New("invalid direction")

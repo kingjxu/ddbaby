@@ -1,5 +1,5 @@
 ---
-version: "1.5"
+version: "1.6"
 last_updated: "2026-10-26"
 ---
 
@@ -7,9 +7,13 @@ last_updated: "2026-10-26"
 
 ## `POST /lyxz/gto_event`
 
-接收桃园助手从 AAPoker 分析模块透传的一条规范化牌局事件。请求体保持 `timestamp/pid/uid/PacketId/cmd/direction/data/location/seq/dataExtra` 结构；`direction` 只接受 `ServerToClient` 或 `ClientToServer`，`location` 只接受 `TABLE/LOBBY/UNKNOWN`。服务启用流式请求体读取，该路由最多读取512 KiB加1字节后拒绝超限输入；`data`必须为合法JSON值且编码后不超过480 KiB。
+接收桃园助手从 AAPoker 分析模块透传的一条规范化牌局事件。请求体保持 `timestamp/pid/uid/PacketId/cmd/direction/data/location/seq/dataExtra` 结构，并由桃园补充当前登录账号 `uuid` 及策略档位 `vpip/pfr`；`direction` 只接受 `ServerToClient` 或 `ClientToServer`，`location` 只接受 `TABLE/LOBBY/UNKNOWN`。服务启用流式请求体读取，该路由最多读取512 KiB加1字节后拒绝超限输入；`data`必须为合法JSON值且编码后不超过480 KiB。
 
-首版只确认接收并返回 `BaseResp.StatusCode=0`，尚未把事件接入牌局状态重建、策略决策、计费或数据库持久化。接口暂不校验用户身份；因此不得把游戏uid解释为桃园账号身份。入口按分钟执行全局300次、来源120次的固定窗口限流，超额返回429，丢弃请求只按窗口汇总计数。默认日志仅记录cmd、方向、位置和payload大小；只有同时设置`DDBABY_GTO_EVENT_FULL_LOG=1`与未来24小时内的Unix秒级截止时间`DDBABY_GTO_EVENT_FULL_LOG_UNTIL`才记录完整事件JSON，截止后自动恢复元数据日志。完整日志受每分钟6MiB日志字节预算约束；预算按请求体两倍加固定元数据开销保守计费，以覆盖日志字符串转义。完整诊断日志可能包含牌局与用户标识，只能短期开启并限制日志访问。
+服务端按 `uuid + AAPoker uid + dataExtra(牌桌)` 隔离有界、30分钟过期的状态，只有服务端下行事件参与重建。登录账号必须已经坐下并能由 `uid/playerIDArray/mySeatID` 一致定位 Hero；旁观者不触发决策。服务从 `START_INFOR` 开始收集本手参与者、位置、盲注/ante/straddle、筹码与手牌，并用 `RECV_ACTION/RECV_CARDS/SHOW_SIDE_POTS` 累计逐街行动、公共牌和底池。当 `operationID` 指向 Hero、手牌和公共牌完整且请求通过原 GTO 请求校验时，服务端先用Bearer token调用认证服务，确认有效会话里的email与`uuid`一致，再按`uuid`校验激活状态并调用对应 VPIP/PFR 策略。认证失败不能回退信任请求体uuid。每个 `handNum + operationRound + stage` 在进程内只成功决策一次；失败不消费重试资格。合法结果沿用 `Result`，并返回 `DecisionAction/DecisionAmount/HeroMaxTarget` 供悬浮窗显示保护。
+
+成功决策与截图接口使用同一 `gto_decision_record`：保存桃园 `uuid`、Hero 手牌/位置/街道、实际 GTO 请求、原始响应和规范化最终响应；按次数激活码只在合法结果后计费。AAPoker 的游戏 uid 只用于同一上报流里的 Hero/座位匹配，不能替代桃园 uuid。`operationRound`出现缺口说明行动事件丢失，本手立即停止决策并等待下一次`START_INFOR`重建，不能用不完整路线猜测。未携带 uuid 的旧客户端事件仍可被接收和记录，但不建立决策状态、不调用 GTO、不计费。
+
+入口继续按分钟执行全局300次、来源120次的固定窗口限流，超额返回429，丢弃请求只按窗口汇总计数。默认日志仅记录cmd、方向、位置和payload大小；只有同时设置`DDBABY_GTO_EVENT_FULL_LOG=1`与未来24小时内的Unix秒级截止时间`DDBABY_GTO_EVENT_FULL_LOG_UNTIL`才记录完整事件JSON，截止后自动恢复元数据日志。完整日志受每分钟6MiB日志字节预算约束；预算按请求体两倍加固定元数据开销保守计费，以覆盖日志字符串转义。完整诊断日志可能包含牌局与用户标识，只能短期开启并限制日志访问。
 
 ## `POST /lyxz/gto_decision`
 
