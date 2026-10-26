@@ -324,3 +324,27 @@ status: "active"
   `2026-10-26 18:20:48 +08:00` 尚未观察到新的真实 AAPoker 事件。
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261026-182014-before-67520a7`；运行日志：
   `/home/ubuntu/ddbaby/output/deploy-67520a7-20261026-182014.log`。
+
+## 2026-10-26 AAPoker event 决策链路部署
+
+- 最终业务提交 `dbf6d8f`，在事件接收链路上增加牌局状态重建、Hero 行动识别、GTO
+  请求、结果回放、计费与决策审计。CR 已在用户明确接受本机注入风险的边界下确认
+  LGTM；临时失败返回 503，成功结果按隔离的 session+turn 键缓存 30 分钟，容量上限
+  1024，重复请求只回放完整结果，不重复调用 GTO、计费或写审计。
+- 候选干净归档 SHA256 为
+  `15c3884fa700486639128815fb81746b2bd768f8dd284dfa4cbdd2d253de5b44`。
+  服务器使用 Go 1.22.2 执行全仓测试、`biz/handler` 与 `service` race 测试和构建，
+  均通过。运行时二进制大小为 47,583,887 bytes，SHA256 为
+  `16ceddf4c32ad61eedaf51be47aea47dc9b89e1e05f56b282d1514803ed99753`。
+- 部署后 PID 从 `125807` 切换为 `193957`，新进程 PPID 为 1；磁盘二进制与
+  `/proc/193957/exe` SHA256 一致，8888 正常监听，`/ping` 返回 `pong`。本机合法
+  合成 `/lyxz/gto_event` 返回 HTTP 200 和 `BaseResp.StatusCode=0`，非法 JSON 返回
+  HTTP 400 和 `invalid_event`；公网 80 端口的合法合成请求返回 HTTP 200。启动日志
+  未发现 panic/fatal。
+- 17770 仍是未认证的本机 TCP 入口，任意同机 App 均可注入事件；桃园会附加当前登录
+  用户的 uuid 与 Bearer token，因此伪造事件可借当前身份触发 GTO、计费和审计。该风险
+  由用户明确接受以简化本轮真机验证，不能表述为入口已受保护。
+- 本轮线上 smoke 只使用合成事件，尚未完成真实 AAPoker 真机事件、桃园悬浮窗结果及
+  审计页面记录的端到端验证。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261026-224028-before-dbf6d8f`；运行日志：
+  `/home/ubuntu/ddbaby/output/deploy-dbf6d8f-20261026-224028.log`。
