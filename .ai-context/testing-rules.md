@@ -1,12 +1,12 @@
 ---
 version: "1.7"
-last_updated: "2026-10-26"
+last_updated: "2026-10-27"
 ---
 
 # 测试规则
 
 - 项目声明 Go 1.20；本地验证使用 `GOTOOLCHAIN=go1.20.14 go test ./... -count=1`。
-- AAPoker事件入口必须覆盖合法事件、非法JSON、缺少data、非法cmd/direction/location和超长身份字段；还必须用高频合法大payload覆盖全局/来源限流、完整日志字节预算和聚合丢弃计数。测试通过只证明服务端接收边界，不代表注入模块或Android跨进程链路已真机打通。
+- AAPoker事件入口必须覆盖合法事件、非法JSON、缺少data、非法cmd/direction/location和超长身份字段；还必须用高频合法大payload覆盖全局/来源限流、所有已接受事件均记录完整JSON，以及聚合丢弃计数。测试通过只证明服务端接收边界，不代表注入模块或Android跨进程链路已真机打通。
 - AAPoker牌局状态回归必须从`ENTER_ROOM → START_INFOR → RECV_ACTION`回放到Hero行动点，核对Hero身份、按钮位位置、手牌编号、ante/盲注/straddle、底池、目标下注额和行动顺序；旁观者、缺牌、非法公共牌不得触发。相同`operationRound`重传不能重复累计，中间round缺失必须阻断本手后续决策；临时决策失败必须返回503并保留同一行动点的重试资格，成功响应丢失后重传必须回放相同完整结果且不能再次调用决策；并发同一行动点只能一个请求取得执行资格。结果缓存还需验证30分钟TTL、1024条容量上限和并发保护；`RECV_CARDS`与上一动作共享round时允许首次推进，但相同发牌事件只能处理一次。
 - AAPoker事件调用GTO前必须校验Bearer token有效且认证账号email与桃园uuid一致，再使用uuid校验激活状态；认证失败不得回退信任请求字段，游戏uid也不得当作桃园身份。成功决策必须复用`gto_decision_record`记录实际请求、原始响应和规范化响应，且只有合法决策可以计次。
 - 缓存与座位转换的快速回归使用 `go test -race ./dal ./model -count=1`。

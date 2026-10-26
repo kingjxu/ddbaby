@@ -8,9 +8,7 @@ import (
 	"hash/fnv"
 	"io"
 	"net"
-	"os"
 	"regexp"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -24,10 +22,7 @@ const (
 	maxTexasPokerEventBytes        = 512 * 1024
 	defaultEventRequestsPerMinute  = 300
 	defaultSourceRequestsPerMinute = 120
-	defaultEventLogBytesPerMinute  = 6 * 1024 * 1024
 	eventSourceBucketCount         = 256
-	eventLogRecordOverheadBytes    = 1024
-	maxEventFullLogDuration        = 24 * time.Hour
 )
 
 var eventCommandPattern = regexp.MustCompile(`^[A-Za-z0-9._:/-]{1,128}$`)
@@ -35,8 +30,6 @@ var eventCommandPattern = regexp.MustCompile(`^[A-Za-z0-9._:/-]{1,128}$`)
 var texasPokerEventIngress = newEventIngressGuard(
 	defaultEventRequestsPerMinute,
 	defaultSourceRequestsPerMinute,
-	defaultEventLogBytesPerMinute,
-	fullEventLoggingUntil(time.Now()),
 )
 
 var texasPokerEventStates = newAAPokerEventRegistry()
@@ -45,7 +38,6 @@ var executeAAPokerDecisionForEvent = executeAAPokerDecision
 type eventIngressWindow struct {
 	minute   int64
 	requests int
-	logBytes int
 }
 
 type eventSourceBucket struct {
@@ -61,36 +53,16 @@ type eventIngressGuard struct {
 	mu                      sync.Mutex
 	globalRequestsPerMinute int
 	sourceRequestsPerMinute int
-	logBytesPerMinute       int
-	fullLogUntil            time.Time
 	global                  eventIngressWindow
 	sources                 [eventSourceBucketCount]eventSourceBucket
 	dropped                 uint64
 }
 
-func newEventIngressGuard(globalRequests, sourceRequests, logBytes int, fullLogUntil time.Time) *eventIngressGuard {
+func newEventIngressGuard(globalRequests, sourceRequests int) *eventIngressGuard {
 	return &eventIngressGuard{
 		globalRequestsPerMinute: globalRequests,
 		sourceRequestsPerMinute: sourceRequests,
-		logBytesPerMinute:       logBytes,
-		fullLogUntil:            fullLogUntil,
 	}
-}
-
-func fullEventLoggingUntil(now time.Time) time.Time {
-	value := strings.ToLower(strings.TrimSpace(os.Getenv("DDBABY_GTO_EVENT_FULL_LOG")))
-	if value != "1" && value != "true" {
-		return time.Time{}
-	}
-	deadlineSeconds, err := strconv.ParseInt(strings.TrimSpace(os.Getenv("DDBABY_GTO_EVENT_FULL_LOG_UNTIL")), 10, 64)
-	if err != nil {
-		return time.Time{}
-	}
-	deadline := time.Unix(deadlineSeconds, 0)
-	if !deadline.After(now) || deadline.After(now.Add(maxEventFullLogDuration)) {
-		return time.Time{}
-	}
-	return deadline
 }
 
 func eventSourceKey(source string) uint64 {
@@ -143,30 +115,6 @@ func (g *eventIngressGuard) allowRequest(now time.Time, source string) (bool, ui
 	return true, droppedToReport
 }
 
-func (g *eventIngressGuard) allowFullLog(now time.Time, bytes int) bool {
-	if g.fullLogUntil.IsZero() || !now.Before(g.fullLogUntil) || bytes <= 0 {
-		return false
-	}
-	minute := now.Unix() / 60
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	if g.global.minute != minute {
-		g.global = eventIngressWindow{minute: minute}
-		g.dropped = 0
-	}
-	if bytes > g.logBytesPerMinute-g.global.logBytes {
-		return false
-	}
-	g.global.logBytes += bytes
-	return true
-}
-
-func eventFullLogCost(bodyBytes int) int {
-	// Logrus quotes string fields, so quotes and backslashes can expand the
-	// serialized record. Charge twice the body plus fixed metadata overhead.
-	return bodyBytes*2 + eventLogRecordOverheadBytes
-}
-
 type texasPokerEvent struct {
 	UUID      string          `json:"uuid"`
 	VPIP      int32           `json:"vpip"`
@@ -214,16 +162,12 @@ func texasPokerEventWithIngress(ctx context.Context, c *app.RequestContext, ingr
 	}
 
 	fields := logrus.Fields{
-		"cmd":          event.Cmd,
-		"direction":    event.Direction,
-		"location":     event.Location,
-		"payload_size": len(event.Data),
-	}
-	if ingress.allowFullLog(now, eventFullLogCost(len(body))) {
-		fields["event"] = string(body)
-		fields["full_event_logged"] = true
-	} else {
-		fields["full_event_logged"] = false
+		"cmd":               event.Cmd,
+		"direction":         event.Direction,
+		"event":             string(body),
+		"full_event_logged": true,
+		"location":          event.Location,
+		"payload_size":      len(event.Data),
 	}
 	logrus.WithContext(ctx).WithFields(fields).Info("[TexasPokerEvent] accepted")
 
