@@ -9,7 +9,7 @@ last_updated: "2026-10-26"
 
 接收桃园助手从 AAPoker 分析模块透传的一条规范化牌局事件。请求体保持 `timestamp/pid/uid/PacketId/cmd/direction/data/location/seq/dataExtra` 结构；`direction` 只接受 `ServerToClient` 或 `ClientToServer`，`location` 只接受 `TABLE/LOBBY/UNKNOWN`。服务启用流式请求体读取，该路由最多读取512 KiB加1字节后拒绝超限输入；`data`必须为合法JSON值且编码后不超过480 KiB。
 
-首版只确认接收并返回 `BaseResp.StatusCode=0`，尚未把事件接入牌局状态重建、策略决策、计费或数据库持久化。接口暂不校验用户身份；因此不得把游戏uid解释为桃园账号身份。为分析首批真实协议，校验通过后日志会以`[TexasPokerEvent] accepted`记录完整事件JSON以及cmd、方向、位置和payload大小；该诊断日志可能包含牌局与用户标识，应限制日志访问并在协议收敛后改为脱敏记录。
+首版只确认接收并返回 `BaseResp.StatusCode=0`，尚未把事件接入牌局状态重建、策略决策、计费或数据库持久化。接口暂不校验用户身份；因此不得把游戏uid解释为桃园账号身份。入口按分钟执行全局300次、来源120次的固定窗口限流，超额返回429，丢弃请求只按窗口汇总计数。默认日志仅记录cmd、方向、位置和payload大小；只有显式设置`DDBABY_GTO_EVENT_FULL_LOG=1`才记录完整事件JSON，并受每分钟6MiB日志字节预算约束。完整诊断日志可能包含牌局与用户标识，只能短期开启并限制日志访问。
 
 ## `POST /lyxz/gto_decision`
 

@@ -6,9 +6,11 @@ import (
 	"io"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/sirupsen/logrus"
 )
 
 type countingReader struct {
@@ -53,6 +55,66 @@ func TestTexasPokerEventHTTPResponse(t *testing.T) {
 	TexasPokerEvent(context.Background(), &invalidContext)
 	if invalidContext.Response.StatusCode() != consts.StatusBadRequest {
 		t.Fatalf("invalid status = %d, want 400", invalidContext.Response.StatusCode())
+	}
+}
+
+func TestTexasPokerEventLimitsHighFrequencyLargePayloadAndLogBytes(t *testing.T) {
+	data := strings.Repeat("a", 200*1024)
+	body := `{"timestamp":1792526400000,"cmd":"STATE",` +
+		`"direction":"ServerToClient","location":"TABLE","data":"` + data + `"}`
+	guard := newEventIngressGuard(3, 2, len(body)+128, true)
+	now := time.Unix(1792526400, 0)
+
+	var logs bytes.Buffer
+	previousOutput := logrus.StandardLogger().Out
+	logrus.SetOutput(&logs)
+	t.Cleanup(func() { logrus.SetOutput(previousOutput) })
+
+	statuses := make([]int, 0, 4)
+	for i := 0; i < 4; i++ {
+		var requestContext app.RequestContext
+		requestContext.Request.SetBodyString(body)
+		texasPokerEventWithIngress(context.Background(), &requestContext, guard, now)
+		statuses = append(statuses, requestContext.Response.StatusCode())
+	}
+	wantStatuses := []int{consts.StatusOK, consts.StatusOK, consts.StatusTooManyRequests, consts.StatusTooManyRequests}
+	for i, want := range wantStatuses {
+		if statuses[i] != want {
+			t.Fatalf("status[%d] = %d, want %d", i, statuses[i], want)
+		}
+	}
+	if count := strings.Count(logs.String(), "full_event_logged=true"); count != 1 {
+		t.Fatalf("full event log count = %d, want 1", count)
+	}
+	if count := strings.Count(logs.String(), "full_event_logged=false"); count != 1 {
+		t.Fatalf("metadata-only event log count = %d, want 1", count)
+	}
+
+	var nextWindow app.RequestContext
+	nextWindow.Request.SetBodyString(body)
+	texasPokerEventWithIngress(context.Background(), &nextWindow, guard, now.Add(time.Minute))
+	if !strings.Contains(logs.String(), "dropped_count=2") {
+		t.Fatalf("missing aggregated drop count in logs")
+	}
+}
+
+func TestEventIngressGuardAppliesGlobalAndSourceQuotas(t *testing.T) {
+	now := time.Unix(1792526400, 0)
+	guard := newEventIngressGuard(3, 2, 1024, false)
+	if allowed, _ := guard.allowRequest(now, "198.51.100.1"); !allowed {
+		t.Fatal("first source request was rejected")
+	}
+	if allowed, _ := guard.allowRequest(now, "198.51.100.1"); !allowed {
+		t.Fatal("second source request was rejected")
+	}
+	if allowed, _ := guard.allowRequest(now, "198.51.100.1"); allowed {
+		t.Fatal("source quota was not enforced")
+	}
+	if allowed, _ := guard.allowRequest(now, "198.51.100.2"); !allowed {
+		t.Fatal("independent source request was rejected before global quota")
+	}
+	if allowed, _ := guard.allowRequest(now, "198.51.100.2"); allowed {
+		t.Fatal("global quota was not enforced")
 	}
 }
 

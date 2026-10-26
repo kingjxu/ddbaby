@@ -5,17 +5,144 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"hash/fnv"
 	"io"
+	"net"
+	"os"
 	"regexp"
+	"strings"
+	"sync"
+	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/sirupsen/logrus"
 )
 
-const maxTexasPokerEventBytes = 512 * 1024
+const (
+	maxTexasPokerEventBytes        = 512 * 1024
+	defaultEventRequestsPerMinute  = 300
+	defaultSourceRequestsPerMinute = 120
+	defaultEventLogBytesPerMinute  = 6 * 1024 * 1024
+	eventSourceBucketCount         = 256
+)
 
 var eventCommandPattern = regexp.MustCompile(`^[A-Za-z0-9._:/-]{1,128}$`)
+
+var texasPokerEventIngress = newEventIngressGuard(
+	defaultEventRequestsPerMinute,
+	defaultSourceRequestsPerMinute,
+	defaultEventLogBytesPerMinute,
+	fullEventLoggingEnabled(),
+)
+
+type eventIngressWindow struct {
+	minute   int64
+	requests int
+	logBytes int
+}
+
+type eventSourceBucket struct {
+	minute   int64
+	key      uint64
+	requests int
+}
+
+// eventIngressGuard uses a fixed number of source buckets so spoofed source
+// addresses cannot grow server memory. Hash collisions share a quota, which is
+// conservative and cannot increase the global allowance.
+type eventIngressGuard struct {
+	mu                      sync.Mutex
+	globalRequestsPerMinute int
+	sourceRequestsPerMinute int
+	logBytesPerMinute       int
+	fullLogEnabled          bool
+	global                  eventIngressWindow
+	sources                 [eventSourceBucketCount]eventSourceBucket
+	dropped                 uint64
+}
+
+func newEventIngressGuard(globalRequests, sourceRequests, logBytes int, fullLog bool) *eventIngressGuard {
+	return &eventIngressGuard{
+		globalRequestsPerMinute: globalRequests,
+		sourceRequestsPerMinute: sourceRequests,
+		logBytesPerMinute:       logBytes,
+		fullLogEnabled:          fullLog,
+	}
+}
+
+func fullEventLoggingEnabled() bool {
+	value := strings.ToLower(strings.TrimSpace(os.Getenv("DDBABY_GTO_EVENT_FULL_LOG")))
+	return value == "1" || value == "true"
+}
+
+func eventSourceKey(source string) uint64 {
+	hasher := fnv.New64a()
+	_, _ = hasher.Write([]byte(source))
+	return hasher.Sum64()
+}
+
+func texasPokerEventSource(c *app.RequestContext) string {
+	remote := c.RemoteAddr().String()
+	host, _, err := net.SplitHostPort(remote)
+	if err == nil {
+		remote = host
+	}
+	remoteIP := net.ParseIP(remote)
+	if remoteIP != nil && remoteIP.IsLoopback() {
+		// Forwarded headers are trusted only from the local reverse proxy.
+		return c.ClientIP()
+	}
+	return remote
+}
+
+func (g *eventIngressGuard) allowRequest(now time.Time, source string) (bool, uint64) {
+	minute := now.Unix() / 60
+	key := eventSourceKey(source)
+	index := key % eventSourceBucketCount
+
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	var droppedToReport uint64
+	if g.global.minute != minute {
+		droppedToReport = g.dropped
+		g.dropped = 0
+		g.global = eventIngressWindow{minute: minute}
+	}
+	bucket := &g.sources[index]
+	if bucket.minute != minute {
+		*bucket = eventSourceBucket{minute: minute, key: key}
+	}
+	// A same-minute hash collision shares the bucket's current allowance
+	// rather than replacing it and letting either source bypass its quota.
+
+	if g.global.requests >= g.globalRequestsPerMinute || bucket.requests >= g.sourceRequestsPerMinute {
+		g.dropped++
+		return false, droppedToReport
+	}
+	g.global.requests++
+	bucket.requests++
+	return true, droppedToReport
+}
+
+func (g *eventIngressGuard) allowFullLog(now time.Time, bytes int) bool {
+	if !g.fullLogEnabled || bytes <= 0 {
+		return false
+	}
+	minute := now.Unix() / 60
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	if g.global.minute != minute {
+		g.global = eventIngressWindow{minute: minute}
+		g.dropped = 0
+	}
+	if bytes > g.logBytesPerMinute-g.global.logBytes {
+		return false
+	}
+	g.global.logBytes += bytes
+	return true
+}
 
 type texasPokerEvent struct {
 	Timestamp int64           `json:"timestamp"`
@@ -34,6 +161,20 @@ type texasPokerEvent struct {
 // intentionally acknowledges receipt only; state reconstruction is connected
 // behind this boundary in a later change.
 func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
+	texasPokerEventWithIngress(ctx, c, texasPokerEventIngress, time.Now())
+}
+
+func texasPokerEventWithIngress(ctx context.Context, c *app.RequestContext, ingress *eventIngressGuard, now time.Time) {
+	allowed, droppedToReport := ingress.allowRequest(now, texasPokerEventSource(c))
+	if droppedToReport > 0 {
+		logrus.WithContext(ctx).WithField("dropped_count", droppedToReport).
+			Warn("[TexasPokerEvent] rate limited requests")
+	}
+	if !allowed {
+		writeTexasPokerEventError(c, consts.StatusTooManyRequests, "rate_limited")
+		return
+	}
+
 	body, err := readTexasPokerEventBody(c)
 	if err != nil {
 		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_body_size")
@@ -46,13 +187,19 @@ func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	logrus.WithContext(ctx).WithFields(logrus.Fields{
+	fields := logrus.Fields{
 		"cmd":          event.Cmd,
 		"direction":    event.Direction,
 		"location":     event.Location,
 		"payload_size": len(event.Data),
-		"event":        string(body),
-	}).Info("[TexasPokerEvent] accepted")
+	}
+	if ingress.allowFullLog(now, len(body)) {
+		fields["event"] = string(body)
+		fields["full_event_logged"] = true
+	} else {
+		fields["full_event_logged"] = false
+	}
+	logrus.WithContext(ctx).WithFields(fields).Info("[TexasPokerEvent] accepted")
 
 	c.JSON(consts.StatusOK, map[string]any{
 		"BaseResp": map[string]any{
