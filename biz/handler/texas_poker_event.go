@@ -10,6 +10,7 @@ import (
 	"net"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -26,6 +27,7 @@ const (
 	defaultEventLogBytesPerMinute  = 6 * 1024 * 1024
 	eventSourceBucketCount         = 256
 	eventLogRecordOverheadBytes    = 1024
+	maxEventFullLogDuration        = 24 * time.Hour
 )
 
 var eventCommandPattern = regexp.MustCompile(`^[A-Za-z0-9._:/-]{1,128}$`)
@@ -34,7 +36,7 @@ var texasPokerEventIngress = newEventIngressGuard(
 	defaultEventRequestsPerMinute,
 	defaultSourceRequestsPerMinute,
 	defaultEventLogBytesPerMinute,
-	fullEventLoggingEnabled(),
+	fullEventLoggingUntil(time.Now()),
 )
 
 type eventIngressWindow struct {
@@ -57,24 +59,35 @@ type eventIngressGuard struct {
 	globalRequestsPerMinute int
 	sourceRequestsPerMinute int
 	logBytesPerMinute       int
-	fullLogEnabled          bool
+	fullLogUntil            time.Time
 	global                  eventIngressWindow
 	sources                 [eventSourceBucketCount]eventSourceBucket
 	dropped                 uint64
 }
 
-func newEventIngressGuard(globalRequests, sourceRequests, logBytes int, fullLog bool) *eventIngressGuard {
+func newEventIngressGuard(globalRequests, sourceRequests, logBytes int, fullLogUntil time.Time) *eventIngressGuard {
 	return &eventIngressGuard{
 		globalRequestsPerMinute: globalRequests,
 		sourceRequestsPerMinute: sourceRequests,
 		logBytesPerMinute:       logBytes,
-		fullLogEnabled:          fullLog,
+		fullLogUntil:            fullLogUntil,
 	}
 }
 
-func fullEventLoggingEnabled() bool {
+func fullEventLoggingUntil(now time.Time) time.Time {
 	value := strings.ToLower(strings.TrimSpace(os.Getenv("DDBABY_GTO_EVENT_FULL_LOG")))
-	return value == "1" || value == "true"
+	if value != "1" && value != "true" {
+		return time.Time{}
+	}
+	deadlineSeconds, err := strconv.ParseInt(strings.TrimSpace(os.Getenv("DDBABY_GTO_EVENT_FULL_LOG_UNTIL")), 10, 64)
+	if err != nil {
+		return time.Time{}
+	}
+	deadline := time.Unix(deadlineSeconds, 0)
+	if !deadline.After(now) || deadline.After(now.Add(maxEventFullLogDuration)) {
+		return time.Time{}
+	}
+	return deadline
 }
 
 func eventSourceKey(source string) uint64 {
@@ -128,7 +141,7 @@ func (g *eventIngressGuard) allowRequest(now time.Time, source string) (bool, ui
 }
 
 func (g *eventIngressGuard) allowFullLog(now time.Time, bytes int) bool {
-	if !g.fullLogEnabled || bytes <= 0 {
+	if g.fullLogUntil.IsZero() || !now.Before(g.fullLogUntil) || bytes <= 0 {
 		return false
 	}
 	minute := now.Unix() / 60

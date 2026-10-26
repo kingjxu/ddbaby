@@ -62,8 +62,8 @@ func TestTexasPokerEventLimitsHighFrequencyLargePayloadAndLogBytes(t *testing.T)
 	data := strings.Repeat("a", 200*1024)
 	body := `{"timestamp":1792526400000,"cmd":"STATE",` +
 		`"direction":"ServerToClient","location":"TABLE","data":"` + data + `"}`
-	guard := newEventIngressGuard(3, 2, eventFullLogCost(len(body))+128, true)
 	now := time.Unix(1792526400, 0)
+	guard := newEventIngressGuard(3, 2, eventFullLogCost(len(body))+128, now.Add(time.Hour))
 
 	var logs bytes.Buffer
 	previousOutput := logrus.StandardLogger().Out
@@ -100,7 +100,7 @@ func TestTexasPokerEventLimitsHighFrequencyLargePayloadAndLogBytes(t *testing.T)
 
 func TestEventIngressGuardAppliesGlobalAndSourceQuotas(t *testing.T) {
 	now := time.Unix(1792526400, 0)
-	guard := newEventIngressGuard(3, 2, 1024, false)
+	guard := newEventIngressGuard(3, 2, 1024, time.Time{})
 	if allowed, _ := guard.allowRequest(now, "198.51.100.1"); !allowed {
 		t.Fatal("first source request was rejected")
 	}
@@ -115,6 +115,35 @@ func TestEventIngressGuardAppliesGlobalAndSourceQuotas(t *testing.T) {
 	}
 	if allowed, _ := guard.allowRequest(now, "198.51.100.2"); allowed {
 		t.Fatal("global quota was not enforced")
+	}
+}
+
+func TestEventIngressGuardFullLogDeadline(t *testing.T) {
+	now := time.Unix(1792526400, 0)
+	guard := newEventIngressGuard(10, 10, 1024, now.Add(time.Minute))
+	if !guard.allowFullLog(now, 100) {
+		t.Fatal("full log was rejected before its deadline")
+	}
+	if guard.allowFullLog(now.Add(time.Minute), 100) {
+		t.Fatal("full log remained enabled at its deadline")
+	}
+}
+
+func TestFullEventLoggingUntilRequiresBoundedDeadline(t *testing.T) {
+	now := time.Unix(1792526400, 0)
+	t.Setenv("DDBABY_GTO_EVENT_FULL_LOG", "1")
+	t.Setenv("DDBABY_GTO_EVENT_FULL_LOG_UNTIL", "")
+	if deadline := fullEventLoggingUntil(now); !deadline.IsZero() {
+		t.Fatalf("missing deadline enabled full logs until %v", deadline)
+	}
+	t.Setenv("DDBABY_GTO_EVENT_FULL_LOG_UNTIL", "1792616400")
+	if deadline := fullEventLoggingUntil(now); !deadline.IsZero() {
+		t.Fatalf("deadline beyond 24 hours enabled full logs until %v", deadline)
+	}
+	want := now.Add(2 * time.Hour)
+	t.Setenv("DDBABY_GTO_EVENT_FULL_LOG_UNTIL", "1792533600")
+	if deadline := fullEventLoggingUntil(now); !deadline.Equal(want) {
+		t.Fatalf("deadline = %v, want %v", deadline, want)
 	}
 }
 
