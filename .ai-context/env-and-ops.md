@@ -1,6 +1,6 @@
 ---
-version: "1.9"
-last_updated: "2026-10-27"
+version: "1.10"
+last_updated: "2026-10-28"
 status: "active"
 ---
 

@@ -1,6 +1,6 @@
 ---
-version: "1.16"
-last_updated: "2026-10-27"
+version: "1.17"
+last_updated: "2026-10-28"
 ---
 
 # 测试规则

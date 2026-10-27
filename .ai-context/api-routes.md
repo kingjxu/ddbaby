@@ -1,6 +1,6 @@
 ---
-version: "1.21"
-last_updated: "2026-10-27"
+version: "1.22"
+last_updated: "2026-10-28"
 ---
 
 # API 路由

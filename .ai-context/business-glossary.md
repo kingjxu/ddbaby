@@ -1,6 +1,6 @@
 ---
-version: "1.6"
-last_updated: "2026-10-27"
+version: "1.7"
+last_updated: "2026-10-28"
 ---
 
 # 德州扑克术语
