@@ -46,6 +46,11 @@ type PokerEventDecisionResult struct {
 	HeroMaxTarget  int      `json:"HeroMaxTarget"`
 }
 
+type pokerDecisionCacheEntry struct {
+	createdAt time.Time
+	result    *PokerEventDecisionResult
+}
+
 // IsSupportedPokerEventPackage reports whether the service handles this source.
 func IsSupportedPokerEventPackage(packageName string) bool {
 	_, ok := pokerEventPackageRoutes[packageName]

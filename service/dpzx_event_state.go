@@ -23,7 +23,7 @@ const (
 type dpzxEventRegistry struct {
 	mu       sync.Mutex
 	sessions map[string]*dpzxTableState
-	results  map[string]aapokerDecisionCacheEntry
+	results  map[string]pokerDecisionCacheEntry
 }
 
 type dpzxTableState struct {
@@ -97,7 +97,7 @@ type dpzxPlayerJoin struct {
 func newDPZXEventRegistry() *dpzxEventRegistry {
 	return &dpzxEventRegistry{
 		sessions: make(map[string]*dpzxTableState),
-		results:  make(map[string]aapokerDecisionCacheEntry),
+		results:  make(map[string]pokerDecisionCacheEntry),
 	}
 }
 
@@ -171,7 +171,7 @@ func (r *dpzxEventRegistry) complete(
 	if len(r.results) >= maxDPZXDecisionResults {
 		r.removeOldestResult()
 	}
-	r.results[decisionCacheKey(candidate.sessionKey, candidate.turnKey)] = aapokerDecisionCacheEntry{
+	r.results[decisionCacheKey(candidate.sessionKey, candidate.turnKey)] = pokerDecisionCacheEntry{
 		createdAt: now,
 		result:    cloneAAPokerDecisionResult(result),
 	}

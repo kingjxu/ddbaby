@@ -137,13 +137,13 @@ func TestAAPokerEventStateBlocksDecisionAfterActionGap(t *testing.T) {
 func TestAAPokerDecisionCacheExpiresAndStaysBounded(t *testing.T) {
 	registry := newAAPokerEventRegistry()
 	now := time.Unix(1792526400, 0)
-	registry.results["expired"] = aapokerDecisionCacheEntry{
+	registry.results["expired"] = pokerDecisionCacheEntry{
 		createdAt: now.Add(-PokerEventDecisionResultTTL - time.Second),
 		result:    &PokerEventDecisionResult{Result: "expired"},
 	}
 	for index := 0; index < maxAAPokerDecisionResults; index++ {
 		key := fmt.Sprintf("cached-%04d", index)
-		registry.results[key] = aapokerDecisionCacheEntry{
+		registry.results[key] = pokerDecisionCacheEntry{
 			createdAt: now.Add(time.Duration(index) * time.Millisecond),
 			result:    &PokerEventDecisionResult{Result: key},
 		}

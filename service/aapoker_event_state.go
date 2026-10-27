@@ -32,12 +32,7 @@ type PokerEventDecision struct {
 type aapokerEventRegistry struct {
 	mu       sync.Mutex
 	sessions map[string]*aapokerTableState
-	results  map[string]aapokerDecisionCacheEntry
-}
-
-type aapokerDecisionCacheEntry struct {
-	createdAt time.Time
-	result    *PokerEventDecisionResult
+	results  map[string]pokerDecisionCacheEntry
 }
 
 type aapokerTableState struct {
@@ -134,7 +129,7 @@ type aapokerSeatDownPayload struct {
 func newAAPokerEventRegistry() *aapokerEventRegistry {
 	return &aapokerEventRegistry{
 		sessions: make(map[string]*aapokerTableState),
-		results:  make(map[string]aapokerDecisionCacheEntry),
+		results:  make(map[string]pokerDecisionCacheEntry),
 	}
 }
 
@@ -213,7 +208,7 @@ func (r *aapokerEventRegistry) complete(
 			r.removeOldestResult()
 		}
 		r.results[decisionCacheKey(candidate.sessionKey, candidate.turnKey)] =
-			aapokerDecisionCacheEntry{
+			pokerDecisionCacheEntry{
 				createdAt: now,
 				result:    cloneAAPokerDecisionResult(result),
 			}
