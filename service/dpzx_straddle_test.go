@@ -89,3 +89,26 @@ func TestDPZXStraddleRejectsAmbiguousMarkers(t *testing.T) {
 		})
 	}
 }
+
+func TestDPZXStraddleRoomFlagAndMarkers(t *testing.T) {
+	for _, enabled := range []bool{false, true} {
+		for _, marked := range []bool{false, true} {
+			t.Run(fmt.Sprintf("enabled=%t/marked=%t", enabled, marked), func(t *testing.T) {
+				p := []dpzxPlayerSnapshot{{Index: 0}, {Index: 1, StartState: 1, Value: 50}, {Index: 2, StartState: 2, Value: 100}, {Index: 3}, {Index: 4}}
+				if marked {
+					p[3].StartState = 3
+					p[3].Value = 200
+				}
+				s := &dpzxTableState{buttonSeat: 0, tableSize: 5, bigBlind: 100, straddleEnabled: enabled, players: map[int]*aapokerPlayerState{}}
+				for _, v := range p {
+					s.players[v.Index] = &aapokerPlayerState{}
+					s.participants = append(s.participants, v.Index)
+				}
+				err := s.assignPositions(p)
+				if (err != nil) != (enabled && !marked) {
+					t.Fatalf("enabled=%t marked=%t err=%v", enabled, marked, err)
+				}
+			})
+		}
+	}
+}
