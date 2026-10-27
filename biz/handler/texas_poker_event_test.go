@@ -161,7 +161,7 @@ func TestParseTexasPokerEventAcceptsUnvalidatedFields(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unvalidated fields rejected: %v", err)
 	}
-	if event.PackageName != dpzxPackageName || event.route != pokerEventRouteLogOnly {
+	if event.PackageName != dpzxPackageName || event.route != pokerEventRouteDPZX {
 		t.Fatalf("unexpected route: package=%q route=%v", event.PackageName, event.route)
 	}
 
@@ -187,7 +187,7 @@ func TestTexasPokerEventBearerToken(t *testing.T) {
 	}
 }
 
-func TestTexasPokerEventRoutesDpzxToFullLogOnlyAndRejectsUnassignedSources(t *testing.T) {
+func TestTexasPokerEventLogsIncompleteDPZXAndRejectsUnassignedSources(t *testing.T) {
 	previousRegistry := texasPokerEventStates
 	previousExecute := executeAAPokerDecisionForEvent
 	texasPokerEventStates = newAAPokerEventRegistry()

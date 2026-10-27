@@ -25,7 +25,7 @@ type pokerEventRoute uint8
 
 const (
 	pokerEventRouteAAPoker pokerEventRoute = iota + 1
-	pokerEventRouteLogOnly
+	pokerEventRouteDPZX
 )
 
 // pokerEventPackageRoutes is the single allowlist and dispatch table. Add new
@@ -33,10 +33,11 @@ const (
 var pokerEventPackageRoutes = map[string]pokerEventRoute{
 	aapokerPackageName:          pokerEventRouteAAPoker,
 	aapokerAlternatePackageName: pokerEventRouteAAPoker,
-	dpzxPackageName:             pokerEventRouteLogOnly,
+	dpzxPackageName:             pokerEventRouteDPZX,
 }
 
 var texasPokerEventStates = newAAPokerEventRegistry()
+var dpzxPokerEventStates = newDPZXEventRegistry()
 var executeAAPokerDecisionForEvent = executeAAPokerDecision
 
 type texasPokerEvent struct {
@@ -93,11 +94,14 @@ func texasPokerEventAt(ctx context.Context, c *app.RequestContext, now time.Time
 			"StatusMessage": "success",
 		},
 	}
-	if event.route == pokerEventRouteLogOnly {
-		c.JSON(consts.StatusOK, response)
-		return
+	var candidate *aapokerDecisionCandidate
+	var stateErr error
+	switch event.route {
+	case pokerEventRouteAAPoker:
+		candidate, stateErr = texasPokerEventStates.process(event, now)
+	case pokerEventRouteDPZX:
+		candidate, stateErr = dpzxPokerEventStates.process(event, now)
 	}
-	candidate, stateErr := texasPokerEventStates.process(event, now)
 	if stateErr != nil {
 		logrus.WithContext(ctx).WithFields(fields).
 			Warnf("[TexasPokerEvent] state update ignored:%v", stateErr)
@@ -110,17 +114,31 @@ func texasPokerEventAt(ctx context.Context, c *app.RequestContext, now time.Time
 				ctx, event.UUID, token, event.VPIP, event.PFR, candidate.Request,
 			)
 			if decisionErr != nil {
-				texasPokerEventStates.complete(candidate, nil, now)
+				completePokerEventDecision(event.route, candidate, nil, now)
 				logrus.WithContext(ctx).WithFields(fields).
 					Warnf("[TexasPokerEvent] decision retry required:%v", decisionErr)
 				writeTexasPokerEventError(c, consts.StatusServiceUnavailable, "decision_retry")
 				return
 			}
-			texasPokerEventStates.complete(candidate, decision, now)
+			completePokerEventDecision(event.route, candidate, decision, now)
 		}
 		writeAAPokerDecisionResponse(response, decision)
 	}
 	c.JSON(consts.StatusOK, response)
+}
+
+func completePokerEventDecision(
+	route pokerEventRoute,
+	candidate *aapokerDecisionCandidate,
+	result *aapokerDecisionResult,
+	now time.Time,
+) {
+	switch route {
+	case pokerEventRouteAAPoker:
+		texasPokerEventStates.complete(candidate, result, now)
+	case pokerEventRouteDPZX:
+		dpzxPokerEventStates.complete(candidate, result, now)
+	}
 }
 
 func writeAAPokerDecisionResponse(response map[string]any, decision *aapokerDecisionResult) {

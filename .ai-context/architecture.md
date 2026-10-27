@@ -1,6 +1,6 @@
 ---
-version: "1.3"
-last_updated: "2026-10-21"
+version: "1.4"
+last_updated: "2026-10-27"
 ---
 
 # 架构
@@ -13,7 +13,7 @@ last_updated: "2026-10-21"
 - `service/texas_poker.go` 调用外部识别服务与 GTO 决策服务。
 - `dal/local_mem.go` 按用户保存同一手牌各阶段的识别结果。
 - `model/recognize_poker.go` 把识别结果转换为玩家、位置和行动历史。
-- `router.go` 的 `POST /lyxz/gto_event` 与 `biz/handler/texas_poker_event.go` 接收桃园助手透传的AAPoker规范化事件；`aapoker_event_state.go` 按桃园uuid、AAPoker uid和牌桌维护有界牌局状态并在Hero轮次生成同一GTO请求模型，`aapoker_event_decision.go`复用激活校验、策略调用、计费和`gto_decision_record`审计写入。临时失败返回503供客户端重传；成功的完整响应按隔离后的会话和行动点缓存30分钟、最多1024条，重复事件只回放而不重复副作用。
+- `router.go` 的 `POST /lyxz/gto_event` 与 `biz/handler/texas_poker_event.go` 接收桃园助手透传的扑克事件并按packageName分流；`aapoker_event_state.go`和`dpzx_event_state.go`分别解释各自协议，生成同一`TexasGtoDecisionReq`。`aapoker_event_decision.go`复用身份认证、激活校验、策略调用、计费和`gto_decision_record`审计写入。临时失败返回503供客户端重传；成功的完整响应按隔离后的会话、牌桌和行动点缓存30分钟、每种协议最多1024条，重复事件只回放而不重复副作用。
 
 ## 当前覆盖边界
 

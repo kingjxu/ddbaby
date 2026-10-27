@@ -1,6 +1,6 @@
 ---
-version: "1.0"
-last_updated: "2026-10-13"
+version: "1.1"
+last_updated: "2026-10-27"
 ---
 
 # 数据模型
@@ -11,7 +11,7 @@ last_updated: "2026-10-13"
 
 ## `gto_decision_record`
 
-合法 GTO 决策返回客户端前写入的审计表，建表脚本为 `dal/mysql/texas_poker/sql/20261013_create_gto_decision_record.sql`。
+合法 GTO 决策返回客户端前写入的审计表，截图、AAPoker事件和DPZX事件共用，建表脚本为 `dal/mysql/texas_poker/sql/20261013_create_gto_decision_record.sql`。
 
 - `id`：`BIGINT UNSIGNED` 自增主键。
 - `uid`：客户端已通过激活码校验的 UUID，独立索引 `idx_gto_decision_uid`。
