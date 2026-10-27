@@ -292,16 +292,17 @@ func TestTexasPokerEventRoutesDPZXThroughDecisionResponse(t *testing.T) {
 		executeAAPokerDecisionForEvent = previousExecute
 	})
 
-	now := time.Unix(1793076600, 0)
 	post := func(command, payload string, timestamp int64) *app.RequestContext {
 		t.Helper()
 		body := fmt.Sprintf(`{"packageName":"com.dpzx.pro","uuid":"hero@example.com","vpip":0,"pfr":0,"timestamp":%d,"uid":2773921,"cmd":%q,"direction":"ServerToClient","location":"TABLE","data":%s}`,
 			timestamp, command, payload)
 		requestContext := &app.RequestContext{}
+		requestContext.Request.SetMethod("POST")
+		requestContext.Request.Header.Set("Content-Type", "application/json")
 		requestContext.Request.SetBodyString(body)
+		requestContext.Request.Header.SetContentLength(len(body))
 		requestContext.Request.Header.Set("Authorization", "Bearer session-token")
-		texasPokerEventAt(context.Background(), requestContext, now)
-		now = now.Add(time.Millisecond)
+		TexasPokerEvent(context.Background(), requestContext)
 		return requestContext
 	}
 

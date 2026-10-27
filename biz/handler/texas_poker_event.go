@@ -1,9 +1,7 @@
 package handler
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"io"
 	"strings"
@@ -51,23 +49,23 @@ type texasPokerEvent struct {
 // the explicit package allowlist after validation and full diagnostic logging.
 // @router /lyxz/gto_event [POST]
 func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
-	texasPokerEventAt(ctx, c, time.Now())
-}
-
-func texasPokerEventAt(ctx context.Context, c *app.RequestContext, now time.Time) {
+	receivedAt := time.Now()
 	body, err := readTexasPokerEventBody(c)
 	if err != nil {
 		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_body_size")
 		return
 	}
 
-	event, err := parseTexasPokerEvent(body)
-	if err != nil {
+	// Buffer streamed bodies once so binding and logging use the same JSON.
+	c.Request.SetBody(body)
+	c.Request.Header.SetContentLength(len(body))
+	var req ddbaby.TexasPokerEventReq
+	if err = c.BindAndValidate(&req); err != nil {
 		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
 		return
 	}
-	handler := NewTexasPokerEventHandler(&event.TexasPokerEventReq, body, texasPokerEventBearerToken(c))
-	handler.now = now
+	handler := NewTexasPokerEventHandler(&req, body, texasPokerEventBearerToken(c))
+	handler.now = receivedAt
 	response, _ := handler.Handle(ctx)
 	status := consts.StatusOK
 	if response.BaseResp.StatusCode != 0 {
@@ -214,35 +212,6 @@ func readTexasPokerEventBody(c *app.RequestContext) ([]byte, error) {
 		return nil, errors.New("invalid body size")
 	}
 	return body, nil
-}
-
-func parseTexasPokerEvent(body []byte) (*texasPokerEvent, error) {
-	decoder := json.NewDecoder(bytes.NewReader(body))
-	var fields map[string]json.RawMessage
-	if err := decoder.Decode(&fields); err != nil || fields == nil {
-		return nil, errors.New("event must be a JSON object")
-	}
-	var packageName string
-	if err := json.Unmarshal(fields["packageName"], &packageName); err != nil {
-		return nil, errors.New("invalid packageName")
-	}
-	route, supported := pokerEventPackageRoutes[packageName]
-	if !supported {
-		return nil, errors.New("invalid packageName")
-	}
-
-	var event texasPokerEvent
-	// Only packageName controls routing. Other fields are best-effort decoded so
-	// protocol analysis can retain new or malformed shapes in the full raw log.
-	_ = json.Unmarshal(body, &event.TexasPokerEventReq)
-	event.route = route
-	event.PackageName = packageName
-
-	var trailing any
-	if err := decoder.Decode(&trailing); !errors.Is(err, io.EOF) {
-		return nil, errors.New("multiple JSON values")
-	}
-	return &event, nil
 }
 
 func writeTexasPokerEventError(c *app.RequestContext, status int, code string) {

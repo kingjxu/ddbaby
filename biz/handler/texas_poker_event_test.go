@@ -22,6 +22,24 @@ type countingReader struct {
 	read   int
 }
 
+// Exercise the production binder while allowing parse assertions to inspect raw tokens.
+func bindTexasPokerTestEvent(body []byte) (*texasPokerEvent, error) {
+	var c app.RequestContext
+	c.Request.SetMethod("POST")
+	c.Request.Header.Set("Content-Type", "application/json")
+	c.Request.SetBody(body)
+	c.Request.Header.SetContentLength(len(body))
+	var req ddbaby.TexasPokerEventReq
+	if err := c.BindAndValidate(&req); err != nil {
+		return nil, err
+	}
+	h := NewTexasPokerEventHandler(&req, body, "")
+	if err := h.check(); err != nil {
+		return nil, err
+	}
+	return &texasPokerEvent{TexasPokerEventReq: req, route: h.route}, nil
+}
+
 func TestTexasPokerEventHandlerHandlesWithoutHTTPContext(t *testing.T) {
 	for _, test := range []struct {
 		name     string
@@ -54,24 +72,27 @@ func (r *countingReader) Read(p []byte) (int, error) {
 	return n, err
 }
 
-func TestParseTexasPokerEvent(t *testing.T) {
-	body := []byte(`{"packageName":"com.plusaa.amula","timestamp":1792526400000,"pid":"42","uid":"42",` +
+func TestBindTexasPokerEvent(t *testing.T) {
+	body := []byte(`{"packageName":"com.plusaa.amula","timestamp":1792526400000,"pid":"42","uid":9007199254740993,` +
 		`"PacketId":123,"cmd":"RSP_GAME_STATE","direction":"ServerToClient",` +
 		`"data":{"table":7},"location":"TABLE","seq":1,"dataExtra":"7"}`)
-	event, err := parseTexasPokerEvent(body)
+	event, err := bindTexasPokerTestEvent(body)
 	if err != nil {
-		t.Fatalf("parseTexasPokerEvent() error = %v", err)
+		t.Fatalf("bindTexasPokerTestEvent() error = %v", err)
 	}
 	if event.Cmd != "RSP_GAME_STATE" || event.Direction != "ServerToClient" || event.Location != "TABLE" {
 		t.Fatalf("unexpected event: %+v", event)
 	}
+	if string(event.UID) != "9007199254740993" || string(event.Data) != `{"table":7}` {
+		t.Fatalf("dynamic JSON changed: uid=%s data=%s", event.UID, event.Data)
+	}
 }
 
-func TestParseTexasPokerEventAcceptsAAPokerPackageAliases(t *testing.T) {
+func TestBindTexasPokerEventAcceptsAAPokerPackageAliases(t *testing.T) {
 	for _, packageName := range []string{aapokerPackageName, aapokerAlternatePackageName} {
 		body := fmt.Sprintf(`{"packageName":%q,"timestamp":1,"cmd":"STATE",`+
 			`"direction":"ServerToClient","location":"TABLE","data":{}}`, packageName)
-		event, err := parseTexasPokerEvent([]byte(body))
+		event, err := bindTexasPokerTestEvent([]byte(body))
 		if err != nil {
 			t.Fatalf("package %q rejected: %v", packageName, err)
 		}
@@ -85,7 +106,10 @@ func TestTexasPokerEventHTTPResponse(t *testing.T) {
 	validBody := `{"packageName":"com.plusaa.amula","timestamp":1792526400000,"cmd":"STATE",` +
 		`"direction":"ServerToClient","location":"TABLE","data":{}}`
 	var validContext app.RequestContext
+	validContext.Request.SetMethod("POST")
+	validContext.Request.Header.Set("Content-Type", "application/json")
 	validContext.Request.SetBodyString(validBody)
+	validContext.Request.Header.SetContentLength(len(validBody))
 	TexasPokerEvent(context.Background(), &validContext)
 	if validContext.Response.StatusCode() != consts.StatusOK {
 		t.Fatalf("valid status = %d, want 200", validContext.Response.StatusCode())
@@ -95,10 +119,45 @@ func TestTexasPokerEventHTTPResponse(t *testing.T) {
 	}
 
 	var invalidContext app.RequestContext
+	invalidContext.Request.SetMethod("POST")
+	invalidContext.Request.Header.Set("Content-Type", "application/json")
 	invalidContext.Request.SetBodyString(`{"timestamp":1}`)
+	invalidContext.Request.Header.SetContentLength(len(`{"timestamp":1}`))
 	TexasPokerEvent(context.Background(), &invalidContext)
 	if invalidContext.Response.StatusCode() != consts.StatusBadRequest {
 		t.Fatalf("invalid status = %d, want 400", invalidContext.Response.StatusCode())
+	}
+}
+
+func TestTexasPokerEventBindsStreamedJSON(t *testing.T) {
+	body := `{"packageName":"com.dpzx.pro","cmd":"401","data":{"marker":"stream-event"}}`
+	var c app.RequestContext
+	c.Request.SetMethod("POST")
+	c.Request.Header.Set("Content-Type", "application/json")
+	c.Request.SetBodyStream(strings.NewReader(body), -1)
+	var logs bytes.Buffer
+	previousOutput := logrus.StandardLogger().Out
+	logrus.SetOutput(&logs)
+	t.Cleanup(func() { logrus.SetOutput(previousOutput) })
+	TexasPokerEvent(context.Background(), &c)
+	if c.Response.StatusCode() != consts.StatusOK || !strings.Contains(logs.String(), "stream-event") {
+		t.Fatalf("stream response/log = %s / %s", c.Response.Body(), logs.String())
+	}
+}
+
+func TestTexasPokerEventRejectsTypedFieldMismatchBeforeLogging(t *testing.T) {
+	var c app.RequestContext
+	c.Request.SetMethod("POST")
+	c.Request.Header.Set("Content-Type", "application/json")
+	c.Request.SetBodyString(`{"packageName":"com.dpzx.pro","timestamp":"private-invalid-marker"}`)
+	var logs bytes.Buffer
+	previousOutput := logrus.StandardLogger().Out
+	logrus.SetOutput(&logs)
+	t.Cleanup(func() { logrus.SetOutput(previousOutput) })
+	TexasPokerEvent(context.Background(), &c)
+	if c.Response.StatusCode() != consts.StatusBadRequest || strings.Contains(logs.String(), "private-invalid-marker") ||
+		strings.Contains(string(c.Response.Body()), "private-invalid-marker") {
+		t.Fatalf("invalid response/log = %s / %s", c.Response.Body(), logs.String())
 	}
 }
 
@@ -107,7 +166,6 @@ func TestTexasPokerEventDoesNotRateLimitAndLogsEveryPayload(t *testing.T) {
 	data := strings.Repeat("a", 4*1024)
 	body := `{"packageName":"com.plusaa.amula","timestamp":1792526400000,"cmd":"STATE",` +
 		`"direction":"ServerToClient","location":"TABLE","data":"` + data + `"}`
-	now := time.Unix(1792526400, 0)
 
 	var logs bytes.Buffer
 	previousOutput := logrus.StandardLogger().Out
@@ -117,8 +175,11 @@ func TestTexasPokerEventDoesNotRateLimitAndLogsEveryPayload(t *testing.T) {
 	statuses := make([]int, 0, requestCount)
 	for i := 0; i < requestCount; i++ {
 		var requestContext app.RequestContext
+		requestContext.Request.SetMethod("POST")
+		requestContext.Request.Header.Set("Content-Type", "application/json")
 		requestContext.Request.SetBodyString(body)
-		texasPokerEventAt(context.Background(), &requestContext, now)
+		requestContext.Request.Header.SetContentLength(len(body))
+		TexasPokerEvent(context.Background(), &requestContext)
 		statuses = append(statuses, requestContext.Response.StatusCode())
 	}
 	for i, status := range statuses {
@@ -162,7 +223,7 @@ func TestReadTexasPokerEventBodyRejectsOversizedContentLengthWithoutReading(t *t
 	}
 }
 
-func TestParseTexasPokerEventRejectsInvalidInput(t *testing.T) {
+func TestBindTexasPokerEventRejectsInvalidInput(t *testing.T) {
 	tests := map[string]string{
 		"bad json":           `{`,
 		"array":              `[]`,
@@ -174,22 +235,18 @@ func TestParseTexasPokerEventRejectsInvalidInput(t *testing.T) {
 	}
 	for name, body := range tests {
 		t.Run(name, func(t *testing.T) {
-			if _, err := parseTexasPokerEvent([]byte(body)); err == nil {
+			if _, err := bindTexasPokerTestEvent([]byte(body)); err == nil {
 				t.Fatal("expected invalid event to be rejected")
 			}
 		})
 	}
 }
 
-func TestParseTexasPokerEventAcceptsUnvalidatedFields(t *testing.T) {
+func TestBindTexasPokerEventValidatesTypedFields(t *testing.T) {
 	body := []byte(`{"packageName":"com.dpzx.pro","timestamp":"unknown","pid":{},` +
 		`"uid":true,"cmd":{"new":"shape"},"direction":7,"location":false}`)
-	event, err := parseTexasPokerEvent(body)
-	if err != nil {
-		t.Fatalf("unvalidated fields rejected: %v", err)
-	}
-	if event.PackageName != dpzxPackageName || event.route != pokerEventRouteDPZX {
-		t.Fatalf("unexpected route: package=%q route=%v", event.PackageName, event.route)
+	if _, err := bindTexasPokerTestEvent(body); err == nil {
+		t.Fatal("typed field mismatch must be rejected")
 	}
 
 	largeData := `"` + strings.Repeat("a", 490*1024) + `"`
@@ -197,7 +254,7 @@ func TestParseTexasPokerEventAcceptsUnvalidatedFields(t *testing.T) {
 	if len(largeBody) >= maxTexasPokerEventBytes {
 		t.Fatalf("test body unexpectedly exceeds total body limit: %d", len(largeBody))
 	}
-	if _, err = parseTexasPokerEvent([]byte(largeBody)); err != nil {
+	if _, err := bindTexasPokerTestEvent([]byte(largeBody)); err != nil {
 		t.Fatalf("data above former 480 KiB sub-limit rejected: %v", err)
 	}
 }
@@ -235,13 +292,15 @@ func TestTexasPokerEventLogsIncompleteDPZXAndRejectsUnassignedSources(t *testing
 	logrus.SetOutput(&logs)
 	t.Cleanup(func() { logrus.SetOutput(previousOutput) })
 
-	now := time.Unix(1792526400, 0)
 	dpzxBody := `{"packageName":"com.dpzx.pro","timestamp":1792526400000,` +
 		`"cmd":"401","direction":"ServerToClient","location":"TABLE",` +
 		`"data":{"marker":"dpzx-private-hand"}}`
 	var dpzxContext app.RequestContext
+	dpzxContext.Request.SetMethod("POST")
+	dpzxContext.Request.Header.Set("Content-Type", "application/json")
 	dpzxContext.Request.SetBodyString(dpzxBody)
-	texasPokerEventAt(context.Background(), &dpzxContext, now)
+	dpzxContext.Request.Header.SetContentLength(len(dpzxBody))
+	TexasPokerEvent(context.Background(), &dpzxContext)
 	if dpzxContext.Response.StatusCode() != consts.StatusOK ||
 		strings.Contains(string(dpzxContext.Response.Body()), `"Result"`) {
 		t.Fatalf("DPZX response = %d %s", dpzxContext.Response.StatusCode(), dpzxContext.Response.Body())
@@ -263,8 +322,11 @@ func TestTexasPokerEventLogsIncompleteDPZXAndRejectsUnassignedSources(t *testing
 		t.Run(name, func(t *testing.T) {
 			logs.Reset()
 			var requestContext app.RequestContext
+			requestContext.Request.SetMethod("POST")
+			requestContext.Request.Header.Set("Content-Type", "application/json")
 			requestContext.Request.SetBodyString(body)
-			texasPokerEventAt(context.Background(), &requestContext, now)
+			requestContext.Request.Header.SetContentLength(len(body))
+			TexasPokerEvent(context.Background(), &requestContext)
 			if requestContext.Response.StatusCode() != consts.StatusBadRequest {
 				t.Fatalf("status = %d, want 400", requestContext.Response.StatusCode())
 			}
@@ -301,7 +363,6 @@ func TestTexasPokerEventRetriesFailureAndReplaysSuccessfulTurn(t *testing.T) {
 		executeAAPokerDecisionForEvent = previousExecute
 	})
 
-	now := time.Unix(1792526400, 0)
 	events := []string{
 		`{"mySeatID":0,"playerIDArray":[1762080,2836313,2646258,2838496,2859796,-1,2860755,1081977],"operationID":4,"operationRound":16}`,
 		`{"bankerID":0,"operationID":4,"firstCardArray":[12,-1,-1,-1,-1,-1,-1,-1],"SecondCardArray":[24,-1,-1,-1,-1,-1,-1,-1],"smallChip":2,"bigChip":4,"chipsArray":[762,996,392,1557,606,-1,768,1020],"canPlayStatus":[1,1,1,1,1,0,1,1],"seatStatus":[2,2,2,2,2,0,2,2],"handNum":3,"straddlePop":[0,0,0,8,0,0,0,0],"operationRound":17,"mushroomPool":40,"pool_chips":42,"anteCountArray":[4,6,8,12,4,0,4,4]}`,
@@ -310,6 +371,7 @@ func TestTexasPokerEventRetriesFailureAndReplaysSuccessfulTurn(t *testing.T) {
 		`{"seatID":7,"action":2,"operationID":0,"anteNumber":8,"operationRound":20}`,
 	}
 	commands := []string{"REQ_GAME_ENTER_ROOM", "REQ_GAME_RECV_START_INFOR", "REQ_GAME_RECV_ACTION", "REQ_GAME_RECV_ACTION", "REQ_GAME_RECV_ACTION"}
+	now := time.Unix(1792526400, 0)
 	for i := 0; i < len(events)-1; i++ {
 		ctx := postAAPokerTestEvent(t, now, commands[i], events[i])
 		if ctx.Response.StatusCode() != consts.StatusOK {
@@ -343,8 +405,11 @@ func postAAPokerTestEvent(
 	body := fmt.Sprintf(`{"packageName":"com.plusaa.amula","uuid":"user@example.com","vpip":0,"pfr":0,"timestamp":%d,"uid":1762080,"cmd":%q,"direction":"ServerToClient","location":"TABLE","dataExtra":99,"data":%s}`,
 		now.UnixMilli(), command, data)
 	requestContext := &app.RequestContext{}
+	requestContext.Request.SetMethod("POST")
+	requestContext.Request.Header.Set("Content-Type", "application/json")
 	requestContext.Request.SetBodyString(body)
+	requestContext.Request.Header.SetContentLength(len(body))
 	requestContext.Request.Header.Set("Authorization", "Bearer session-token")
-	texasPokerEventAt(context.Background(), requestContext, now)
+	TexasPokerEvent(context.Background(), requestContext)
 	return requestContext
 }

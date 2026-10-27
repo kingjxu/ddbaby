@@ -1,5 +1,5 @@
 ---
-version: "1.10"
+version: "1.11"
 last_updated: "2026-10-27"
 ---
 
@@ -7,9 +7,9 @@ last_updated: "2026-10-27"
 
 ## `POST /lyxz/gto_event`
 
-接口由`idl/ddbaby.thrift`中的`TexasPokerEvent`、`TexasPokerEventReq/Resp`维护，路由位于生成的`biz/router/ddbaby/ddbaby.go`，不在`router.go`重复注册。请求公共包络使用生成类型；动态字段`pid/uid/PacketId/data/seq/dataExtra`采用`PokerEventJSON`（IDL binary typedef），其HTTP JSON语义是原始JSON token，由`biz/model/ddbaby/poker_event_json.go`编解码，不是base64或转义字符串。handler仍保留总body/packageName检查和其他字段best-effort解码，不使用会收紧采集行为的通用BindAndValidate。响应使用生成类型，基础成功/错误只返回BaseResp；有Result时包含原有全部决策字段，HeroCard/CommunityCard保持数组或null。截图decision的旧IDL响应保持独立，不能复用于event。
+接口由`idl/ddbaby.thrift`中的`TexasPokerEvent`、`TexasPokerEventReq/Resp`维护，路由位于生成的`biz/router/ddbaby/ddbaby.go`，不在`router.go`重复注册。请求公共包络使用生成类型；动态字段`pid/uid/PacketId/data/seq/dataExtra`采用`PokerEventJSON`（IDL binary typedef），其HTTP JSON语义是原始JSON token，由`biz/model/ddbaby/poker_event_json.go`编解码，不是base64或转义字符串。HTTP入口保留512 KiB总body检查，通过`c.BindAndValidate`解析生成请求，再由Handler检查packageName路由；固定字段类型不符返回固定400，不再best-effort忽略解码错误。响应使用生成类型，基础成功/错误只返回BaseResp；有Result时包含原有全部决策字段，HeroCard/CommunityCard保持数组或null。截图decision的旧IDL响应保持独立，不能复用于event。
 
-接收桃园助手从 PokerEYE 分析模块透传的一条牌局事件。入口只要求请求体是一个不超过512 KiB的JSON对象，并携带已登记的字符串`packageName`；缺失、非字符串或未知包名返回固定400且不记录原始body。包名与路由类型集中维护在同一张映射表中，新增应用必须显式选择已有状态机或“仅完整日志”路由，不能默认落入AAPoker。除packageName外，`timestamp/pid/uid/PacketId/cmd/direction/data/location/seq/dataExtra/uuid/vpip/pfr`均不在入口做格式、枚举或子字段大小校验，未知或变化中的DPZX字段可以原样进入完整日志。
+接收桃园助手从 PokerEYE 分析模块透传的一条牌局事件。JSON请求体不超过512 KiB，按IDL类型绑定，并携带已登记的字符串`packageName`；缺失、非字符串或未知包名返回固定400且不记录原始body。包名与路由类型集中维护在同一张映射表中，新增应用必须显式选择已有状态机或“仅完整日志”路由，不能默认落入AAPoker。`timestamp/vpip/pfr`按整数、`cmd/direction/location/uuid`按字符串绑定，类型不符返回400；不额外校验枚举或业务字段内容。动态字段`pid/uid/PacketId/data/seq/dataExtra`仍保留原始JSON，包括大整数及变化中的DPZX结构，data不设480 KiB子上限。
 
 白名单内事件通过校验后都会记录完整JSON。AAPoker和DPZX分别进入独立的协议状态机，不能把DPZX数字cmd映射到AAPoker的`REQ_GAME_*`分支；两者在生成统一`TexasGtoDecisionReq`后复用GTO、计费、审计和结果回放链路。
 
@@ -21,7 +21,7 @@ DPZX按`uuid + DPZX uid`维护最多512个、30分钟过期的当前会话，决
 
 成功决策与截图接口使用同一 `gto_decision_record`：保存桃园 `uuid`、Hero 手牌/位置/街道、实际 GTO 请求、原始响应和规范化最终响应；按次数激活码只在合法结果后计费。AAPoker 的游戏 uid 只用于同一上报流里的 Hero/座位匹配，不能替代桃园 uuid。`operationRound`出现缺口说明行动事件丢失，本手立即停止决策并等待下一次`START_INFOR`重建，不能用不完整路线猜测。未携带 uuid 的旧客户端事件仍可被接收和记录，但不建立决策状态、不调用 GTO、不计费。
 
-协议分析阶段会为每一条通过总body和packageName路由边界的事件记录完整JSON，不再由环境开关、截止时间、日志字节预算、请求频率或其他业务字段校验降级或拒绝。请求量和完整日志写入量没有频率上限，完整日志会持续包含牌局内容和用户标识，可能快速占满日志管道或磁盘；必须限制日志访问和监控容量，并在协议分析结束后恢复为受控的短期诊断日志。
+协议分析阶段会为每一条通过总body、IDL绑定和packageName路由边界的事件记录完整JSON，不再由环境开关、截止时间、日志字节预算或请求频率降级或拒绝。请求量和完整日志写入量没有频率上限，完整日志会持续包含牌局内容和用户标识，可能快速占满日志管道或磁盘；必须限制日志访问和监控容量，并在协议分析结束后恢复为受控的短期诊断日志。
 
 ## `POST /lyxz/gto_decision`
 

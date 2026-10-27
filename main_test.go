@@ -27,8 +27,10 @@ func TestGeneratedEventRouteRetainsWireProtocol(t *testing.T) {
 	}{
 		{body: `{"packageName":"com.dpzx.pro","data":[1,2,3]}`, status: 200},
 		{body: `{"packageName":"unknown"}`, status: 400},
+		{body: `{"packageName":"com.dpzx.pro","timestamp":"invalid"}`, status: 400},
 	} {
-		response := ut.PerformRequest(h.Engine, "POST", "/lyxz/gto_event", &ut.Body{Body: strings.NewReader(test.body), Len: len(test.body)})
+		response := ut.PerformRequest(h.Engine, "POST", "/lyxz/gto_event", &ut.Body{Body: strings.NewReader(test.body), Len: len(test.body)},
+			ut.Header{Key: "Content-Type", Value: "application/json"})
 		if response.Code != test.status {
 			t.Fatalf("response = %d %s", response.Code, response.Body.String())
 		}
