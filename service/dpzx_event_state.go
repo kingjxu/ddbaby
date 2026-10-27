@@ -215,9 +215,15 @@ func (r *dpzxEventRegistry) removeOldestResult() {
 	delete(r.results, oldestKey)
 }
 
+// apply 在 process 的会话锁内按到达顺序消费 DPZX 服务端事件。
+// 430 先清理旧手并建立牌桌基线，431 建立本手参与者；492 补 Hero 私牌。
+// 之后以 432（谁行动）→ 433（动作结果）配对累计历史，403 校正底池，
+// 490 推进公共牌，435 结束。这里只改状态，决策资格由后续 decisionRequest 检查。
+// ready 表示本手参与者已建立；complete 表示当前收集到的行动路线可用于决策。
 func (s *dpzxTableState) apply(command string, raw []byte, timestamp int64) error {
 	switch command {
 	case "421":
+		// 只有 IsSelf 和游戏SID同时匹配时，才认领该座位为 Hero。
 		var payload []dpzxPlayerJoin
 		if err := json.Unmarshal(raw, &payload); err != nil {
 			return err
@@ -228,6 +234,7 @@ func (s *dpzxTableState) apply(command string, raw []byte, timestamp int64) erro
 			}
 		}
 	case "423":
+		// Hero 离座后退回未就绪状态，旁观期间不再产生策略请求。
 		var payload []int
 		if err := json.Unmarshal(raw, &payload); err != nil {
 			return err
@@ -237,14 +244,19 @@ func (s *dpzxTableState) apply(command string, raw []byte, timestamp int64) erro
 			s.ready = false
 		}
 	case "430":
+		// 房间/手号、庄位、盲注和Hero座位快照；实际玩家状态等待431建立。
 		return s.applyRoomSnapshot(raw)
 	case "431":
+		// 将本手玩家的剩余后手与已投入筹码装入状态，并计算初始底池。
 		return s.applyHandStart(raw)
 	case "432":
+		// 记录等待行动的座位；本事件本身不是一条已经完成的动作。
 		return s.applyPrompt(raw, timestamp)
 	case "433":
+		// 核对等待座位并消费动作结果，更新筹码、底池与历史。
 		return s.applyAction(raw)
 	case "403":
+		// 服务端底池快照直接覆盖本地估算值；非法金额会让本手停止决策。
 		var payload []int
 		if err := json.Unmarshal(raw, &payload); err != nil {
 			return err
@@ -256,10 +268,13 @@ func (s *dpzxTableState) apply(command string, raw []byte, timestamp int64) erro
 			return errors.New("invalid DPZX pot")
 		}
 	case "490":
+		// DPZX 给出截至当前街的完整公共牌，须校验街道推进和已有前缀。
 		return s.applyBoard(raw)
 	case "492":
+		// 仅提取 Hero 的两张私牌，并拒绝非法、重复或与公共牌冲突的牌。
 		return s.applyCards(raw)
 	case "435":
+		// 结束后清除行动提示和进行中的资格，保留的旧状态不再可决策。
 		s.ready = false
 		s.operationSeat = -1
 		s.expectedSeat = -1
@@ -268,6 +283,8 @@ func (s *dpzxTableState) apply(command string, raw []byte, timestamp int64) erro
 	return nil
 }
 
+// applyRoomSnapshot 解析 [房间信息, 玩家列表]。玩家列表在此只参与推导桌子座位数；
+// 真正的本手玩家/筹码由431建立，避免仅凭房间快照就沿用旧手继续决策。
 func (s *dpzxTableState) applyRoomSnapshot(raw json.RawMessage) error {
 	var payload []json.RawMessage
 	if err := json.Unmarshal(raw, &payload); err != nil || len(payload) < 2 {
@@ -299,6 +316,7 @@ func (s *dpzxTableState) applyRoomSnapshot(raw json.RawMessage) error {
 		return errors.New("invalid DPZX table size")
 	}
 
+	// 房间基线到达后清空旧手牌面、动作和决策标记，等待完整的431建手。
 	s.roomID = room.RoomID
 	s.handNum = room.HandNum
 	s.buttonSeat = room.BankIndex
@@ -325,6 +343,9 @@ func (s *dpzxTableState) applyRoomSnapshot(raw json.RawMessage) error {
 	return nil
 }
 
+// applyHandStart 解析431的玩家快照。Score 已是剩余后手，Value 是本街已投入，
+// 无需再从后手扣除Value；初始底池为每人的前注加上各自Value。
+// 只有已定位且参与本手的Hero，才将complete置为true。
 func (s *dpzxTableState) applyHandStart(raw json.RawMessage) error {
 	if s.handNum <= 0 || s.tableSize < 2 {
 		return nil
@@ -361,6 +382,9 @@ func (s *dpzxTableState) applyHandStart(raw json.RawMessage) error {
 	return nil
 }
 
+// applyPrompt 解析432：[行动座位, ... , 该座位本街投入, ...]。
+// expectedSeat 用来等待配对的433，operationSeat供后续判断是否轮到Hero；
+// turnTimestamp标识这次行动提示，使同一帧重传能回放同一个决策结果。
 func (s *dpzxTableState) applyPrompt(raw json.RawMessage, timestamp int64) error {
 	if !s.ready {
 		return nil
@@ -379,9 +403,11 @@ func (s *dpzxTableState) applyPrompt(raw json.RawMessage, timestamp int64) error
 		return errors.New("invalid DPZX action seat")
 	}
 	if timestamp > 0 && timestamp == s.lastPromptTimestamp && seat == s.operationSeat {
+		// 同座位、同时间戳属于重复提示，不把它当成上一条433缺失。
 		return nil
 	}
 	if s.expectedSeat >= 0 {
+		// 上一次432还没等到433就收到新提示：行动路线有缺口，停止本手决策。
 		s.complete = false
 	}
 	s.expectedSeat = seat
@@ -399,6 +425,9 @@ func (s *dpzxTableState) applyPrompt(raw json.RawMessage, timestamp int64) error
 	return nil
 }
 
+// applyAction 解析433中唯一一名玩家的动作结果。Betted是本街累计目标，
+// Score是动作后的剩余后手，直接覆盖stack，不再从Score扣下注；
+// 只有投入的正增量会增加底池。
 func (s *dpzxTableState) applyAction(raw json.RawMessage) error {
 	if !s.ready {
 		return nil
@@ -414,10 +443,12 @@ func (s *dpzxTableState) applyAction(raw json.RawMessage) error {
 		return errors.New("invalid DPZX action player")
 	}
 	if s.expectedSeat != update.Index {
+		// 动作座位与432不配对时标记不完整；仍保留随后可观察的状态供排查。
 		s.complete = false
 	}
 	s.expectedSeat = -1
 	s.operationSeat = -1
+	// 消费完本次提示，等待下一条432；动作类型须结合更新前的全桌最高投入判断。
 	previousMax := s.maxBet()
 	previousBet := player.bet
 	if update.Betted >= previousBet {
@@ -448,6 +479,8 @@ func (s *dpzxTableState) applyAction(raw json.RawMessage) error {
 	return nil
 }
 
+// applyBoard 解析490的完整公共牌快照。合法推进仅为0→3→4→5，
+// 旧前缀必须不变，公共牌内部及与Hero私牌之间都不能重复。
 func (s *dpzxTableState) applyBoard(raw json.RawMessage) error {
 	if !s.ready {
 		return nil
@@ -461,9 +494,11 @@ func (s *dpzxTableState) applyBoard(raw json.RawMessage) error {
 		return err
 	}
 	if len(cardIDs) == len(s.board) && sameDPZXBoard(s.board, cardIDs) {
+		// 完全相同的牌面是重传，先去重，避免误判跨街或清掉正在等待的动作。
 		return nil
 	}
 	if s.expectedSeat >= 0 || !validDPZXBoardProgression(len(s.board), len(cardIDs)) {
+		// 跨街前仍缺433或跳街时，不允许通过新牌面抹掉动作缺口。
 		s.complete = false
 		return errors.New("incomplete DPZX street transition")
 	}
@@ -493,6 +528,7 @@ func (s *dpzxTableState) applyBoard(raw json.RawMessage) error {
 			return errors.New("changed DPZX community card prefix")
 		}
 	}
+	// 整个新快照校验通过后才替换牌面；换街清本街投入/动作，不清后手与历史。
 	s.board = board
 	switch len(board) {
 	case 3:
@@ -527,6 +563,9 @@ func sameDPZXBoard(current []string, cardIDs []int) bool {
 	return true
 }
 
+// applyCards 解析492的玩家私牌列表，仅使用Hero条目。
+// 命中Hero的条目必须唯一且恰好两张有效牌；收到错误更新后标记complete=false，
+// 避免沿用之前合法的旧私牌继续生成策略请求。
 func (s *dpzxTableState) applyCards(raw json.RawMessage) error {
 	if !s.ready || s.heroSeat < 0 {
 		return nil
@@ -591,6 +630,8 @@ func (s *dpzxTableState) orderedParticipantSeats() []int {
 	return result
 }
 
+// decisionRequest 只在本手ready/complete、Hero仍参与且当前432确实等待Hero时生成请求。
+// roomID + handNum + turnTimestamp + stage区分行动点，随后由process处理并发和回放。
 func (s *dpzxTableState) decisionRequest() (*model.TexasGtoDecisionReq, string) {
 	if !s.ready || !s.complete || s.roomID <= 0 || s.handNum <= 0 ||
 		s.operationSeat != s.heroSeat || s.expectedSeat != s.heroSeat || s.players == nil {

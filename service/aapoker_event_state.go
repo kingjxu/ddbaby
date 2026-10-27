@@ -267,21 +267,28 @@ func (r *aapokerEventRegistry) removeOldest() {
 	delete(r.sessions, oldestKey)
 }
 
+// apply 按服务端事件的到达顺序更新当前牌桌；调用方 process 已持有会话锁。
+// 常见顺序为入桌/坐下 → START_INFOR 建手 → ACTION 累计动作 → CARDS 换街 → 结束。
+// 这里只维护牌局，不调用策略：process 会在 apply 成功后用 decisionRequest 检查
+// 是否轮到 Hero、状态是否完整，再处理并发资格和结果回放。
 func (s *aapokerTableState) apply(command string, payload []byte) error {
 	switch command {
 	case "REQ_GAME_ENTER_ROOM":
+		// 入桌快照用于确认登录游戏账号对应的座位，并补充可见私牌和行动轮次。
 		var data aapokerEnterPayload
 		if err := json.Unmarshal(payload, &data); err != nil {
 			return err
 		}
 		s.applyEnter(data)
 	case "REQ_GAME_RECV_START_INFOR":
+		// 新一手的基线：参与者、庄位、盲注、后手、强制投入和初始行动位置。
 		var data aapokerStartPayload
 		if err := json.Unmarshal(payload, &data); err != nil {
 			return err
 		}
 		return s.applyStart(data)
 	case "REQ_GAME_RECV_SEAT_DOWN":
+		// 只更新当前游戏账号的 Hero 座位，不能把其他人的坐下事件当成 Hero。
 		var data aapokerSeatDownPayload
 		if err := json.Unmarshal(payload, &data); err != nil {
 			return err
@@ -290,18 +297,21 @@ func (s *aapokerTableState) apply(command string, payload []byte) error {
 			s.heroSeat = data.SeatID
 		}
 	case "REQ_GAME_RECV_ACTION":
+		// 动作带递增 operationRound，负责更新筹码、底池、历史和下一行动者。
 		var data aapokerActionPayload
 		if err := json.Unmarshal(payload, &data); err != nil {
 			return err
 		}
 		s.applyAction(data)
 	case "REQ_GAME_RECV_CARDS":
+		// 此协议携带新增公共牌，追加到已有牌面后进入 flop/turn/river。
 		var data aapokerCardsPayload
 		if err := json.Unmarshal(payload, &data); err != nil {
 			return err
 		}
 		return s.applyCards(data)
 	case "REQ_SHOW_SIDE_POTS":
+		// 使用服务端给出的各个正数底池之和校正 currentPot，避免重复累计。
 		var data aapokerPotsPayload
 		if err := json.Unmarshal(payload, &data); err != nil {
 			return err
@@ -316,12 +326,15 @@ func (s *aapokerTableState) apply(command string, payload []byte) error {
 			s.currentPot = total
 		}
 	case "REQ_CURRENT_ROUND_FINISH", "REQ_GAME_RECV_WINNER":
+		// 停止本手继续产生行动候选；下一次 START_INFOR 才建立新手状态。
 		s.operationSeat = -1
 		s.inFlightTurn = ""
 	}
 	return nil
 }
 
+// applyEnter 用 userID 在座位列表中定位 Hero；MySeatID 若有值，必须与之相符。
+// 没有匹配座位时按旁观处理。旧快照不能把当前行动位置退回较早的轮次。
 func (s *aapokerTableState) applyEnter(data aapokerEnterPayload) {
 	matchedSeat := -1
 	for seat, playerID := range data.PlayerIDArray {
@@ -344,6 +357,9 @@ func (s *aapokerTableState) applyEnter(data aapokerEnterPayload) {
 	}
 }
 
+// applyStart 以 handNum 区分新手与同一手重传。
+// 新手清空上一手的公共牌、动作历史和决策标记；同一手重传只补 Hero 私牌，
+// 不重置已累计的动作，也不恢复因缺动作而失效的 complete 标记。
 func (s *aapokerTableState) applyStart(data aapokerStartPayload) error {
 	if data.HandNum <= 0 || data.BigChip <= 0 || data.SmallChip <= 0 || len(data.Chips) == 0 {
 		return errors.New("incomplete start event")
@@ -359,9 +375,8 @@ func (s *aapokerTableState) applyStart(data aapokerStartPayload) error {
 	s.buttonSeat = data.BankerID
 	s.smallBlind = data.SmallChip
 	s.bigBlind = data.BigChip
-	// AAPoker's anteCountArray contains ante plus any blind/straddle. In the
-	// observed cash-game protocol the per-player ante equals bigChip, matching
-	// the existing screenshot decision contract.
+	// anteCountArray同时含前注与盲注/straddle。对已观察的现金桌协议，
+	// 当前将每人的前注按bigChip映射，与已有截图决策请求口径保持一致。
 	s.ante = data.BigChip
 	s.straddle = 0
 	for _, amount := range data.Straddle {
@@ -383,6 +398,8 @@ func (s *aapokerTableState) applyStart(data aapokerStartPayload) error {
 	s.players = make(map[int]*aapokerPlayerState)
 	s.tableSize = len(data.Chips)
 	s.participants = s.participants[:0]
+	// Chips 是快照中的剩余后手；Antes 含前注与盲注/straddle，扣除前注后
+	// 才是本街已投入的 bet。这里只纳入本手能参与且有合法筹码的座位。
 	for seat, stack := range data.Chips {
 		if stack < 0 || seat >= len(data.CanPlay) || data.CanPlay[seat] != 1 {
 			continue
@@ -398,6 +415,7 @@ func (s *aapokerTableState) applyStart(data aapokerStartPayload) error {
 		s.players[seat] = &aapokerPlayerState{seat: seat, stack: stack, bet: bet, active: true}
 	}
 	if s.currentPot <= 0 {
+		// 缺少直接底池值时，使用参与者的强制投入构建初始底池。
 		for seat, amount := range data.Antes {
 			if seat < len(data.CanPlay) && data.CanPlay[seat] == 1 && amount > 0 {
 				s.currentPot += amount
@@ -409,11 +427,15 @@ func (s *aapokerTableState) applyStart(data aapokerStartPayload) error {
 	return nil
 }
 
+// applyAction 消费一条已完成动作。AnteNumber 是这次追加的筹码，
+// 与玩家本街累计投入 bet 不同；历史中的下注/加注金额使用累计目标值。
 func (s *aapokerTableState) applyAction(data aapokerActionPayload) {
+	// 尚未建手、旧轮次/重传或负金额不更新状态，避免重复扣筹码。
 	if s.players == nil || data.OperationRound <= s.operationRound || data.AnteNumber < 0 {
 		return
 	}
 	if data.OperationRound != s.operationRound+1 {
+		// 轮次跳号表示缺动作：继续保留后续可观察状态，但本手不再生成策略请求。
 		s.complete = false
 	}
 	player := s.players[data.SeatID]
@@ -421,6 +443,7 @@ func (s *aapokerTableState) applyAction(data aapokerActionPayload) {
 		return
 	}
 	previousMax := s.maxBet()
+	// 用更新前的全桌最高投入区分下注/跟注/加注，并限制本次扣除不超过后手。
 	if data.AnteNumber > player.stack {
 		data.AnteNumber = player.stack
 	}
@@ -448,6 +471,8 @@ func (s *aapokerTableState) applyAction(data aapokerActionPayload) {
 	s.operationRound = data.OperationRound
 }
 
+// applyCards 先用轮次去重，再追加本次新发的公共牌；不是替换整个牌面快照。
+// 换街只清本街投入和动作展示，不清剩余后手、底池或跨街动作历史。
 func (s *aapokerTableState) applyCards(data aapokerCardsPayload) error {
 	if s.players == nil || data.OperationRound < s.operationRound {
 		return nil
@@ -456,9 +481,8 @@ func (s *aapokerTableState) applyCards(data aapokerCardsPayload) error {
 		return nil
 	}
 	if data.OperationRound > s.operationRound {
-		// A street transition carries the round of the last completed action.
-		// A larger value means one or more action events never reached us, so
-		// the action route is unsafe for the remainder of this hand.
+		// 换街帧携带最后一个已完成动作的轮次；比本地大说明中间有 ACTION 丢失，
+		// 不能用不完整的行动路线继续决策。
 		s.complete = false
 	}
 	for _, cardID := range data.Cards {
@@ -517,6 +541,9 @@ func (s *aapokerTableState) assignPositions() {
 	}
 }
 
+// decisionRequest 是 apply 之后的决策门槛：完整建手、轮到 Hero 且私牌/后手有效
+// 才构造统一GTO请求；未知对手私牌用占位值，最终仍须通过模型校验。
+// handNum + operationRound + stage 标识同一个行动点，供 process 去重/回放。
 func (s *aapokerTableState) decisionRequest() (*model.TexasGtoDecisionReq, string) {
 	if !s.complete || s.handNum <= 0 || s.operationSeat < 0 || s.operationSeat != s.heroSeat || s.players == nil {
 		return nil, ""
