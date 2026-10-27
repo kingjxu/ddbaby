@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -60,8 +59,21 @@ func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 	}
 
 	mediaType, _, err := mime.ParseMediaType(string(c.Request.Header.ContentType()))
-	trimmed := bytes.TrimSpace(body)
-	if err != nil || mediaType != "application/json" || !json.Valid(trimmed) || trimmed[0] != '{' {
+	var fields map[string]json.RawMessage
+	if err != nil || mediaType != "application/json" || json.Unmarshal(body, &fields) != nil || fields == nil {
+		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
+		return
+	}
+	// Routing requires the exact protocol key. The generic JSON binder also
+	// accepts case-insensitive aliases, which must not select another source.
+	for name := range fields {
+		if name != "packageName" && strings.EqualFold(name, "packageName") {
+			writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
+			return
+		}
+	}
+	var packageName string
+	if json.Unmarshal(fields["packageName"], &packageName) != nil {
 		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
 		return
 	}
@@ -79,6 +91,7 @@ func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
 		return
 	}
+	req.PackageName = packageName
 	handler := NewTexasPokerEventHandler(&req, body, texasPokerEventBearerToken(c))
 	handler.now = receivedAt
 	response, _ := handler.Handle(ctx)
