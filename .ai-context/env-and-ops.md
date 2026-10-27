@@ -1,5 +1,5 @@
 ---
-version: "1.8"
+version: "1.9"
 last_updated: "2026-10-27"
 status: "active"
 ---
@@ -418,3 +418,39 @@ status: "active"
   风险以及外层packageName仅作路由优先级的边界保持不变。
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261027-132558-before-3e8ac25`；运行日志：
   `/home/ubuntu/ddbaby/output/deploy-3e8ac25-20261027-132558.log`。
+
+## 2026-10-27 event 前置激活检查与重构部署
+
+- 用户明确要求部署；业务版本为远程master已审查通过的`164f395`，替换此前运行的
+  `3e8ac25`。同时包含IDL生成路由、Handler/service分层、Hertz统一4 MiB缓冲、
+  共享命名和流程注释。非空uuid在最前面的check阶段查询数据库激活有效期与次数，
+  不再校验Bearer；额度耗尽即503，包括已付费结果的重传，按用户确认不设回放例外。
+- 干净git归档`/home/ubuntu/ddbaby-164f395.tar.gz`为10,413,896 bytes，SHA256
+  `3e1261bff0adf1e0012995fb707208da6648fad899f2b65b41c6e539a369ed47`，本机与服务器一致。
+  在独立目录`/home/ubuntu/ddbaby-releases/164f395-20261027`使用Go 1.22.2、
+  `GOTOOLCHAIN=local GOPROXY=off`运行`go test ./... -count=1`、
+  `go test -race ./biz/handler ./service . -count=1`及构建，全部通过。
+  候选/运行二进制为47,638,962 bytes，SHA256
+  `b94781700fdf0d32710442c019e724713096457ff6f80d1fcf3c70d7c7286645`。
+- 首次21:38:19切换时，部署探针误将`/ping`的JSON响应与纯文本比较，造成误回滚；
+  新旧服务日志均已正常监听，没有应用启动故障。自动回滚从旧PID`410577`恢复到
+  `529982`，修正探针按`message=pong`判断后，于21:39:10成功切换到`530326`。
+  最终进程PPID为1，8888正常监听，磁盘和`/proc/530326/exe` SHA256一致，
+  本机`/ping`返回`{"message":"pong"}`，观察窗口无panic/fatal。
+- 合成smoke：无uuid的AAPoker/DPZX分别HTTP200并完整记录；未知及缺失来源HTTP400；
+  构造的无激活uuid返回HTTP503及`active_code_unavailable`。三个拒绝请求的原始marker
+  不落完整日志且响应不回显body；text/plain加query包名也返回400。公网实际业务路径
+  `/lyxz/gto_event`的无uuid DPZX smoke返回200且marker只记录一次。公网`/ping`未由nginx
+  转发（404），健康以本机ping及公网业务路径为证。上述smoke没有产生GTO调用、计费或审计。
+  服务器结果保存在`/home/ubuntu/ddbaby-164f395-smoke.json`；测试输出为
+  `/home/ubuntu/ddbaby-164f395-test.log`和`/home/ubuntu/ddbaby-164f395-race.log`。
+- 最终回滚目录`/home/ubuntu/ddbaby-backups/20261027-213910-before-164f395`保存旧二进制
+  （SHA256 `1cd596f6c38050732b8919031131b2d17083e2f1ae540a01c5438ae35ef9c628`）、
+  原运行环境及启动信息。环境快照root所有且0600，不在文档回显内容。
+  可执行`sudo python3 /home/ubuntu/ddbaby-backups/20261027-213910-before-164f395/rollback.py`
+  恢复旧二进制及原环境；脚本会核对当前部署PID，进程变化时需先人工核对。
+  最终运行日志`/home/ubuntu/ddbaby/output/deploy-164f395-20261027-213910.log`。
+- 本轮未验证真实生产GTO→SQL→真机悬浮窗链路。移除token后不能证明uuid归属、可能冒用
+  额度与污染审计；每条非空uuid事件查库，耗尽后客户端持续重试，最后一次付费响应可能丢失。
+  17770未认证、明文传输、无频率上限的完整日志增长风险继续保留。DPZX straddle仍按用户
+  决定等待更多样本，不根据下注金额推断，本轮未调整其映射。
