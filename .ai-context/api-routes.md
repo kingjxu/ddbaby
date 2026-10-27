@@ -1,5 +1,5 @@
 ---
-version: "1.7"
+version: "1.8"
 last_updated: "2026-10-27"
 ---
 
@@ -7,7 +7,7 @@ last_updated: "2026-10-27"
 
 ## `POST /lyxz/gto_event`
 
-接收桃园助手从 PokerEYE 分析模块透传的一条规范化牌局事件。请求体保持 `timestamp/pid/uid/PacketId/cmd/direction/data/location/seq/dataExtra` 结构，并携带由 PokerEYE 外层包络确定的 `packageName`；桃园另补充当前登录账号 `uuid` 及策略档位 `vpip/pfr`。来源白名单为 AAPoker `com.plusaa.amula/com.ty.aapk` 和 DPZX `com.dpzx.pro`，缺失或未知包名返回固定400错误且不记录原始body。`direction` 只接受 `ServerToClient` 或 `ClientToServer`，`location` 只接受 `TABLE/LOBBY/UNKNOWN`。服务启用流式请求体读取，该路由最多读取512 KiB加1字节后拒绝超限输入；`data`必须为合法JSON值且编码后不超过480 KiB。
+接收桃园助手从 PokerEYE 分析模块透传的一条牌局事件。入口只要求请求体是一个不超过512 KiB的JSON对象，并携带已登记的字符串`packageName`；缺失、非字符串或未知包名返回固定400且不记录原始body。包名与路由类型集中维护在同一张映射表中，新增应用必须显式选择已有状态机或“仅完整日志”路由，不能默认落入AAPoker。除packageName外，`timestamp/pid/uid/PacketId/cmd/direction/data/location/seq/dataExtra/uuid/vpip/pfr`均不在入口做格式、枚举或子字段大小校验，未知或变化中的DPZX字段可以原样进入完整日志。
 
 白名单内事件通过校验后都会记录完整JSON。AAPoker事件继续进入现有状态重建、GTO、计费、审计和结果回放链路；DPZX事件在分析阶段只返回基础成功响应，不建立AAPoker状态、不调用GTO、不计费、不写决策审计。DPZX数字cmd的离线含义尚在采集中，不能据此映射到AAPoker的`REQ_GAME_*`分支。
 
@@ -17,7 +17,7 @@ last_updated: "2026-10-27"
 
 成功决策与截图接口使用同一 `gto_decision_record`：保存桃园 `uuid`、Hero 手牌/位置/街道、实际 GTO 请求、原始响应和规范化最终响应；按次数激活码只在合法结果后计费。AAPoker 的游戏 uid 只用于同一上报流里的 Hero/座位匹配，不能替代桃园 uuid。`operationRound`出现缺口说明行动事件丢失，本手立即停止决策并等待下一次`START_INFOR`重建，不能用不完整路线猜测。未携带 uuid 的旧客户端事件仍可被接收和记录，但不建立决策状态、不调用 GTO、不计费。
 
-协议分析阶段会为每一条校验通过的事件记录完整JSON，不再由环境开关、截止时间、日志字节预算或请求频率限制降级或拒绝；入口仍保留512 KiB单请求体上限及字段校验。请求量和完整日志写入量没有频率上限，完整日志会持续包含牌局内容和用户标识，可能快速占满日志管道或磁盘；必须限制日志访问和监控容量，并在协议分析结束后恢复为受控的短期诊断日志。
+协议分析阶段会为每一条通过总body和packageName路由边界的事件记录完整JSON，不再由环境开关、截止时间、日志字节预算、请求频率或其他业务字段校验降级或拒绝。请求量和完整日志写入量没有频率上限，完整日志会持续包含牌局内容和用户标识，可能快速占满日志管道或磁盘；必须限制日志访问和监控容量，并在协议分析结束后恢复为受控的短期诊断日志。
 
 ## `POST /lyxz/gto_decision`
 

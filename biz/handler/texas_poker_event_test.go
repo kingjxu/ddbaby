@@ -44,8 +44,12 @@ func TestParseTexasPokerEventAcceptsAAPokerPackageAliases(t *testing.T) {
 	for _, packageName := range []string{aapokerPackageName, aapokerAlternatePackageName} {
 		body := fmt.Sprintf(`{"packageName":%q,"timestamp":1,"cmd":"STATE",`+
 			`"direction":"ServerToClient","location":"TABLE","data":{}}`, packageName)
-		if _, err := parseTexasPokerEvent([]byte(body)); err != nil {
+		event, err := parseTexasPokerEvent([]byte(body))
+		if err != nil {
 			t.Fatalf("package %q rejected: %v", packageName, err)
+		}
+		if event.route != pokerEventRouteAAPoker {
+			t.Fatalf("package %q route = %v", packageName, event.route)
 		}
 	}
 }
@@ -133,17 +137,13 @@ func TestReadTexasPokerEventBodyRejectsOversizedContentLengthWithoutReading(t *t
 
 func TestParseTexasPokerEventRejectsInvalidInput(t *testing.T) {
 	tests := map[string]string{
-		"bad json":        `{`,
-		"missing package": `{"timestamp":1,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
-		"unknown package": `{"packageName":"com.unknown.poker","timestamp":1,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
-		"missing data":    `{"packageName":"com.plusaa.amula","timestamp":1,"cmd":"STATE","direction":"ServerToClient","location":"TABLE"}`,
-		"bad command":     `{"packageName":"com.plusaa.amula","timestamp":1,"cmd":"bad command","direction":"ServerToClient","location":"TABLE","data":{}}`,
-		"bad direction":   `{"packageName":"com.plusaa.amula","timestamp":1,"cmd":"STATE","direction":"sideways","location":"TABLE","data":{}}`,
-		"bad location":    `{"packageName":"com.plusaa.amula","timestamp":1,"cmd":"STATE","direction":"ServerToClient","location":"LOGIN","data":{}}`,
-		"fractional ts":   `{"packageName":"com.plusaa.amula","timestamp":1.5,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
-		"exponent ts":     `{"packageName":"com.plusaa.amula","timestamp":1e3,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
-		"large uid":       `{"packageName":"com.plusaa.amula","timestamp":1,"uid":"` + strings.Repeat("a", 129) + `","cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
-		"boolean uid":     `{"packageName":"com.plusaa.amula","timestamp":1,"uid":true,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
+		"bad json":           `{`,
+		"array":              `[]`,
+		"null":               `null`,
+		"multiple values":    `{"packageName":"com.dpzx.pro"} {}`,
+		"missing package":    `{"timestamp":1}`,
+		"non-string package": `{"packageName":123}`,
+		"unknown package":    `{"packageName":"com.unknown.poker"}`,
 	}
 	for name, body := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -154,28 +154,24 @@ func TestParseTexasPokerEventRejectsInvalidInput(t *testing.T) {
 	}
 }
 
-func TestParseTexasPokerEventAcceptsNumericMetadata(t *testing.T) {
-	body := []byte(`{"packageName":"com.plusaa.amula","timestamp":1792526400000,"pid":42,"uid":7,` +
-		`"PacketId":"opaque","cmd":"STATE","direction":"ServerToClient",` +
-		`"data":"opaque-payload","location":"TABLE","seq":"opaque","dataExtra":9}`)
-	if _, err := parseTexasPokerEvent(body); err != nil {
-		t.Fatalf("parseTexasPokerEvent() error = %v", err)
+func TestParseTexasPokerEventAcceptsUnvalidatedFields(t *testing.T) {
+	body := []byte(`{"packageName":"com.dpzx.pro","timestamp":"unknown","pid":{},` +
+		`"uid":true,"cmd":{"new":"shape"},"direction":7,"location":false}`)
+	event, err := parseTexasPokerEvent(body)
+	if err != nil {
+		t.Fatalf("unvalidated fields rejected: %v", err)
 	}
-}
-
-func TestParseTexasPokerEventDataSizeBoundary(t *testing.T) {
-	dataAtLimit := `"` + strings.Repeat("a", 480*1024-2) + `"`
-	bodyAtLimit := `{"packageName":"com.plusaa.amula","timestamp":1,"cmd":"STATE","direction":"ServerToClient",` +
-		`"location":"TABLE","data":` + dataAtLimit + `}`
-	if _, err := parseTexasPokerEvent([]byte(bodyAtLimit)); err != nil {
-		t.Fatalf("480 KiB data rejected: %v", err)
+	if event.PackageName != dpzxPackageName || event.route != pokerEventRouteLogOnly {
+		t.Fatalf("unexpected route: package=%q route=%v", event.PackageName, event.route)
 	}
 
-	dataOverLimit := `"` + strings.Repeat("a", 480*1024-1) + `"`
-	bodyOverLimit := `{"packageName":"com.plusaa.amula","timestamp":1,"cmd":"STATE","direction":"ServerToClient",` +
-		`"location":"TABLE","data":` + dataOverLimit + `}`
-	if _, err := parseTexasPokerEvent([]byte(bodyOverLimit)); err == nil {
-		t.Fatal("expected data over 480 KiB to be rejected")
+	largeData := `"` + strings.Repeat("a", 490*1024) + `"`
+	largeBody := `{"packageName":"com.dpzx.pro","data":` + largeData + `}`
+	if len(largeBody) >= maxTexasPokerEventBytes {
+		t.Fatalf("test body unexpectedly exceeds total body limit: %d", len(largeBody))
+	}
+	if _, err = parseTexasPokerEvent([]byte(largeBody)); err != nil {
+		t.Fatalf("data above former 480 KiB sub-limit rejected: %v", err)
 	}
 }
 

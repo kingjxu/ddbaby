@@ -1,12 +1,12 @@
 ---
-version: "1.7"
+version: "1.8"
 last_updated: "2026-10-27"
 ---
 
 # 测试规则
 
 - 项目声明 Go 1.20；本地验证使用 `GOTOOLCHAIN=go1.20.14 go test ./... -count=1`。
-- 扑克事件入口必须覆盖合法事件、非法JSON、缺少data、非法cmd/direction/location、超长身份字段以及packageName白名单；还必须在同一时间窗口连续提交超过原全局上限的合法payload，证明入口不按全局或来源频率拒绝，并且每条均记录完整JSON。路由回归必须证明AAPoker仍可进入决策链路，DPZX只完整记录且不创建AAPoker状态、不调用GTO/计费/审计，未知或缺失packageName在完整日志前返回固定400且响应不回显body。测试通过只证明服务端接收边界，不代表注入模块或Android跨进程链路已真机打通。
+- 扑克事件入口只校验512 KiB总body、单个JSON对象和集中维护的packageName路由表；测试必须证明其他字段缺失、类型变化及超过旧480 KiB data子上限时仍可被采集。还必须在同一时间窗口连续提交超过原全局上限的合法payload，证明入口不按全局或来源频率拒绝，并且每条均记录完整JSON。路由回归必须证明AAPoker仍可进入决策链路，DPZX只完整记录且不创建AAPoker状态、不调用GTO/计费/审计，未知、缺失或非字符串packageName在完整日志前返回固定400且响应不回显body。测试通过只证明服务端接收边界，不代表注入模块或Android跨进程链路已真机打通。
 - AAPoker牌局状态回归必须从`ENTER_ROOM → START_INFOR → RECV_ACTION`回放到Hero行动点，核对Hero身份、按钮位位置、手牌编号、ante/盲注/straddle、底池、目标下注额和行动顺序；旁观者、缺牌、非法公共牌不得触发。相同`operationRound`重传不能重复累计，中间round缺失必须阻断本手后续决策；临时决策失败必须返回503并保留同一行动点的重试资格，成功响应丢失后重传必须回放相同完整结果且不能再次调用决策；并发同一行动点只能一个请求取得执行资格。结果缓存还需验证30分钟TTL、1024条容量上限和并发保护；`RECV_CARDS`与上一动作共享round时允许首次推进，但相同发牌事件只能处理一次。
 - AAPoker事件调用GTO前必须校验Bearer token有效且认证账号email与桃园uuid一致，再使用uuid校验激活状态；认证失败不得回退信任请求字段，游戏uid也不得当作桃园身份。成功决策必须复用`gto_decision_record`记录实际请求、原始响应和规范化响应，且只有合法决策可以计次。
 - 缓存与座位转换的快速回归使用 `go test -race ./dal ./model -count=1`。

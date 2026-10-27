@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"regexp"
 	"strings"
 	"time"
 
@@ -22,12 +21,26 @@ const (
 	dpzxPackageName             = "com.dpzx.pro"
 )
 
-var eventCommandPattern = regexp.MustCompile(`^[A-Za-z0-9._:/-]{1,128}$`)
+type pokerEventRoute uint8
+
+const (
+	pokerEventRouteAAPoker pokerEventRoute = iota + 1
+	pokerEventRouteLogOnly
+)
+
+// pokerEventPackageRoutes is the single allowlist and dispatch table. Add new
+// packages here only after choosing an implemented state machine or log-only.
+var pokerEventPackageRoutes = map[string]pokerEventRoute{
+	aapokerPackageName:          pokerEventRouteAAPoker,
+	aapokerAlternatePackageName: pokerEventRouteAAPoker,
+	dpzxPackageName:             pokerEventRouteLogOnly,
+}
 
 var texasPokerEventStates = newAAPokerEventRegistry()
 var executeAAPokerDecisionForEvent = executeAAPokerDecision
 
 type texasPokerEvent struct {
+	route       pokerEventRoute `json:"-"`
 	PackageName string          `json:"packageName"`
 	UUID        string          `json:"uuid"`
 	VPIP        int32           `json:"vpip"`
@@ -80,7 +93,7 @@ func texasPokerEventAt(ctx context.Context, c *app.RequestContext, now time.Time
 			"StatusMessage": "success",
 		},
 	}
-	if event.PackageName == dpzxPackageName {
+	if event.route == pokerEventRouteLogOnly {
 		c.JSON(consts.StatusOK, response)
 		return
 	}
@@ -159,61 +172,31 @@ func readTexasPokerEventBody(c *app.RequestContext) ([]byte, error) {
 
 func parseTexasPokerEvent(body []byte) (*texasPokerEvent, error) {
 	decoder := json.NewDecoder(bytes.NewReader(body))
-	decoder.UseNumber()
-	var event texasPokerEvent
-	if err := decoder.Decode(&event); err != nil {
-		return nil, err
+	var fields map[string]json.RawMessage
+	if err := decoder.Decode(&fields); err != nil || fields == nil {
+		return nil, errors.New("event must be a JSON object")
 	}
+	var packageName string
+	if err := json.Unmarshal(fields["packageName"], &packageName); err != nil {
+		return nil, errors.New("invalid packageName")
+	}
+	route, supported := pokerEventPackageRoutes[packageName]
+	if !supported {
+		return nil, errors.New("invalid packageName")
+	}
+
+	var event texasPokerEvent
+	// Only packageName controls routing. Other fields are best-effort decoded so
+	// protocol analysis can retain new or malformed shapes in the full raw log.
+	_ = json.Unmarshal(body, &event)
+	event.route = route
+	event.PackageName = packageName
+
 	var trailing any
 	if err := decoder.Decode(&trailing); !errors.Is(err, io.EOF) {
 		return nil, errors.New("multiple JSON values")
 	}
-	if event.Timestamp <= 0 || !eventCommandPattern.MatchString(event.Cmd) {
-		return nil, errors.New("invalid timestamp or command")
-	}
-	if event.PackageName != aapokerPackageName &&
-		event.PackageName != aapokerAlternatePackageName &&
-		event.PackageName != dpzxPackageName {
-		return nil, errors.New("invalid packageName")
-	}
-	if len(event.UUID) > 128 || (event.UUID != "" && strings.TrimSpace(event.UUID) != event.UUID) ||
-		!isSupportedDecisionProfile(event.VPIP, event.PFR) {
-		return nil, errors.New("invalid decision identity or profile")
-	}
-	if event.Direction != "ServerToClient" && event.Direction != "ClientToServer" {
-		return nil, errors.New("invalid direction")
-	}
-	if event.Location != "TABLE" && event.Location != "LOBBY" && event.Location != "UNKNOWN" {
-		return nil, errors.New("invalid location")
-	}
-	if !validOptionalScalar(event.PID, 128) || !validOptionalScalar(event.UID, 128) ||
-		!validOptionalScalar(event.DataExtra, 128) {
-		return nil, errors.New("invalid optional metadata")
-	}
-	if len(event.Data) == 0 || len(event.Data) > 480*1024 || !json.Valid(event.Data) {
-		return nil, errors.New("invalid data")
-	}
 	return &event, nil
-}
-
-func validOptionalScalar(raw json.RawMessage, maxBytes int) bool {
-	if len(raw) == 0 || bytes.Equal(raw, []byte("null")) {
-		return true
-	}
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.UseNumber()
-	var value any
-	if err := decoder.Decode(&value); err != nil {
-		return false
-	}
-	switch typed := value.(type) {
-	case string:
-		return len([]byte(typed)) <= maxBytes
-	case json.Number:
-		return len(typed.String()) <= maxBytes
-	default:
-		return false
-	}
 }
 
 func writeTexasPokerEventError(c *app.RequestContext, status int, code string) {
