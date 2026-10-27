@@ -454,3 +454,13 @@ status: "active"
   额度与污染审计；每条非空uuid事件查库，耗尽后客户端持续重试，最后一次付费响应可能丢失。
   17770未认证、明文传输、无频率上限的完整日志增长风险继续保留。DPZX straddle仍按用户
   决定等待更多样本，不根据下注金额推断，本轮未调整其映射。
+
+## 2026-10-27 DPZX位置、牌号及非法决策终止部署
+
+- 用户要求立即部署。业务提交`a405080`，CR已对增量`9a11340..a405080`给出LGTM；包含此前已通过审查的位置纠正、牌号转换和非法GTO结果审计。
+- 本地Go1.20.14全仓与service/handler/main race通过；服务器Go1.22.2离线全仓、同范围race和构建通过。源码归档SHA256：`50613dee0dd51df2e3c204ffe31eadecf26d971bc95e635c70fab4c3739fbe1b`，服务器源码`/home/ubuntu/ddbaby-releases/a405080-20261027`，测试输出`/tmp/a405080-full.log`与`/tmp/a405080-race.log`。
+- 2026-10-27 23:42:21 CST切换，PID`530326 → 561408`、PPID=1；保留原启动参数、环境及工作目录。运行二进制与磁盘SHA256均为`ad19bb8d343895305487371a61dfe4c32ee166225c3bfb611c72a5257a5fb4d9`，47,633,476字节。
+- 本机`/ping`返回JSON pong。合成smoke：两种来源无uuid事件200；缺失/未知来源400，非JSON+query400；未激活uuid503；拒绝事件marker未落完整日志。记录`/home/ubuntu/ddbaby-a405080-smoke.json`。这些请求不触发GTO或计费。
+- 日志`/home/ubuntu/ddbaby/output/deploy-a405080-20261027-234221.log`。初次核验仅有2条合成采集事件、0次GTO请求、0次决策重试和0次panic，尚无部署后的真实牌局证明GTO→SQL→Android提示恢复。重启清空内存牌局，需收到新一手完整事件重建。
+- 回滚目录`/home/ubuntu/ddbaby-backups/20261027-234221-before-a405080`保存旧164f395二进制、私有环境、启动信息及deployment.json；`sudo python3 <该目录>/rollback.py`恢复旧版本并检查JSON pong，脚本核对预期PID561408；进程变化须先核对。目录700、环境文件600、脚本700，不输出敏感环境值。
+- 非法/空决策返回200 decision_rejected且无Result，终止标记防止重复GTO；不阻止后续行动。临时故障仍503。激活前置及额度耗尽拒绝回放的已接受边界不变。数据库故障或进程退出时异步审计仍不保证必达；完整牌号协议和真机链路证据边界详见牌号报告。

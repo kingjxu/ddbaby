@@ -6,6 +6,6 @@
 
 AAPoker与DPZX真实HTTP入口回归覆盖非法check、重复投递仅一次GTO/审计、无计费，以及同手继续行动后合法call决策。数据库通过测试GORM回调、GTO通过测试HTTP transport提供；不代表真实生产链路验证。异步审计仍按用户确认口径，数据库故障和进程退出不保证必达。
 
-部署状态：待本轮复审与部署；将一并上线此前已审查的位置、牌号转换及非法结果审计修复。
+部署状态：CR已LGTM；a405080于23:42:21 CST上线，位置、牌号转换及非法结果审计修复一并生效。健康和合成接口smoke通过；尚无新真实牌局证明端上恢复。实际PID、二进制校验值和回滚路径见.ai-context/env-and-ops.md末尾。
 
 验证：go1.20.14全仓测试、service/handler/main race测试及git diff --check通过。
