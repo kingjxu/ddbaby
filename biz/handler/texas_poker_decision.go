@@ -223,6 +223,7 @@ func (h *TexasPokerDecisionHandler) Handle(ctx context.Context) (*ddbaby.TexasPo
 		logger.Warnf("[TexasPokerDecisionHandler] decision size exceeds hero stack, normalized to all-in:%v", util.ToJSON(resp))
 	}
 	if err = model.ValidateTexasGtoDecisionResponse(decisionReq, resp); err != nil {
+		h.saveDecisionRecordAsync(decisionReq, &rawDecisionResp, nil)
 		logger.Errorf("[TexasPokerDecisionHandler] invalid decision response:%v, resp:%v", err, util.ToJSON(resp))
 		return h.newResp(ctx, ""), nil
 	}
@@ -287,7 +288,7 @@ func (h *TexasPokerDecisionHandler) saveDecisionRecordAsync(
 	rawDecisionResp *model.TexasGtoDecisionResp,
 	decisionResp *model.TexasGtoDecisionResp,
 ) {
-	if decisionReq == nil || rawDecisionResp == nil || decisionResp == nil {
+	if decisionReq == nil || rawDecisionResp == nil {
 		return
 	}
 
@@ -297,12 +298,16 @@ func (h *TexasPokerDecisionHandler) saveDecisionRecordAsync(
 		requestCopy.PFR = h.req.GetPFR()
 	}
 	rawResponseCopy := *rawDecisionResp
-	finalResponseCopy := *decisionResp
+	var finalResponseCopy *model.TexasGtoDecisionResp
+	if decisionResp != nil {
+		copy := *decisionResp
+		finalResponseCopy = &copy
+	}
 	uid := h.req.GetUUID()
 	decisionTime := time.Now()
 
 	go func() {
-		record, err := buildGtoDecisionRecord(uid, decisionTime, &requestCopy, &rawResponseCopy, &finalResponseCopy)
+		record, err := buildGtoDecisionRecord(uid, decisionTime, &requestCopy, &rawResponseCopy, finalResponseCopy)
 		if err != nil {
 			logrus.WithField("uuid", uid).Errorf("[TexasPokerDecisionHandler] build decision record err:%v", err)
 			return
@@ -334,7 +339,7 @@ func buildGtoDecisionRecord(
 	rawDecisionResp *model.TexasGtoDecisionResp,
 	decisionResp *model.TexasGtoDecisionResp,
 ) (*poker.GtoDecisionRecord, error) {
-	if decisionReq == nil || rawDecisionResp == nil || decisionResp == nil {
+	if decisionReq == nil || rawDecisionResp == nil {
 		return nil, errors.New("decision request or response is nil")
 	}
 

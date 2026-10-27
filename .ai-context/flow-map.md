@@ -1,5 +1,5 @@
 ---
-version: "1.12"
+version: "1.13"
 last_updated: "2026-10-27"
 ---
 
@@ -31,7 +31,7 @@ last_updated: "2026-10-27"
 6. 转换前先检查最新快照没有未决 Hero 行动；`PendingHeroBefore` 或逐帧 pending 快照仍存在时直接停止本次决策，不能把“players 已变化、history 尚未结算”的混合时点请求发给策略服务。转换后再校验当前行动玩家存在、active 且剩余筹码大于0。客户端策略为默认 `0/0` 时交给原 `service.GtoDecision`；六组白名单 VPIP/PFR 之一则映射为上游 `vvip/pfr` 并走 v2。策略值不进入牌局缓存，也不改变识别、位置和行动历史。
 7. 决策返回的 bet/raise 若超过 Hero 可用总额，先保留动作并把目标额收敛为 `hero.bet + hero.stack`（all-in），再校验动作与当前下注是否相容；其余非法结果返回空动作且不计次。
 8. 合法决策为 `fold` 且 Hero 当前投入不低于本轮最大投入时，ddbaby 将最终动作规范化为 `check`；面对更高下注时不改写。客户端只消费原有 JSON 响应。
-9. 合法决策完成 all-in/free-check 规范化后，复制实际上游请求、原始上游响应和最终响应，通过独立 goroutine 写入 `gto_decision_record`；写库失败只记录日志，不阻塞或改写客户端响应。最终生成原有 `Result` 时，bet/raise 的目标总额若达到同一请求中的 `hero.bet + hero.stack`，展示为 `All in`；不新增客户端协议字段。
+9. GTO返回可解析决策后，无论是否合法均复制实际请求和原始响应，通过独立 goroutine 写入 `gto_decision_record`；合法结果保存all-in/free-check规范化后的最终响应，被拒绝的结果final_response为JSON null且不计费、不下发。写库失败只记录日志，不阻塞或改写客户端响应。最终生成原有 `Result` 时，bet/raise 的目标总额若达到同一请求中的 `hero.bet + hero.stack`，展示为 `All in`；不新增客户端协议字段。
 
 ## 修改约束
 
@@ -47,4 +47,4 @@ last_updated: "2026-10-27"
 - 决策协议中的 `raise_size` 是目标总下注额。超过 Hero 可用总额时按 all-in 上限收敛；check/fold/call 必须为0；bet只允许在无人下注时。raise 不要求 `players.bet` 中已有下注，因为翻前快照可能不包含强制盲注；目标仍必须高于当前最大下注且不超过 Hero 可用总额，Hero 已匹配 BB/straddle 后的 option raise 也属于合法动作。
 - 免费 check 兜底必须在决策响应通过校验后执行，并从同一决策请求的玩家投入计算；不能根据客户端显示文本或截图推断。
 - 缺少 `vpip/pfr` 与显式 `0/0` 等价，必须保持旧客户端和原决策接口兼容；非默认值必须成对命中固定白名单，不能只传一个值或透传任意百分比。
-- 决策审计只记录通过请求/响应校验并准备返回客户端的合法决策。v2 记录必须包含实际线上的 `vvip/pfr`；原始响应与规范化后的最终响应分别保存。异步任务不能复用会随 HTTP 请求结束而取消的 context，也不能因写库失败影响主链路。
+- 决策审计记录GTO实际返回的所有可解析决策，包括校验拒绝的非法结果；非法结果final_response保存JSON null，仍不下发或计费。v2 记录必须包含实际线上的 `vvip/pfr`；原始响应与规范化后的最终响应分别保存。异步任务不能复用会随 HTTP 请求结束而取消的 context，也不能因写库失败影响主链路。

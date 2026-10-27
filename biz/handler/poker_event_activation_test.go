@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -15,6 +16,7 @@ import (
 	_const "github.com/kingjxu/ddbaby/const"
 	dbmysql "github.com/kingjxu/ddbaby/dal/mysql"
 	poker "github.com/kingjxu/ddbaby/dal/mysql/texas_poker"
+	"github.com/kingjxu/ddbaby/model"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -27,6 +29,7 @@ type eventDecisionFailureTransport struct {
 	t       *testing.T
 	calls   atomic.Int32
 	success bool
+	action  string
 }
 
 func (transport *eventDecisionFailureTransport) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -35,8 +38,13 @@ func (transport *eventDecisionFailureTransport) RoundTrip(req *http.Request) (*h
 		transport.t.Errorf("unexpected outbound request: path=%q", req.URL.Path)
 	}
 	if transport.success {
+		action := transport.action
+		if action == "" {
+			action = "call"
+		}
+		data, _ := json.Marshal(model.TexasGtoDecisionResp{Action: action, ActionProbability: 1})
 		return &http.Response{StatusCode: http.StatusOK,
-			Body: io.NopCloser(strings.NewReader(`{"action":"call","raise_size":0,"action_probability":1}`)), Header: make(http.Header)}, nil
+			Body: io.NopCloser(strings.NewReader(string(data))), Header: make(http.Header)}, nil
 	}
 	return &http.Response{StatusCode: http.StatusServiceUnavailable,
 		Body: io.NopCloser(strings.NewReader(`{"error":"temporary failure"}`)), Header: make(http.Header)}, nil
@@ -113,14 +121,14 @@ type eventActiveCodeDB struct {
 	calls    int
 	users    []string
 	billings int
-	audits   chan struct{}
+	audits   chan *poker.GtoDecisionRecord
 }
 
 func useEventActiveCodeDB(t *testing.T) *eventActiveCodeDB {
 	t.Helper()
 	state := &eventActiveCodeDB{info: &poker.UserActiveCode{
 		CodeType: _const.ActiveCodeTypeByExpireAt, ExpireAt: time.Now().Add(time.Hour).Unix(),
-	}, audits: make(chan struct{}, 16)}
+	}, audits: make(chan *poker.GtoDecisionRecord, 16)}
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN: "test@tcp(127.0.0.1:1)/test", SkipInitializeWithVersion: true,
 	}), &gorm.Config{DisableAutomaticPing: true, SkipDefaultTransaction: true})
@@ -161,7 +169,7 @@ func useEventActiveCodeDB(t *testing.T) *eventActiveCodeDB {
 			state.info = &info
 			state.billings++
 		case *poker.GtoDecisionRecord:
-			state.audits <- struct{}{}
+			state.audits <- record
 		default:
 			t.Errorf("unexpected create destination %T", tx.Statement.Dest)
 		}

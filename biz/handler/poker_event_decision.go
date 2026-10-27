@@ -31,6 +31,7 @@ func executePokerDecision(
 	rawResponse := *response
 	model.NormalizeTexasGtoDecisionToStack(request, response)
 	if err = model.ValidateTexasGtoDecisionResponse(request, response); err != nil {
+		handler.saveDecisionRecordAsync(request, &rawResponse, nil)
 		return nil, err
 	}
 	model.NormalizeTexasGtoFreeFoldToCheck(request, response)

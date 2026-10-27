@@ -7,8 +7,8 @@ import (
 	"github.com/kingjxu/ddbaby/dal/mysql"
 )
 
-// GtoDecisionRecord stores the exact request and normalized response for a
-// successful decision returned to the client.
+// GtoDecisionRecord stores the request and raw GTO decision, including rejected
+// decisions. FinalResponse is JSON null when no legal client action was produced.
 type GtoDecisionRecord struct {
 	ID               uint64    `gorm:"column:id;type:bigint unsigned;primaryKey;autoIncrement" json:"id"`
 	UID              string    `gorm:"column:uid;type:varchar(128);not null;index:idx_gto_decision_uid" json:"uid"`
