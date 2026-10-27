@@ -5,15 +5,16 @@ import (
 	"testing"
 )
 
-func TestDPZXPositionsUseProtocolBlindsAndPreserveDeadButton(t *testing.T) {
+func TestDPZXPositionsUseProtocolBlindsAndResolveCurrentButton(t *testing.T) {
 	for _, test := range []struct {
 		name                 string
 		button, hero, sb, bb int
 		seats                []int
 		want                 map[int]string
 	}{
-		{"production dead button", 1, 5, 2, 3, []int{0, 2, 3, 4, 5, 6, 7}, map[int]string{2: "SB", 3: "BB", 4: "UTG", 5: "UTG+1-Hero", 6: "MP", 7: "MP+1", 0: "CO"}},
+		{"production departed bankIndex seat", 1, 5, 2, 3, []int{0, 2, 3, 4, 5, 6, 7}, map[int]string{0: "BTN", 2: "SB", 3: "BB", 4: "UTG", 5: "UTG+1-Hero", 6: "MP", 7: "CO"}},
 		{"eight players", 0, 5, 1, 2, []int{0, 1, 2, 3, 4, 5, 6, 7}, map[int]string{0: "BTN", 1: "SB", 2: "BB", 3: "UTG", 4: "UTG+1", 5: "MP-Hero", 6: "MP+1", 7: "CO"}},
+		{"user BTN3 BB5 anchor (constructed)", 3, 5, 4, 5, []int{0, 1, 2, 3, 4, 5, 6, 7}, map[int]string{3: "BTN", 4: "SB", 5: "BB-Hero", 6: "UTG", 7: "UTG+1", 0: "MP", 1: "MP+1", 2: "CO"}},
 		{"dead small blind", 0, 4, -1, 2, []int{0, 2, 4, 5}, map[int]string{0: "BTN", 2: "BB", 4: "UTG-Hero", 5: "CO"}},
 		{"heads up", 2, 2, 2, 6, []int{2, 6}, map[int]string{2: "BTN-Hero", 6: "BB"}},
 	} {
@@ -38,6 +39,9 @@ func TestDPZXPositionsUseProtocolBlindsAndPreserveDeadButton(t *testing.T) {
 			for seat, want := range test.want {
 				if got := state.players[seat].position; got != want {
 					t.Fatalf("seat%d=%s want%s", seat, got, want)
+				}
+				if (want == "BTN" || want == "BTN-Hero") && (state.buttonSeat != seat || state.orderedParticipantSeats()[0] != seat) {
+					t.Fatal("request ordering did not start at actual BTN")
 				}
 			}
 		})

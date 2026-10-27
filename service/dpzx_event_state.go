@@ -615,7 +615,7 @@ func (s *dpzxTableState) applyCards(raw json.RawMessage) error {
 }
 
 func (s *dpzxTableState) assignPositions(snapshot []dpzxPlayerSnapshot) error {
-	// 431的startState明确标识SB/BB；不能因庄位为空把盲位整体顺延，
+	// 431的startState明确标识SB/BB；BTN是SB之前的本手参与者，
 	// 也不能从下注金额猜抓盲。抓盲协议尚未确认时停止本手决策。
 	if s.straddleEnabled {
 		return errors.New("unsupported DPZX straddle positions")
@@ -638,24 +638,37 @@ func (s *dpzxTableState) assignPositions(snapshot []dpzxPlayerSnapshot) error {
 			return errors.New("unsupported DPZX forced position")
 		}
 	}
-	if bb < 0 || bb == s.buttonSeat || (sb == s.buttonSeat && len(snapshot) != 2) {
+	button := s.buttonSeat
+	if sb >= 0 {
+		// 单挑时BTN兼SB；多人时从SB逆时针找到上一名参与者。
+		button = sb
+		if len(snapshot) > 2 {
+			for offset := 1; offset < s.tableSize; offset++ {
+				seat := (sb - offset + s.tableSize) % s.tableSize
+				if s.players[seat] != nil {
+					button = seat
+					break
+				}
+			}
+		}
+	}
+	if bb < 0 || bb == button || s.players[button] == nil {
 		return errors.New("ambiguous DPZX blind positions")
 	}
-	// 庄位/小盲可以是dead button/dead blind，缺位时保留空缺，不能抢占后位。
-	bbOffset := (bb - s.buttonSeat + s.tableSize) % s.tableSize
+	// SB缺位时只能使用仍在本手的bankIndex；不能保留一个无玩家的BTN。
+	bbOffset := (bb - button + s.tableSize) % s.tableSize
 	for _, seat := range s.participants {
-		offset := (seat - s.buttonSeat + s.tableSize) % s.tableSize
-		if seat != s.buttonSeat && seat != sb && offset < bbOffset {
+		offset := (seat - button + s.tableSize) % s.tableSize
+		if seat != button && seat != sb && offset < bbOffset {
 			return errors.New("ambiguous DPZX player before blinds")
 		}
 	}
-	if sb >= 0 && (sb-s.buttonSeat+s.tableSize)%s.tableSize >= bbOffset {
+	if sb >= 0 && (sb-button+s.tableSize)%s.tableSize >= bbOffset {
 		return errors.New("invalid DPZX blind order")
 	}
-	if player := s.players[s.buttonSeat]; player != nil {
-		player.position = "BTN"
-	}
-	if sb >= 0 && sb != s.buttonSeat {
+	s.buttonSeat = button
+	s.players[button].position = "BTN"
+	if sb >= 0 && sb != button {
 		s.players[sb].position = "SB"
 	}
 	s.players[bb].position = "BB"

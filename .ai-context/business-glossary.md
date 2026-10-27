@@ -1,5 +1,5 @@
 ---
-version: "1.5"
+version: "1.6"
 last_updated: "2026-10-27"
 ---
 
@@ -18,4 +18,4 @@ last_updated: "2026-10-27"
 - **DPZX Hero**：由DPZX房间快照`mySeat`指向的实际入座玩家；旁观值（当前样本为9）不属于任何参与座位，不能触发决策。昵称只用于人工核对，服务端不会硬编码`raise就allin`或据昵称识别身份。
 - **DPZX行动点**：数字cmd 432给出的下一行动座位。同一手中只有房间快照、盲注快照、Hero两张私牌和此前动作连续完整，并且cmd 432指向Hero时，才生成GTO请求。
 
-- **DPZX位置**：以bankIndex和startState=1/2锚定BTN/SB/BB；空庄位或空小盲保留缺位，其余参与者从BB后顺时针分配普通位置。与截图/AAPoker的位置顺延规则不同，无抓盲不插入straddle；不按下注金额判断抓盲。
+- **DPZX位置**：以startState=1/2锚定SB/BB；多人桌BTN为SB之前的实际参与者，单挑BTN兼SB。SB缺失时须有仍参与且顺序一致的bankIndex，否则停止决策；不能直接把已离座bankIndex当成空庄位。其余参与者从BB后顺时针分配普通位置。与截图/AAPoker的位置顺延规则不同，无抓盲不插入straddle；不按下注金额判断抓盲。
