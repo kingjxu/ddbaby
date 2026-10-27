@@ -72,6 +72,38 @@ struct TexasPokerDecisionResp {
     3: optional string CommunityCard;
 }
 
+// Opaque JSON token on the HTTP wire (object/array/string/number/null).
+// Go JSON encoding is implemented in poker_event_json.go; never base64 encode
+// this binary typedef or turn the token into an escaped JSON string.
+typedef binary PokerEventJSON
+
+struct TexasPokerEventReq {
+    1: string PackageName (go.tag='json:"packageName"');
+    2: string UUID (go.tag='json:"uuid"');
+    3: i32 VPIP (go.tag='json:"vpip"');
+    4: i32 PFR (go.tag='json:"pfr"');
+    5: i64 Timestamp (go.tag='json:"timestamp"');
+    6: PokerEventJSON PID (go.tag='json:"pid"');
+    7: PokerEventJSON UID (go.tag='json:"uid"');
+    8: PokerEventJSON PacketID (go.tag='json:"PacketId"');
+    9: string Cmd (go.tag='json:"cmd"');
+    10: string Direction (go.tag='json:"direction"');
+    11: PokerEventJSON Data (go.tag='json:"data"');
+    12: string Location (go.tag='json:"location"');
+    13: PokerEventJSON Seq (go.tag='json:"seq"');
+    14: PokerEventJSON DataExtra (go.tag='json:"dataExtra"');
+}
+
+struct TexasPokerEventResp {
+    1: optional string Result;
+    2: optional list<string> HeroCard (go.tag='json:"HeroCard"');
+    3: optional list<string> CommunityCard (go.tag='json:"CommunityCard"');
+    4: optional string DecisionAction;
+    5: optional i64 DecisionAmount;
+    6: optional i64 HeroMaxTarget;
+    255: BaseResp BaseResp;
+}
+
 
 struct TexasPokerActiveReq {
     1: optional string uuid (api.query="uuid");
@@ -255,6 +287,7 @@ service DDBabyService {
     TaLuoPredictResp TaLuoPredict(1:TaLuoPredictReq req) (api.get="/lyxz/taluo_predict");
 
     TexasPokerDecisionResp TexasPokerDecision(1:TexasPokerDecisionReq req) (api.post="/lyxz/gto_decision");
+    TexasPokerEventResp TexasPokerEvent(1:TexasPokerEventReq req) (api.post="/lyxz/gto_event");
     TexasPokerActiveResp TexasPokerActive(1:TexasPokerActiveReq req) (api.post="/lyxz/gto_active");
     TexasPokerAmountInfoResp TexasPokerAmountInfo(1:TexasPokerAmountInfoReq req) (api.get="/lyxz/gto_amount_info");
     TexasPokerReportResp TexasPokerReport(1:TexasPokerReportReq req) (api.post="/lyxz/gto_debug_log");

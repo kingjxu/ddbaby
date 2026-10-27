@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
+	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	"sync"
 	"testing"
 	"time"
@@ -221,9 +221,11 @@ func TestAAPokerEventStateAllowsOnlyOneConcurrentDecisionPerTurn(t *testing.T) {
 
 func testAAPokerEvent(command, payload string) *texasPokerEvent {
 	return &texasPokerEvent{
-		UUID: "taoyuan-account", Timestamp: 1792526400000,
-		UID: json.RawMessage(`1762080`), DataExtra: json.RawMessage(`64161112`),
-		Cmd: command, Direction: "ServerToClient", Location: "TABLE",
-		Data: json.RawMessage(payload),
+		TexasPokerEventReq: ddbaby.TexasPokerEventReq{
+			UUID: "taoyuan-account", Timestamp: 1792526400000,
+			UID: ddbaby.PokerEventJSON(`1762080`), DataExtra: ddbaby.PokerEventJSON(`64161112`),
+			Cmd: command, Direction: "ServerToClient", Location: "TABLE",
+			Data: ddbaby.PokerEventJSON(payload),
+		},
 	}
 }

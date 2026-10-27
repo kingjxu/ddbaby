@@ -576,7 +576,7 @@ func (s *aapokerTableState) maxBet() int {
 	return max
 }
 
-func decodeAAPokerPayload(raw json.RawMessage) ([]byte, error) {
+func decodeAAPokerPayload(raw []byte) ([]byte, error) {
 	payload := bytes.TrimSpace(raw)
 	if len(payload) == 0 {
 		return nil, errors.New("empty event payload")
@@ -594,7 +594,7 @@ func decodeAAPokerPayload(raw json.RawMessage) ([]byte, error) {
 	return payload, nil
 }
 
-func rawPositiveInt64(raw json.RawMessage) (int64, bool) {
+func rawPositiveInt64(raw []byte) (int64, bool) {
 	if len(raw) == 0 {
 		return 0, false
 	}

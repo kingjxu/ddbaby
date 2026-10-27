@@ -125,3 +125,8 @@ func _texaspokerreportMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _texaspokereventMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

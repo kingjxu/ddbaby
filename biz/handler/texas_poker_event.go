@@ -11,6 +11,8 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
+	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 )
 
@@ -41,25 +43,13 @@ var dpzxPokerEventStates = newDPZXEventRegistry()
 var executeAAPokerDecisionForEvent = executeAAPokerDecision
 
 type texasPokerEvent struct {
-	route       pokerEventRoute `json:"-"`
-	PackageName string          `json:"packageName"`
-	UUID        string          `json:"uuid"`
-	VPIP        int32           `json:"vpip"`
-	PFR         int32           `json:"pfr"`
-	Timestamp   int64           `json:"timestamp"`
-	PID         json.RawMessage `json:"pid"`
-	UID         json.RawMessage `json:"uid"`
-	PacketID    json.RawMessage `json:"PacketId"`
-	Cmd         string          `json:"cmd"`
-	Direction   string          `json:"direction"`
-	Data        json.RawMessage `json:"data"`
-	Location    string          `json:"location"`
-	Seq         json.RawMessage `json:"seq"`
-	DataExtra   json.RawMessage `json:"dataExtra"`
+	ddbaby.TexasPokerEventReq
+	route pokerEventRoute
 }
 
 // TexasPokerEvent receives one normalized poker-app event and dispatches it by
 // the explicit package allowlist after validation and full diagnostic logging.
+// @router /lyxz/gto_event [POST]
 func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 	texasPokerEventAt(ctx, c, time.Now())
 }
@@ -88,11 +78,8 @@ func texasPokerEventAt(ctx context.Context, c *app.RequestContext, now time.Time
 	}
 	logrus.WithContext(ctx).WithFields(fields).Info("[TexasPokerEvent] accepted")
 
-	response := map[string]any{
-		"BaseResp": map[string]any{
-			"StatusCode":    0,
-			"StatusMessage": "success",
-		},
+	response := &ddbaby.TexasPokerEventResp{
+		BaseResp: &ddbaby.BaseResp{StatusCode: 0, StatusMessage: "success"},
 	}
 	var candidate *aapokerDecisionCandidate
 	var stateErr error
@@ -141,16 +128,16 @@ func completePokerEventDecision(
 	}
 }
 
-func writeAAPokerDecisionResponse(response map[string]any, decision *aapokerDecisionResult) {
+func writeAAPokerDecisionResponse(response *ddbaby.TexasPokerEventResp, decision *aapokerDecisionResult) {
 	if decision == nil {
 		return
 	}
-	response["Result"] = decision.Result
-	response["HeroCard"] = decision.HeroCard
-	response["CommunityCard"] = decision.CommunityCard
-	response["DecisionAction"] = decision.DecisionAction
-	response["DecisionAmount"] = decision.DecisionAmount
-	response["HeroMaxTarget"] = decision.HeroMaxTarget
+	response.Result = util.Ptr(decision.Result)
+	response.HeroCard = decision.HeroCard
+	response.CommunityCard = decision.CommunityCard
+	response.DecisionAction = util.Ptr(decision.DecisionAction)
+	response.DecisionAmount = util.Ptr(int64(decision.DecisionAmount))
+	response.HeroMaxTarget = util.Ptr(int64(decision.HeroMaxTarget))
 }
 
 func texasPokerEventBearerToken(c *app.RequestContext) string {
@@ -206,7 +193,7 @@ func parseTexasPokerEvent(body []byte) (*texasPokerEvent, error) {
 	var event texasPokerEvent
 	// Only packageName controls routing. Other fields are best-effort decoded so
 	// protocol analysis can retain new or malformed shapes in the full raw log.
-	_ = json.Unmarshal(body, &event)
+	_ = json.Unmarshal(body, &event.TexasPokerEventReq)
 	event.route = route
 	event.PackageName = packageName
 
@@ -218,10 +205,7 @@ func parseTexasPokerEvent(body []byte) (*texasPokerEvent, error) {
 }
 
 func writeTexasPokerEventError(c *app.RequestContext, status int, code string) {
-	c.JSON(status, map[string]any{
-		"BaseResp": map[string]any{
-			"StatusCode":    status,
-			"StatusMessage": code,
-		},
+	c.JSON(status, &ddbaby.TexasPokerEventResp{
+		BaseResp: &ddbaby.BaseResp{StatusCode: int32(status), StatusMessage: code},
 	})
 }

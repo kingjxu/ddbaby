@@ -1,11 +1,13 @@
 ---
-version: "1.9"
+version: "1.10"
 last_updated: "2026-10-27"
 ---
 
 # API 路由
 
 ## `POST /lyxz/gto_event`
+
+接口由`idl/ddbaby.thrift`中的`TexasPokerEvent`、`TexasPokerEventReq/Resp`维护，路由位于生成的`biz/router/ddbaby/ddbaby.go`，不在`router.go`重复注册。请求公共包络使用生成类型；动态字段`pid/uid/PacketId/data/seq/dataExtra`采用`PokerEventJSON`（IDL binary typedef），其HTTP JSON语义是原始JSON token，由`biz/model/ddbaby/poker_event_json.go`编解码，不是base64或转义字符串。handler仍保留总body/packageName检查和其他字段best-effort解码，不使用会收紧采集行为的通用BindAndValidate。响应使用生成类型，基础成功/错误只返回BaseResp；有Result时包含原有全部决策字段，HeroCard/CommunityCard保持数组或null。截图decision的旧IDL响应保持独立，不能复用于event。
 
 接收桃园助手从 PokerEYE 分析模块透传的一条牌局事件。入口只要求请求体是一个不超过512 KiB的JSON对象，并携带已登记的字符串`packageName`；缺失、非字符串或未知包名返回固定400且不记录原始body。包名与路由类型集中维护在同一张映射表中，新增应用必须显式选择已有状态机或“仅完整日志”路由，不能默认落入AAPoker。除packageName外，`timestamp/pid/uid/PacketId/cmd/direction/data/location/seq/dataExtra/uuid/vpip/pfr`均不在入口做格式、枚举或子字段大小校验，未知或变化中的DPZX字段可以原样进入完整日志。
 

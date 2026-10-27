@@ -11,6 +11,7 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	"github.com/kingjxu/ddbaby/model"
 )
 
@@ -328,9 +329,11 @@ func TestTexasPokerEventRoutesDPZXThroughDecisionResponse(t *testing.T) {
 
 func testDPZXEvent(command, payload string, timestamp int64) *texasPokerEvent {
 	return &texasPokerEvent{
-		route: pokerEventRouteDPZX, PackageName: dpzxPackageName,
-		UUID: "hero@example.com", Timestamp: timestamp,
-		UID: json.RawMessage(`2773921`), Cmd: command,
-		Direction: "ServerToClient", Location: "TABLE", Data: json.RawMessage(payload),
+		route: pokerEventRouteDPZX,
+		TexasPokerEventReq: ddbaby.TexasPokerEventReq{PackageName: dpzxPackageName,
+			UUID: "hero@example.com", Timestamp: timestamp,
+			UID: ddbaby.PokerEventJSON(`2773921`), Cmd: command,
+			Direction: "ServerToClient", Location: "TABLE", Data: ddbaby.PokerEventJSON(payload),
+		},
 	}
 }

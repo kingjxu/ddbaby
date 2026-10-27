@@ -7,6 +7,11 @@ import (
 	"fmt"
 )
 
+// Opaque JSON token on the HTTP wire (object/array/string/number/null).
+// Go JSON encoding is implemented in poker_event_json.go; never base64 encode
+// this binary typedef or turn the token into an escaped JSON string.
+type PokerEventJSON []byte
+
 type BaseResp struct {
 	StatusMessage string `thrift:"StatusMessage,1" form:"StatusMessage" json:"StatusMessage" query:"StatusMessage"`
 	StatusCode    int32  `thrift:"StatusCode,2" form:"StatusCode" json:"StatusCode" query:"StatusCode"`
@@ -507,8 +512,8 @@ type TexasPokerDecisionReq struct {
 	Timestamp *int64   `thrift:"Timestamp,2,optional" json:"Timestamp,omitempty" query:"timestamp"`
 	UUID      *string  `thrift:"UUID,3,optional" json:"UUID,omitempty" query:"uuid"`
 	ImageType *string  `thrift:"ImageType,4,optional" json:"ImageType,omitempty" query:"image_type"`
-	VPIP      *int32   `thrift:"VPIP,5,optional" json:"vpip,omitempty" query:"vpip"`
-	PFR       *int32   `thrift:"PFR,6,optional" json:"pfr,omitempty" query:"pfr"`
+	VPIP      *int32   `thrift:"VPIP,5,optional" json:"VPIP,omitempty" query:"vpip"`
+	PFR       *int32   `thrift:"PFR,6,optional" json:"PFR,omitempty" query:"pfr"`
 }
 
 func NewTexasPokerDecisionReq() *TexasPokerDecisionReq {
@@ -660,6 +665,208 @@ func (p *TexasPokerDecisionResp) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("TexasPokerDecisionResp(%+v)", *p)
+}
+
+type TexasPokerEventReq struct {
+	PackageName string         `thrift:"PackageName,1" json:"packageName" form:"PackageName" query:"PackageName"`
+	UUID        string         `thrift:"UUID,2" json:"uuid" form:"UUID" query:"UUID"`
+	VPIP        int32          `thrift:"VPIP,3" json:"vpip" form:"VPIP" query:"VPIP"`
+	PFR         int32          `thrift:"PFR,4" json:"pfr" form:"PFR" query:"PFR"`
+	Timestamp   int64          `thrift:"Timestamp,5" json:"timestamp" form:"Timestamp" query:"Timestamp"`
+	PID         PokerEventJSON `thrift:"PID,6" json:"pid" form:"PID" query:"PID"`
+	UID         PokerEventJSON `thrift:"UID,7" json:"uid" form:"UID" query:"UID"`
+	PacketID    PokerEventJSON `thrift:"PacketID,8" json:"PacketId" form:"PacketID" query:"PacketID"`
+	Cmd         string         `thrift:"Cmd,9" json:"cmd" form:"Cmd" query:"Cmd"`
+	Direction   string         `thrift:"Direction,10" json:"direction" form:"Direction" query:"Direction"`
+	Data        PokerEventJSON `thrift:"Data,11" json:"data" form:"Data" query:"Data"`
+	Location    string         `thrift:"Location,12" json:"location" form:"Location" query:"Location"`
+	Seq         PokerEventJSON `thrift:"Seq,13" json:"seq" form:"Seq" query:"Seq"`
+	DataExtra   PokerEventJSON `thrift:"DataExtra,14" json:"dataExtra" form:"DataExtra" query:"DataExtra"`
+}
+
+func NewTexasPokerEventReq() *TexasPokerEventReq {
+	return &TexasPokerEventReq{}
+}
+
+func (p *TexasPokerEventReq) InitDefault() {
+}
+
+func (p *TexasPokerEventReq) GetPackageName() (v string) {
+	return p.PackageName
+}
+
+func (p *TexasPokerEventReq) GetUUID() (v string) {
+	return p.UUID
+}
+
+func (p *TexasPokerEventReq) GetVPIP() (v int32) {
+	return p.VPIP
+}
+
+func (p *TexasPokerEventReq) GetPFR() (v int32) {
+	return p.PFR
+}
+
+func (p *TexasPokerEventReq) GetTimestamp() (v int64) {
+	return p.Timestamp
+}
+
+func (p *TexasPokerEventReq) GetPID() (v PokerEventJSON) {
+	return p.PID
+}
+
+func (p *TexasPokerEventReq) GetUID() (v PokerEventJSON) {
+	return p.UID
+}
+
+func (p *TexasPokerEventReq) GetPacketID() (v PokerEventJSON) {
+	return p.PacketID
+}
+
+func (p *TexasPokerEventReq) GetCmd() (v string) {
+	return p.Cmd
+}
+
+func (p *TexasPokerEventReq) GetDirection() (v string) {
+	return p.Direction
+}
+
+func (p *TexasPokerEventReq) GetData() (v PokerEventJSON) {
+	return p.Data
+}
+
+func (p *TexasPokerEventReq) GetLocation() (v string) {
+	return p.Location
+}
+
+func (p *TexasPokerEventReq) GetSeq() (v PokerEventJSON) {
+	return p.Seq
+}
+
+func (p *TexasPokerEventReq) GetDataExtra() (v PokerEventJSON) {
+	return p.DataExtra
+}
+
+func (p *TexasPokerEventReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TexasPokerEventReq(%+v)", *p)
+}
+
+type TexasPokerEventResp struct {
+	Result         *string   `thrift:"Result,1,optional" form:"Result" json:"Result,omitempty" query:"Result"`
+	HeroCard       []string  `thrift:"HeroCard,2,optional" json:"HeroCard" form:"HeroCard" query:"HeroCard"`
+	CommunityCard  []string  `thrift:"CommunityCard,3,optional" json:"CommunityCard" form:"CommunityCard" query:"CommunityCard"`
+	DecisionAction *string   `thrift:"DecisionAction,4,optional" form:"DecisionAction" json:"DecisionAction,omitempty" query:"DecisionAction"`
+	DecisionAmount *int64    `thrift:"DecisionAmount,5,optional" form:"DecisionAmount" json:"DecisionAmount,omitempty" query:"DecisionAmount"`
+	HeroMaxTarget  *int64    `thrift:"HeroMaxTarget,6,optional" form:"HeroMaxTarget" json:"HeroMaxTarget,omitempty" query:"HeroMaxTarget"`
+	BaseResp       *BaseResp `thrift:"BaseResp,255" form:"BaseResp" json:"BaseResp" query:"BaseResp"`
+}
+
+func NewTexasPokerEventResp() *TexasPokerEventResp {
+	return &TexasPokerEventResp{}
+}
+
+func (p *TexasPokerEventResp) InitDefault() {
+}
+
+var TexasPokerEventResp_Result_DEFAULT string
+
+func (p *TexasPokerEventResp) GetResult() (v string) {
+	if !p.IsSetResult() {
+		return TexasPokerEventResp_Result_DEFAULT
+	}
+	return *p.Result
+}
+
+var TexasPokerEventResp_HeroCard_DEFAULT []string
+
+func (p *TexasPokerEventResp) GetHeroCard() (v []string) {
+	if !p.IsSetHeroCard() {
+		return TexasPokerEventResp_HeroCard_DEFAULT
+	}
+	return p.HeroCard
+}
+
+var TexasPokerEventResp_CommunityCard_DEFAULT []string
+
+func (p *TexasPokerEventResp) GetCommunityCard() (v []string) {
+	if !p.IsSetCommunityCard() {
+		return TexasPokerEventResp_CommunityCard_DEFAULT
+	}
+	return p.CommunityCard
+}
+
+var TexasPokerEventResp_DecisionAction_DEFAULT string
+
+func (p *TexasPokerEventResp) GetDecisionAction() (v string) {
+	if !p.IsSetDecisionAction() {
+		return TexasPokerEventResp_DecisionAction_DEFAULT
+	}
+	return *p.DecisionAction
+}
+
+var TexasPokerEventResp_DecisionAmount_DEFAULT int64
+
+func (p *TexasPokerEventResp) GetDecisionAmount() (v int64) {
+	if !p.IsSetDecisionAmount() {
+		return TexasPokerEventResp_DecisionAmount_DEFAULT
+	}
+	return *p.DecisionAmount
+}
+
+var TexasPokerEventResp_HeroMaxTarget_DEFAULT int64
+
+func (p *TexasPokerEventResp) GetHeroMaxTarget() (v int64) {
+	if !p.IsSetHeroMaxTarget() {
+		return TexasPokerEventResp_HeroMaxTarget_DEFAULT
+	}
+	return *p.HeroMaxTarget
+}
+
+var TexasPokerEventResp_BaseResp_DEFAULT *BaseResp
+
+func (p *TexasPokerEventResp) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return TexasPokerEventResp_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+
+func (p *TexasPokerEventResp) IsSetResult() bool {
+	return p.Result != nil
+}
+
+func (p *TexasPokerEventResp) IsSetHeroCard() bool {
+	return p.HeroCard != nil
+}
+
+func (p *TexasPokerEventResp) IsSetCommunityCard() bool {
+	return p.CommunityCard != nil
+}
+
+func (p *TexasPokerEventResp) IsSetDecisionAction() bool {
+	return p.DecisionAction != nil
+}
+
+func (p *TexasPokerEventResp) IsSetDecisionAmount() bool {
+	return p.DecisionAmount != nil
+}
+
+func (p *TexasPokerEventResp) IsSetHeroMaxTarget() bool {
+	return p.HeroMaxTarget != nil
+}
+
+func (p *TexasPokerEventResp) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *TexasPokerEventResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TexasPokerEventResp(%+v)", *p)
 }
 
 type TexasPokerActiveReq struct {
@@ -2392,6 +2599,8 @@ type DDBabyService interface {
 	TaLuoPredict(ctx context.Context, req *TaLuoPredictReq) (r *TaLuoPredictResp, err error)
 
 	TexasPokerDecision(ctx context.Context, req *TexasPokerDecisionReq) (r *TexasPokerDecisionResp, err error)
+
+	TexasPokerEvent(ctx context.Context, req *TexasPokerEventReq) (r *TexasPokerEventResp, err error)
 
 	TexasPokerActive(ctx context.Context, req *TexasPokerActiveReq) (r *TexasPokerActiveResp, err error)
 

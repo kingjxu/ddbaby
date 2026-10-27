@@ -215,7 +215,7 @@ func (r *dpzxEventRegistry) removeOldestResult() {
 	delete(r.results, oldestKey)
 }
 
-func (s *dpzxTableState) apply(command string, raw json.RawMessage, timestamp int64) error {
+func (s *dpzxTableState) apply(command string, raw []byte, timestamp int64) error {
 	switch command {
 	case "421":
 		var payload []dpzxPlayerJoin
