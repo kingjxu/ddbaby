@@ -24,14 +24,19 @@ import (
 // Fail at the real HTTP boundary without making external requests or replacing
 // the business function under test.
 type eventDecisionFailureTransport struct {
-	t     *testing.T
-	calls atomic.Int32
+	t       *testing.T
+	calls   atomic.Int32
+	success bool
 }
 
 func (transport *eventDecisionFailureTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	transport.calls.Add(1)
 	if req.URL.Path != "/gto/decision" {
 		transport.t.Errorf("unexpected outbound request: path=%q", req.URL.Path)
+	}
+	if transport.success {
+		return &http.Response{StatusCode: http.StatusOK,
+			Body: io.NopCloser(strings.NewReader(`{"action":"call","raise_size":0,"action_probability":1}`)), Header: make(http.Header)}, nil
 	}
 	return &http.Response{StatusCode: http.StatusServiceUnavailable,
 		Body: io.NopCloser(strings.NewReader(`{"error":"temporary failure"}`)), Header: make(http.Header)}, nil
@@ -103,20 +108,22 @@ func TestEventActivationAcceptsAvailableQuotaWithoutToken(t *testing.T) {
 // Replace only GORM's query callback in this test database. Production still
 // uses verifyActiveCode and the real DAL; no production function is replaced.
 type eventActiveCodeDB struct {
-	info  *poker.UserActiveCode
-	err   error
-	calls int
-	users []string
+	info     *poker.UserActiveCode
+	err      error
+	calls    int
+	users    []string
+	billings int
+	audits   chan struct{}
 }
 
 func useEventActiveCodeDB(t *testing.T) *eventActiveCodeDB {
 	t.Helper()
 	state := &eventActiveCodeDB{info: &poker.UserActiveCode{
 		CodeType: _const.ActiveCodeTypeByExpireAt, ExpireAt: time.Now().Add(time.Hour).Unix(),
-	}}
+	}, audits: make(chan struct{}, 16)}
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN: "test@tcp(127.0.0.1:1)/test", SkipInitializeWithVersion: true,
-	}), &gorm.Config{DisableAutomaticPing: true})
+	}), &gorm.Config{DisableAutomaticPing: true, SkipDefaultTransaction: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,6 +150,20 @@ func useEventActiveCodeDB(t *testing.T) *eventActiveCodeDB {
 		if state.info != nil {
 			info := *state.info
 			*rows = []*poker.UserActiveCode{&info}
+		}
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Callback().Create().Replace("gorm:create", func(tx *gorm.DB) {
+		switch record := tx.Statement.Dest.(type) {
+		case **poker.UserActiveCode:
+			info := **record
+			state.info = &info
+			state.billings++
+		case *poker.GtoDecisionRecord:
+			state.audits <- struct{}{}
+		default:
+			t.Errorf("unexpected create destination %T", tx.Statement.Dest)
 		}
 	}); err != nil {
 		t.Fatal(err)

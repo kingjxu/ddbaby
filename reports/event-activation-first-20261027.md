@@ -2,9 +2,11 @@
 
 ## 变更
 
-按用户要求，event 移除 VerifyTaoyuanIdentity、Bearer 提取及 token 传递。非空 uuid 的每个事件在完整日志、状态机更新及结果回放前，复用 decision 的 verifyActiveCode，查询 user_active_code 最新记录并检查过期时间和按次额度。决策复用本次查询得到的 Handler/激活信息，不重复查库；合法结果后计费及审计逻辑保持原样。
+按用户要求，event 移除 VerifyTaoyuanIdentity、Bearer 提取及 token 传递。非空 uuid 的每个事件在最前面的 check(ctx) 阶段、完整日志/状态机更新/结果回放前，复用 decision 的 verifyActiveCode，查询 user_active_code 最新记录并检查过期时间和按次额度。决策复用本次查询得到的 Handler/激活信息，不重复查库；合法结果后计费及审计逻辑保持原样。
 
 激活缺失、到期、次数耗尽或数据库错误返回固定 HTTP 503 / active_code_unavailable，不回显数据库错误或请求 body；沿用 Android 当前事件重试机制。持续无有效激活时会持续重试，需恢复有效激活后继续。无 uuid 的旧客户端保留只记录日志、不建立状态及决策的兼容行为。
+
+CR指出最后一次额度成功计费后，若HTTP响应丢失，重传会因耗尽被拒绝，已缓存结果不能回放。用户在群消息 om_x100b613e20aab8a8dea3779b166ea3e 明确确认“这个没问题”，CR回交 om_x100b613e202dd0b8ce9c650480a2914 要求按严格前置检查收尾。因此没有新增缓存回放例外。
 
 verifyActiveCode 不再输出完整激活码记录，避免前置检查后每条事件重复记录敏感字段。未修改 decision 的激活规则、数据库表或客户端实现。桃园协议文档和服务端 .ai-context 已同步。
 
@@ -18,7 +20,7 @@ verifyActiveCode 不再输出完整激活码记录，避免前置检查后每条
 - 有效时间码、仍有额度的次数码：无需 token 通过；测试核对按请求 uuid 使用参数化 user_id 查询。
 - 原 HTTP 重试回归改为 GTO HTTP 边界失败，503 后可以重试；service 准备成功结果后可回放，回放不再调用 GTO，但仍重新检查激活。AAPoker 额外验证激活过期不能回放旧结果。
 
-测试用独立 GORM 数据库的查询回调提供激活记录，用 HTTP transport 返回 GTO 失败；没有在正式代码增加测试替换函数。测试不连接生产数据库，不发送真实策略请求，不计费、不写真实审计，不代表生产 GTO→SQL→真机端到端验证。未部署。
+测试用独立 GORM 数据库的查询回调提供激活记录，用 HTTP transport 返回 GTO 失败；没有在正式代码增加测试替换函数。补充两协议最后一次额度回归：执行真实handler/决策编排，测试transport返回成功策略，测试GORM回调模拟扣次和审计；额度9/10变为10/10且成功结果已缓存，丢弃响应后重复原事件两次均503且无Result，GTO、扣次、审计各仅一次。不同事件/uuid/来源同样拒绝。测试不连接生产数据库，不发送真实策略请求，不产生真实计费或审计写入，不代表生产 GTO→SQL→真机端到端验证。未部署。
 
 ## 边界
 

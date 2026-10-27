@@ -39,9 +39,8 @@ func bindTexasPokerTestEvent(body []byte) (*ddbaby.TexasPokerEventReq, error) {
 	if err := c.BindAndValidate(&req); err != nil {
 		return nil, err
 	}
-	h := NewTexasPokerEventHandler(&req)
-	if err := h.check(); err != nil {
-		return nil, err
+	if !service.IsSupportedPokerEventPackage(req.PackageName) {
+		return nil, fmt.Errorf("invalid packageName")
 	}
 	return &req, nil
 }

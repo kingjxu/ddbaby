@@ -34,8 +34,9 @@ func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 }
 
 type TexasPokerEventHandler struct {
-	req     *ddbaby.TexasPokerEventReq
-	rawBody []byte
+	req             *ddbaby.TexasPokerEventReq
+	rawBody         []byte
+	decisionHandler *TexasPokerDecisionHandler
 }
 
 func NewTexasPokerEventHandler(req *ddbaby.TexasPokerEventReq) *TexasPokerEventHandler {
@@ -44,32 +45,36 @@ func NewTexasPokerEventHandler(req *ddbaby.TexasPokerEventReq) *TexasPokerEventH
 	}
 }
 
-func (h *TexasPokerEventHandler) check() error {
+func (h *TexasPokerEventHandler) check(ctx context.Context) (int, error) {
 	if h.req == nil {
-		return errors.New("event is missing")
+		return consts.StatusBadRequest, errors.New("event is missing")
 	}
 	if !service.IsSupportedPokerEventPackage(h.req.PackageName) {
-		return errors.New("invalid packageName")
+		return consts.StatusBadRequest, errors.New("invalid packageName")
 	}
-	return nil
+	// 旧客户端无uuid时只采集日志，不建立决策状态。
+	if h.req.UUID == "" {
+		return 0, nil
+	}
+	h.decisionHandler = NewTexasPokerDecisionHandler(&ddbaby.TexasPokerDecisionReq{
+		UUID: util.Ptr(h.req.UUID), VPIP: util.Ptr(h.req.VPIP), PFR: util.Ptr(h.req.PFR),
+	})
+	if err := h.decisionHandler.verifyActiveCode(ctx); err != nil {
+		return consts.StatusServiceUnavailable, err
+	}
+	return 0, nil
 }
 
 func (h *TexasPokerEventHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerEventResp, error) {
 	// 1. 校验请求。
-	if err := h.check(); err != nil {
-		return h.newResp(consts.StatusBadRequest, "invalid_event"), err
+	if status, err := h.check(ctx); err != nil {
+		message := "invalid_event"
+		if status == consts.StatusServiceUnavailable {
+			message = "active_code_unavailable"
+		}
+		return h.newResp(status, message), err
 	}
 	event := h.req
-	decisionHandler := NewTexasPokerDecisionHandler(&ddbaby.TexasPokerDecisionReq{
-		UUID: util.Ptr(event.UUID), VPIP: util.Ptr(event.VPIP), PFR: util.Ptr(event.PFR),
-	})
-	// 旧客户端无uuid时只采集日志，不建立决策状态。其余请求在日志、
-	// 状态更新和缓存回放之前，复用decision的数据库激活码校验。
-	if event.UUID != "" {
-		if err := decisionHandler.verifyActiveCode(ctx); err != nil {
-			return h.newResp(consts.StatusServiceUnavailable, "active_code_unavailable"), err
-		}
-	}
 
 	fields := logrus.Fields{
 		"cmd":               event.Cmd,
@@ -99,7 +104,7 @@ func (h *TexasPokerEventHandler) Handle(ctx context.Context) (*ddbaby.TexasPoker
 	if decision == nil {
 		var decisionErr error
 		decision, decisionErr = executePokerDecision(
-			ctx, decisionHandler, candidate.Request,
+			ctx, h.decisionHandler, candidate.Request,
 		)
 		if decisionErr != nil {
 			service.CompletePokerEventDecision(candidate, nil)
