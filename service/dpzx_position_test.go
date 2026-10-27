@@ -56,7 +56,7 @@ func TestDPZXAmbiguousForcedPositionsStopDecision(t *testing.T) {
 	}{
 		{"missing big blind", false, []dpzxPlayerSnapshot{{Index: 0}, {Index: 1, StartState: 1}, {Index: 2}}},
 		{"duplicate big blind", false, []dpzxPlayerSnapshot{{Index: 0}, {Index: 1, StartState: 2}, {Index: 2, StartState: 2}}},
-		{"unknown forced role", false, []dpzxPlayerSnapshot{{Index: 0}, {Index: 1, StartState: 2}, {Index: 2, StartState: 3}}},
+		{"unknown forced role", false, []dpzxPlayerSnapshot{{Index: 0}, {Index: 1, StartState: 2}, {Index: 2, StartState: 5}}},
 		{"enabled straddle", true, []dpzxPlayerSnapshot{{Index: 0}, {Index: 1, StartState: 1}, {Index: 2, StartState: 2}}},
 	} {
 		t.Run(test.name, func(t *testing.T) {

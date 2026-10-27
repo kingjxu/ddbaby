@@ -1,0 +1,312 @@
+[
+  {
+    "cmd": "430",
+    "data": [
+      {
+        "bankIndex": 6,
+        "mySeat": 7,
+        "HandNum": 519,
+        "roomID": 28826818,
+        "stisNumMax": 8,
+        "littleBB": 50,
+        "ante": 25,
+        "IsStraddle": false
+      },
+      [
+        {
+          "index": 0,
+          "value": 25,
+          "score": 15483,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 1,
+          "value": 25,
+          "score": 14003,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 2,
+          "value": 25,
+          "score": 3950,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 3,
+          "value": 25,
+          "score": 9375,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 4,
+          "value": 25,
+          "score": 14990,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 5,
+          "value": 25,
+          "score": 23317,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 6,
+          "value": 25,
+          "score": 8875,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 7,
+          "value": 25,
+          "score": 5016,
+          "startState": 0,
+          "betState": 10
+        }
+      ]
+    ],
+    "timestamp": 1793116890892
+  },
+  {
+    "cmd": "403",
+    "data": [
+      200
+    ],
+    "timestamp": 1793116891543
+  },
+  {
+    "cmd": "431",
+    "data": [
+      [
+        {
+          "index": 0,
+          "value": 100,
+          "score": 15383,
+          "startState": 2,
+          "betState": 10
+        },
+        {
+          "index": 1,
+          "value": 200,
+          "score": 13803,
+          "startState": 3,
+          "betState": 10
+        },
+        {
+          "index": 2,
+          "value": 400,
+          "score": 3550,
+          "startState": 4,
+          "betState": 10
+        },
+        {
+          "index": 3,
+          "value": 0,
+          "score": 9375,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 4,
+          "value": 0,
+          "score": 14990,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 5,
+          "value": 0,
+          "score": 23317,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 6,
+          "value": 0,
+          "score": 8875,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 7,
+          "value": 50,
+          "score": 4966,
+          "startState": 1,
+          "betState": 10
+        }
+      ]
+    ],
+    "timestamp": 1793116891908
+  },
+  {
+    "cmd": "403",
+    "data": [
+      950
+    ],
+    "timestamp": 1793116891918
+  },
+  {
+    "cmd": "432",
+    "data": [
+      3,
+      15,
+      0,
+      100,
+      true
+    ],
+    "timestamp": 1793116892303
+  },
+  {
+    "cmd": "433",
+    "data": [
+      {
+        "index": 3,
+        "betState": 6,
+        "cd": 0,
+        "score": 9375,
+        "betted": 0
+      }
+    ],
+    "timestamp": 1793116897565
+  },
+  {
+    "cmd": "403",
+    "data": [
+      950
+    ],
+    "timestamp": 1793116897568
+  },
+  {
+    "cmd": "432",
+    "data": [
+      4,
+      15,
+      0,
+      100,
+      true
+    ],
+    "timestamp": 1793116898031
+  },
+  {
+    "cmd": "433",
+    "data": [
+      {
+        "index": 4,
+        "betState": 2,
+        "cd": 0,
+        "score": 14590,
+        "betted": 400
+      }
+    ],
+    "timestamp": 1793116901584
+  },
+  {
+    "cmd": "403",
+    "data": [
+      1350
+    ],
+    "timestamp": 1793116901594
+  },
+  {
+    "cmd": "432",
+    "data": [
+      5,
+      15,
+      0,
+      100,
+      true
+    ],
+    "timestamp": 1793116902032
+  },
+  {
+    "cmd": "433",
+    "data": [
+      {
+        "index": 5,
+        "betState": 6,
+        "cd": 0,
+        "score": 23317,
+        "betted": 0
+      }
+    ],
+    "timestamp": 1793116903094
+  },
+  {
+    "cmd": "403",
+    "data": [
+      1350
+    ],
+    "timestamp": 1793116903100
+  },
+  {
+    "cmd": "432",
+    "data": [
+      6,
+      15,
+      0,
+      100,
+      true
+    ],
+    "timestamp": 1793116903569
+  },
+  {
+    "cmd": "492",
+    "data": [
+      false,
+      [
+        {
+          "index": 7,
+          "cardType": 0,
+          "vecCards": [
+            {
+              "index": 0,
+              "value": 10
+            },
+            {
+              "index": 1,
+              "value": 18
+            }
+          ]
+        }
+      ]
+    ],
+    "timestamp": 1793116903571
+  },
+  {
+    "cmd": "433",
+    "data": [
+      {
+        "index": 6,
+        "betState": 6,
+        "cd": 0,
+        "score": 8875,
+        "betted": 0
+      }
+    ],
+    "timestamp": 1793116908293
+  },
+  {
+    "cmd": "403",
+    "data": [
+      1350
+    ],
+    "timestamp": 1793116908294
+  },
+  {
+    "cmd": "432",
+    "data": [
+      7,
+      15,
+      50,
+      100,
+      true
+    ],
+    "timestamp": 1793116908690
+  }
+]

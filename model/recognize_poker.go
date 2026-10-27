@@ -126,7 +126,9 @@ func NormalizeTexasGtoFreeFoldToCheck(req *TexasGtoDecisionReq, resp *TexasGtoDe
 	// incomplete snapshot from an earlier action orbit.
 	if req.GameStage == "preflop" &&
 		req.CurrentPlayerPosition != "BB-Hero" &&
-		req.CurrentPlayerPosition != "straddle-Hero" {
+		req.CurrentPlayerPosition != "straddle-Hero" &&
+		req.CurrentPlayerPosition != "straddle+1-Hero" &&
+		req.CurrentPlayerPosition != "straddle+2-Hero" {
 		return false
 	}
 	resp.Action = "check"

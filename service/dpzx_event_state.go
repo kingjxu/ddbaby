@@ -39,6 +39,7 @@ type dpzxTableState struct {
 	bigBlind        int
 	ante            int
 	straddleEnabled bool
+	straddle        int
 	currentPot      int
 	stage           string
 	board           []string
@@ -616,10 +617,10 @@ func (s *dpzxTableState) applyCards(raw json.RawMessage) error {
 
 func (s *dpzxTableState) assignPositions(snapshot []dpzxPlayerSnapshot) error {
 	// 431的startState明确标识SB/BB；BTN是SB之前的本手参与者，
-	// 也不能从下注金额猜抓盲。抓盲协议尚未确认时停止本手决策。
-	if s.straddleEnabled {
-		return errors.New("unsupported DPZX straddle positions")
-	}
+	// 3/4由用户确认分别为straddle+1/+2；标记决定位置，Value提供实际强制投入。
+	s.straddle = 0
+	forcedSeats := map[int]int{}
+	forcedAmounts := map[int]int{}
 	sb, bb := -1, -1
 	for _, player := range snapshot {
 		switch player.StartState {
@@ -634,8 +635,22 @@ func (s *dpzxTableState) assignPositions(snapshot []dpzxPlayerSnapshot) error {
 				return errors.New("duplicate DPZX big blind")
 			}
 			bb = player.Index
+		case 3, 4:
+			if _, exists := forcedSeats[player.StartState]; exists {
+				return errors.New("duplicate DPZX straddle position")
+			}
+			forcedSeats[player.StartState] = player.Index
+			forcedAmounts[player.StartState] = player.Value
 		default:
 			return errors.New("unsupported DPZX forced position")
+		}
+	}
+	if s.straddleEnabled && len(forcedSeats) == 0 {
+		return errors.New("missing DPZX straddle positions")
+	}
+	if _, hasSecond := forcedSeats[4]; hasSecond {
+		if _, hasFirst := forcedSeats[3]; !hasFirst {
+			return errors.New("missing DPZX first straddle")
 		}
 	}
 	button := s.buttonSeat
@@ -672,10 +687,37 @@ func (s *dpzxTableState) assignPositions(snapshot []dpzxPlayerSnapshot) error {
 		s.players[sb].position = "SB"
 	}
 	s.players[bb].position = "BB"
+	// 从BB之后依次核对参与者，强制位置必须连续且与标记顺序一致。
+	lastForced := bb
+	previousAmount := s.bigBlind
+	for state := 3; state < 3+len(forcedSeats); state++ {
+		next := -1
+		for offset := 1; offset < s.tableSize; offset++ {
+			seat := (lastForced + offset) % s.tableSize
+			if s.players[seat] != nil {
+				next = seat
+				break
+			}
+		}
+		seat := forcedSeats[state]
+		if next != seat || seat == button || seat == sb || forcedAmounts[state] <= previousAmount {
+			return errors.New("invalid DPZX straddle order or amount")
+		}
+		s.players[seat].position = fmt.Sprintf("straddle+%d", state-2)
+		lastForced = seat
+		previousAmount = forcedAmounts[state]
+		s.straddle = previousAmount
+	}
 	var others []int
 	for offset := 1; offset < s.tableSize; offset++ {
 		seat := (bb + offset) % s.tableSize
 		if s.players[seat] != nil && seat != s.buttonSeat && seat != sb {
+			if forced, ok := forcedSeats[3]; ok && seat == forced {
+				continue
+			}
+			if forced, ok := forcedSeats[4]; ok && seat == forced {
+				continue
+			}
 			others = append(others, seat)
 		}
 	}
@@ -734,7 +776,7 @@ func (s *dpzxTableState) decisionRequest() (*model.TexasGtoDecisionReq, string) 
 	}
 	request := &model.TexasGtoDecisionReq{
 		GameType: "no_limit_holdem", NumPlayers: len(players), CurrentPot: s.currentPot,
-		Ante: s.ante, Straddle: 0, SbSize: s.smallBlind, BbSize: s.bigBlind,
+		Ante: s.ante, Straddle: s.straddle, SbSize: s.smallBlind, BbSize: s.bigBlind,
 		CommunityCards: append([]string(nil), s.board...), GameStage: s.stage,
 		Players: players, CurrentPlayerPosition: hero.position,
 		ActionHistory: append([]model.TexasActionHistory(nil), s.history...),

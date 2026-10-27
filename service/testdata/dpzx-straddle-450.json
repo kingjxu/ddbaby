@@ -1,0 +1,236 @@
+[
+  {
+    "cmd": "430",
+    "data": [
+      {
+        "bankIndex": 0,
+        "mySeat": 7,
+        "HandNum": 450,
+        "roomID": 28826818,
+        "stisNumMax": 8,
+        "littleBB": 50,
+        "ante": 25,
+        "IsStraddle": false
+      },
+      [
+        {
+          "index": 0,
+          "value": 25,
+          "score": 9900,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 1,
+          "value": 25,
+          "score": 4775,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 2,
+          "value": 25,
+          "score": 11000,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 3,
+          "value": 25,
+          "score": 12424,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 4,
+          "value": 25,
+          "score": 24269,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 6,
+          "value": 25,
+          "score": 16277,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 7,
+          "value": 25,
+          "score": 4950,
+          "startState": 0,
+          "betState": 10
+        }
+      ]
+    ],
+    "timestamp": 1793116692122
+  },
+  {
+    "cmd": "403",
+    "data": [
+      175
+    ],
+    "timestamp": 1793116692937
+  },
+  {
+    "cmd": "431",
+    "data": [
+      [
+        {
+          "index": 0,
+          "value": 0,
+          "score": 9900,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 1,
+          "value": 50,
+          "score": 4725,
+          "startState": 1,
+          "betState": 10
+        },
+        {
+          "index": 2,
+          "value": 100,
+          "score": 10900,
+          "startState": 2,
+          "betState": 10
+        },
+        {
+          "index": 3,
+          "value": 200,
+          "score": 12224,
+          "startState": 3,
+          "betState": 10
+        },
+        {
+          "index": 4,
+          "value": 0,
+          "score": 24269,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 6,
+          "value": 0,
+          "score": 16277,
+          "startState": 0,
+          "betState": 10
+        },
+        {
+          "index": 7,
+          "value": 0,
+          "score": 4950,
+          "startState": 0,
+          "betState": 10
+        }
+      ]
+    ],
+    "timestamp": 1793116693150
+  },
+  {
+    "cmd": "403",
+    "data": [
+      525
+    ],
+    "timestamp": 1793116693152
+  },
+  {
+    "cmd": "432",
+    "data": [
+      4,
+      15,
+      0,
+      100,
+      true
+    ],
+    "timestamp": 1793116693484
+  },
+  {
+    "cmd": "433",
+    "data": [
+      {
+        "index": 4,
+        "betState": 6,
+        "cd": 0,
+        "score": 24269,
+        "betted": 0
+      }
+    ],
+    "timestamp": 1793116695177
+  },
+  {
+    "cmd": "403",
+    "data": [
+      525
+    ],
+    "timestamp": 1793116695181
+  },
+  {
+    "cmd": "432",
+    "data": [
+      6,
+      15,
+      0,
+      100,
+      true
+    ],
+    "timestamp": 1793116695691
+  },
+  {
+    "cmd": "492",
+    "data": [
+      false,
+      [
+        {
+          "index": 7,
+          "cardType": 0,
+          "vecCards": [
+            {
+              "index": 0,
+              "value": 39
+            },
+            {
+              "index": 1,
+              "value": 12
+            }
+          ]
+        }
+      ]
+    ],
+    "timestamp": 1793116695692
+  },
+  {
+    "cmd": "433",
+    "data": [
+      {
+        "index": 6,
+        "betState": 6,
+        "cd": 0,
+        "score": 16277,
+        "betted": 0
+      }
+    ],
+    "timestamp": 1793116695739
+  },
+  {
+    "cmd": "403",
+    "data": [
+      525
+    ],
+    "timestamp": 1793116695742
+  },
+  {
+    "cmd": "432",
+    "data": [
+      7,
+      15,
+      0,
+      100,
+      true
+    ],
+    "timestamp": 1793116696179
+  }
+]

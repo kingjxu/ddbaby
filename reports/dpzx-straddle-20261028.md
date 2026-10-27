@@ -1,0 +1,9 @@
+# DPZX多级straddle支持
+
+用户确认开局startState=3/4分别是straddle+1/+2。第450手A♠K♦、第519手J♦6♣曾因不支持该标记被阻断，未请求GTO。房间IsStraddle=false与逐手431标记可能不一致，使用明确的逐手标记确定位置，Value仅提供对应强制投入。
+
+保留BTN/SB/BB锚定；BB后按参与座位核对3、4连续顺序，拒绝重复、缺档、乱序、未知标记和非递增强制投入。剩余位置按剩余人数分配；GTO玩家/历史使用straddle+1/+2，Straddle为最后一档实际强制投入。免费fold→check规范化识别新增强制位置，面对更高下注仍不能改写fold。
+
+回归使用上述两手生产事件，删去账号及无关房间信息；核对手牌、Hero位置、强制投入及GTO候选生成。证据只能证明服务端组装，尚未验证真实上游是否支持新增位置标签、真机提示或生产端到端。数据库故障边界及激活前置不变。
+
+本地验证：Go1.20.14全仓测试、service/handler/model/main race及diff check通过。真实日志回归确认450手Straddle=200、Hero=CO、A♠K♦；519手Straddle=400、Hero=SB、J♦6♣，均可生成候选。
