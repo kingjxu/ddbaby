@@ -1,5 +1,5 @@
 ---
-version: "1.10"
+version: "1.11"
 last_updated: "2026-10-27"
 ---
 
@@ -7,11 +7,11 @@ last_updated: "2026-10-27"
 
 ## AAPoker事件链路
 
-1. 桃园将规范化事件与当前登录账号`uuid`、VPIP/PFR一起串行上报；ddbaby先执行原有大小、字段、来源限流和日志预算校验。
+1. 桃园将规范化事件与当前登录账号`uuid`、VPIP/PFR一起串行上报；ddbaby先执行统一4 MiB、IDL字段绑定和来源检查，再对非空uuid复用decision的数据库激活校验；无频率限制和日志预算，激活失败在完整日志和状态更新前返回503。
 2. 服务端只消费`TABLE + ServerToClient`状态，按`uuid + AAPoker uid + dataExtra`隔离牌桌；`ENTER_ROOM/SEAT_DOWN`用内部userId确认Hero座位，旁观状态不推断Hero。
 3. `START_INFOR`建立新手，`RECV_ACTION`按`operationRound`幂等累计动作与目标下注额，`RECV_CARDS`推进街道并清零本街下注，`SHOW_SIDE_POTS`校正底池。物理座位从banker开始映射到与截图链路一致的位置名。
 4. `operationID`轮到Hero时，只有两张Hero手牌、对应街道公共牌、active状态和剩余后手全部有效才生成`TexasGtoDecisionReq`。同一行动点只有一个请求在途；调用失败保留资格，成功后忽略重传。
-5. Hero决策前先用Bearer token向认证服务确认当前会话email与请求uuid一致，不允许认证失败后回退到请求身份；随后执行UUID激活校验、策略白名单、上游调用、响应合法性、all-in/free-check规范化、次数计费和`gto_decision_record`审计。带非空`Result`的响应由桃园转给现有悬浮窗。
+5. 激活校验在完整日志、状态更新和缓存回放之前完成；Hero决策复用查到的激活信息，执行策略白名单、上游调用、响应合法性、all-in/free-check规范化、次数计费和`gto_decision_record`审计。带非空`Result`的响应由桃园转给现有悬浮窗。
 
 ## DPZX事件链路
 
@@ -19,7 +19,7 @@ last_updated: "2026-10-27"
 2. cmd 430建立新手的房间、庄位、Hero座位、盲注和前注上下文；cmd 431以本手实际参与者及盲注快照启动状态机。`mySeat`必须对应本手参与座位，旁观状态不触发决策。
 3. cmd 492读取Hero两张私牌；cmd 432与随后同座位的cmd 433必须成对出现，后者用`score/betted/betState`累计后手、当街目标投入与fold/check/call/bet/raise/all-in。未知动作或缺失中间行动会使本手停止决策。cmd 403校正底池，cmd 490按3/4/5张公共牌推进flop/turn/river并清零当街投入。
 4. cmd 432轮到Hero时，状态机把DPZX牌编号转换为统一牌面格式，按庄位扫描实际参与者并生成`TexasGtoDecisionReq`。同一行动点只允许一个请求在途；临时失败保留重试资格，成功响应缓存回放。
-5. 后续身份认证、激活校验、VPIP/PFR策略、GTO调用、响应规范化、按次计费、`gto_decision_record`审计和桃园悬浮窗展示与AAPoker共用同一链路。
+5. 前置uuid激活检查及后续VPIP/PFR策略、GTO调用、响应规范化、按次计费、`gto_decision_record`审计和桃园悬浮窗展示与AAPoker共用同一链路。
 
 ## 截图链路
 

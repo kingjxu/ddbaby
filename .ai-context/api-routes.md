@@ -1,5 +1,5 @@
 ---
-version: "1.16"
+version: "1.17"
 last_updated: "2026-10-27"
 ---
 
@@ -11,17 +11,17 @@ last_updated: "2026-10-27"
 
 接收桃园助手从 PokerEYE 分析模块透传的一条牌局事件。JSON请求体不超过4 MiB（与其他HTTP接口统一，超限由Hertz返回413），按IDL类型绑定，并携带已登记的字符串`packageName`；缺失、非字符串或未知包名返回固定400且不记录原始body。包名与路由类型集中维护在`service/poker_event.go`的同一张映射表中，新增应用必须显式选择已有状态机或“仅完整日志”路由，不能默认落入AAPoker。`timestamp/vpip/pfr`按整数、`cmd/direction/location/uuid`按字符串绑定，类型不符返回400；不额外校验枚举或业务字段内容。动态字段`pid/uid/PacketId/data/seq/dataExtra`仍保留原始JSON，包括大整数及变化中的DPZX结构，data不设480 KiB子上限。
 
-白名单内事件通过校验后都会记录完整JSON。AAPoker和DPZX由`service.ProcessPokerEvent`进入service内独立的协议状态机，不能把DPZX数字cmd映射到AAPoker的`REQ_GAME_*`分支；两者在生成统一`TexasGtoDecisionReq`后由handler直接调用共享决策函数复用GTO、计费、审计和结果回放链路。
+白名单内事件通过校验后都会记录完整JSON；携带非空uuid的事件先复用decision的数据库激活码检查，检查失败不记录完整body、不更新状态、不回放缓存。AAPoker和DPZX由`service.ProcessPokerEvent`进入service内独立的协议状态机，不能把DPZX数字cmd映射到AAPoker的`REQ_GAME_*`分支；两者在生成统一`TexasGtoDecisionReq`后由handler直接调用共享决策函数复用GTO、计费、审计和结果回放链路。
 
 当前Android 17770入口没有本机调用方认证；任意同机App可伪造事件，再由桃园补入当前登录用户的uuid和Bearer token，从而触发GTO、次数计费和审计。用户已明确接受该风险以简化本轮真机验证；不得将该入口表述为可信来源或已防护，后续需单独补齐。
 
-服务端按 `uuid + AAPoker uid + dataExtra(牌桌)` 隔离有界、30分钟过期的状态，只有服务端下行事件参与重建。登录账号必须已经坐下并能由 `uid/playerIDArray/mySeatID` 一致定位 Hero；旁观者不触发决策。服务从 `START_INFOR` 开始收集本手参与者、位置、盲注/ante/straddle、筹码与手牌，并用 `RECV_ACTION/RECV_CARDS/SHOW_SIDE_POTS` 累计逐街行动、公共牌和底池。当 `operationID` 指向 Hero、手牌和公共牌完整且请求通过原 GTO 请求校验时，服务端先用Bearer token调用认证服务，确认有效会话里的email与`uuid`一致，再按`uuid`校验激活状态并调用对应 VPIP/PFR 策略。认证失败不能回退信任请求体uuid。每个 `handNum + operationRound + stage` 在进程内只允许一个并发决策；认证、激活、GTO或审计编排失败不消费重试资格并返回HTTP 503，Android必须保留当前事件重试。成功后以`uuid + AAPoker uid + table + hand/turn`为键缓存最终完整响应，命中只回放，不重新认证、GTO、计费或审计。缓存由互斥锁保护，最多1024条、30分钟过期。合法结果沿用 `Result`，并返回 `DecisionAction/DecisionAmount/HeroMaxTarget` 供悬浮窗显示保护。
+服务端按 `uuid + AAPoker uid + dataExtra(牌桌)` 隔离有界、30分钟过期的状态，只有服务端下行事件参与重建。登录账号必须已经坐下并能由 `uid/playerIDArray/mySeatID` 一致定位 Hero；旁观者不触发决策。服务从 `START_INFOR` 开始收集本手参与者、位置、盲注/ante/straddle、筹码与手牌，并用 `RECV_ACTION/RECV_CARDS/SHOW_SIDE_POTS` 累计逐街行动、公共牌和底池。每条携带非空uuid的事件在完整日志、状态机和缓存之前，按请求uuid查询数据库激活码，复用decision的有效期和次数额度规则；失败返回HTTP 503与active_code_unavailable，恢复后可重试。当 `operationID` 指向 Hero、手牌和公共牌完整且请求通过原 GTO 请求校验时，复用此次已校验的激活信息并调用对应 VPIP/PFR 策略。event不再读取Bearer token或调用VerifyTaoyuanIdentity；激活有效只能证明该uuid有额度，不能证明调用方拥有该uuid，伪造已激活uuid可冒用额度和污染审计。每个 `handNum + operationRound + stage` 在进程内只允许一个并发决策；激活、GTO或审计编排失败不消费重试资格并返回HTTP 503，Android必须保留当前事件重试。成功后以`uuid + AAPoker uid + table + hand/turn`为键缓存最终完整响应，命中在重新通过激活检查后只回放，不重复GTO、计费或审计。缓存由互斥锁保护，最多1024条、30分钟过期。合法结果沿用 `Result`，并返回 `DecisionAction/DecisionAmount/HeroMaxTarget` 供悬浮窗显示保护。
 
-DPZX按`uuid + DPZX uid`维护最多512个、30分钟过期的当前会话，决策结果按`uuid + uid + roomID + HandNum + cmd432时间戳 + stage`隔离，最多1024条并保留30分钟。cmd 430/431建立本手庄位、Hero座位、参与者、盲注和前注；cmd 492提供Hero私牌；cmd 432/433成对记录行动提示及动作，cmd 403校正底池，cmd 490推进公共牌。缺少动作、未知betState、旁观座位、非法牌号或不完整牌面都会使该手停止决策。cmd 432指向Hero且统一请求校验通过后，执行与AAPoker相同的身份认证、激活、策略、计费、审计和结果响应。DPZX牌号按点数`value%13`及花色区间`红桃/方块/梅花/黑桃`转换。
+DPZX按`uuid + DPZX uid`维护最多512个、30分钟过期的当前会话，决策结果按`uuid + uid + roomID + HandNum + cmd432时间戳 + stage`隔离，最多1024条并保留30分钟。cmd 430/431建立本手庄位、Hero座位、参与者、盲注和前注；cmd 492提供Hero私牌；cmd 432/433成对记录行动提示及动作，cmd 403校正底池，cmd 490推进公共牌。缺少动作、未知betState、旁观座位、非法牌号或不完整牌面都会使该手停止决策。cmd 432指向Hero且统一请求校验通过后，执行与AAPoker相同的前置激活校验、策略、计费、审计和结果响应。DPZX牌号按点数`value%13`及花色区间`红桃/方块/梅花/黑桃`转换。
 
 成功决策与截图接口使用同一 `gto_decision_record`：保存桃园 `uuid`、Hero 手牌/位置/街道、实际 GTO 请求、原始响应和规范化最终响应；按次数激活码只在合法结果后计费。AAPoker 的游戏 uid 只用于同一上报流里的 Hero/座位匹配，不能替代桃园 uuid。`operationRound`出现缺口说明行动事件丢失，本手立即停止决策并等待下一次`START_INFOR`重建，不能用不完整路线猜测。未携带 uuid 的旧客户端事件仍可被接收和记录，但不建立决策状态、不调用 GTO、不计费。
 
-协议分析阶段会为每一条通过总body、IDL绑定和packageName路由边界的事件记录完整JSON，不再由环境开关、截止时间、日志字节预算或请求频率降级或拒绝。请求量和完整日志写入量没有频率上限，完整日志会持续包含牌局内容和用户标识，可能快速占满日志管道或磁盘；必须限制日志访问和监控容量，并在协议分析结束后恢复为受控的短期诊断日志。
+协议分析阶段会为每一条通过总body、IDL绑定、packageName路由和非空uuid激活检查的事件记录完整JSON，不再由环境开关、截止时间、日志字节预算或请求频率降级或拒绝。请求量和完整日志写入量没有频率上限，完整日志会持续包含牌局内容和用户标识，可能快速占满日志管道或磁盘；必须限制日志访问和监控容量，并在协议分析结束后恢复为受控的短期诊断日志。
 
 ## `POST /lyxz/gto_decision`
 

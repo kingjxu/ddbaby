@@ -4,36 +4,23 @@ import (
 	"context"
 	"errors"
 
-	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	_const "github.com/kingjxu/ddbaby/const"
 	poker "github.com/kingjxu/ddbaby/dal/mysql/texas_poker"
 	"github.com/kingjxu/ddbaby/model"
 	"github.com/kingjxu/ddbaby/service"
-	"github.com/kingjxu/ddbaby/util"
 	"github.com/sirupsen/logrus"
 )
 
 func executePokerDecision(
 	ctx context.Context,
-	uuid string,
-	token string,
-	vpip int32,
-	pfr int32,
+	handler *TexasPokerDecisionHandler,
 	request *model.TexasGtoDecisionReq,
 ) (*service.PokerEventDecisionResult, error) {
-	if request == nil || uuid == "" {
+	if request == nil || handler == nil || handler.activeCodeInfo == nil {
 		return nil, errors.New("decision identity or request is missing")
 	}
-	if err := service.VerifyTaoyuanIdentity(ctx, token, uuid); err != nil {
-		return nil, err
-	}
-	decisionReq := &ddbaby.TexasPokerDecisionReq{
-		UUID: util.Ptr(uuid), VPIP: util.Ptr(vpip), PFR: util.Ptr(pfr),
-	}
-	handler := NewTexasPokerDecisionHandler(decisionReq)
-	if err := handler.verifyActiveCode(ctx); err != nil {
-		return nil, err
-	}
+	uuid := handler.req.GetUUID()
+	vpip, pfr := handler.req.GetVPIP(), handler.req.GetPFR()
 	response, err := service.GtoDecisionByProfile(ctx, request, vpip, pfr)
 	if err != nil {
 		return nil, err

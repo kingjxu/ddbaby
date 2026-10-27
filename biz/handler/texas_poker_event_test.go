@@ -250,20 +250,8 @@ func TestBindTexasPokerEventValidatesTypedFields(t *testing.T) {
 	}
 }
 
-func TestTexasPokerEventBearerToken(t *testing.T) {
-	var requestContext app.RequestContext
-	requestContext.Request.Header.Set("Authorization", "Bearer session-token")
-	if got := texasPokerEventBearerToken(&requestContext); got != "session-token" {
-		t.Fatalf("token = %q", got)
-	}
-	requestContext.Request.Header.Set("Authorization", "Bearer token with spaces")
-	if got := texasPokerEventBearerToken(&requestContext); got != "" {
-		t.Fatalf("invalid token accepted: %q", got)
-	}
-}
-
 func TestTexasPokerEventLogsIncompleteDPZXAndRejectsUnassignedSources(t *testing.T) {
-	auth := failEventAuthentication(t)
+	auth := failEventDecision(t)
 
 	var logs bytes.Buffer
 	previousOutput := logrus.StandardLogger().Out
@@ -319,7 +307,8 @@ func TestTexasPokerEventLogsIncompleteDPZXAndRejectsUnassignedSources(t *testing
 }
 
 func TestTexasPokerEventRetriesFailureAndReplaysSuccessfulTurn(t *testing.T) {
-	auth := failEventAuthentication(t)
+	active := useEventActiveCodeDB(t)
+	auth := failEventDecision(t)
 	tableID := time.Now().UnixNano()
 
 	events := []string{
@@ -345,7 +334,7 @@ func TestTexasPokerEventRetriesFailureAndReplaysSuccessfulTurn(t *testing.T) {
 	}
 	retried := postAAPokerTestEvent(t, tableID, now, commands[4], events[4])
 	if retried.Response.StatusCode() != consts.StatusServiceUnavailable || auth.calls.Load() != 2 {
-		t.Fatalf("failed authentication did not release retry eligibility: status=%d calls=%d", retried.Response.StatusCode(), auth.calls.Load())
+		t.Fatalf("failed decision did not release retry eligibility: status=%d calls=%d", retried.Response.StatusCode(), auth.calls.Load())
 	}
 	req, err := bindTexasPokerTestEvent(retried.Request.Body())
 	if err != nil {
@@ -367,6 +356,12 @@ func TestTexasPokerEventRetriesFailureAndReplaysSuccessfulTurn(t *testing.T) {
 		!strings.Contains(string(succeeded.Response.Body()), `"Result":"Call 8"`) || auth.calls.Load() != 2 {
 		t.Fatalf("retry response/calls = %s/%d", succeeded.Response.Body(), auth.calls.Load())
 	}
+	active.info.ExpireAt = time.Now().Add(-time.Hour).Unix()
+	blocked := postAAPokerTestEvent(t, tableID, now, commands[4], events[4])
+	if blocked.Response.StatusCode() != consts.StatusServiceUnavailable {
+		t.Fatal("expired activation replayed cached decision")
+	}
+	active.info.ExpireAt = time.Now().Add(time.Hour).Unix()
 	now = now.Add(time.Millisecond)
 	replayed := postAAPokerTestEvent(t, tableID, now, commands[4], events[4])
 	if replayed.Response.StatusCode() != consts.StatusOK ||
@@ -386,7 +381,6 @@ func postAAPokerTestEvent(
 	requestContext.Request.Header.Set("Content-Type", "application/json")
 	requestContext.Request.SetBodyString(body)
 	requestContext.Request.Header.SetContentLength(len(body))
-	requestContext.Request.Header.Set("Authorization", "Bearer session-token")
 	serveTexasPokerEventForTest(requestContext)
 	return requestContext
 }

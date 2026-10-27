@@ -15,7 +15,8 @@ const dpzxRealRoomSnapshot = `[{"bankIndex":6,"mySeat":3,"HandNum":125,"roomID":
 const dpzxRealHandStart = `[[{"index":1,"value":100,"score":7000,"startState":2,"betState":10},{"index":2,"value":0,"score":6004,"startState":0,"betState":10},{"index":3,"value":0,"score":4975,"startState":0,"betState":10},{"index":4,"value":0,"score":17545,"startState":0,"betState":10},{"index":5,"value":0,"score":14975,"startState":0,"betState":10},{"index":6,"value":0,"score":4413,"startState":0,"betState":10},{"index":7,"value":50,"score":3631,"startState":1,"betState":10}]]`
 
 func TestTexasPokerEventRoutesDPZXThroughDecisionResponse(t *testing.T) {
-	auth := failEventAuthentication(t)
+	useEventActiveCodeDB(t)
+	auth := failEventDecision(t)
 	uuid := fmt.Sprintf("hero-%d@example.com", time.Now().UnixNano())
 
 	post := func(command, payload string, timestamp int64) *app.RequestContext {
@@ -27,7 +28,6 @@ func TestTexasPokerEventRoutesDPZXThroughDecisionResponse(t *testing.T) {
 		requestContext.Request.Header.Set("Content-Type", "application/json")
 		requestContext.Request.SetBodyString(body)
 		requestContext.Request.Header.SetContentLength(len(body))
-		requestContext.Request.Header.Set("Authorization", "Bearer session-token")
 		serveTexasPokerEventForTest(requestContext)
 		return requestContext
 	}

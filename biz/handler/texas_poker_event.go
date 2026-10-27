@@ -25,7 +25,6 @@ func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 
 	handler := NewTexasPokerEventHandler(&req)
 	handler.rawBody = c.Request.Body()
-	handler.token = texasPokerEventBearerToken(c)
 	resp, _ := handler.Handle(ctx)
 	status := consts.StatusOK
 	if resp.BaseResp.StatusCode != 0 {
@@ -37,7 +36,6 @@ func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 type TexasPokerEventHandler struct {
 	req     *ddbaby.TexasPokerEventReq
 	rawBody []byte
-	token   string
 }
 
 func NewTexasPokerEventHandler(req *ddbaby.TexasPokerEventReq) *TexasPokerEventHandler {
@@ -62,6 +60,16 @@ func (h *TexasPokerEventHandler) Handle(ctx context.Context) (*ddbaby.TexasPoker
 		return h.newResp(consts.StatusBadRequest, "invalid_event"), err
 	}
 	event := h.req
+	decisionHandler := NewTexasPokerDecisionHandler(&ddbaby.TexasPokerDecisionReq{
+		UUID: util.Ptr(event.UUID), VPIP: util.Ptr(event.VPIP), PFR: util.Ptr(event.PFR),
+	})
+	// 旧客户端无uuid时只采集日志，不建立决策状态。其余请求在日志、
+	// 状态更新和缓存回放之前，复用decision的数据库激活码校验。
+	if event.UUID != "" {
+		if err := decisionHandler.verifyActiveCode(ctx); err != nil {
+			return h.newResp(consts.StatusServiceUnavailable, "active_code_unavailable"), err
+		}
+	}
 
 	fields := logrus.Fields{
 		"cmd":               event.Cmd,
@@ -91,7 +99,7 @@ func (h *TexasPokerEventHandler) Handle(ctx context.Context) (*ddbaby.TexasPoker
 	if decision == nil {
 		var decisionErr error
 		decision, decisionErr = executePokerDecision(
-			ctx, event.UUID, h.token, event.VPIP, event.PFR, candidate.Request,
+			ctx, decisionHandler, candidate.Request,
 		)
 		if decisionErr != nil {
 			service.CompletePokerEventDecision(candidate, nil)

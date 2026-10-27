@@ -40,18 +40,6 @@ func PrepareTexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 	c.Next(ctx)
 }
 
-func texasPokerEventBearerToken(c *app.RequestContext) string {
-	header := strings.TrimSpace(string(c.Request.Header.Peek("Authorization")))
-	if len(header) < 8 || !strings.EqualFold(header[:7], "Bearer ") {
-		return ""
-	}
-	token := strings.TrimSpace(header[7:])
-	if token == "" || strings.ContainsAny(token, " \t\r\n") || len(token) > 4096 {
-		return ""
-	}
-	return token
-}
-
 func writeTexasPokerEventError(c *app.RequestContext, status int, code string) {
 	c.Abort()
 	c.JSON(status, &ddbaby.TexasPokerEventResp{
