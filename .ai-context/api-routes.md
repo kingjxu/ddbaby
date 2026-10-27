@@ -1,5 +1,5 @@
 ---
-version: "1.11"
+version: "1.12"
 last_updated: "2026-10-27"
 ---
 
@@ -7,7 +7,7 @@ last_updated: "2026-10-27"
 
 ## `POST /lyxz/gto_event`
 
-接口由`idl/ddbaby.thrift`中的`TexasPokerEvent`、`TexasPokerEventReq/Resp`维护，路由位于生成的`biz/router/ddbaby/ddbaby.go`，不在`router.go`重复注册。请求公共包络使用生成类型；动态字段`pid/uid/PacketId/data/seq/dataExtra`采用`PokerEventJSON`（IDL binary typedef），其HTTP JSON语义是原始JSON token，由`biz/model/ddbaby/poker_event_json.go`编解码，不是base64或转义字符串。HTTP入口保留512 KiB总body检查，通过`c.BindAndValidate`解析生成请求，再由Handler检查packageName路由；固定字段类型不符返回固定400，不再best-effort忽略解码错误。响应使用生成类型，基础成功/错误只返回BaseResp；有Result时包含原有全部决策字段，HeroCard/CommunityCard保持数组或null。截图decision的旧IDL响应保持独立，不能复用于event。
+接口由`idl/ddbaby.thrift`中的`TexasPokerEvent`、`TexasPokerEventReq/Resp`维护，路由位于生成的`biz/router/ddbaby/ddbaby.go`，不在`router.go`重复注册。请求公共包络使用生成类型；动态字段`pid/uid/PacketId/data/seq/dataExtra`采用`PokerEventJSON`（IDL binary typedef），其HTTP JSON语义是原始JSON token，由`biz/model/ddbaby/poker_event_json.go`编解码，不是base64或转义字符串。HTTP入口保留512 KiB总body检查，只接受`application/json`（允许charset参数）的单个JSON对象；绑定时屏蔽query并在绑定后恢复原URI，禁止查询参数补值或覆盖body字段，再通过`c.BindAndValidate`解析生成请求，再由Handler检查packageName路由；固定字段类型不符返回固定400，不再best-effort忽略解码错误。响应使用生成类型，基础成功/错误只返回BaseResp；有Result时包含原有全部决策字段，HeroCard/CommunityCard保持数组或null。截图decision的旧IDL响应保持独立，不能复用于event。
 
 接收桃园助手从 PokerEYE 分析模块透传的一条牌局事件。JSON请求体不超过512 KiB，按IDL类型绑定，并携带已登记的字符串`packageName`；缺失、非字符串或未知包名返回固定400且不记录原始body。包名与路由类型集中维护在同一张映射表中，新增应用必须显式选择已有状态机或“仅完整日志”路由，不能默认落入AAPoker。`timestamp/vpip/pfr`按整数、`cmd/direction/location/uuid`按字符串绑定，类型不符返回400；不额外校验枚举或业务字段内容。动态字段`pid/uid/PacketId/data/seq/dataExtra`仍保留原始JSON，包括大整数及变化中的DPZX结构，data不设480 KiB子上限。
 

@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
+	"mime"
 	"strings"
 	"time"
 
@@ -56,11 +59,23 @@ func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	mediaType, _, err := mime.ParseMediaType(string(c.Request.Header.ContentType()))
+	trimmed := bytes.TrimSpace(body)
+	if err != nil || mediaType != "application/json" || !json.Valid(trimmed) || trimmed[0] != '{' {
+		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
+		return
+	}
 	// Buffer streamed bodies once so binding and logging use the same JSON.
 	c.Request.SetBody(body)
 	c.Request.Header.SetContentLength(len(body))
+	// Generated models also have query tags. Bind this endpoint from JSON only,
+	// then restore the URI for middleware/access logs.
+	query := string(c.Request.URI().QueryString())
+	c.Request.URI().SetQueryString("")
 	var req ddbaby.TexasPokerEventReq
-	if err = c.BindAndValidate(&req); err != nil {
+	err = c.BindAndValidate(&req)
+	c.Request.URI().SetQueryString(query)
+	if err != nil {
 		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
 		return
 	}
