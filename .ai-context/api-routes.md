@@ -1,5 +1,5 @@
 ---
-version: "1.14"
+version: "1.15"
 last_updated: "2026-10-27"
 ---
 
@@ -7,9 +7,9 @@ last_updated: "2026-10-27"
 
 ## `POST /lyxz/gto_event`
 
-接口由`idl/ddbaby.thrift`中的`TexasPokerEvent`、`TexasPokerEventReq/Resp`维护，路由位于生成的`biz/router/ddbaby/ddbaby.go`，不在`router.go`重复注册。请求公共包络使用生成类型；动态字段`pid/uid/PacketId/data/seq/dataExtra`采用`PokerEventJSON`（IDL binary typedef），其HTTP JSON语义是原始JSON token，由`biz/model/ddbaby/poker_event_json.go`编解码，不是base64或转义字符串。生成路由通过`_texaspokereventMw`挂载`PrepareTexasPokerEvent`中间件，保留512 KiB总body检查，只接受`application/json`（允许charset参数）的单个JSON对象；绑定时屏蔽query并在绑定后恢复原URI，禁止查询参数补值或覆盖body字段。来源只读取顶层精确`packageName`键，拒绝任何大小写变体（包括与精确键并存的情况），路由使用该精确键的字符串值；入口函数再通过`c.BindAndValidate`解析生成请求，再由单参数构造的Handler检查packageName路由；固定字段类型不符返回固定400，不再best-effort忽略解码错误。响应使用生成类型，基础成功/错误只返回BaseResp；有Result时包含原有全部决策字段，HeroCard/CommunityCard保持数组或null。截图decision的旧IDL响应保持独立，不能复用于event。
+接口由`idl/ddbaby.thrift`中的`TexasPokerEvent`、`TexasPokerEventReq/Resp`维护，路由位于生成的`biz/router/ddbaby/ddbaby.go`，不在`router.go`重复注册。请求公共包络使用生成类型；动态字段`pid/uid/PacketId/data/seq/dataExtra`采用`PokerEventJSON`（IDL binary typedef），其HTTP JSON语义是原始JSON token，由`biz/model/ddbaby/poker_event_json.go`编解码，不是base64或转义字符串。生成路由通过`_texaspokereventMw`挂载`PrepareTexasPokerEvent`中间件，请求体由Hertz统一缓冲并限制为4 MiB，移除event专属512 KiB检查和手工流式读取，只接受`application/json`（允许charset参数）的单个JSON对象；绑定时屏蔽query并在绑定后恢复原URI，禁止查询参数补值或覆盖body字段。来源只读取顶层精确`packageName`键，拒绝任何大小写变体（包括与精确键并存的情况），路由使用该精确键的字符串值；入口函数再通过`c.BindAndValidate`解析生成请求，再由单参数构造的Handler检查packageName路由；固定字段类型不符返回固定400，不再best-effort忽略解码错误。响应使用生成类型，基础成功/错误只返回BaseResp；有Result时包含原有全部决策字段，HeroCard/CommunityCard保持数组或null。截图decision的旧IDL响应保持独立，不能复用于event。
 
-接收桃园助手从 PokerEYE 分析模块透传的一条牌局事件。JSON请求体不超过512 KiB，按IDL类型绑定，并携带已登记的字符串`packageName`；缺失、非字符串或未知包名返回固定400且不记录原始body。包名与路由类型集中维护在同一张映射表中，新增应用必须显式选择已有状态机或“仅完整日志”路由，不能默认落入AAPoker。`timestamp/vpip/pfr`按整数、`cmd/direction/location/uuid`按字符串绑定，类型不符返回400；不额外校验枚举或业务字段内容。动态字段`pid/uid/PacketId/data/seq/dataExtra`仍保留原始JSON，包括大整数及变化中的DPZX结构，data不设480 KiB子上限。
+接收桃园助手从 PokerEYE 分析模块透传的一条牌局事件。JSON请求体不超过4 MiB（与其他HTTP接口统一，超限由Hertz返回413），按IDL类型绑定，并携带已登记的字符串`packageName`；缺失、非字符串或未知包名返回固定400且不记录原始body。包名与路由类型集中维护在同一张映射表中，新增应用必须显式选择已有状态机或“仅完整日志”路由，不能默认落入AAPoker。`timestamp/vpip/pfr`按整数、`cmd/direction/location/uuid`按字符串绑定，类型不符返回400；不额外校验枚举或业务字段内容。动态字段`pid/uid/PacketId/data/seq/dataExtra`仍保留原始JSON，包括大整数及变化中的DPZX结构，data不设480 KiB子上限。
 
 白名单内事件通过校验后都会记录完整JSON。AAPoker和DPZX分别进入独立的协议状态机，不能把DPZX数字cmd映射到AAPoker的`REQ_GAME_*`分支；两者在生成统一`TexasGtoDecisionReq`后复用GTO、计费、审计和结果回放链路。
 

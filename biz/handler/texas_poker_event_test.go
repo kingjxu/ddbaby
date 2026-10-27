@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"strings"
 	"testing"
 	"time"
@@ -16,11 +15,6 @@ import (
 	"github.com/kingjxu/ddbaby/model"
 	"github.com/sirupsen/logrus"
 )
-
-type countingReader struct {
-	reader io.Reader
-	read   int
-}
 
 // Use the same middleware chain as the generated HTTP route.
 func serveTexasPokerEventForTest(c *app.RequestContext) {
@@ -72,12 +66,6 @@ func TestTexasPokerEventHandlerHandlesWithoutHTTPContext(t *testing.T) {
 			}
 		})
 	}
-}
-
-func (r *countingReader) Read(p []byte) (int, error) {
-	n, err := r.reader.Read(p)
-	r.read += n
-	return n, err
 }
 
 func TestBindTexasPokerEvent(t *testing.T) {
@@ -147,24 +135,20 @@ func TestTexasPokerEventMiddlewarePreservesRequestContext(t *testing.T) {
 		c.Request.SetRequestURI("/lyxz/gto_event?PackageName=com.plusaa.amula&Cmd=ignored")
 		c.Request.Header.Set("Content-Type", "application/json")
 		c.Request.SetBodyString(body)
-		before := time.Now()
 		serveTexasPokerEventForTest(&c)
-		receivedAt := c.GetTime(pokerEventReceivedAtKey)
-		if receivedAt.Before(before) || receivedAt.After(time.Now()) {
-			t.Fatalf("request reception time was lost: %v", receivedAt)
-		}
 		if string(c.Request.Body()) != body || string(c.Request.URI().QueryString()) != "PackageName=com.plusaa.amula&Cmd=ignored" {
 			t.Fatal("middleware did not preserve the raw body and original query")
 		}
 	}
 }
 
-func TestTexasPokerEventBindsStreamedJSON(t *testing.T) {
+func TestTexasPokerEventBindsBufferedJSON(t *testing.T) {
 	body := `{"packageName":"com.dpzx.pro","cmd":"401","data":{"marker":"stream-event"}}`
 	var c app.RequestContext
 	c.Request.SetMethod("POST")
 	c.Request.Header.Set("Content-Type", "application/json")
-	c.Request.SetBodyStream(strings.NewReader(body), -1)
+	c.Request.SetBodyString(body)
+	c.Request.Header.SetContentLength(len(body))
 	var logs bytes.Buffer
 	previousOutput := logrus.StandardLogger().Out
 	logrus.SetOutput(&logs)
@@ -225,34 +209,6 @@ func TestTexasPokerEventDoesNotRateLimitAndLogsEveryPayload(t *testing.T) {
 	}
 }
 
-func TestReadTexasPokerEventBodyLimitsStreamBeforeFullBuffer(t *testing.T) {
-	source := &countingReader{reader: bytes.NewReader(
-		bytes.Repeat([]byte("x"), maxTexasPokerEventBytes+64*1024),
-	)}
-	var requestContext app.RequestContext
-	requestContext.Request.SetBodyStream(source, -1)
-
-	if _, err := readTexasPokerEventBody(&requestContext); err == nil {
-		t.Fatal("expected oversized stream to be rejected")
-	}
-	if source.read != maxTexasPokerEventBytes+1 {
-		t.Fatalf("read %d bytes, want %d", source.read, maxTexasPokerEventBytes+1)
-	}
-}
-
-func TestReadTexasPokerEventBodyRejectsOversizedContentLengthWithoutReading(t *testing.T) {
-	source := &countingReader{reader: strings.NewReader("not read")}
-	var requestContext app.RequestContext
-	requestContext.Request.SetBodyStream(source, maxTexasPokerEventBytes+1)
-
-	if _, err := readTexasPokerEventBody(&requestContext); err == nil {
-		t.Fatal("expected oversized content length to be rejected")
-	}
-	if source.read != 0 {
-		t.Fatalf("read %d bytes, want 0", source.read)
-	}
-}
-
 func TestBindTexasPokerEventRejectsInvalidInput(t *testing.T) {
 	tests := map[string]string{
 		"bad json":           `{`,
@@ -281,7 +237,7 @@ func TestBindTexasPokerEventValidatesTypedFields(t *testing.T) {
 
 	largeData := `"` + strings.Repeat("a", 490*1024) + `"`
 	largeBody := `{"packageName":"com.dpzx.pro","data":` + largeData + `}`
-	if len(largeBody) >= maxTexasPokerEventBytes {
+	if len(largeBody) >= 4*1024*1024 {
 		t.Fatalf("test body unexpectedly exceeds total body limit: %d", len(largeBody))
 	}
 	if _, err := bindTexasPokerTestEvent([]byte(largeBody)); err != nil {

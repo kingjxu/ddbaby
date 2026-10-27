@@ -56,7 +56,6 @@ func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 	handler := NewTexasPokerEventHandler(&req)
 	handler.rawBody = c.Request.Body()
 	handler.token = texasPokerEventBearerToken(c)
-	handler.now = c.GetTime(pokerEventReceivedAtKey)
 	resp, _ := handler.Handle(ctx)
 	status := consts.StatusOK
 	if resp.BaseResp.StatusCode != 0 {

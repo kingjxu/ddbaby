@@ -1,5 +1,5 @@
 ---
-version: "1.10"
+version: "1.11"
 last_updated: "2026-10-27"
 ---
 
@@ -7,10 +7,10 @@ last_updated: "2026-10-27"
 
 ## 入口与层级
 
-- `main.go` 创建 Hertz 服务并初始化 MySQL。
+- `main.go` 创建Hertz服务并初始化MySQL；所有路由统一由Hertz缓冲请求体并执行4 MiB上限，不开启WithStreamBody，也不再手工限流式读取。
 - `idl/ddbaby.thrift`统一维护`TexasPokerDecision`和`TexasPokerEvent`，生成的`biz/router/ddbaby/ddbaby.go`注册`POST /lyxz/gto_decision`与`POST /lyxz/gto_event`。`make generate`使用hz v0.9.1、thriftgo v0.4.2执行update（slim、use_type_alias=false）；`.hz`保存目录配置，禁止使用force new覆盖业务handler。动态事件JSON编解码和基础响应字段省略规则放在生成目录内的独立`poker_event_json.go`，重新生成不得覆盖该扩展文件。
 - `biz/handler/texas_poker_decision.go` 负责校验、识别、缓存和决策编排。
-- event入口与decision采用相同的`BindAndValidate → NewTexasPokerEventHandler(req) → Handle → 响应`组织方式，HTTP入口和业务Handler保留在`texas_poker_event.go`。HTTP入口只绑定生成请求、补入原始body/Bearer/接收时间并映射响应；业务`Handle`按校验、独立牌局重建、策略/结果回放顺序提前返回，不依赖Hertz RequestContext。传输约束放在`texas_poker_event_http.go`的`PrepareTexasPokerEvent`路由中间件，由生成路由的`_texaspokereventMw`挂载：有界读取512 KiB、单个application/json对象、精确packageName/大小写歧义检查、query隔离及URI恢复；中间件开始时记录接收时间。Handler构造器与decision一样只接收生成请求。动态JSON保留原始token及大整数，完整日志仍在来源路由通过之后。BaseResp.StatusCode为0返回HTTP200，非法入口固定400，决策临时失败固定503；这些业务语义不因代码风格调整而改成一律200。
+- event入口与decision采用相同的`BindAndValidate → NewTexasPokerEventHandler(req) → Handle → 响应`组织方式，HTTP入口和业务Handler保留在`texas_poker_event.go`。HTTP入口只绑定生成请求、补入原始body/Bearer并映射响应；业务`Handle`按校验、独立牌局重建、策略/结果回放顺序提前返回，不依赖Hertz RequestContext。传输约束放在`texas_poker_event_http.go`的`PrepareTexasPokerEvent`路由中间件，由生成路由的`_texaspokereventMw`挂载：单个application/json对象、精确packageName/大小写歧义检查、query隔离及URI恢复；该中间件直接使用Hertz已缓冲的body，不再读取或重设请求体。Handler构造器与decision一样只接收生成请求，并在构造时取当前服务端时间供状态和结果TTL使用，不再通过HTTP上下文传递now。动态JSON保留原始token及大整数，完整日志仍在来源路由通过之后。BaseResp.StatusCode为0返回HTTP200，非法入口固定400，决策临时失败固定503；这些业务语义不因代码风格调整而改成一律200。
 - `service/texas_poker.go` 调用外部识别服务与 GTO 决策服务。
 - `dal/local_mem.go` 按用户保存同一手牌各阶段的识别结果。
 - `model/recognize_poker.go` 把识别结果转换为玩家、位置和行动历史。

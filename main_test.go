@@ -3,19 +3,60 @@ package main
 import (
 	"bytes"
 	"context"
+	"fmt"
+	"io"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/test/mock"
 	"github.com/cloudwego/hertz/pkg/common/ut"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/sirupsen/logrus"
 )
 
-func TestServerStreamsRequestBodiesForRouteSpecificLimits(t *testing.T) {
+func TestHertzAppliesUnifiedBufferedBodyLimit(t *testing.T) {
 	h := newHertzServer()
-	if !h.IsStreamRequestBody() {
-		t.Fatal("request body streaming must remain enabled")
+	register(h)
+	h.POST("/existing", func(ctx context.Context, c *app.RequestContext) {
+		c.String(consts.StatusOK, "ok")
+	})
+	if err := h.Init(); err != nil {
+		t.Fatal(err)
+	}
+	previous := logrus.StandardLogger().Out
+	logrus.SetOutput(io.Discard)
+	t.Cleanup(func() { logrus.SetOutput(previous) })
+	for _, path := range []string{"/existing", "/lyxz/gto_event"} {
+		for _, size := range []int{512*1024 + 1, defaultMaxRequestBodyBytes, defaultMaxRequestBodyBytes + 1} {
+			for _, chunked := range []bool{false, true} {
+				t.Run(fmt.Sprintf("%s/%d/chunked=%t", path, size, chunked), func(t *testing.T) {
+					prefix, suffix := `{"packageName":"com.dpzx.pro","data":"`, `"}`
+					body := prefix + strings.Repeat("a", size-len(prefix)-len(suffix)) + suffix
+					header := fmt.Sprintf("Content-Length: %d\r\n", len(body))
+					if chunked {
+						header = "Transfer-Encoding: chunked\r\n"
+						body = fmt.Sprintf("%x\r\n%s\r\n0\r\n\r\n", len(body), body)
+					}
+					conn := mock.NewConn("POST " + path + " HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\nContent-Type: application/json\r\n" + header + "\r\n" + body)
+					conn.SetReadTimeout(time.Second)
+					_ = h.Serve(context.Background(), conn)
+					recorder := conn.WriterRecorder()
+					response, err := recorder.Peek(recorder.WroteLen())
+					if err != nil {
+						t.Fatal(err)
+					}
+					wantStatus := consts.StatusOK
+					if size > defaultMaxRequestBodyBytes {
+						wantStatus = consts.StatusRequestEntityTooLarge
+					}
+					if !strings.HasPrefix(string(response), fmt.Sprintf("HTTP/1.1 %d ", wantStatus)) {
+						t.Fatalf("HTTP response = %.200s", response)
+					}
+				})
+			}
+		}
 	}
 }
 
@@ -38,19 +79,6 @@ func TestGeneratedEventRouteRetainsWireProtocol(t *testing.T) {
 		if strings.Contains(response.Body.String(), "HeroCard") {
 			t.Fatalf("basic response contains decision fields: %s", response.Body.String())
 		}
-	}
-}
-
-func TestExistingRoutesRetainFourMiBBodyLimit(t *testing.T) {
-	var requestContext app.RequestContext
-	requestContext.Request.SetRequestURI("/existing")
-	requestContext.Request.SetBodyStream(
-		bytes.NewReader(make([]byte, defaultMaxRequestBodyBytes+1)), -1,
-	)
-
-	preserveDefaultRequestBodyLimit(context.Background(), &requestContext)
-	if requestContext.Response.StatusCode() != consts.StatusRequestEntityTooLarge {
-		t.Fatalf("status = %d, want 413", requestContext.Response.StatusCode())
 	}
 }
 
