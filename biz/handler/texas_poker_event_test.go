@@ -12,6 +12,7 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	"github.com/kingjxu/ddbaby/model"
 	"github.com/sirupsen/logrus"
 )
@@ -19,6 +20,32 @@ import (
 type countingReader struct {
 	reader io.Reader
 	read   int
+}
+
+func TestTexasPokerEventHandlerHandlesWithoutHTTPContext(t *testing.T) {
+	for _, test := range []struct {
+		name     string
+		req      *ddbaby.TexasPokerEventReq
+		wantCode int32
+	}{
+		{name: "missing request", wantCode: 400},
+		{name: "unknown package", req: &ddbaby.TexasPokerEventReq{PackageName: "unknown"}, wantCode: 400},
+		{name: "accepted event", req: &ddbaby.TexasPokerEventReq{PackageName: dpzxPackageName}},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			handler := NewTexasPokerEventHandler(test.req, []byte(`{"marker":"handler-test"}`), "")
+			response, err := handler.Handle(context.Background())
+			if (err != nil) != (test.wantCode != 0) {
+				t.Fatalf("Handle error = %v", err)
+			}
+			if response == nil || response.BaseResp == nil || response.BaseResp.StatusCode != test.wantCode {
+				t.Fatalf("Handle response = %+v", response)
+			}
+			if response.Result != nil {
+				t.Fatal("basic event unexpectedly produced a decision")
+			}
+		})
+	}
 }
 
 func (r *countingReader) Read(p []byte) (int, error) {

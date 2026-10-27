@@ -66,11 +66,50 @@ func texasPokerEventAt(ctx context.Context, c *app.RequestContext, now time.Time
 		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
 		return
 	}
+	handler := NewTexasPokerEventHandler(&event.TexasPokerEventReq, body, texasPokerEventBearerToken(c))
+	handler.now = now
+	response, _ := handler.Handle(ctx)
+	status := consts.StatusOK
+	if response.BaseResp.StatusCode != 0 {
+		status = int(response.BaseResp.StatusCode)
+	}
+	c.JSON(status, response)
+}
+
+type TexasPokerEventHandler struct {
+	req     *ddbaby.TexasPokerEventReq
+	rawBody []byte
+	token   string
+	now     time.Time
+	route   pokerEventRoute
+}
+
+func NewTexasPokerEventHandler(req *ddbaby.TexasPokerEventReq, rawBody []byte, token string) *TexasPokerEventHandler {
+	return &TexasPokerEventHandler{req: req, rawBody: rawBody, token: token, now: time.Now()}
+}
+
+func (h *TexasPokerEventHandler) check() error {
+	if h.req == nil {
+		return errors.New("event is missing")
+	}
+	route, supported := pokerEventPackageRoutes[h.req.PackageName]
+	if !supported {
+		return errors.New("invalid packageName")
+	}
+	h.route = route
+	return nil
+}
+
+func (h *TexasPokerEventHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerEventResp, error) {
+	if err := h.check(); err != nil {
+		return h.newResp(consts.StatusBadRequest, "invalid_event"), err
+	}
+	event := &texasPokerEvent{TexasPokerEventReq: *h.req, route: h.route}
 
 	fields := logrus.Fields{
 		"cmd":               event.Cmd,
 		"direction":         event.Direction,
-		"event":             string(body),
+		"event":             string(h.rawBody),
 		"full_event_logged": true,
 		"location":          event.Location,
 		"package_name":      event.PackageName,
@@ -78,16 +117,14 @@ func texasPokerEventAt(ctx context.Context, c *app.RequestContext, now time.Time
 	}
 	logrus.WithContext(ctx).WithFields(fields).Info("[TexasPokerEvent] accepted")
 
-	response := &ddbaby.TexasPokerEventResp{
-		BaseResp: &ddbaby.BaseResp{StatusCode: 0, StatusMessage: "success"},
-	}
+	response := h.newResp(0, "success")
 	var candidate *aapokerDecisionCandidate
 	var stateErr error
 	switch event.route {
 	case pokerEventRouteAAPoker:
-		candidate, stateErr = texasPokerEventStates.process(event, now)
+		candidate, stateErr = texasPokerEventStates.process(event, h.now)
 	case pokerEventRouteDPZX:
-		candidate, stateErr = dpzxPokerEventStates.process(event, now)
+		candidate, stateErr = dpzxPokerEventStates.process(event, h.now)
 	}
 	if stateErr != nil {
 		logrus.WithContext(ctx).WithFields(fields).
@@ -95,23 +132,27 @@ func texasPokerEventAt(ctx context.Context, c *app.RequestContext, now time.Time
 	} else if candidate != nil {
 		decision := candidate.Cached
 		if decision == nil {
-			token := texasPokerEventBearerToken(c)
 			var decisionErr error
 			decision, decisionErr = executeAAPokerDecisionForEvent(
-				ctx, event.UUID, token, event.VPIP, event.PFR, candidate.Request,
+				ctx, event.UUID, h.token, event.VPIP, event.PFR, candidate.Request,
 			)
 			if decisionErr != nil {
-				completePokerEventDecision(event.route, candidate, nil, now)
+				completePokerEventDecision(event.route, candidate, nil, h.now)
 				logrus.WithContext(ctx).WithFields(fields).
 					Warnf("[TexasPokerEvent] decision retry required:%v", decisionErr)
-				writeTexasPokerEventError(c, consts.StatusServiceUnavailable, "decision_retry")
-				return
+				return h.newResp(consts.StatusServiceUnavailable, "decision_retry"), decisionErr
 			}
-			completePokerEventDecision(event.route, candidate, decision, now)
+			completePokerEventDecision(event.route, candidate, decision, h.now)
 		}
 		writeAAPokerDecisionResponse(response, decision)
 	}
-	c.JSON(consts.StatusOK, response)
+	return response, nil
+}
+
+func (h *TexasPokerEventHandler) newResp(status int, message string) *ddbaby.TexasPokerEventResp {
+	return &ddbaby.TexasPokerEventResp{
+		BaseResp: &ddbaby.BaseResp{StatusCode: int32(status), StatusMessage: message},
+	}
 }
 
 func completePokerEventDecision(
