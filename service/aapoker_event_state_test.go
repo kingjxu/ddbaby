@@ -1,4 +1,4 @@
-package handler
+package service
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ func TestAAPokerEventStateReplaysHandAndDeduplicatesHeroTurn(t *testing.T) {
 	registry := newAAPokerEventRegistry()
 	now := time.Unix(1792526400, 0)
 
-	apply := func(command string, payload string) *aapokerDecisionCandidate {
+	apply := func(command string, payload string) *PokerEventDecision {
 		t.Helper()
 		event := testAAPokerEvent(command, payload)
 		candidate, err := registry.process(event, now)
@@ -60,10 +60,10 @@ func TestAAPokerEventStateReplaysHandAndDeduplicatesHeroTurn(t *testing.T) {
 
 	registry.complete(candidate, nil, now)
 	retry := apply("REQ_GAME_RECV_ACTION", `{"seatID":7,"action":2,"operationID":0,"anteNumber":8,"operationRound":20}`)
-	if retry == nil || retry.TurnKey != candidate.TurnKey {
+	if retry == nil || retry.turnKey != candidate.turnKey {
 		t.Fatal("failed decision did not preserve retry eligibility")
 	}
-	want := &aapokerDecisionResult{Result: "Call 8", HeroCard: []string{"A-D", "K-C"}}
+	want := &PokerEventDecisionResult{Result: "Call 8", HeroCard: []string{"A-D", "K-C"}}
 	registry.complete(retry, want, now)
 	duplicate := apply("REQ_GAME_RECV_ACTION", `{"seatID":7,"action":2,"operationID":0,"anteNumber":8,"operationRound":20}`)
 	if duplicate == nil || duplicate.Cached == nil || duplicate.Cached.Result != want.Result {
@@ -138,21 +138,21 @@ func TestAAPokerDecisionCacheExpiresAndStaysBounded(t *testing.T) {
 	registry := newAAPokerEventRegistry()
 	now := time.Unix(1792526400, 0)
 	registry.results["expired"] = aapokerDecisionCacheEntry{
-		createdAt: now.Add(-aapokerDecisionResultTTL - time.Second),
-		result:    &aapokerDecisionResult{Result: "expired"},
+		createdAt: now.Add(-PokerEventDecisionResultTTL - time.Second),
+		result:    &PokerEventDecisionResult{Result: "expired"},
 	}
 	for index := 0; index < maxAAPokerDecisionResults; index++ {
 		key := fmt.Sprintf("cached-%04d", index)
 		registry.results[key] = aapokerDecisionCacheEntry{
 			createdAt: now.Add(time.Duration(index) * time.Millisecond),
-			result:    &aapokerDecisionResult{Result: key},
+			result:    &PokerEventDecisionResult{Result: key},
 		}
 	}
 	registry.sessions["new-session"] = &aapokerTableState{inFlightTurn: "new-turn"}
-	registry.complete(&aapokerDecisionCandidate{
-		SessionKey: "new-session",
-		TurnKey:    "new-turn",
-	}, &aapokerDecisionResult{Result: "new"}, now.Add(time.Minute))
+	registry.complete(&PokerEventDecision{
+		sessionKey: "new-session",
+		turnKey:    "new-turn",
+	}, &PokerEventDecisionResult{Result: "new"}, now.Add(time.Minute))
 
 	if len(registry.results) != maxAAPokerDecisionResults {
 		t.Fatalf("cached result count = %d", len(registry.results))
@@ -182,7 +182,7 @@ func TestAAPokerEventStateAllowsOnlyOneConcurrentDecisionPerTurn(t *testing.T) {
 
 	const callers = 16
 	start := make(chan struct{})
-	candidates := make(chan *aapokerDecisionCandidate, callers)
+	candidates := make(chan *PokerEventDecision, callers)
 	errors := make(chan error, callers)
 	var wait sync.WaitGroup
 	for index := 0; index < callers; index++ {

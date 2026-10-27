@@ -1,4 +1,4 @@
-package handler
+package service
 
 import (
 	"bytes"
@@ -14,17 +14,19 @@ import (
 )
 
 const (
-	maxAAPokerSessions        = 512
-	aapokerSessionTTL         = 30 * time.Minute
-	maxAAPokerDecisionResults = 1024
-	aapokerDecisionResultTTL  = 30 * time.Minute
+	maxAAPokerSessions          = 512
+	aapokerSessionTTL           = 30 * time.Minute
+	maxAAPokerDecisionResults   = 1024
+	PokerEventDecisionResultTTL = 30 * time.Minute
 )
 
-type aapokerDecisionCandidate struct {
-	SessionKey string
-	TurnKey    string
+// PokerEventDecision is a reserved Hero turn or a previously completed result.
+type PokerEventDecision struct {
+	route      pokerEventRoute
+	sessionKey string
+	turnKey    string
 	Request    *model.TexasGtoDecisionReq
-	Cached     *aapokerDecisionResult
+	Cached     *PokerEventDecisionResult
 }
 
 type aapokerEventRegistry struct {
@@ -35,7 +37,7 @@ type aapokerEventRegistry struct {
 
 type aapokerDecisionCacheEntry struct {
 	createdAt time.Time
-	result    *aapokerDecisionResult
+	result    *PokerEventDecisionResult
 }
 
 type aapokerTableState struct {
@@ -136,7 +138,7 @@ func newAAPokerEventRegistry() *aapokerEventRegistry {
 	}
 }
 
-func (r *aapokerEventRegistry) process(event *texasPokerEvent, now time.Time) (*aapokerDecisionCandidate, error) {
+func (r *aapokerEventRegistry) process(event *texasPokerEvent, now time.Time) (*PokerEventDecision, error) {
 	if event == nil || event.UUID == "" || event.Direction != "ServerToClient" || event.Location != "TABLE" {
 		return nil, nil
 	}
@@ -176,9 +178,9 @@ func (r *aapokerEventRegistry) process(event *texasPokerEvent, now time.Time) (*
 	}
 	cacheKey := decisionCacheKey(sessionKey, turnKey)
 	if cached, ok := r.results[cacheKey]; ok {
-		return &aapokerDecisionCandidate{
-			SessionKey: sessionKey,
-			TurnKey:    turnKey,
+		return &PokerEventDecision{
+			sessionKey: sessionKey,
+			turnKey:    turnKey,
 			Cached:     cloneAAPokerDecisionResult(cached.result),
 		}, nil
 	}
@@ -186,12 +188,12 @@ func (r *aapokerEventRegistry) process(event *texasPokerEvent, now time.Time) (*
 		return nil, nil
 	}
 	state.inFlightTurn = turnKey
-	return &aapokerDecisionCandidate{SessionKey: sessionKey, TurnKey: turnKey, Request: request}, nil
+	return &PokerEventDecision{sessionKey: sessionKey, turnKey: turnKey, Request: request}, nil
 }
 
 func (r *aapokerEventRegistry) complete(
-	candidate *aapokerDecisionCandidate,
-	result *aapokerDecisionResult,
+	candidate *PokerEventDecision,
+	result *PokerEventDecisionResult,
 	now time.Time,
 ) {
 	if candidate == nil {
@@ -199,18 +201,18 @@ func (r *aapokerEventRegistry) complete(
 	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	state := r.sessions[candidate.SessionKey]
-	if state == nil || state.inFlightTurn != candidate.TurnKey {
+	state := r.sessions[candidate.sessionKey]
+	if state == nil || state.inFlightTurn != candidate.turnKey {
 		return
 	}
 	state.inFlightTurn = ""
 	if result != nil {
-		state.decidedTurn = candidate.TurnKey
+		state.decidedTurn = candidate.turnKey
 		r.removeExpiredResults(now)
 		if len(r.results) >= maxAAPokerDecisionResults {
 			r.removeOldestResult()
 		}
-		r.results[decisionCacheKey(candidate.SessionKey, candidate.TurnKey)] =
+		r.results[decisionCacheKey(candidate.sessionKey, candidate.turnKey)] =
 			aapokerDecisionCacheEntry{
 				createdAt: now,
 				result:    cloneAAPokerDecisionResult(result),
@@ -222,7 +224,7 @@ func decisionCacheKey(sessionKey, turnKey string) string {
 	return sessionKey + "\x00" + turnKey
 }
 
-func cloneAAPokerDecisionResult(result *aapokerDecisionResult) *aapokerDecisionResult {
+func cloneAAPokerDecisionResult(result *PokerEventDecisionResult) *PokerEventDecisionResult {
 	if result == nil {
 		return nil
 	}
@@ -234,7 +236,7 @@ func cloneAAPokerDecisionResult(result *aapokerDecisionResult) *aapokerDecisionR
 
 func (r *aapokerEventRegistry) removeExpiredResults(now time.Time) {
 	for key, entry := range r.results {
-		if now.Sub(entry.createdAt) > aapokerDecisionResultTTL {
+		if now.Sub(entry.createdAt) > PokerEventDecisionResultTTL {
 			delete(r.results, key)
 		}
 	}
@@ -684,7 +686,7 @@ func aapokerPositions(playerCount int) []string {
 	}
 }
 
-func eventHeroMaxTarget(request *model.TexasGtoDecisionReq) int {
+func PokerEventHeroMaxTarget(request *model.TexasGtoDecisionReq) int {
 	if request == nil {
 		return 0
 	}

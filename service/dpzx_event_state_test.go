@@ -1,16 +1,11 @@
-package handler
+package service
 
 import (
-	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
 	"github.com/kingjxu/ddbaby/model"
 )
@@ -22,7 +17,7 @@ const dpzxRealHandStart = `[[{"index":1,"value":100,"score":7000,"startState":2,
 func TestDPZXEventStateBuildsDecisionFromRealHeroTurn(t *testing.T) {
 	registry := newDPZXEventRegistry()
 	now := time.Unix(1793076600, 0)
-	apply := func(command, payload string, timestamp int64) *aapokerDecisionCandidate {
+	apply := func(command, payload string, timestamp int64) *PokerEventDecision {
 		t.Helper()
 		candidate, err := registry.process(testDPZXEvent(command, payload, timestamp), now)
 		if err != nil {
@@ -66,10 +61,10 @@ func TestDPZXEventStateBuildsDecisionFromRealHeroTurn(t *testing.T) {
 
 	registry.complete(candidate, nil, now)
 	retry := apply("432", `[3,15,0,100,true]`, 1793076617478)
-	if retry == nil || retry.TurnKey != candidate.TurnKey {
+	if retry == nil || retry.turnKey != candidate.turnKey {
 		t.Fatal("failed DPZX decision did not retain retry eligibility")
 	}
-	want := &aapokerDecisionResult{Result: "Call 100", HeroCard: []string{"10-H", "6-S"}}
+	want := &PokerEventDecisionResult{Result: "Call 100", HeroCard: []string{"10-H", "6-S"}}
 	registry.complete(retry, want, now)
 	replayed := apply("432", `[3,15,0,100,true]`, 1793076617478)
 	if replayed == nil || replayed.Cached == nil || replayed.Cached.Result != want.Result {
@@ -239,7 +234,7 @@ func TestDPZXEventStateRejectsInvalidHeroCardsAfterValidCards(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			registry := newDPZXEventRegistry()
 			now := time.Unix(1793076600, 0)
-			apply := func(command, payload string, timestamp int64) (*aapokerDecisionCandidate, error) {
+			apply := func(command, payload string, timestamp int64) (*PokerEventDecision, error) {
 				candidate, err := registry.process(testDPZXEvent(command, payload, timestamp), now)
 				now = now.Add(time.Millisecond)
 				return candidate, err
@@ -264,67 +259,6 @@ func TestDPZXEventStateRejectsInvalidHeroCardsAfterValidCards(t *testing.T) {
 				t.Fatal("Hero prompt after invalid cards produced a decision candidate")
 			}
 		})
-	}
-}
-
-func TestTexasPokerEventRoutesDPZXThroughDecisionResponse(t *testing.T) {
-	previousRegistry := dpzxPokerEventStates
-	previousExecute := executeAAPokerDecisionForEvent
-	dpzxPokerEventStates = newDPZXEventRegistry()
-	calls := 0
-	executeAAPokerDecisionForEvent = func(
-		_ context.Context, uuid, token string, _, _ int32, request *model.TexasGtoDecisionReq,
-	) (*aapokerDecisionResult, error) {
-		calls++
-		if uuid != "hero@example.com" || token != "session-token" || request.CurrentPlayerPosition != "UTG-Hero" {
-			t.Fatalf("unexpected decision input: uuid=%q token=%q request=%+v", uuid, token, request)
-		}
-		if calls == 1 {
-			return nil, errors.New("temporary GTO failure")
-		}
-		return &aapokerDecisionResult{
-			Result: "Call 100", HeroCard: []string{"10-H", "6-S"},
-			DecisionAction: "call", DecisionAmount: 0, HeroMaxTarget: 4975,
-		}, nil
-	}
-	t.Cleanup(func() {
-		dpzxPokerEventStates = previousRegistry
-		executeAAPokerDecisionForEvent = previousExecute
-	})
-
-	post := func(command, payload string, timestamp int64) *app.RequestContext {
-		t.Helper()
-		body := fmt.Sprintf(`{"packageName":"com.dpzx.pro","uuid":"hero@example.com","vpip":0,"pfr":0,"timestamp":%d,"uid":2773921,"cmd":%q,"direction":"ServerToClient","location":"TABLE","data":%s}`,
-			timestamp, command, payload)
-		requestContext := &app.RequestContext{}
-		requestContext.Request.SetMethod("POST")
-		requestContext.Request.Header.Set("Content-Type", "application/json")
-		requestContext.Request.SetBodyString(body)
-		requestContext.Request.Header.SetContentLength(len(body))
-		requestContext.Request.Header.Set("Authorization", "Bearer session-token")
-		serveTexasPokerEventForTest(requestContext)
-		return requestContext
-	}
-
-	post("430", dpzxRealRoomSnapshot, 1793076613000)
-	post("431", dpzxRealHandStart, 1793076615000)
-	post("432", `[2,15,0,100,true]`, 1793076615500)
-	post("492", `[false,[{"index":3,"vecCards":[{"value":8},{"value":43}]}]]`, 1793076615600)
-	post("433", `[{"index":2,"betState":2,"score":5904,"betted":100}]`, 1793076617000)
-	post("403", `[425]`, 1793076617100)
-	failed := post("432", `[3,15,0,100,true]`, 1793076617478)
-	if failed.Response.StatusCode() != consts.StatusServiceUnavailable || calls != 1 {
-		t.Fatalf("failed response/calls = %s/%d", failed.Response.Body(), calls)
-	}
-	decision := post("432", `[3,15,0,100,true]`, 1793076617478)
-	if decision.Response.StatusCode() != consts.StatusOK ||
-		!strings.Contains(string(decision.Response.Body()), `"Result":"Call 100"`) || calls != 2 {
-		t.Fatalf("decision response/calls = %s/%d", decision.Response.Body(), calls)
-	}
-	replayed := post("432", `[3,15,0,100,true]`, 1793076617478)
-	if replayed.Response.StatusCode() != consts.StatusOK ||
-		!strings.Contains(string(replayed.Response.Body()), `"Result":"Call 100"`) || calls != 2 {
-		t.Fatalf("replay response/calls = %s/%d", replayed.Response.Body(), calls)
 	}
 }
 

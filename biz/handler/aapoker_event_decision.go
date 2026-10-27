@@ -13,15 +13,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type aapokerDecisionResult struct {
-	Result         string   `json:"Result"`
-	HeroCard       []string `json:"HeroCard"`
-	CommunityCard  []string `json:"CommunityCard"`
-	DecisionAction string   `json:"DecisionAction"`
-	DecisionAmount int      `json:"DecisionAmount"`
-	HeroMaxTarget  int      `json:"HeroMaxTarget"`
-}
-
 func executeAAPokerDecision(
 	ctx context.Context,
 	uuid string,
@@ -29,7 +20,7 @@ func executeAAPokerDecision(
 	vpip int32,
 	pfr int32,
 	request *model.TexasGtoDecisionReq,
-) (*aapokerDecisionResult, error) {
+) (*service.PokerEventDecisionResult, error) {
 	if request == nil || uuid == "" {
 		return nil, errors.New("decision identity or request is missing")
 	}
@@ -74,12 +65,12 @@ func executeAAPokerDecision(
 			break
 		}
 	}
-	return &aapokerDecisionResult{
+	return &service.PokerEventDecisionResult{
 		Result:         handler.getFinalAction(request, response),
 		HeroCard:       heroCards,
 		CommunityCard:  append([]string(nil), request.CommunityCards...),
 		DecisionAction: response.Action,
 		DecisionAmount: response.RaiseSize,
-		HeroMaxTarget:  eventHeroMaxTarget(request),
+		HeroMaxTarget:  service.PokerEventHeroMaxTarget(request),
 	}, nil
 }

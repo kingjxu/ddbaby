@@ -1,4 +1,4 @@
-package handler
+package service
 
 import (
 	"encoding/json"
@@ -101,7 +101,7 @@ func newDPZXEventRegistry() *dpzxEventRegistry {
 	}
 }
 
-func (r *dpzxEventRegistry) process(event *texasPokerEvent, now time.Time) (*aapokerDecisionCandidate, error) {
+func (r *dpzxEventRegistry) process(event *texasPokerEvent, now time.Time) (*PokerEventDecision, error) {
 	if event == nil || event.UUID == "" || event.Direction != "ServerToClient" || event.Location != "TABLE" {
 		return nil, nil
 	}
@@ -135,9 +135,9 @@ func (r *dpzxEventRegistry) process(event *texasPokerEvent, now time.Time) (*aap
 	}
 	cacheKey := decisionCacheKey(sessionKey, turnKey)
 	if cached, exists := r.results[cacheKey]; exists {
-		return &aapokerDecisionCandidate{
-			SessionKey: sessionKey,
-			TurnKey:    turnKey,
+		return &PokerEventDecision{
+			sessionKey: sessionKey,
+			turnKey:    turnKey,
 			Cached:     cloneAAPokerDecisionResult(cached.result),
 		}, nil
 	}
@@ -145,12 +145,12 @@ func (r *dpzxEventRegistry) process(event *texasPokerEvent, now time.Time) (*aap
 		return nil, nil
 	}
 	state.inFlightTurn = turnKey
-	return &aapokerDecisionCandidate{SessionKey: sessionKey, TurnKey: turnKey, Request: request}, nil
+	return &PokerEventDecision{sessionKey: sessionKey, turnKey: turnKey, Request: request}, nil
 }
 
 func (r *dpzxEventRegistry) complete(
-	candidate *aapokerDecisionCandidate,
-	result *aapokerDecisionResult,
+	candidate *PokerEventDecision,
+	result *PokerEventDecisionResult,
 	now time.Time,
 ) {
 	if candidate == nil {
@@ -158,20 +158,20 @@ func (r *dpzxEventRegistry) complete(
 	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	state := r.sessions[candidate.SessionKey]
-	if state == nil || state.inFlightTurn != candidate.TurnKey {
+	state := r.sessions[candidate.sessionKey]
+	if state == nil || state.inFlightTurn != candidate.turnKey {
 		return
 	}
 	state.inFlightTurn = ""
 	if result == nil {
 		return
 	}
-	state.decidedTurn = candidate.TurnKey
+	state.decidedTurn = candidate.turnKey
 	r.removeExpiredResults(now)
 	if len(r.results) >= maxDPZXDecisionResults {
 		r.removeOldestResult()
 	}
-	r.results[decisionCacheKey(candidate.SessionKey, candidate.TurnKey)] = aapokerDecisionCacheEntry{
+	r.results[decisionCacheKey(candidate.sessionKey, candidate.turnKey)] = aapokerDecisionCacheEntry{
 		createdAt: now,
 		result:    cloneAAPokerDecisionResult(result),
 	}

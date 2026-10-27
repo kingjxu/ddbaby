@@ -3,7 +3,6 @@ package handler
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -12,8 +11,14 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	ddbaby "github.com/kingjxu/ddbaby/biz/model/ddbaby"
-	"github.com/kingjxu/ddbaby/model"
+	"github.com/kingjxu/ddbaby/service"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	aapokerPackageName          = "com.plusaa.amula"
+	aapokerAlternatePackageName = "com.ty.aapk"
+	dpzxPackageName             = "com.dpzx.pro"
 )
 
 // Use the same middleware chain as the generated HTTP route.
@@ -24,7 +29,7 @@ func serveTexasPokerEventForTest(c *app.RequestContext) {
 }
 
 // Exercise the production binder while allowing parse assertions to inspect raw tokens.
-func bindTexasPokerTestEvent(body []byte) (*texasPokerEvent, error) {
+func bindTexasPokerTestEvent(body []byte) (*ddbaby.TexasPokerEventReq, error) {
 	var c app.RequestContext
 	c.Request.SetMethod("POST")
 	c.Request.Header.Set("Content-Type", "application/json")
@@ -38,7 +43,7 @@ func bindTexasPokerTestEvent(body []byte) (*texasPokerEvent, error) {
 	if err := h.check(); err != nil {
 		return nil, err
 	}
-	return &texasPokerEvent{TexasPokerEventReq: req, route: h.route}, nil
+	return &req, nil
 }
 
 func TestTexasPokerEventHandlerHandlesWithoutHTTPContext(t *testing.T) {
@@ -92,8 +97,8 @@ func TestBindTexasPokerEventAcceptsAAPokerPackageAliases(t *testing.T) {
 		if err != nil {
 			t.Fatalf("package %q rejected: %v", packageName, err)
 		}
-		if event.route != pokerEventRouteAAPoker {
-			t.Fatalf("package %q route = %v", packageName, event.route)
+		if event.PackageName != packageName {
+			t.Fatalf("package changed: %q", event.PackageName)
 		}
 	}
 }
@@ -258,20 +263,7 @@ func TestTexasPokerEventBearerToken(t *testing.T) {
 }
 
 func TestTexasPokerEventLogsIncompleteDPZXAndRejectsUnassignedSources(t *testing.T) {
-	previousRegistry := texasPokerEventStates
-	previousExecute := executeAAPokerDecisionForEvent
-	texasPokerEventStates = newAAPokerEventRegistry()
-	decisionCalls := 0
-	executeAAPokerDecisionForEvent = func(
-		_ context.Context, _, _ string, _, _ int32, _ *model.TexasGtoDecisionReq,
-	) (*aapokerDecisionResult, error) {
-		decisionCalls++
-		return nil, errors.New("unexpected decision")
-	}
-	t.Cleanup(func() {
-		texasPokerEventStates = previousRegistry
-		executeAAPokerDecisionForEvent = previousExecute
-	})
+	auth := failEventAuthentication(t)
 
 	var logs bytes.Buffer
 	previousOutput := logrus.StandardLogger().Out
@@ -291,9 +283,8 @@ func TestTexasPokerEventLogsIncompleteDPZXAndRejectsUnassignedSources(t *testing
 		strings.Contains(string(dpzxContext.Response.Body()), `"Result"`) {
 		t.Fatalf("DPZX response = %d %s", dpzxContext.Response.StatusCode(), dpzxContext.Response.Body())
 	}
-	if decisionCalls != 0 || len(texasPokerEventStates.sessions) != 0 {
-		t.Fatalf("DPZX entered AAPoker decision path: calls=%d sessions=%d",
-			decisionCalls, len(texasPokerEventStates.sessions))
+	if auth.calls.Load() != 0 {
+		t.Fatal("incomplete DPZX event entered decision authentication")
 	}
 	if !strings.Contains(logs.String(), "package_name=com.dpzx.pro") ||
 		!strings.Contains(logs.String(), "dpzx-private-hand") ||
@@ -328,26 +319,8 @@ func TestTexasPokerEventLogsIncompleteDPZXAndRejectsUnassignedSources(t *testing
 }
 
 func TestTexasPokerEventRetriesFailureAndReplaysSuccessfulTurn(t *testing.T) {
-	previousRegistry := texasPokerEventStates
-	previousExecute := executeAAPokerDecisionForEvent
-	texasPokerEventStates = newAAPokerEventRegistry()
-	calls := 0
-	executeAAPokerDecisionForEvent = func(
-		_ context.Context, _, _ string, _, _ int32, _ *model.TexasGtoDecisionReq,
-	) (*aapokerDecisionResult, error) {
-		calls++
-		if calls == 1 {
-			return nil, fmt.Errorf("temporary auth failure")
-		}
-		return &aapokerDecisionResult{
-			Result: "Call 8", HeroCard: []string{"A-D", "K-C"},
-			DecisionAction: "call", DecisionAmount: 8, HeroMaxTarget: 8,
-		}, nil
-	}
-	t.Cleanup(func() {
-		texasPokerEventStates = previousRegistry
-		executeAAPokerDecisionForEvent = previousExecute
-	})
+	auth := failEventAuthentication(t)
+	tableID := time.Now().UnixNano()
 
 	events := []string{
 		`{"mySeatID":0,"playerIDArray":[1762080,2836313,2646258,2838496,2859796,-1,2860755,1081977],"operationID":4,"operationRound":16}`,
@@ -359,37 +332,55 @@ func TestTexasPokerEventRetriesFailureAndReplaysSuccessfulTurn(t *testing.T) {
 	commands := []string{"REQ_GAME_ENTER_ROOM", "REQ_GAME_RECV_START_INFOR", "REQ_GAME_RECV_ACTION", "REQ_GAME_RECV_ACTION", "REQ_GAME_RECV_ACTION"}
 	now := time.Unix(1792526400, 0)
 	for i := 0; i < len(events)-1; i++ {
-		ctx := postAAPokerTestEvent(t, now, commands[i], events[i])
+		ctx := postAAPokerTestEvent(t, tableID, now, commands[i], events[i])
 		if ctx.Response.StatusCode() != consts.StatusOK {
 			t.Fatalf("setup event %d status = %d", i, ctx.Response.StatusCode())
 		}
 		now = now.Add(time.Millisecond)
 	}
 
-	failed := postAAPokerTestEvent(t, now, commands[4], events[4])
-	if failed.Response.StatusCode() != consts.StatusServiceUnavailable || calls != 1 {
-		t.Fatalf("temporary failure status/calls = %d/%d", failed.Response.StatusCode(), calls)
+	failed := postAAPokerTestEvent(t, tableID, now, commands[4], events[4])
+	if failed.Response.StatusCode() != consts.StatusServiceUnavailable || auth.calls.Load() != 1 {
+		t.Fatalf("temporary failure status/calls = %d/%d", failed.Response.StatusCode(), auth.calls.Load())
 	}
+	retried := postAAPokerTestEvent(t, tableID, now, commands[4], events[4])
+	if retried.Response.StatusCode() != consts.StatusServiceUnavailable || auth.calls.Load() != 2 {
+		t.Fatalf("failed authentication did not release retry eligibility: status=%d calls=%d", retried.Response.StatusCode(), auth.calls.Load())
+	}
+	req, err := bindTexasPokerTestEvent(retried.Request.Body())
+	if err != nil {
+		t.Fatal(err)
+	}
+	candidate, err := service.ProcessPokerEvent(req)
+	if err != nil || candidate == nil || candidate.Cached != nil {
+		t.Fatalf("retry candidate = %+v, %v", candidate, err)
+	}
+	// Simulate a completed strategy result through the service lifecycle API;
+	// subsequent HTTP requests must replay it without any new side effects.
+	service.CompletePokerEventDecision(candidate, &service.PokerEventDecisionResult{
+		Result: "Call 8", HeroCard: []string{"A-D", "K-C"},
+		DecisionAction: "call", DecisionAmount: 8, HeroMaxTarget: 8,
+	})
 	now = now.Add(time.Millisecond)
-	succeeded := postAAPokerTestEvent(t, now, commands[4], events[4])
+	succeeded := postAAPokerTestEvent(t, tableID, now, commands[4], events[4])
 	if succeeded.Response.StatusCode() != consts.StatusOK ||
-		!strings.Contains(string(succeeded.Response.Body()), `"Result":"Call 8"`) || calls != 2 {
-		t.Fatalf("retry response/calls = %s/%d", succeeded.Response.Body(), calls)
+		!strings.Contains(string(succeeded.Response.Body()), `"Result":"Call 8"`) || auth.calls.Load() != 2 {
+		t.Fatalf("retry response/calls = %s/%d", succeeded.Response.Body(), auth.calls.Load())
 	}
 	now = now.Add(time.Millisecond)
-	replayed := postAAPokerTestEvent(t, now, commands[4], events[4])
+	replayed := postAAPokerTestEvent(t, tableID, now, commands[4], events[4])
 	if replayed.Response.StatusCode() != consts.StatusOK ||
-		!strings.Contains(string(replayed.Response.Body()), `"Result":"Call 8"`) || calls != 2 {
-		t.Fatalf("cached replay/calls = %s/%d", replayed.Response.Body(), calls)
+		!strings.Contains(string(replayed.Response.Body()), `"Result":"Call 8"`) || auth.calls.Load() != 2 {
+		t.Fatalf("cached replay/calls = %s/%d", replayed.Response.Body(), auth.calls.Load())
 	}
 }
 
 func postAAPokerTestEvent(
-	t *testing.T, now time.Time, command, data string,
+	t *testing.T, tableID int64, now time.Time, command, data string,
 ) *app.RequestContext {
 	t.Helper()
-	body := fmt.Sprintf(`{"packageName":"com.plusaa.amula","uuid":"user@example.com","vpip":0,"pfr":0,"timestamp":%d,"uid":1762080,"cmd":%q,"direction":"ServerToClient","location":"TABLE","dataExtra":99,"data":%s}`,
-		now.UnixMilli(), command, data)
+	body := fmt.Sprintf(`{"packageName":"com.plusaa.amula","uuid":"user@example.com","vpip":0,"pfr":0,"timestamp":%d,"uid":1762080,"cmd":%q,"direction":"ServerToClient","location":"TABLE","dataExtra":%d,"data":%s}`,
+		now.UnixMilli(), command, tableID, data)
 	requestContext := &app.RequestContext{}
 	requestContext.Request.SetMethod("POST")
 	requestContext.Request.Header.Set("Content-Type", "application/json")
