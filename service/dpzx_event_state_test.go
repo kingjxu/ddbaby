@@ -52,7 +52,7 @@ func TestDPZXEventStateBuildsDecisionFromRealHeroTurn(t *testing.T) {
 	}
 	hero := request.Players[4]
 	if hero.Position != "UTG+1-Hero" || hero.Stack != 4975 || hero.Bet != 0 ||
-		len(hero.HoleCards) != 2 || hero.HoleCards[0] != "10-H" || hero.HoleCards[1] != "6-S" {
+		len(hero.HoleCards) != 2 || hero.HoleCards[0] != "9-D" || hero.HoleCards[1] != "5-S" {
 		t.Fatalf("unexpected Hero: %+v", hero)
 	}
 	if err := model.ValidateTexasGtoDecisionRequest(request); err != nil {
@@ -64,7 +64,7 @@ func TestDPZXEventStateBuildsDecisionFromRealHeroTurn(t *testing.T) {
 	if retry == nil || retry.turnKey != candidate.turnKey {
 		t.Fatal("failed DPZX decision did not retain retry eligibility")
 	}
-	want := &PokerEventDecisionResult{Result: "Call 100", HeroCard: []string{"10-H", "6-S"}}
+	want := &PokerEventDecisionResult{Result: "Call 100", HeroCard: []string{"9-D", "5-S"}}
 	registry.complete(retry, want, now)
 	replayed := apply("432", `[3,15,0,100,true]`, 1793076617478)
 	if replayed == nil || replayed.Cached == nil || replayed.Cached.Result != want.Result {
@@ -97,7 +97,7 @@ func TestDPZXEventStateTracksStreetAndRejectsMissingAction(t *testing.T) {
 	}
 	state.apply("432", json.RawMessage(`[3,15,0,0,false]`), 12)
 	flop, _ := state.decisionRequest()
-	if flop == nil || flop.GameStage != "flop" || strings.Join(flop.CommunityCards, ",") != "2-H,3-D,4-C" {
+	if flop == nil || flop.GameStage != "flop" || strings.Join(flop.CommunityCards, ",") != "A-D,2-C,3-H" {
 		t.Fatalf("unexpected flop request: %+v", flop)
 	}
 	if len(flop.ActionHistory) != 3 || flop.ActionHistory[2].Action != "check" {

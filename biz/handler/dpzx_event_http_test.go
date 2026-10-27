@@ -58,7 +58,7 @@ func TestTexasPokerEventRoutesDPZXThroughDecisionResponse(t *testing.T) {
 		t.Fatalf("unexpected candidate: %+v", candidate)
 	}
 	service.CompletePokerEventDecision(candidate, &service.PokerEventDecisionResult{
-		Result: "Call 100", HeroCard: []string{"10-H", "6-S"},
+		Result: "Call 100", HeroCard: []string{"9-D", "5-S"},
 		DecisionAction: "call", DecisionAmount: 0, HeroMaxTarget: 4975,
 	})
 	decision := post("432", `[3,15,0,100,true]`, 1793076617478)

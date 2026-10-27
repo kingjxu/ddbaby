@@ -789,8 +789,10 @@ func dpzxCard(cardID int) string {
 	if cardID < 0 || cardID >= 52 {
 		return ""
 	}
-	ranks := [...]string{"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"}
-	suits := [...]string{"H", "D", "C", "S"}
+	// 截图与492实物对照：31/3=6H/4D，8/43=9D/5S。
+	// 每13张为一个花色，点数从A开始；剩余花色组1对应C。
+	ranks := [...]string{"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"}
+	suits := [...]string{"D", "C", "H", "S"}
 	return ranks[cardID%13] + "-" + suits[cardID/13]
 }
 
