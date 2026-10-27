@@ -389,3 +389,32 @@ status: "active"
   不构成调用方身份认证。
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261027-084503-before-d0c7578`；运行日志：
   `/home/ubuntu/ddbaby/output/deploy-d0c7578-20261027-084503.log`。
+
+## 2026-10-27 DPZX 事件决策链路部署
+
+- 最终服务端范围为 `daf577e..3e8ac25`，桃园协议文档范围为
+  `3a00d20..3d165e4`，均经 CR 确认 LGTM。`com.dpzx.pro` 现在进入与
+  AAPoker 隔离的状态机：根据430/431/492/432/433/403/490/435重建牌局，在
+  Hero 行动点生成统一GTO请求，并复用现有Bearer身份校验、激活、GTO、按次计费、
+  `gto_decision_record`审计、503重试及30分钟/1024条结果回放。旁观、动作缺失、
+  未知动作、跳街、公共牌前缀变化/重复以及Hero私牌异常均使本手停止决策。
+- 最近生产旧日志的离线重放覆盖约13分钟、14手牌和25个Hero行动点，包含preflop、
+  flop、turn、river；生成请求均通过统一请求校验。该结果证明样本能够被当前协议
+  模型还原，不等同于部署后的真实生产GTO、SQL或Android悬浮窗验证。
+- 干净归档大小为10,391,854 bytes，SHA256为
+  `59b83d9b34f9fd72fc58535c9d7411cbebaa49040f97de100b034e80a67c1080`。服务器使用
+  Go 1.22.2 对归档执行`go test ./... -count=1`、
+  `go test -race ./biz/handler ./service -count=1`和构建，均通过。候选/运行二进制
+  大小为47,609,881 bytes，SHA256为
+  `1cd596f6c38050732b8919031131b2d17083e2f1ae540a01c5438ae35ef9c628`。
+- 2026-10-27 13:25:58 +08:00完成切换，PID从`341888`变为`410577`，新进程
+  PPID为1；磁盘和`/proc/410577/exe` SHA256一致，8888正常监听，本机`/ping`
+  返回`pong`，启动日志无panic/fatal。无身份、无状态的DPZX合成事件返回HTTP 200
+  与基础成功且marker只完整记录一次；未知packageName返回固定HTTP 400且marker未
+  落日志。该smoke不会进入GTO、计费或审计。
+- 部署后观察窗口内尚无新的真实DPZX事件，因此真实DPZX牌局经生产GTO返回、SQL
+  审计落表及桃园真机悬浮窗展示仍待下一手实流验证；不能用本次合成smoke或离线
+  重放替代该端到端结论。既有17770未认证本机注入风险、无频率上限的持续完整日志
+  风险以及外层packageName仅作路由优先级的边界保持不变。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261027-132558-before-3e8ac25`；运行日志：
+  `/home/ubuntu/ddbaby/output/deploy-3e8ac25-20261027-132558.log`。
