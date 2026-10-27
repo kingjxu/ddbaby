@@ -1,5 +1,5 @@
 ---
-version: "1.12"
+version: "1.13"
 last_updated: "2026-10-27"
 ---
 
@@ -14,7 +14,7 @@ last_updated: "2026-10-27"
 - `service/texas_poker.go` 调用外部识别服务与 GTO 决策服务。
 - `dal/local_mem.go` 按用户保存同一手牌各阶段的识别结果。
 - `model/recognize_poker.go` 把识别结果转换为玩家、位置和行动历史。
-- `biz/handler/texas_poker_event.go`通过IDL生成的请求/响应接收桃园助手透传的扑克事件并按packageName分流；`service/poker_event.go`持有统一包名路由及两个状态容器，`service/aapoker_event_state.go`和`service/dpzx_event_state.go`分别解释各自协议，通过`ProcessPokerEvent`返回统一Hero行动点，`CompletePokerEventDecision`负责成功缓存或失败释放重试资格。互斥锁、TTL与回放缓存均由service管理，不暴露给handler。Handler直接调用`executeAAPokerDecision`，不保留供单测替换的全局函数变量。`aapoker_event_decision.go`复用身份认证、激活校验、策略调用、计费和`gto_decision_record`审计写入。临时失败返回503供客户端重传；成功的完整响应按隔离后的会话、牌桌和行动点缓存30分钟、每种协议最多1024条，重复事件只回放而不重复副作用。
+- `biz/handler/texas_poker_event.go`通过IDL生成的请求/响应接收桃园助手透传的扑克事件并按packageName分流；`service/poker_event.go`持有统一包名路由及两个状态容器，`service/aapoker_event_state.go`和`service/dpzx_event_state.go`分别解释各自协议，通过`ProcessPokerEvent`返回统一Hero行动点，`CompletePokerEventDecision`负责成功缓存或失败释放重试资格。互斥锁、TTL与回放缓存均由service管理，不暴露给handler。Handler直接调用`executePokerDecision`，不保留供单测替换的全局函数变量。`poker_event_decision.go`复用身份认证、激活校验、策略调用、计费和`gto_decision_record`审计写入。临时失败返回503供客户端重传；成功的完整响应按隔离后的会话、牌桌和行动点缓存30分钟、每种协议最多1024条，重复事件只回放而不重复副作用。
 
 ## 当前覆盖边界
 

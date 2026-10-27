@@ -90,7 +90,7 @@ func (h *TexasPokerEventHandler) Handle(ctx context.Context) (*ddbaby.TexasPoker
 	decision := candidate.Cached
 	if decision == nil {
 		var decisionErr error
-		decision, decisionErr = executeAAPokerDecision(
+		decision, decisionErr = executePokerDecision(
 			ctx, event.UUID, h.token, event.VPIP, event.PFR, candidate.Request,
 		)
 		if decisionErr != nil {

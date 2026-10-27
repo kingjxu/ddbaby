@@ -13,7 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func executeAAPokerDecision(
+func executePokerDecision(
 	ctx context.Context,
 	uuid string,
 	token string,
