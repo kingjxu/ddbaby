@@ -1,6 +1,6 @@
 ---
-version: "1.7"
-last_updated: "2026-10-26"
+version: "1.8"
+last_updated: "2026-10-27"
 status: "active"
 ---
 
@@ -358,3 +358,34 @@ status: "active"
 - 持续完整日志可能快速增长，并长期留存uid、房间与牌局内容；该风险由用户在协议分析阶段明确接受。请求仍受512 KiB请求体上限以及全局300次/分钟、单来源120次/分钟限流约束，但这些限制不构成日志容量保证。
 - 本轮仅完成服务端合成smoke；真实DPZX牌局采集与还原、双APK真机转发以及后续DPZX GTO策略尚未验证或实现。17770仍未认证，外层packageName只是路由优先级，任意同机App仍可伪造事件并借当前桃园身份触发AAPoker GTO、计费和审计。
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261027-081858-before-7386fdd`；运行日志：`/home/ubuntu/ddbaby/output/deploy-7386fdd-20261027-081858.log`。
+
+## 2026-10-27 分析期入口精简部署
+
+- 最终业务提交为 `d0c7578`，其中 `f545c9e` 移除 `/lyxz/gto_event` 的全局与来源
+  限流、HTTP 429 和聚合丢弃统计；`d0c7578` 将入口校验精简为：请求体非空且不超过
+  512 KiB、内容是单一 JSON 对象、`packageName` 是路由表中的字符串。其余事件字段
+  按 best-effort 解码并完整记录。集中路由表当前将 `com.plusaa.amula`、
+  `com.ty.aapk` 分派到 AAPoker 状态机，将 `com.dpzx.pro` 分派到只记录日志的
+  DPZX 路径；未知、缺失或非字符串包名仍在完整 body 日志前返回 HTTP 400。CR 已对
+  两个业务提交确认 LGTM。
+- 干净归档 SHA256 为
+  `c022e91478cd2db08554bd1c591266358e4773ffb0e935b31916f351f57dccd1`。服务器使用
+  Go 1.22.2 执行 `go test ./... -count=1`、
+  `go test -race ./biz/handler -count=1` 和构建，均通过。运行二进制大小为
+  47,563,592 bytes，SHA256 为
+  `331e6ff812265d48412384e8c70115c3e394b08f5da540165007abee9ecc6d64`。
+- 2026-10-27 08:45:03 +08:00 完成切换，PID 从 `334419` 切换为 `341888`，新进程
+  PPID 为 1；磁盘二进制与 `/proc/341888/exe` 指向同一运行文件，8888 正常监听，
+  本机 `/ping` 返回 `pong`，启动日志未发现 panic/fatal。
+- 合成 smoke 中，字段类型异常且缺少常规数据字段的 DPZX 事件返回 HTTP 200 并完整
+  记录，AAPoker 基础事件返回 HTTP 200；未知、缺失、非字符串 `packageName` 均返回
+  HTTP 400，三个拒绝请求的原始 marker 均未写入日志。连续 305 条 DPZX 事件全部返回
+  HTTP 200 且日志逐条记录，确认当前无请求频率上限；公网 DPZX 合成事件返回 HTTP 200。
+- 当前入口会对每条白名单来源事件持续写完整 body，且没有请求频率、来源配额、日志
+  字节预算或自动截止时间。高频大请求可能耗尽日志管道或磁盘；这是用户为协议分析阶段
+  明确接受的风险。512 KiB 单请求上限只限制单包大小，不限制累计写入量。
+- 本轮仍只完成服务端合成 smoke；真实 DPZX 牌局采集与还原、双 APK 真机转发和 DPZX
+  GTO 策略尚未验证或实现。17770 仍未认证，外层 `packageName` 只表示路由优先级，
+  不构成调用方身份认证。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261027-084503-before-d0c7578`；运行日志：
+  `/home/ubuntu/ddbaby/output/deploy-d0c7578-20261027-084503.log`。
