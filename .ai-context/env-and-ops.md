@@ -464,3 +464,12 @@ status: "active"
 - 日志`/home/ubuntu/ddbaby/output/deploy-a405080-20261027-234221.log`。初次核验仅有2条合成采集事件、0次GTO请求、0次决策重试和0次panic，尚无部署后的真实牌局证明GTO→SQL→Android提示恢复。重启清空内存牌局，需收到新一手完整事件重建。
 - 回滚目录`/home/ubuntu/ddbaby-backups/20261027-234221-before-a405080`保存旧164f395二进制、私有环境、启动信息及deployment.json；`sudo python3 <该目录>/rollback.py`恢复旧版本并检查JSON pong，脚本核对预期PID561408；进程变化须先核对。目录700、环境文件600、脚本700，不输出敏感环境值。
 - 非法/空决策返回200 decision_rejected且无Result，终止标记防止重复GTO；不阻止后续行动。临时故障仍503。激活前置及额度耗尽拒绝回放的已接受边界不变。数据库故障或进程退出时异步审计仍不保证必达；完整牌号协议和真机链路证据边界详见牌号报告。
+
+## 2026-10-28 DPZX多级straddle部署
+
+- 用户确认startState=3/4为straddle+1/+2后继续修复漏决策，提交`3d4f0e2`，整体范围`02838a4..3d4f0e2`经CR复审LGTM。开局按明确标记而非下注金额判断位置；房间IsStraddle=false不覆盖逐手标记。
+- 本地Go1.20.14全仓与service/handler/model/main race通过；服务器Go1.22.2离线全仓、相同race和构建通过。服务器源码`/home/ubuntu/ddbaby-releases/3d4f0e2-20261028`，归档SHA256`07e75f20103498afe35725fae322f0e9367f04982bef2a9e12484f3df465db6c`；测试日志`/tmp/3d4f0e2-full.log`、`/tmp/3d4f0e2-race.log`。
+- 00:13:28 CST切换`561408 → 571151`，PPID=1，保留原环境、参数、工作目录。运行与磁盘二进制SHA256均为`34351184c94be99beba31209de70b6800d81bd12e2cea37577d310717a2b7e3a`，47,636,596字节。JSON pong通过。
+- 合成smoke验证两来源无uuid采集200、未知/缺失来源及非JSON+query400、未激活uuid503，拒绝marker不落完整日志；证据`/home/ubuntu/ddbaby-3d4f0e2-smoke.json`，日志`/home/ubuntu/ddbaby/output/deploy-3d4f0e2-20261028-001328.log`。初次扫描仅2条合成事件，无真实新牌局；上游新增位置标签、Straddle字段语义及真机提示仍未验证。
+- 回滚目录`/home/ubuntu/ddbaby-backups/20261028-001328-before-3d4f0e2`含旧a405080二进制、私有环境、启动参数及deployment.json；`sudo python3 <该目录>/rollback.py`核对PID571151后恢复并检查JSON pong。目录700，环境600，脚本700。
+- 第450手AK及519手J6日志回归仅证明候选请求构造；上游与真机证据边界见`reports/dpzx-straddle-20261028.md`。激活前置、非法决策终止重试与异步审计故障边界不变。
