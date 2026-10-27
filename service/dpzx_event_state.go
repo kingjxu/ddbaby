@@ -617,7 +617,7 @@ func (s *dpzxTableState) applyCards(raw json.RawMessage) error {
 
 func (s *dpzxTableState) assignPositions(snapshot []dpzxPlayerSnapshot) error {
 	// 431的startState明确标识SB/BB；BTN是SB之前的本手参与者，
-	// 3/4由用户确认分别为straddle+1/+2；标记决定位置，Value提供实际强制投入。
+	// 3/4由用户确认分别为straddle/straddle+1；标记决定位置，Value提供实际强制投入。
 	s.straddle = 0
 	forcedSeats := map[int]int{}
 	forcedAmounts := map[int]int{}
@@ -703,7 +703,10 @@ func (s *dpzxTableState) assignPositions(snapshot []dpzxPlayerSnapshot) error {
 		if next != seat || seat == button || seat == sb || forcedAmounts[state] <= previousAmount {
 			return errors.New("invalid DPZX straddle order or amount")
 		}
-		s.players[seat].position = fmt.Sprintf("straddle+%d", state-2)
+		s.players[seat].position = "straddle"
+		if state == 4 {
+			s.players[seat].position = "straddle+1"
+		}
 		lastForced = seat
 		previousAmount = forcedAmounts[state]
 		s.straddle = previousAmount

@@ -9,3 +9,5 @@
 本地验证：Go1.20.14全仓测试、service/handler/model/main race及diff check通过。真实日志回归确认450手Straddle=200、Hero=CO、A♠K♦；519手Straddle=400、Hero=SB、J♦6♣，均可生成候选。
 
 部署：CR复审LGTM后，3d4f0e2于2026-10-28 00:13:28 CST上线，PID571151。服务器全仓/race/构建、运行校验值及合成smoke通过。初次观察无新的真实牌局，上游及端上兼容性仍未验证；运维详情与回滚目录见.ai-context/env-and-ops.md末节。
+
+命名更正：用户随后明确3/4应为straddle、straddle+1，替代前文初始的+1/+2称谓。代码、请求玩家与历史、规范化和当前上下文均按更正后的名称处理；强制投入及顺序逻辑不变。部署信息待本轮补录。

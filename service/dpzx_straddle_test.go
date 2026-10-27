@@ -50,14 +50,17 @@ func TestDPZXStraddleRealHandsReachHeroDecision(t *testing.T) {
 			roles := map[string]int{}
 			for _, p := range req.Players {
 				roles[p.Position] = p.Bet
+				if p.Position == "straddle+2" {
+					t.Fatal("obsolete straddle+2 label")
+				}
 				if p.Position == tc.position && (len(p.HoleCards) != 2 || p.HoleCards[0] != tc.cards[0] || p.HoleCards[1] != tc.cards[1]) {
 					t.Fatalf("wrong cards: %+v", p)
 				}
 			}
-			if roles["straddle+1"] != 200 {
+			if roles["straddle"] != 200 {
 				t.Fatalf("first straddle missing: %+v", roles)
 			}
-			if tc.hand == 519 && roles["straddle+2"] != 400 {
+			if tc.hand == 519 && roles["straddle+1"] != 400 {
 				t.Fatalf("second straddle missing: %+v", roles)
 			}
 		})

@@ -1769,12 +1769,12 @@ func TestNormalizeTexasGtoFreeFoldToCheck(t *testing.T) {
 			return req
 		}(), resp: &TexasGtoDecisionResp{Action: "fold"}, wantChange: true, wantAction: "check"},
 
-		{name: "preflop straddle+2 option", req: func() *TexasGtoDecisionReq {
+		{name: "unrecognized straddle+2 stays fold", req: func() *TexasGtoDecisionReq {
 			req := decisionRequest(400, 200, 400)
 			req.CurrentPlayerPosition = "straddle+2-Hero"
 			req.Players[0].Position = "straddle+2-Hero"
 			return req
-		}(), resp: &TexasGtoDecisionResp{Action: "fold"}, wantChange: true, wantAction: "check"},
+		}(), resp: &TexasGtoDecisionResp{Action: "fold"}, wantChange: false, wantAction: "fold"},
 
 		{name: "preflop big blind option", req: func() *TexasGtoDecisionReq {
 			req := decisionRequest(6, 200, 6)

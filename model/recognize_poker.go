@@ -127,8 +127,7 @@ func NormalizeTexasGtoFreeFoldToCheck(req *TexasGtoDecisionReq, resp *TexasGtoDe
 	if req.GameStage == "preflop" &&
 		req.CurrentPlayerPosition != "BB-Hero" &&
 		req.CurrentPlayerPosition != "straddle-Hero" &&
-		req.CurrentPlayerPosition != "straddle+1-Hero" &&
-		req.CurrentPlayerPosition != "straddle+2-Hero" {
+		req.CurrentPlayerPosition != "straddle+1-Hero" {
 		return false
 	}
 	resp.Action = "check"
