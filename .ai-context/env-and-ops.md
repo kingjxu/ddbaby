@@ -1,5 +1,5 @@
 ---
-version: "1.10"
+version: "1.11"
 last_updated: "2026-10-28"
 status: "active"
 ---
@@ -473,3 +473,10 @@ status: "active"
 - 合成smoke验证两来源无uuid采集200、未知/缺失来源及非JSON+query400、未激活uuid503，拒绝marker不落完整日志；证据`/home/ubuntu/ddbaby-3d4f0e2-smoke.json`，日志`/home/ubuntu/ddbaby/output/deploy-3d4f0e2-20261028-001328.log`。初次扫描仅2条合成事件，无真实新牌局；上游新增位置标签、Straddle字段语义及真机提示仍未验证。
 - 回滚目录`/home/ubuntu/ddbaby-backups/20261028-001328-before-3d4f0e2`含旧a405080二进制、私有环境、启动参数及deployment.json；`sudo python3 <该目录>/rollback.py`核对PID571151后恢复并检查JSON pong。目录700，环境600，脚本700。
 - 第450手AK及519手J6日志回归仅证明候选请求构造；上游与真机证据边界见`reports/dpzx-straddle-20261028.md`。激活前置、非法决策终止重试与异步审计故障边界不变。
+
+## 2026-10-28 DPZX straddle称谓纠正部署
+
+- 用户更正3/4应分别为straddle、straddle+1，业务`78257ad`经CR LGTM，于00:34:28 CST上线。强制投入与顺序规则未变；当前不生成straddle+2标签。
+- 本地Go1.20.14及服务器Go1.22.2全仓、service/handler/model/main race和服务器构建通过。源码`/home/ubuntu/ddbaby-releases/78257ad-20261028`；归档SHA256`0632dccffbe05fc3c0a5a57efbc5b9d072ecbd2ab04fb86c7d9a0324e09aae64`，测试日志`/tmp/78257ad-full.log`与`/tmp/78257ad-race.log`。
+- PID`571151 → 577335`，PPID=1，沿用原环境/启动参数；运行与磁盘SHA256均为`4cbc1f5dbf00bbe8766371151d5fe63ebc9fa549e2d290be6dba3b8f9eff1f40`，47,636,108字节。JSON pong及既有合成smoke通过：两来源无uuid200、未知/缺失来源和非JSON/query400、未激活uuid503、拒绝marker不落完整日志；证据`/home/ubuntu/ddbaby-78257ad-smoke.json`。
+- 日志`/home/ubuntu/ddbaby/output/deploy-78257ad-20261028-003428.log`；回滚`/home/ubuntu/ddbaby-backups/20261028-003428-before-78257ad/rollback.py`核对PID577335后恢复旧3d4f0e2二进制和私有原环境。目录700、环境600、脚本700。上游straddle+1标签及最高档Straddle字段语义、真实GTO→SQL→端上提示仍待验证，合成smoke不代表该链路已通过。
