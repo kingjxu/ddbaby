@@ -54,7 +54,7 @@ func TestTexasPokerEventRoutesDPZXThroughDecisionResponse(t *testing.T) {
 	if err != nil || candidate == nil || candidate.Cached != nil {
 		t.Fatalf("retry candidate = %+v, %v", candidate, err)
 	}
-	if req.UUID != uuid || candidate.Request.CurrentPlayerPosition != "UTG-Hero" {
+	if req.UUID != uuid || candidate.Request.CurrentPlayerPosition != "UTG+1-Hero" {
 		t.Fatalf("unexpected candidate: %+v", candidate)
 	}
 	service.CompletePokerEventDecision(candidate, &service.PokerEventDecisionResult{

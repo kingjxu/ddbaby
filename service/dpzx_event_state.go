@@ -30,20 +30,21 @@ type dpzxTableState struct {
 	lastSeen time.Time
 	userID   int64
 
-	roomID       int64
-	handNum      int
-	buttonSeat   int
-	heroSeat     int
-	tableSize    int
-	smallBlind   int
-	bigBlind     int
-	ante         int
-	currentPot   int
-	stage        string
-	board        []string
-	participants []int
-	players      map[int]*aapokerPlayerState
-	history      []model.TexasActionHistory
+	roomID          int64
+	handNum         int
+	buttonSeat      int
+	heroSeat        int
+	tableSize       int
+	smallBlind      int
+	bigBlind        int
+	ante            int
+	straddleEnabled bool
+	currentPot      int
+	stage           string
+	board           []string
+	participants    []int
+	players         map[int]*aapokerPlayerState
+	history         []model.TexasActionHistory
 
 	ready               bool
 	complete            bool
@@ -57,13 +58,14 @@ type dpzxTableState struct {
 }
 
 type dpzxRoomSnapshot struct {
-	BankIndex int   `json:"bankIndex"`
-	MySeat    int   `json:"mySeat"`
-	HandNum   int   `json:"HandNum"`
-	RoomID    int64 `json:"roomID"`
-	LittleBB  int   `json:"littleBB"`
-	Ante      int   `json:"ante"`
-	TableSize int   `json:"stisNumMax"`
+	BankIndex  int   `json:"bankIndex"`
+	MySeat     int   `json:"mySeat"`
+	HandNum    int   `json:"HandNum"`
+	RoomID     int64 `json:"roomID"`
+	LittleBB   int   `json:"littleBB"`
+	Ante       int   `json:"ante"`
+	TableSize  int   `json:"stisNumMax"`
+	IsStraddle bool  `json:"IsStraddle"`
 }
 
 type dpzxPlayerSnapshot struct {
@@ -325,6 +327,7 @@ func (s *dpzxTableState) applyRoomSnapshot(raw json.RawMessage) error {
 	s.smallBlind = room.LittleBB
 	s.bigBlind = room.LittleBB * 2
 	s.ante = room.Ante
+	s.straddleEnabled = room.IsStraddle
 	s.currentPot = 0
 	s.stage = "preflop"
 	s.board = nil
@@ -378,7 +381,10 @@ func (s *dpzxTableState) applyHandStart(raw json.RawMessage) error {
 	s.complete = s.heroSeat >= 0 && s.heroSeat < s.tableSize && players[s.heroSeat] != nil
 	s.expectedSeat = -1
 	s.operationSeat = -1
-	s.assignPositions()
+	if err := s.assignPositions(payload[0]); err != nil {
+		s.complete = false
+		return err
+	}
 	return nil
 }
 
@@ -608,15 +614,75 @@ func (s *dpzxTableState) applyCards(raw json.RawMessage) error {
 	return nil
 }
 
-func (s *dpzxTableState) assignPositions() {
-	positions := aapokerPositions(len(s.participants))
-	for index, seat := range s.orderedParticipantSeats() {
-		position := positions[index]
-		if seat == s.heroSeat {
-			position += "-Hero"
-		}
-		s.players[seat].position = position
+func (s *dpzxTableState) assignPositions(snapshot []dpzxPlayerSnapshot) error {
+	// 431的startState明确标识SB/BB；不能因庄位为空把盲位整体顺延，
+	// 也不能从下注金额猜抓盲。抓盲协议尚未确认时停止本手决策。
+	if s.straddleEnabled {
+		return errors.New("unsupported DPZX straddle positions")
 	}
+	sb, bb := -1, -1
+	for _, player := range snapshot {
+		switch player.StartState {
+		case 0:
+		case 1:
+			if sb >= 0 {
+				return errors.New("duplicate DPZX small blind")
+			}
+			sb = player.Index
+		case 2:
+			if bb >= 0 {
+				return errors.New("duplicate DPZX big blind")
+			}
+			bb = player.Index
+		default:
+			return errors.New("unsupported DPZX forced position")
+		}
+	}
+	if bb < 0 || bb == s.buttonSeat || (sb == s.buttonSeat && len(snapshot) != 2) {
+		return errors.New("ambiguous DPZX blind positions")
+	}
+	// 庄位/小盲可以是dead button/dead blind，缺位时保留空缺，不能抢占后位。
+	bbOffset := (bb - s.buttonSeat + s.tableSize) % s.tableSize
+	for _, seat := range s.participants {
+		offset := (seat - s.buttonSeat + s.tableSize) % s.tableSize
+		if seat != s.buttonSeat && seat != sb && offset < bbOffset {
+			return errors.New("ambiguous DPZX player before blinds")
+		}
+	}
+	if sb >= 0 && (sb-s.buttonSeat+s.tableSize)%s.tableSize >= bbOffset {
+		return errors.New("invalid DPZX blind order")
+	}
+	if player := s.players[s.buttonSeat]; player != nil {
+		player.position = "BTN"
+	}
+	if sb >= 0 && sb != s.buttonSeat {
+		s.players[sb].position = "SB"
+	}
+	s.players[bb].position = "BB"
+	var others []int
+	for offset := 1; offset < s.tableSize; offset++ {
+		seat := (bb + offset) % s.tableSize
+		if s.players[seat] != nil && seat != s.buttonSeat && seat != sb {
+			others = append(others, seat)
+		}
+	}
+	positions := [][]string{
+		{}, {"CO"}, {"UTG", "CO"}, {"UTG", "MP", "CO"},
+		{"UTG", "UTG+1", "MP", "CO"},
+		{"UTG", "UTG+1", "MP", "MP+1", "CO"},
+		{"UTG", "UTG+1", "UTG+2", "MP", "MP+1", "CO"},
+		{"UTG", "UTG+1", "UTG+2", "MP", "MP+1", "MP+2", "CO"},
+	}
+	if len(others) >= len(positions) {
+		return errors.New("unsupported DPZX table positions")
+	}
+	for index, seat := range others {
+		s.players[seat].position = positions[len(others)][index]
+	}
+	if hero := s.players[s.heroSeat]; hero != nil {
+		hero.position += "-Hero"
+	}
+	return nil
 }
 
 func (s *dpzxTableState) orderedParticipantSeats() []int {

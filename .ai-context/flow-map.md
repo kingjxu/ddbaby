@@ -1,5 +1,5 @@
 ---
-version: "1.11"
+version: "1.12"
 last_updated: "2026-10-27"
 ---
 
@@ -16,7 +16,7 @@ last_updated: "2026-10-27"
 ## DPZX事件链路
 
 1. 服务端只消费`com.dpzx.pro + TABLE + ServerToClient`事件，按`uuid + DPZX uid`维护当前桌状态，结果缓存键继续包含`roomID + HandNum + cmd432时间戳 + stage`，防止账号、房间和行动点串线。
-2. cmd 430建立新手的房间、庄位、Hero座位、盲注和前注上下文；cmd 431以本手实际参与者及盲注快照启动状态机。`mySeat`必须对应本手参与座位，旁观状态不触发决策。
+2. cmd 430建立新手的房间、庄位、Hero座位、盲注和前注上下文；cmd 431以本手实际参与者及盲注快照启动状态机。`mySeat`必须对应本手参与座位，旁观状态不触发决策。位置以bankIndex及431的startState=1/2标识BTN/SB/BB；空庄位/空小盲不顺延抢占其他位置，无抓盲不插入straddle，无法确认强制位置时阻断决策。
 3. cmd 492读取Hero两张私牌；cmd 432与随后同座位的cmd 433必须成对出现，后者用`score/betted/betState`累计后手、当街目标投入与fold/check/call/bet/raise/all-in。未知动作或缺失中间行动会使本手停止决策。cmd 403校正底池，cmd 490按3/4/5张公共牌推进flop/turn/river并清零当街投入。
 4. cmd 432轮到Hero时，状态机把DPZX牌编号转换为统一牌面格式，按庄位扫描实际参与者并生成`TexasGtoDecisionReq`。同一行动点只允许一个请求在途；临时失败保留重试资格，成功响应缓存回放。
 5. 前置uuid激活检查及后续VPIP/PFR策略、GTO调用、响应规范化、按次计费、`gto_decision_record`审计和桃园悬浮窗展示与AAPoker共用同一链路。

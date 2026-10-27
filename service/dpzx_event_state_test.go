@@ -40,18 +40,18 @@ func TestDPZXEventStateBuildsDecisionFromRealHeroTurn(t *testing.T) {
 		t.Fatal("real DPZX Hero prompt did not produce a decision")
 	}
 	request := candidate.Request
-	if request.CurrentPlayerPosition != "UTG-Hero" || request.GameStage != "preflop" {
+	if request.CurrentPlayerPosition != "UTG+1-Hero" || request.GameStage != "preflop" {
 		t.Fatalf("Hero turn = %s/%s", request.CurrentPlayerPosition, request.GameStage)
 	}
 	if request.CurrentPot != 425 || request.Ante != 25 || request.SbSize != 50 || request.BbSize != 100 {
 		t.Fatalf("unexpected table values: %+v", request)
 	}
-	if len(request.ActionHistory) != 1 || request.ActionHistory[0].Position != "straddle" ||
+	if len(request.ActionHistory) != 1 || request.ActionHistory[0].Position != "UTG" ||
 		request.ActionHistory[0].Action != "call" || request.ActionHistory[0].Amount != 100 {
 		t.Fatalf("unexpected action history: %+v", request.ActionHistory)
 	}
 	hero := request.Players[4]
-	if hero.Position != "UTG-Hero" || hero.Stack != 4975 || hero.Bet != 0 ||
+	if hero.Position != "UTG+1-Hero" || hero.Stack != 4975 || hero.Bet != 0 ||
 		len(hero.HoleCards) != 2 || hero.HoleCards[0] != "10-H" || hero.HoleCards[1] != "6-S" {
 		t.Fatalf("unexpected Hero: %+v", hero)
 	}
@@ -77,7 +77,7 @@ func TestDPZXEventStateTracksStreetAndRejectsMissingAction(t *testing.T) {
 	if err := state.apply("430", json.RawMessage(`[{"bankIndex":0,"mySeat":3,"HandNum":7,"roomID":99,"littleBB":50,"ante":0,"stisNumMax":4},[{"index":0,"value":0,"score":1000},{"index":1,"value":0,"score":1000},{"index":3,"value":0,"score":1000}]]`), 1); err != nil {
 		t.Fatal(err)
 	}
-	if err := state.apply("431", json.RawMessage(`[[{"index":0,"value":0,"score":1000},{"index":1,"value":50,"score":950},{"index":3,"value":100,"score":900}]]`), 2); err != nil {
+	if err := state.apply("431", json.RawMessage(`[[{"index":0,"value":0,"score":1000},{"index":1,"value":50,"score":950,"startState":1},{"index":3,"value":100,"score":900,"startState":2}]]`), 2); err != nil {
 		t.Fatal(err)
 	}
 	state.apply("492", json.RawMessage(`[false,[{"index":3,"vecCards":[{"value":12},{"value":24}]}]]`), 3)
@@ -119,7 +119,7 @@ func TestDPZXEventStateRejectsIncompleteStreetTransitions(t *testing.T) {
 		if err := state.apply("430", json.RawMessage(`[{"bankIndex":0,"mySeat":3,"HandNum":7,"roomID":99,"littleBB":50,"ante":0,"stisNumMax":4},[{"index":0,"value":0,"score":1000},{"index":1,"value":0,"score":1000},{"index":3,"value":0,"score":1000}]]`), 1); err != nil {
 			t.Fatal(err)
 		}
-		if err := state.apply("431", json.RawMessage(`[[{"index":0,"value":0,"score":1000},{"index":1,"value":50,"score":950},{"index":3,"value":100,"score":900}]]`), 2); err != nil {
+		if err := state.apply("431", json.RawMessage(`[[{"index":0,"value":0,"score":1000},{"index":1,"value":50,"score":950,"startState":1},{"index":3,"value":100,"score":900,"startState":2}]]`), 2); err != nil {
 			t.Fatal(err)
 		}
 		if err := state.apply("492", json.RawMessage(`[false,[{"index":3,"vecCards":[{"value":12},{"value":24}]}]]`), 3); err != nil {
@@ -195,7 +195,7 @@ func TestDPZXEventStateRejectsIncompleteStreetTransitions(t *testing.T) {
 func TestDPZXEventStateRejectsWatcherAndUnknownAction(t *testing.T) {
 	state := &dpzxTableState{heroSeat: -1, expectedSeat: -1, operationSeat: -1}
 	room := json.RawMessage(`[{"bankIndex":0,"mySeat":9,"HandNum":8,"roomID":99,"littleBB":50,"ante":25,"stisNumMax":8},[{"index":0,"value":25,"score":975},{"index":1,"value":25,"score":975}]]`)
-	start := json.RawMessage(`[[{"index":0,"value":50,"score":925},{"index":1,"value":100,"score":875}]]`)
+	start := json.RawMessage(`[[{"index":0,"value":50,"score":925,"startState":1},{"index":1,"value":100,"score":875,"startState":2}]]`)
 	if err := state.apply("430", room, 1); err != nil {
 		t.Fatal(err)
 	}

@@ -1,5 +1,5 @@
 ---
-version: "1.4"
+version: "1.5"
 last_updated: "2026-10-27"
 ---
 
@@ -17,3 +17,5 @@ last_updated: "2026-10-27"
 - **vvip**：上游 v2 接口为 VPIP 定义的字段拼写。ddbaby 对外请求仍接收 `vpip`，只在调用 v2 时映射为 `vvip`。
 - **DPZX Hero**：由DPZX房间快照`mySeat`指向的实际入座玩家；旁观值（当前样本为9）不属于任何参与座位，不能触发决策。昵称只用于人工核对，服务端不会硬编码`raise就allin`或据昵称识别身份。
 - **DPZX行动点**：数字cmd 432给出的下一行动座位。同一手中只有房间快照、盲注快照、Hero两张私牌和此前动作连续完整，并且cmd 432指向Hero时，才生成GTO请求。
+
+- **DPZX位置**：以bankIndex和startState=1/2锚定BTN/SB/BB；空庄位或空小盲保留缺位，其余参与者从BB后顺时针分配普通位置。与截图/AAPoker的位置顺延规则不同，无抓盲不插入straddle；不按下注金额判断抓盲。
