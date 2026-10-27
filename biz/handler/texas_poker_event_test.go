@@ -71,63 +71,35 @@ func TestTexasPokerEventHTTPResponse(t *testing.T) {
 	}
 }
 
-func TestTexasPokerEventLimitsHighFrequencyLargePayloadAndLogsAcceptedBodies(t *testing.T) {
-	data := strings.Repeat("a", 200*1024)
+func TestTexasPokerEventDoesNotRateLimitAndLogsEveryPayload(t *testing.T) {
+	const requestCount = 301
+	data := strings.Repeat("a", 4*1024)
 	body := `{"packageName":"com.plusaa.amula","timestamp":1792526400000,"cmd":"STATE",` +
 		`"direction":"ServerToClient","location":"TABLE","data":"` + data + `"}`
 	now := time.Unix(1792526400, 0)
-	guard := newEventIngressGuard(3, 2)
 
 	var logs bytes.Buffer
 	previousOutput := logrus.StandardLogger().Out
 	logrus.SetOutput(&logs)
 	t.Cleanup(func() { logrus.SetOutput(previousOutput) })
 
-	statuses := make([]int, 0, 4)
-	for i := 0; i < 4; i++ {
+	statuses := make([]int, 0, requestCount)
+	for i := 0; i < requestCount; i++ {
 		var requestContext app.RequestContext
 		requestContext.Request.SetBodyString(body)
-		texasPokerEventWithIngress(context.Background(), &requestContext, guard, now)
+		texasPokerEventAt(context.Background(), &requestContext, now)
 		statuses = append(statuses, requestContext.Response.StatusCode())
 	}
-	wantStatuses := []int{consts.StatusOK, consts.StatusOK, consts.StatusTooManyRequests, consts.StatusTooManyRequests}
-	for i, want := range wantStatuses {
-		if statuses[i] != want {
-			t.Fatalf("status[%d] = %d, want %d", i, statuses[i], want)
+	for i, status := range statuses {
+		if status != consts.StatusOK {
+			t.Fatalf("status[%d] = %d, want %d", i, status, consts.StatusOK)
 		}
 	}
-	if count := strings.Count(logs.String(), "full_event_logged=true"); count != 2 {
-		t.Fatalf("full event log count = %d, want 2", count)
+	if count := strings.Count(logs.String(), "full_event_logged=true"); count != requestCount {
+		t.Fatalf("full event log count = %d, want %d", count, requestCount)
 	}
-	if count := strings.Count(logs.String(), ` event=`); count != 2 {
-		t.Fatalf("logged event body count = %d, want 2", count)
-	}
-
-	var nextWindow app.RequestContext
-	nextWindow.Request.SetBodyString(body)
-	texasPokerEventWithIngress(context.Background(), &nextWindow, guard, now.Add(time.Minute))
-	if !strings.Contains(logs.String(), "dropped_count=2") {
-		t.Fatalf("missing aggregated drop count in logs")
-	}
-}
-
-func TestEventIngressGuardAppliesGlobalAndSourceQuotas(t *testing.T) {
-	now := time.Unix(1792526400, 0)
-	guard := newEventIngressGuard(3, 2)
-	if allowed, _ := guard.allowRequest(now, "198.51.100.1"); !allowed {
-		t.Fatal("first source request was rejected")
-	}
-	if allowed, _ := guard.allowRequest(now, "198.51.100.1"); !allowed {
-		t.Fatal("second source request was rejected")
-	}
-	if allowed, _ := guard.allowRequest(now, "198.51.100.1"); allowed {
-		t.Fatal("source quota was not enforced")
-	}
-	if allowed, _ := guard.allowRequest(now, "198.51.100.2"); !allowed {
-		t.Fatal("independent source request was rejected before global quota")
-	}
-	if allowed, _ := guard.allowRequest(now, "198.51.100.2"); allowed {
-		t.Fatal("global quota was not enforced")
+	if count := strings.Count(logs.String(), ` event=`); count != requestCount {
+		t.Fatalf("logged event body count = %d, want %d", count, requestCount)
 	}
 }
 
@@ -240,14 +212,13 @@ func TestTexasPokerEventRoutesDpzxToFullLogOnlyAndRejectsUnassignedSources(t *te
 	logrus.SetOutput(&logs)
 	t.Cleanup(func() { logrus.SetOutput(previousOutput) })
 
-	guard := newEventIngressGuard(10, 10)
 	now := time.Unix(1792526400, 0)
 	dpzxBody := `{"packageName":"com.dpzx.pro","timestamp":1792526400000,` +
 		`"cmd":"401","direction":"ServerToClient","location":"TABLE",` +
 		`"data":{"marker":"dpzx-private-hand"}}`
 	var dpzxContext app.RequestContext
 	dpzxContext.Request.SetBodyString(dpzxBody)
-	texasPokerEventWithIngress(context.Background(), &dpzxContext, guard, now)
+	texasPokerEventAt(context.Background(), &dpzxContext, now)
 	if dpzxContext.Response.StatusCode() != consts.StatusOK ||
 		strings.Contains(string(dpzxContext.Response.Body()), `"Result"`) {
 		t.Fatalf("DPZX response = %d %s", dpzxContext.Response.StatusCode(), dpzxContext.Response.Body())
@@ -270,7 +241,7 @@ func TestTexasPokerEventRoutesDpzxToFullLogOnlyAndRejectsUnassignedSources(t *te
 			logs.Reset()
 			var requestContext app.RequestContext
 			requestContext.Request.SetBodyString(body)
-			texasPokerEventWithIngress(context.Background(), &requestContext, guard, now)
+			texasPokerEventAt(context.Background(), &requestContext, now)
 			if requestContext.Response.StatusCode() != consts.StatusBadRequest {
 				t.Fatalf("status = %d, want 400", requestContext.Response.StatusCode())
 			}
@@ -307,7 +278,6 @@ func TestTexasPokerEventRetriesFailureAndReplaysSuccessfulTurn(t *testing.T) {
 		executeAAPokerDecisionForEvent = previousExecute
 	})
 
-	guard := newEventIngressGuard(100, 100)
 	now := time.Unix(1792526400, 0)
 	events := []string{
 		`{"mySeatID":0,"playerIDArray":[1762080,2836313,2646258,2838496,2859796,-1,2860755,1081977],"operationID":4,"operationRound":16}`,
@@ -318,25 +288,25 @@ func TestTexasPokerEventRetriesFailureAndReplaysSuccessfulTurn(t *testing.T) {
 	}
 	commands := []string{"REQ_GAME_ENTER_ROOM", "REQ_GAME_RECV_START_INFOR", "REQ_GAME_RECV_ACTION", "REQ_GAME_RECV_ACTION", "REQ_GAME_RECV_ACTION"}
 	for i := 0; i < len(events)-1; i++ {
-		ctx := postAAPokerTestEvent(t, guard, now, commands[i], events[i])
+		ctx := postAAPokerTestEvent(t, now, commands[i], events[i])
 		if ctx.Response.StatusCode() != consts.StatusOK {
 			t.Fatalf("setup event %d status = %d", i, ctx.Response.StatusCode())
 		}
 		now = now.Add(time.Millisecond)
 	}
 
-	failed := postAAPokerTestEvent(t, guard, now, commands[4], events[4])
+	failed := postAAPokerTestEvent(t, now, commands[4], events[4])
 	if failed.Response.StatusCode() != consts.StatusServiceUnavailable || calls != 1 {
 		t.Fatalf("temporary failure status/calls = %d/%d", failed.Response.StatusCode(), calls)
 	}
 	now = now.Add(time.Millisecond)
-	succeeded := postAAPokerTestEvent(t, guard, now, commands[4], events[4])
+	succeeded := postAAPokerTestEvent(t, now, commands[4], events[4])
 	if succeeded.Response.StatusCode() != consts.StatusOK ||
 		!strings.Contains(string(succeeded.Response.Body()), `"Result":"Call 8"`) || calls != 2 {
 		t.Fatalf("retry response/calls = %s/%d", succeeded.Response.Body(), calls)
 	}
 	now = now.Add(time.Millisecond)
-	replayed := postAAPokerTestEvent(t, guard, now, commands[4], events[4])
+	replayed := postAAPokerTestEvent(t, now, commands[4], events[4])
 	if replayed.Response.StatusCode() != consts.StatusOK ||
 		!strings.Contains(string(replayed.Response.Body()), `"Result":"Call 8"`) || calls != 2 {
 		t.Fatalf("cached replay/calls = %s/%d", replayed.Response.Body(), calls)
@@ -344,7 +314,7 @@ func TestTexasPokerEventRetriesFailureAndReplaysSuccessfulTurn(t *testing.T) {
 }
 
 func postAAPokerTestEvent(
-	t *testing.T, guard *eventIngressGuard, now time.Time, command, data string,
+	t *testing.T, now time.Time, command, data string,
 ) *app.RequestContext {
 	t.Helper()
 	body := fmt.Sprintf(`{"packageName":"com.plusaa.amula","uuid":"user@example.com","vpip":0,"pfr":0,"timestamp":%d,"uid":1762080,"cmd":%q,"direction":"ServerToClient","location":"TABLE","dataExtra":99,"data":%s}`,
@@ -352,6 +322,6 @@ func postAAPokerTestEvent(
 	requestContext := &app.RequestContext{}
 	requestContext.Request.SetBodyString(body)
 	requestContext.Request.Header.Set("Authorization", "Bearer session-token")
-	texasPokerEventWithIngress(context.Background(), requestContext, guard, now)
+	texasPokerEventAt(context.Background(), requestContext, now)
 	return requestContext
 }

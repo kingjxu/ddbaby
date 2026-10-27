@@ -5,12 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"hash/fnv"
 	"io"
-	"net"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -19,104 +16,16 @@ import (
 )
 
 const (
-	maxTexasPokerEventBytes        = 512 * 1024
-	defaultEventRequestsPerMinute  = 300
-	defaultSourceRequestsPerMinute = 120
-	eventSourceBucketCount         = 256
-	aapokerPackageName             = "com.plusaa.amula"
-	aapokerAlternatePackageName    = "com.ty.aapk"
-	dpzxPackageName                = "com.dpzx.pro"
+	maxTexasPokerEventBytes     = 512 * 1024
+	aapokerPackageName          = "com.plusaa.amula"
+	aapokerAlternatePackageName = "com.ty.aapk"
+	dpzxPackageName             = "com.dpzx.pro"
 )
 
 var eventCommandPattern = regexp.MustCompile(`^[A-Za-z0-9._:/-]{1,128}$`)
 
-var texasPokerEventIngress = newEventIngressGuard(
-	defaultEventRequestsPerMinute,
-	defaultSourceRequestsPerMinute,
-)
-
 var texasPokerEventStates = newAAPokerEventRegistry()
 var executeAAPokerDecisionForEvent = executeAAPokerDecision
-
-type eventIngressWindow struct {
-	minute   int64
-	requests int
-}
-
-type eventSourceBucket struct {
-	minute   int64
-	key      uint64
-	requests int
-}
-
-// eventIngressGuard uses a fixed number of source buckets so spoofed source
-// addresses cannot grow server memory. Hash collisions share a quota, which is
-// conservative and cannot increase the global allowance.
-type eventIngressGuard struct {
-	mu                      sync.Mutex
-	globalRequestsPerMinute int
-	sourceRequestsPerMinute int
-	global                  eventIngressWindow
-	sources                 [eventSourceBucketCount]eventSourceBucket
-	dropped                 uint64
-}
-
-func newEventIngressGuard(globalRequests, sourceRequests int) *eventIngressGuard {
-	return &eventIngressGuard{
-		globalRequestsPerMinute: globalRequests,
-		sourceRequestsPerMinute: sourceRequests,
-	}
-}
-
-func eventSourceKey(source string) uint64 {
-	hasher := fnv.New64a()
-	_, _ = hasher.Write([]byte(source))
-	return hasher.Sum64()
-}
-
-func texasPokerEventSource(c *app.RequestContext) string {
-	remote := c.RemoteAddr().String()
-	host, _, err := net.SplitHostPort(remote)
-	if err == nil {
-		remote = host
-	}
-	remoteIP := net.ParseIP(remote)
-	if remoteIP != nil && remoteIP.IsLoopback() {
-		// Forwarded headers are trusted only from the local reverse proxy.
-		return c.ClientIP()
-	}
-	return remote
-}
-
-func (g *eventIngressGuard) allowRequest(now time.Time, source string) (bool, uint64) {
-	minute := now.Unix() / 60
-	key := eventSourceKey(source)
-	index := key % eventSourceBucketCount
-
-	g.mu.Lock()
-	defer g.mu.Unlock()
-
-	var droppedToReport uint64
-	if g.global.minute != minute {
-		droppedToReport = g.dropped
-		g.dropped = 0
-		g.global = eventIngressWindow{minute: minute}
-	}
-	bucket := &g.sources[index]
-	if bucket.minute != minute {
-		*bucket = eventSourceBucket{minute: minute, key: key}
-	}
-	// A same-minute hash collision shares the bucket's current allowance
-	// rather than replacing it and letting either source bypass its quota.
-
-	if g.global.requests >= g.globalRequestsPerMinute || bucket.requests >= g.sourceRequestsPerMinute {
-		g.dropped++
-		return false, droppedToReport
-	}
-	g.global.requests++
-	bucket.requests++
-	return true, droppedToReport
-}
 
 type texasPokerEvent struct {
 	PackageName string          `json:"packageName"`
@@ -138,20 +47,10 @@ type texasPokerEvent struct {
 // TexasPokerEvent receives one normalized poker-app event and dispatches it by
 // the explicit package allowlist after validation and full diagnostic logging.
 func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
-	texasPokerEventWithIngress(ctx, c, texasPokerEventIngress, time.Now())
+	texasPokerEventAt(ctx, c, time.Now())
 }
 
-func texasPokerEventWithIngress(ctx context.Context, c *app.RequestContext, ingress *eventIngressGuard, now time.Time) {
-	allowed, droppedToReport := ingress.allowRequest(now, texasPokerEventSource(c))
-	if droppedToReport > 0 {
-		logrus.WithContext(ctx).WithField("dropped_count", droppedToReport).
-			Warn("[TexasPokerEvent] rate limited requests")
-	}
-	if !allowed {
-		writeTexasPokerEventError(c, consts.StatusTooManyRequests, "rate_limited")
-		return
-	}
-
+func texasPokerEventAt(ctx context.Context, c *app.RequestContext, now time.Time) {
 	body, err := readTexasPokerEventBody(c)
 	if err != nil {
 		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_body_size")
