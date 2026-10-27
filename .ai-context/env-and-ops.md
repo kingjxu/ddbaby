@@ -348,3 +348,13 @@ status: "active"
   审计页面记录的端到端验证。
 - 回滚目录：`/home/ubuntu/ddbaby-backups/20261026-224028-before-dbf6d8f`；运行日志：
   `/home/ubuntu/ddbaby/output/deploy-dbf6d8f-20261026-224028.log`。
+
+## 2026-10-27 packageName 分流与持续完整事件日志部署
+
+- 最终业务提交为 `7386fdd`，其中 `8a2cb84` 按用户明确要求移除完整事件日志的运行期开关、到期时间和日志字节预算，`7386fdd` 增加显式 packageName 分流。AAPoker `com.plusaa.amula/com.ty.aapk` 继续进入既有状态重建、GTO、计费、审计和结果回放；DPZX `com.dpzx.pro` 在协议分析阶段只记录完整事件并返回基础成功；未知或缺失包名在记录完整 body 前返回400。CR 已确认 LGTM。
+- 干净归档 SHA256 为 `d3e9872981c5e3cb7dbe6c4c965f555f224cb143fcf69b00697748c9b5252179`。服务器使用 Go 1.22.2 执行 `go test ./... -count=1`、`go test -race ./biz/handler -count=1` 和构建，均通过。运行二进制大小为 47,588,272 bytes，SHA256 为 `d34698c99b4b6865d4994d908e5ce0b1ccfae8c9ed4425c2f130c04df974aa9b`。
+- 2026-10-27 08:18:58 +08:00 完成切换，PID 从 `234556` 切换为 `334419`，新进程 PPID 为1；磁盘二进制与 `/proc/334419/exe` SHA256一致，8888正常监听，本机 `/ping` 返回`pong`。旧版使用的 `DDBABY_GTO_EVENT_FULL_LOG` 与 `DDBABY_GTO_EVENT_FULL_LOG_UNTIL` 已从运行环境移除，完整事件日志不再自动过期。
+- 本机合成smoke中，AAPoker和DPZX均返回HTTP 200与`BaseResp.StatusCode=0`；两者完整marker各写入日志一次。未知和缺失packageName均返回固定HTTP 400 `invalid_event`，对应原始marker未写入日志。公网 `/lyxz/gto_event` 的DPZX合成事件返回HTTP 200。新日志未发现panic/fatal。
+- 持续完整日志可能快速增长，并长期留存uid、房间与牌局内容；该风险由用户在协议分析阶段明确接受。请求仍受512 KiB请求体上限以及全局300次/分钟、单来源120次/分钟限流约束，但这些限制不构成日志容量保证。
+- 本轮仅完成服务端合成smoke；真实DPZX牌局采集与还原、双APK真机转发以及后续DPZX GTO策略尚未验证或实现。17770仍未认证，外层packageName只是路由优先级，任意同机App仍可伪造事件并借当前桃园身份触发AAPoker GTO、计费和审计。
+- 回滚目录：`/home/ubuntu/ddbaby-backups/20261027-081858-before-7386fdd`；运行日志：`/home/ubuntu/ddbaby/output/deploy-7386fdd-20261027-081858.log`。
