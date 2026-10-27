@@ -116,6 +116,86 @@ func TestDPZXEventStateTracksStreetAndRejectsMissingAction(t *testing.T) {
 	}
 }
 
+func TestDPZXEventStateRejectsIncompleteStreetTransitions(t *testing.T) {
+	newState := func(t *testing.T) *dpzxTableState {
+		t.Helper()
+		state := &dpzxTableState{heroSeat: -1, expectedSeat: -1, operationSeat: -1}
+		if err := state.apply("430", json.RawMessage(`[{"bankIndex":0,"mySeat":3,"HandNum":7,"roomID":99,"littleBB":50,"ante":0,"stisNumMax":4},[{"index":0,"value":0,"score":1000},{"index":1,"value":0,"score":1000},{"index":3,"value":0,"score":1000}]]`), 1); err != nil {
+			t.Fatal(err)
+		}
+		if err := state.apply("431", json.RawMessage(`[[{"index":0,"value":0,"score":1000},{"index":1,"value":50,"score":950},{"index":3,"value":100,"score":900}]]`), 2); err != nil {
+			t.Fatal(err)
+		}
+		if err := state.apply("492", json.RawMessage(`[false,[{"index":3,"vecCards":[{"value":12},{"value":24}]}]]`), 3); err != nil {
+			t.Fatal(err)
+		}
+		return state
+	}
+
+	t.Run("pending action cannot be erased by flop", func(t *testing.T) {
+		state := newState(t)
+		if err := state.apply("432", json.RawMessage(`[0,15,0,100,true]`), 4); err != nil {
+			t.Fatal(err)
+		}
+		if err := state.apply("490", json.RawMessage(`[true,[0,14,28]]`), 5); err == nil {
+			t.Fatal("street transition with a missing action was accepted")
+		}
+		state.apply("432", json.RawMessage(`[3,15,100,0,true]`), 6)
+		if request, _ := state.decisionRequest(); request != nil {
+			t.Fatal("missing action followed by a Hero prompt produced a decision")
+		}
+	})
+
+	tests := []struct {
+		name  string
+		board string
+	}{
+		{name: "skip flop", board: `[true,[0,14,28,42]]`},
+		{name: "duplicate public card", board: `[true,[0,14,14]]`},
+		{name: "duplicate Hero card", board: `[true,[0,14,12]]`},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			state := newState(t)
+			if err := state.apply("490", json.RawMessage(test.board), 4); err == nil {
+				t.Fatal("invalid first board transition was accepted")
+			}
+			state.apply("432", json.RawMessage(`[3,15,100,0,true]`), 5)
+			if request, _ := state.decisionRequest(); request != nil {
+				t.Fatal("invalid board transition produced a decision")
+			}
+		})
+	}
+
+	t.Run("skip turn", func(t *testing.T) {
+		state := newState(t)
+		if err := state.apply("490", json.RawMessage(`[true,[0,14,28]]`), 4); err != nil {
+			t.Fatal(err)
+		}
+		if err := state.apply("490", json.RawMessage(`[true,[0,14,28,42,5]]`), 5); err == nil {
+			t.Fatal("flop-to-river transition was accepted")
+		}
+		state.apply("432", json.RawMessage(`[3,15,0,0,false]`), 6)
+		if request, _ := state.decisionRequest(); request != nil {
+			t.Fatal("skipped turn produced a decision")
+		}
+	})
+
+	t.Run("changed board prefix", func(t *testing.T) {
+		state := newState(t)
+		if err := state.apply("490", json.RawMessage(`[true,[0,14,28]]`), 4); err != nil {
+			t.Fatal(err)
+		}
+		if err := state.apply("490", json.RawMessage(`[true,[1,14,28,42]]`), 5); err == nil {
+			t.Fatal("changed board prefix was accepted")
+		}
+		state.apply("432", json.RawMessage(`[3,15,0,0,false]`), 6)
+		if request, _ := state.decisionRequest(); request != nil {
+			t.Fatal("changed board prefix produced a decision")
+		}
+	})
+}
+
 func TestDPZXEventStateRejectsWatcherAndUnknownAction(t *testing.T) {
 	state := &dpzxTableState{heroSeat: -1, expectedSeat: -1, operationSeat: -1}
 	room := json.RawMessage(`[{"bankIndex":0,"mySeat":9,"HandNum":8,"roomID":99,"littleBB":50,"ante":25,"stisNumMax":8},[{"index":0,"value":25,"score":975},{"index":1,"value":25,"score":975}]]`)

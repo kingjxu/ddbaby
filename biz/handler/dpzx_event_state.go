@@ -460,16 +460,38 @@ func (s *dpzxTableState) applyBoard(raw json.RawMessage) error {
 	if err := json.Unmarshal(payload[1], &cardIDs); err != nil {
 		return err
 	}
-	if len(cardIDs) < 3 || len(cardIDs) > 5 || len(cardIDs) <= len(s.board) {
+	if len(cardIDs) == len(s.board) && sameDPZXBoard(s.board, cardIDs) {
 		return nil
 	}
+	if s.expectedSeat >= 0 || !validDPZXBoardProgression(len(s.board), len(cardIDs)) {
+		s.complete = false
+		return errors.New("incomplete DPZX street transition")
+	}
 	board := make([]string, 0, len(cardIDs))
+	seen := make(map[string]struct{}, len(cardIDs)+2)
+	if hero := s.players[s.heroSeat]; hero != nil {
+		for _, card := range hero.holeCards {
+			seen[card] = struct{}{}
+		}
+	}
 	for _, cardID := range cardIDs {
 		card := dpzxCard(cardID)
 		if card == "" {
+			s.complete = false
 			return errors.New("invalid DPZX community card")
 		}
+		if _, exists := seen[card]; exists {
+			s.complete = false
+			return errors.New("duplicate DPZX card")
+		}
+		seen[card] = struct{}{}
 		board = append(board, card)
+	}
+	for index := range s.board {
+		if board[index] != s.board[index] {
+			s.complete = false
+			return errors.New("changed DPZX community card prefix")
+		}
 	}
 	s.board = board
 	switch len(board) {
@@ -487,6 +509,22 @@ func (s *dpzxTableState) applyBoard(raw json.RawMessage) error {
 	s.expectedSeat = -1
 	s.operationSeat = -1
 	return nil
+}
+
+func validDPZXBoardProgression(current, next int) bool {
+	return current == 0 && next == 3 || current == 3 && next == 4 || current == 4 && next == 5
+}
+
+func sameDPZXBoard(current []string, cardIDs []int) bool {
+	if len(current) != len(cardIDs) {
+		return false
+	}
+	for index, cardID := range cardIDs {
+		if current[index] != dpzxCard(cardID) {
+			return false
+		}
+	}
+	return true
 }
 
 func (s *dpzxTableState) applyCards(raw json.RawMessage) error {
