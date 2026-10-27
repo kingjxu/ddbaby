@@ -37,6 +37,8 @@ type texasPokerEvent struct {
 }
 
 // PokerEventDecisionResult is the complete client response cached for replay.
+// An empty Result marks a rejected action point; replay ends that event without
+// calling GTO again or sending a client action.
 type PokerEventDecisionResult struct {
 	Result         string   `json:"Result"`
 	HeroCard       []string `json:"HeroCard"`
@@ -81,7 +83,7 @@ func ProcessPokerEvent(req *ddbaby.TexasPokerEventReq) (*PokerEventDecision, err
 	return candidate, err
 }
 
-// CompletePokerEventDecision caches success or releases the turn for retry.
+// CompletePokerEventDecision 缓存成功结果或终止标记；nil结果释放行动点供临时失败重试。
 func CompletePokerEventDecision(candidate *PokerEventDecision, result *PokerEventDecisionResult) {
 	if candidate == nil {
 		return

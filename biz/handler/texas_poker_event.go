@@ -107,11 +107,20 @@ func (h *TexasPokerEventHandler) Handle(ctx context.Context) (*ddbaby.TexasPoker
 			ctx, h.decisionHandler, candidate.Request,
 		)
 		if decisionErr != nil {
+			if errors.Is(decisionErr, errInvalidPokerDecision) {
+				// 空结果是这个行动点已终止的缓存标记；重传不再调用GTO。
+				service.CompletePokerEventDecision(candidate, &service.PokerEventDecisionResult{})
+				logger.Warnf("[TexasPokerEvent] decision rejected:%v", decisionErr)
+				return h.newResp(0, "decision_rejected"), nil
+			}
 			service.CompletePokerEventDecision(candidate, nil)
 			logger.Warnf("[TexasPokerEvent] decision retry required:%v", decisionErr)
 			return h.newResp(consts.StatusServiceUnavailable, "decision_retry"), decisionErr
 		}
 		service.CompletePokerEventDecision(candidate, decision)
+	}
+	if decision.Result == "" {
+		return h.newResp(0, "decision_rejected"), nil
 	}
 	writeAAPokerDecisionResponse(resp, decision)
 	return resp, nil

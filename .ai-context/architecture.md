@@ -19,3 +19,5 @@ last_updated: "2026-10-27"
 ## 当前覆盖边界
 
 本文只描述德州扑克决策热路径；支付、健康、塔罗等模块不在当前范围内。
+
+- 非法/空GTO决策在event入口终止当前行动点：返回HTTP 200、BaseResp.StatusCode=0、StatusMessage=decision_rejected，不带Result或客户端动作，不计费。可解析的非法原始响应仍异步审计，final_response为JSON null。service缓存非nil但Result为空的终止标记，沿用30分钟TTL和1024条容量；相同行动重传不重复GTO、审计或计费。后续真实行动继续推进状态，可生成下一行动点的决策。网络/上游临时错误仍返回503并释放重试资格；激活检查仍先于缓存。两协议HTTP回归覆盖拒绝、重传、同手后续行动及正常决策。

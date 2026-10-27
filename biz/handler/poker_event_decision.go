@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	_const "github.com/kingjxu/ddbaby/const"
 	poker "github.com/kingjxu/ddbaby/dal/mysql/texas_poker"
@@ -10,6 +11,8 @@ import (
 	"github.com/kingjxu/ddbaby/service"
 	"github.com/sirupsen/logrus"
 )
+
+var errInvalidPokerDecision = errors.New("invalid poker decision")
 
 func executePokerDecision(
 	ctx context.Context,
@@ -26,13 +29,13 @@ func executePokerDecision(
 		return nil, err
 	}
 	if response == nil {
-		return nil, errors.New("decision service returned an empty response")
+		return nil, fmt.Errorf("%w: empty response", errInvalidPokerDecision)
 	}
 	rawResponse := *response
 	model.NormalizeTexasGtoDecisionToStack(request, response)
 	if err = model.ValidateTexasGtoDecisionResponse(request, response); err != nil {
 		handler.saveDecisionRecordAsync(request, &rawResponse, nil)
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", errInvalidPokerDecision, err)
 	}
 	model.NormalizeTexasGtoFreeFoldToCheck(request, response)
 
