@@ -24,7 +24,7 @@ func main() {
 
 // preserveDefaultRequestBodyLimit keeps Hertz's former 4 MiB buffering limit
 // for existing routes while /lyxz/gto_event applies its smaller streaming
-// limit inside the handler.
+// limit in its route middleware.
 func preserveDefaultRequestBodyLimit(ctx context.Context, c *app.RequestContext) {
 	if string(c.Path()) == "/lyxz/gto_event" || !c.Request.IsBodyStream() {
 		c.Next(ctx)

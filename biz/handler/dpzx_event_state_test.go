@@ -302,7 +302,7 @@ func TestTexasPokerEventRoutesDPZXThroughDecisionResponse(t *testing.T) {
 		requestContext.Request.SetBodyString(body)
 		requestContext.Request.Header.SetContentLength(len(body))
 		requestContext.Request.Header.Set("Authorization", "Bearer session-token")
-		TexasPokerEvent(context.Background(), requestContext)
+		serveTexasPokerEventForTest(requestContext)
 		return requestContext
 	}
 

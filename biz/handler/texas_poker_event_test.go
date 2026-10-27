@@ -22,6 +22,13 @@ type countingReader struct {
 	read   int
 }
 
+// Use the same middleware chain as the generated HTTP route.
+func serveTexasPokerEventForTest(c *app.RequestContext) {
+	c.SetHandlers(app.HandlersChain{PrepareTexasPokerEvent, TexasPokerEvent})
+	c.SetIndex(-1)
+	c.Next(context.Background())
+}
+
 // Exercise the production binder while allowing parse assertions to inspect raw tokens.
 func bindTexasPokerTestEvent(body []byte) (*texasPokerEvent, error) {
 	var c app.RequestContext
@@ -33,7 +40,7 @@ func bindTexasPokerTestEvent(body []byte) (*texasPokerEvent, error) {
 	if err := c.BindAndValidate(&req); err != nil {
 		return nil, err
 	}
-	h := NewTexasPokerEventHandler(&req, body, "")
+	h := NewTexasPokerEventHandler(&req)
 	if err := h.check(); err != nil {
 		return nil, err
 	}
@@ -51,7 +58,8 @@ func TestTexasPokerEventHandlerHandlesWithoutHTTPContext(t *testing.T) {
 		{name: "accepted event", req: &ddbaby.TexasPokerEventReq{PackageName: dpzxPackageName}},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			handler := NewTexasPokerEventHandler(test.req, []byte(`{"marker":"handler-test"}`), "")
+			handler := NewTexasPokerEventHandler(test.req)
+			handler.rawBody = []byte(`{"marker":"handler-test"}`)
 			response, err := handler.Handle(context.Background())
 			if (err != nil) != (test.wantCode != 0) {
 				t.Fatalf("Handle error = %v", err)
@@ -110,7 +118,7 @@ func TestTexasPokerEventHTTPResponse(t *testing.T) {
 	validContext.Request.Header.Set("Content-Type", "application/json")
 	validContext.Request.SetBodyString(validBody)
 	validContext.Request.Header.SetContentLength(len(validBody))
-	TexasPokerEvent(context.Background(), &validContext)
+	serveTexasPokerEventForTest(&validContext)
 	if validContext.Response.StatusCode() != consts.StatusOK {
 		t.Fatalf("valid status = %d, want 200", validContext.Response.StatusCode())
 	}
@@ -123,9 +131,31 @@ func TestTexasPokerEventHTTPResponse(t *testing.T) {
 	invalidContext.Request.Header.Set("Content-Type", "application/json")
 	invalidContext.Request.SetBodyString(`{"timestamp":1}`)
 	invalidContext.Request.Header.SetContentLength(len(`{"timestamp":1}`))
-	TexasPokerEvent(context.Background(), &invalidContext)
+	serveTexasPokerEventForTest(&invalidContext)
 	if invalidContext.Response.StatusCode() != consts.StatusBadRequest {
 		t.Fatalf("invalid status = %d, want 400", invalidContext.Response.StatusCode())
+	}
+}
+
+func TestTexasPokerEventMiddlewarePreservesRequestContext(t *testing.T) {
+	for _, body := range []string{
+		`{ "packageName": "com.dpzx.pro", "data": { "value": 9007199254740993 } }`,
+		`{"packageName":"com.dpzx.pro","timestamp":"invalid"}`,
+	} {
+		var c app.RequestContext
+		c.Request.SetMethod("POST")
+		c.Request.SetRequestURI("/lyxz/gto_event?PackageName=com.plusaa.amula&Cmd=ignored")
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.SetBodyString(body)
+		before := time.Now()
+		serveTexasPokerEventForTest(&c)
+		receivedAt := c.GetTime(pokerEventReceivedAtKey)
+		if receivedAt.Before(before) || receivedAt.After(time.Now()) {
+			t.Fatalf("request reception time was lost: %v", receivedAt)
+		}
+		if string(c.Request.Body()) != body || string(c.Request.URI().QueryString()) != "PackageName=com.plusaa.amula&Cmd=ignored" {
+			t.Fatal("middleware did not preserve the raw body and original query")
+		}
 	}
 }
 
@@ -139,7 +169,7 @@ func TestTexasPokerEventBindsStreamedJSON(t *testing.T) {
 	previousOutput := logrus.StandardLogger().Out
 	logrus.SetOutput(&logs)
 	t.Cleanup(func() { logrus.SetOutput(previousOutput) })
-	TexasPokerEvent(context.Background(), &c)
+	serveTexasPokerEventForTest(&c)
 	if c.Response.StatusCode() != consts.StatusOK || !strings.Contains(logs.String(), "stream-event") {
 		t.Fatalf("stream response/log = %s / %s", c.Response.Body(), logs.String())
 	}
@@ -154,7 +184,7 @@ func TestTexasPokerEventRejectsTypedFieldMismatchBeforeLogging(t *testing.T) {
 	previousOutput := logrus.StandardLogger().Out
 	logrus.SetOutput(&logs)
 	t.Cleanup(func() { logrus.SetOutput(previousOutput) })
-	TexasPokerEvent(context.Background(), &c)
+	serveTexasPokerEventForTest(&c)
 	if c.Response.StatusCode() != consts.StatusBadRequest || strings.Contains(logs.String(), "private-invalid-marker") ||
 		strings.Contains(string(c.Response.Body()), "private-invalid-marker") {
 		t.Fatalf("invalid response/log = %s / %s", c.Response.Body(), logs.String())
@@ -179,7 +209,7 @@ func TestTexasPokerEventDoesNotRateLimitAndLogsEveryPayload(t *testing.T) {
 		requestContext.Request.Header.Set("Content-Type", "application/json")
 		requestContext.Request.SetBodyString(body)
 		requestContext.Request.Header.SetContentLength(len(body))
-		TexasPokerEvent(context.Background(), &requestContext)
+		serveTexasPokerEventForTest(&requestContext)
 		statuses = append(statuses, requestContext.Response.StatusCode())
 	}
 	for i, status := range statuses {
@@ -300,7 +330,7 @@ func TestTexasPokerEventLogsIncompleteDPZXAndRejectsUnassignedSources(t *testing
 	dpzxContext.Request.Header.Set("Content-Type", "application/json")
 	dpzxContext.Request.SetBodyString(dpzxBody)
 	dpzxContext.Request.Header.SetContentLength(len(dpzxBody))
-	TexasPokerEvent(context.Background(), &dpzxContext)
+	serveTexasPokerEventForTest(&dpzxContext)
 	if dpzxContext.Response.StatusCode() != consts.StatusOK ||
 		strings.Contains(string(dpzxContext.Response.Body()), `"Result"`) {
 		t.Fatalf("DPZX response = %d %s", dpzxContext.Response.StatusCode(), dpzxContext.Response.Body())
@@ -326,7 +356,7 @@ func TestTexasPokerEventLogsIncompleteDPZXAndRejectsUnassignedSources(t *testing
 			requestContext.Request.Header.Set("Content-Type", "application/json")
 			requestContext.Request.SetBodyString(body)
 			requestContext.Request.Header.SetContentLength(len(body))
-			TexasPokerEvent(context.Background(), &requestContext)
+			serveTexasPokerEventForTest(&requestContext)
 			if requestContext.Response.StatusCode() != consts.StatusBadRequest {
 				t.Fatalf("status = %d, want 400", requestContext.Response.StatusCode())
 			}
@@ -410,6 +440,6 @@ func postAAPokerTestEvent(
 	requestContext.Request.SetBodyString(body)
 	requestContext.Request.Header.SetContentLength(len(body))
 	requestContext.Request.Header.Set("Authorization", "Bearer session-token")
-	TexasPokerEvent(context.Background(), requestContext)
+	serveTexasPokerEventForTest(requestContext)
 	return requestContext
 }

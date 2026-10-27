@@ -2,11 +2,7 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"io"
-	"mime"
-	"strings"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -17,7 +13,6 @@ import (
 )
 
 const (
-	maxTexasPokerEventBytes     = 512 * 1024
 	aapokerPackageName          = "com.plusaa.amula"
 	aapokerAlternatePackageName = "com.ty.aapk"
 	dpzxPackageName             = "com.dpzx.pro"
@@ -47,59 +42,27 @@ type texasPokerEvent struct {
 	route pokerEventRoute
 }
 
-// TexasPokerEvent receives one normalized poker-app event and dispatches it by
-// the explicit package allowlist after validation and full diagnostic logging.
+// TexasPokerEvent .
 // @router /lyxz/gto_event [POST]
 func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
-	receivedAt := time.Now()
-	body, err := readTexasPokerEventBody(c)
+	var err error
+	var req ddbaby.TexasPokerEventReq
+	err = c.BindAndValidate(&req)
 	if err != nil {
-		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_body_size")
+		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
 		return
 	}
 
-	mediaType, _, err := mime.ParseMediaType(string(c.Request.Header.ContentType()))
-	var fields map[string]json.RawMessage
-	if err != nil || mediaType != "application/json" || json.Unmarshal(body, &fields) != nil || fields == nil {
-		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
-		return
-	}
-	// Routing requires the exact protocol key. The generic JSON binder also
-	// accepts case-insensitive aliases, which must not select another source.
-	for name := range fields {
-		if name != "packageName" && strings.EqualFold(name, "packageName") {
-			writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
-			return
-		}
-	}
-	var packageName string
-	if json.Unmarshal(fields["packageName"], &packageName) != nil {
-		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
-		return
-	}
-	// Buffer streamed bodies once so binding and logging use the same JSON.
-	c.Request.SetBody(body)
-	c.Request.Header.SetContentLength(len(body))
-	// Generated models also have query tags. Bind this endpoint from JSON only,
-	// then restore the URI for middleware/access logs.
-	query := string(c.Request.URI().QueryString())
-	c.Request.URI().SetQueryString("")
-	var req ddbaby.TexasPokerEventReq
-	err = c.BindAndValidate(&req)
-	c.Request.URI().SetQueryString(query)
-	if err != nil {
-		writeTexasPokerEventError(c, consts.StatusBadRequest, "invalid_event")
-		return
-	}
-	req.PackageName = packageName
-	handler := NewTexasPokerEventHandler(&req, body, texasPokerEventBearerToken(c))
-	handler.now = receivedAt
-	response, _ := handler.Handle(ctx)
+	handler := NewTexasPokerEventHandler(&req)
+	handler.rawBody = c.Request.Body()
+	handler.token = texasPokerEventBearerToken(c)
+	handler.now = c.GetTime(pokerEventReceivedAtKey)
+	resp, _ := handler.Handle(ctx)
 	status := consts.StatusOK
-	if response.BaseResp.StatusCode != 0 {
-		status = int(response.BaseResp.StatusCode)
+	if resp.BaseResp.StatusCode != 0 {
+		status = int(resp.BaseResp.StatusCode)
 	}
-	c.JSON(status, response)
+	c.JSON(status, resp)
 }
 
 type TexasPokerEventHandler struct {
@@ -110,8 +73,11 @@ type TexasPokerEventHandler struct {
 	route   pokerEventRoute
 }
 
-func NewTexasPokerEventHandler(req *ddbaby.TexasPokerEventReq, rawBody []byte, token string) *TexasPokerEventHandler {
-	return &TexasPokerEventHandler{req: req, rawBody: rawBody, token: token, now: time.Now()}
+func NewTexasPokerEventHandler(req *ddbaby.TexasPokerEventReq) *TexasPokerEventHandler {
+	return &TexasPokerEventHandler{
+		req: req,
+		now: time.Now(),
+	}
 }
 
 func (h *TexasPokerEventHandler) check() error {
@@ -127,6 +93,7 @@ func (h *TexasPokerEventHandler) check() error {
 }
 
 func (h *TexasPokerEventHandler) Handle(ctx context.Context) (*ddbaby.TexasPokerEventResp, error) {
+	// 1. 校验请求。
 	if err := h.check(); err != nil {
 		return h.newResp(consts.StatusBadRequest, "invalid_event"), err
 	}
@@ -141,9 +108,11 @@ func (h *TexasPokerEventHandler) Handle(ctx context.Context) (*ddbaby.TexasPoker
 		"package_name":      event.PackageName,
 		"payload_size":      len(event.Data),
 	}
-	logrus.WithContext(ctx).WithFields(fields).Info("[TexasPokerEvent] accepted")
+	logger := logrus.WithContext(ctx).WithFields(fields)
+	logger.Info("[TexasPokerEvent] accepted")
 
-	response := h.newResp(0, "success")
+	// 2. 按应用来源重建牌局。
+	resp := h.newResp(0, "success")
 	var candidate *aapokerDecisionCandidate
 	var stateErr error
 	switch event.route {
@@ -153,26 +122,29 @@ func (h *TexasPokerEventHandler) Handle(ctx context.Context) (*ddbaby.TexasPoker
 		candidate, stateErr = dpzxPokerEventStates.process(event, h.now)
 	}
 	if stateErr != nil {
-		logrus.WithContext(ctx).WithFields(fields).
-			Warnf("[TexasPokerEvent] state update ignored:%v", stateErr)
-	} else if candidate != nil {
-		decision := candidate.Cached
-		if decision == nil {
-			var decisionErr error
-			decision, decisionErr = executeAAPokerDecisionForEvent(
-				ctx, event.UUID, h.token, event.VPIP, event.PFR, candidate.Request,
-			)
-			if decisionErr != nil {
-				completePokerEventDecision(event.route, candidate, nil, h.now)
-				logrus.WithContext(ctx).WithFields(fields).
-					Warnf("[TexasPokerEvent] decision retry required:%v", decisionErr)
-				return h.newResp(consts.StatusServiceUnavailable, "decision_retry"), decisionErr
-			}
-			completePokerEventDecision(event.route, candidate, decision, h.now)
-		}
-		writeAAPokerDecisionResponse(response, decision)
+		logger.Warnf("[TexasPokerEvent] state update ignored:%v", stateErr)
+		return resp, nil
 	}
-	return response, nil
+	if candidate == nil {
+		return resp, nil
+	}
+
+	// 3. 回放已有结果，或调用策略并保存可重放的结果。
+	decision := candidate.Cached
+	if decision == nil {
+		var decisionErr error
+		decision, decisionErr = executeAAPokerDecisionForEvent(
+			ctx, event.UUID, h.token, event.VPIP, event.PFR, candidate.Request,
+		)
+		if decisionErr != nil {
+			completePokerEventDecision(event.route, candidate, nil, h.now)
+			logger.Warnf("[TexasPokerEvent] decision retry required:%v", decisionErr)
+			return h.newResp(consts.StatusServiceUnavailable, "decision_retry"), decisionErr
+		}
+		completePokerEventDecision(event.route, candidate, decision, h.now)
+	}
+	writeAAPokerDecisionResponse(resp, decision)
+	return resp, nil
 }
 
 func (h *TexasPokerEventHandler) newResp(status int, message string) *ddbaby.TexasPokerEventResp {
@@ -205,45 +177,4 @@ func writeAAPokerDecisionResponse(response *ddbaby.TexasPokerEventResp, decision
 	response.DecisionAction = util.Ptr(decision.DecisionAction)
 	response.DecisionAmount = util.Ptr(int64(decision.DecisionAmount))
 	response.HeroMaxTarget = util.Ptr(int64(decision.HeroMaxTarget))
-}
-
-func texasPokerEventBearerToken(c *app.RequestContext) string {
-	header := strings.TrimSpace(string(c.Request.Header.Peek("Authorization")))
-	if len(header) < 8 || !strings.EqualFold(header[:7], "Bearer ") {
-		return ""
-	}
-	token := strings.TrimSpace(header[7:])
-	if token == "" || strings.ContainsAny(token, " \t\r\n") || len(token) > 4096 {
-		return ""
-	}
-	return token
-}
-
-func readTexasPokerEventBody(c *app.RequestContext) ([]byte, error) {
-	if !c.Request.IsBodyStream() {
-		body := c.Request.Body()
-		if len(body) == 0 || len(body) > maxTexasPokerEventBytes {
-			return nil, errors.New("invalid body size")
-		}
-		return body, nil
-	}
-
-	contentLength := c.Request.Header.ContentLength()
-	if contentLength == 0 || contentLength > maxTexasPokerEventBytes {
-		return nil, errors.New("invalid body size")
-	}
-
-	body, err := io.ReadAll(io.LimitReader(
-		c.RequestBodyStream(), int64(maxTexasPokerEventBytes)+1,
-	))
-	if err != nil || len(body) == 0 || len(body) > maxTexasPokerEventBytes {
-		return nil, errors.New("invalid body size")
-	}
-	return body, nil
-}
-
-func writeTexasPokerEventError(c *app.RequestContext, status int, code string) {
-	c.JSON(status, &ddbaby.TexasPokerEventResp{
-		BaseResp: &ddbaby.BaseResp{StatusCode: int32(status), StatusMessage: code},
-	})
 }

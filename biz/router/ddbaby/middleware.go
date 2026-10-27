@@ -4,6 +4,7 @@ package ddbaby
 
 import (
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/kingjxu/ddbaby/biz/handler"
 )
 
 func rootMw() []app.HandlerFunc {
@@ -127,6 +128,5 @@ func _texaspokerreportMw() []app.HandlerFunc {
 }
 
 func _texaspokereventMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{handler.PrepareTexasPokerEvent}
 }
