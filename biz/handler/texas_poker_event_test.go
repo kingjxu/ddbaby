@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -27,7 +28,7 @@ func (r *countingReader) Read(p []byte) (int, error) {
 }
 
 func TestParseTexasPokerEvent(t *testing.T) {
-	body := []byte(`{"timestamp":1792526400000,"pid":"42","uid":"42",` +
+	body := []byte(`{"packageName":"com.plusaa.amula","timestamp":1792526400000,"pid":"42","uid":"42",` +
 		`"PacketId":123,"cmd":"RSP_GAME_STATE","direction":"ServerToClient",` +
 		`"data":{"table":7},"location":"TABLE","seq":1,"dataExtra":"7"}`)
 	event, err := parseTexasPokerEvent(body)
@@ -39,8 +40,18 @@ func TestParseTexasPokerEvent(t *testing.T) {
 	}
 }
 
+func TestParseTexasPokerEventAcceptsAAPokerPackageAliases(t *testing.T) {
+	for _, packageName := range []string{aapokerPackageName, aapokerAlternatePackageName} {
+		body := fmt.Sprintf(`{"packageName":%q,"timestamp":1,"cmd":"STATE",`+
+			`"direction":"ServerToClient","location":"TABLE","data":{}}`, packageName)
+		if _, err := parseTexasPokerEvent([]byte(body)); err != nil {
+			t.Fatalf("package %q rejected: %v", packageName, err)
+		}
+	}
+}
+
 func TestTexasPokerEventHTTPResponse(t *testing.T) {
-	validBody := `{"timestamp":1792526400000,"cmd":"STATE",` +
+	validBody := `{"packageName":"com.plusaa.amula","timestamp":1792526400000,"cmd":"STATE",` +
 		`"direction":"ServerToClient","location":"TABLE","data":{}}`
 	var validContext app.RequestContext
 	validContext.Request.SetBodyString(validBody)
@@ -62,7 +73,7 @@ func TestTexasPokerEventHTTPResponse(t *testing.T) {
 
 func TestTexasPokerEventLimitsHighFrequencyLargePayloadAndLogsAcceptedBodies(t *testing.T) {
 	data := strings.Repeat("a", 200*1024)
-	body := `{"timestamp":1792526400000,"cmd":"STATE",` +
+	body := `{"packageName":"com.plusaa.amula","timestamp":1792526400000,"cmd":"STATE",` +
 		`"direction":"ServerToClient","location":"TABLE","data":"` + data + `"}`
 	now := time.Unix(1792526400, 0)
 	guard := newEventIngressGuard(3, 2)
@@ -150,15 +161,17 @@ func TestReadTexasPokerEventBodyRejectsOversizedContentLengthWithoutReading(t *t
 
 func TestParseTexasPokerEventRejectsInvalidInput(t *testing.T) {
 	tests := map[string]string{
-		"bad json":      `{`,
-		"missing data":  `{"timestamp":1,"cmd":"STATE","direction":"ServerToClient","location":"TABLE"}`,
-		"bad command":   `{"timestamp":1,"cmd":"bad command","direction":"ServerToClient","location":"TABLE","data":{}}`,
-		"bad direction": `{"timestamp":1,"cmd":"STATE","direction":"sideways","location":"TABLE","data":{}}`,
-		"bad location":  `{"timestamp":1,"cmd":"STATE","direction":"ServerToClient","location":"LOGIN","data":{}}`,
-		"fractional ts": `{"timestamp":1.5,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
-		"exponent ts":   `{"timestamp":1e3,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
-		"large uid":     `{"timestamp":1,"uid":"` + strings.Repeat("a", 129) + `","cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
-		"boolean uid":   `{"timestamp":1,"uid":true,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
+		"bad json":        `{`,
+		"missing package": `{"timestamp":1,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
+		"unknown package": `{"packageName":"com.unknown.poker","timestamp":1,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
+		"missing data":    `{"packageName":"com.plusaa.amula","timestamp":1,"cmd":"STATE","direction":"ServerToClient","location":"TABLE"}`,
+		"bad command":     `{"packageName":"com.plusaa.amula","timestamp":1,"cmd":"bad command","direction":"ServerToClient","location":"TABLE","data":{}}`,
+		"bad direction":   `{"packageName":"com.plusaa.amula","timestamp":1,"cmd":"STATE","direction":"sideways","location":"TABLE","data":{}}`,
+		"bad location":    `{"packageName":"com.plusaa.amula","timestamp":1,"cmd":"STATE","direction":"ServerToClient","location":"LOGIN","data":{}}`,
+		"fractional ts":   `{"packageName":"com.plusaa.amula","timestamp":1.5,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
+		"exponent ts":     `{"packageName":"com.plusaa.amula","timestamp":1e3,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
+		"large uid":       `{"packageName":"com.plusaa.amula","timestamp":1,"uid":"` + strings.Repeat("a", 129) + `","cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
+		"boolean uid":     `{"packageName":"com.plusaa.amula","timestamp":1,"uid":true,"cmd":"STATE","direction":"ServerToClient","location":"TABLE","data":{}}`,
 	}
 	for name, body := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -170,7 +183,7 @@ func TestParseTexasPokerEventRejectsInvalidInput(t *testing.T) {
 }
 
 func TestParseTexasPokerEventAcceptsNumericMetadata(t *testing.T) {
-	body := []byte(`{"timestamp":1792526400000,"pid":42,"uid":7,` +
+	body := []byte(`{"packageName":"com.plusaa.amula","timestamp":1792526400000,"pid":42,"uid":7,` +
 		`"PacketId":"opaque","cmd":"STATE","direction":"ServerToClient",` +
 		`"data":"opaque-payload","location":"TABLE","seq":"opaque","dataExtra":9}`)
 	if _, err := parseTexasPokerEvent(body); err != nil {
@@ -180,14 +193,14 @@ func TestParseTexasPokerEventAcceptsNumericMetadata(t *testing.T) {
 
 func TestParseTexasPokerEventDataSizeBoundary(t *testing.T) {
 	dataAtLimit := `"` + strings.Repeat("a", 480*1024-2) + `"`
-	bodyAtLimit := `{"timestamp":1,"cmd":"STATE","direction":"ServerToClient",` +
+	bodyAtLimit := `{"packageName":"com.plusaa.amula","timestamp":1,"cmd":"STATE","direction":"ServerToClient",` +
 		`"location":"TABLE","data":` + dataAtLimit + `}`
 	if _, err := parseTexasPokerEvent([]byte(bodyAtLimit)); err != nil {
 		t.Fatalf("480 KiB data rejected: %v", err)
 	}
 
 	dataOverLimit := `"` + strings.Repeat("a", 480*1024-1) + `"`
-	bodyOverLimit := `{"timestamp":1,"cmd":"STATE","direction":"ServerToClient",` +
+	bodyOverLimit := `{"packageName":"com.plusaa.amula","timestamp":1,"cmd":"STATE","direction":"ServerToClient",` +
 		`"location":"TABLE","data":` + dataOverLimit + `}`
 	if _, err := parseTexasPokerEvent([]byte(bodyOverLimit)); err == nil {
 		t.Fatal("expected data over 480 KiB to be rejected")
@@ -203,6 +216,72 @@ func TestTexasPokerEventBearerToken(t *testing.T) {
 	requestContext.Request.Header.Set("Authorization", "Bearer token with spaces")
 	if got := texasPokerEventBearerToken(&requestContext); got != "" {
 		t.Fatalf("invalid token accepted: %q", got)
+	}
+}
+
+func TestTexasPokerEventRoutesDpzxToFullLogOnlyAndRejectsUnassignedSources(t *testing.T) {
+	previousRegistry := texasPokerEventStates
+	previousExecute := executeAAPokerDecisionForEvent
+	texasPokerEventStates = newAAPokerEventRegistry()
+	decisionCalls := 0
+	executeAAPokerDecisionForEvent = func(
+		_ context.Context, _, _ string, _, _ int32, _ *model.TexasGtoDecisionReq,
+	) (*aapokerDecisionResult, error) {
+		decisionCalls++
+		return nil, errors.New("unexpected decision")
+	}
+	t.Cleanup(func() {
+		texasPokerEventStates = previousRegistry
+		executeAAPokerDecisionForEvent = previousExecute
+	})
+
+	var logs bytes.Buffer
+	previousOutput := logrus.StandardLogger().Out
+	logrus.SetOutput(&logs)
+	t.Cleanup(func() { logrus.SetOutput(previousOutput) })
+
+	guard := newEventIngressGuard(10, 10)
+	now := time.Unix(1792526400, 0)
+	dpzxBody := `{"packageName":"com.dpzx.pro","timestamp":1792526400000,` +
+		`"cmd":"401","direction":"ServerToClient","location":"TABLE",` +
+		`"data":{"marker":"dpzx-private-hand"}}`
+	var dpzxContext app.RequestContext
+	dpzxContext.Request.SetBodyString(dpzxBody)
+	texasPokerEventWithIngress(context.Background(), &dpzxContext, guard, now)
+	if dpzxContext.Response.StatusCode() != consts.StatusOK ||
+		strings.Contains(string(dpzxContext.Response.Body()), `"Result"`) {
+		t.Fatalf("DPZX response = %d %s", dpzxContext.Response.StatusCode(), dpzxContext.Response.Body())
+	}
+	if decisionCalls != 0 || len(texasPokerEventStates.sessions) != 0 {
+		t.Fatalf("DPZX entered AAPoker decision path: calls=%d sessions=%d",
+			decisionCalls, len(texasPokerEventStates.sessions))
+	}
+	if !strings.Contains(logs.String(), "package_name=com.dpzx.pro") ||
+		!strings.Contains(logs.String(), "dpzx-private-hand") ||
+		!strings.Contains(logs.String(), "full_event_logged=true") {
+		t.Fatalf("DPZX full event was not logged: %s", logs.String())
+	}
+
+	for name, body := range map[string]string{
+		"missing": `{"timestamp":1792526400001,"cmd":"401","direction":"ServerToClient","location":"TABLE","data":{"marker":"missing-source-secret"}}`,
+		"unknown": `{"packageName":"com.unknown.poker","timestamp":1792526400002,"cmd":"401","direction":"ServerToClient","location":"TABLE","data":{"marker":"unknown-source-secret"}}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			logs.Reset()
+			var requestContext app.RequestContext
+			requestContext.Request.SetBodyString(body)
+			texasPokerEventWithIngress(context.Background(), &requestContext, guard, now)
+			if requestContext.Response.StatusCode() != consts.StatusBadRequest {
+				t.Fatalf("status = %d, want 400", requestContext.Response.StatusCode())
+			}
+			response := string(requestContext.Response.Body())
+			if strings.Contains(response, "secret") || strings.Contains(response, body) {
+				t.Fatalf("400 response leaked request body: %s", response)
+			}
+			if strings.Contains(logs.String(), "secret") || strings.Contains(logs.String(), " event=") {
+				t.Fatalf("rejected body leaked to full log: %s", logs.String())
+			}
+		})
 	}
 }
 
@@ -268,7 +347,7 @@ func postAAPokerTestEvent(
 	t *testing.T, guard *eventIngressGuard, now time.Time, command, data string,
 ) *app.RequestContext {
 	t.Helper()
-	body := fmt.Sprintf(`{"uuid":"user@example.com","vpip":0,"pfr":0,"timestamp":%d,"uid":1762080,"cmd":%q,"direction":"ServerToClient","location":"TABLE","dataExtra":99,"data":%s}`,
+	body := fmt.Sprintf(`{"packageName":"com.plusaa.amula","uuid":"user@example.com","vpip":0,"pfr":0,"timestamp":%d,"uid":1762080,"cmd":%q,"direction":"ServerToClient","location":"TABLE","dataExtra":99,"data":%s}`,
 		now.UnixMilli(), command, data)
 	requestContext := &app.RequestContext{}
 	requestContext.Request.SetBodyString(body)

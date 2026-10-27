@@ -7,7 +7,9 @@ last_updated: "2026-10-27"
 
 ## `POST /lyxz/gto_event`
 
-接收桃园助手从 AAPoker 分析模块透传的一条规范化牌局事件。请求体保持 `timestamp/pid/uid/PacketId/cmd/direction/data/location/seq/dataExtra` 结构，并由桃园补充当前登录账号 `uuid` 及策略档位 `vpip/pfr`；`direction` 只接受 `ServerToClient` 或 `ClientToServer`，`location` 只接受 `TABLE/LOBBY/UNKNOWN`。服务启用流式请求体读取，该路由最多读取512 KiB加1字节后拒绝超限输入；`data`必须为合法JSON值且编码后不超过480 KiB。
+接收桃园助手从 PokerEYE 分析模块透传的一条规范化牌局事件。请求体保持 `timestamp/pid/uid/PacketId/cmd/direction/data/location/seq/dataExtra` 结构，并携带由 PokerEYE 外层包络确定的 `packageName`；桃园另补充当前登录账号 `uuid` 及策略档位 `vpip/pfr`。来源白名单为 AAPoker `com.plusaa.amula/com.ty.aapk` 和 DPZX `com.dpzx.pro`，缺失或未知包名返回固定400错误且不记录原始body。`direction` 只接受 `ServerToClient` 或 `ClientToServer`，`location` 只接受 `TABLE/LOBBY/UNKNOWN`。服务启用流式请求体读取，该路由最多读取512 KiB加1字节后拒绝超限输入；`data`必须为合法JSON值且编码后不超过480 KiB。
+
+白名单内事件通过校验后都会记录完整JSON。AAPoker事件继续进入现有状态重建、GTO、计费、审计和结果回放链路；DPZX事件在分析阶段只返回基础成功响应，不建立AAPoker状态、不调用GTO、不计费、不写决策审计。DPZX数字cmd的离线含义尚在采集中，不能据此映射到AAPoker的`REQ_GAME_*`分支。
 
 当前Android 17770入口没有本机调用方认证；任意同机App可伪造事件，再由桃园补入当前登录用户的uuid和Bearer token，从而触发GTO、次数计费和审计。用户已明确接受该风险以简化本轮真机验证；不得将该入口表述为可信来源或已防护，后续需单独补齐。
 

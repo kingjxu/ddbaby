@@ -23,6 +23,9 @@ const (
 	defaultEventRequestsPerMinute  = 300
 	defaultSourceRequestsPerMinute = 120
 	eventSourceBucketCount         = 256
+	aapokerPackageName             = "com.plusaa.amula"
+	aapokerAlternatePackageName    = "com.ty.aapk"
+	dpzxPackageName                = "com.dpzx.pro"
 )
 
 var eventCommandPattern = regexp.MustCompile(`^[A-Za-z0-9._:/-]{1,128}$`)
@@ -116,24 +119,24 @@ func (g *eventIngressGuard) allowRequest(now time.Time, source string) (bool, ui
 }
 
 type texasPokerEvent struct {
-	UUID      string          `json:"uuid"`
-	VPIP      int32           `json:"vpip"`
-	PFR       int32           `json:"pfr"`
-	Timestamp int64           `json:"timestamp"`
-	PID       json.RawMessage `json:"pid"`
-	UID       json.RawMessage `json:"uid"`
-	PacketID  json.RawMessage `json:"PacketId"`
-	Cmd       string          `json:"cmd"`
-	Direction string          `json:"direction"`
-	Data      json.RawMessage `json:"data"`
-	Location  string          `json:"location"`
-	Seq       json.RawMessage `json:"seq"`
-	DataExtra json.RawMessage `json:"dataExtra"`
+	PackageName string          `json:"packageName"`
+	UUID        string          `json:"uuid"`
+	VPIP        int32           `json:"vpip"`
+	PFR         int32           `json:"pfr"`
+	Timestamp   int64           `json:"timestamp"`
+	PID         json.RawMessage `json:"pid"`
+	UID         json.RawMessage `json:"uid"`
+	PacketID    json.RawMessage `json:"PacketId"`
+	Cmd         string          `json:"cmd"`
+	Direction   string          `json:"direction"`
+	Data        json.RawMessage `json:"data"`
+	Location    string          `json:"location"`
+	Seq         json.RawMessage `json:"seq"`
+	DataExtra   json.RawMessage `json:"dataExtra"`
 }
 
-// TexasPokerEvent receives one normalized AAPoker protocol event. Version one
-// intentionally acknowledges receipt only; state reconstruction is connected
-// behind this boundary in a later change.
+// TexasPokerEvent receives one normalized poker-app event and dispatches it by
+// the explicit package allowlist after validation and full diagnostic logging.
 func TexasPokerEvent(ctx context.Context, c *app.RequestContext) {
 	texasPokerEventWithIngress(ctx, c, texasPokerEventIngress, time.Now())
 }
@@ -167,6 +170,7 @@ func texasPokerEventWithIngress(ctx context.Context, c *app.RequestContext, ingr
 		"event":             string(body),
 		"full_event_logged": true,
 		"location":          event.Location,
+		"package_name":      event.PackageName,
 		"payload_size":      len(event.Data),
 	}
 	logrus.WithContext(ctx).WithFields(fields).Info("[TexasPokerEvent] accepted")
@@ -176,6 +180,10 @@ func texasPokerEventWithIngress(ctx context.Context, c *app.RequestContext, ingr
 			"StatusCode":    0,
 			"StatusMessage": "success",
 		},
+	}
+	if event.PackageName == dpzxPackageName {
+		c.JSON(consts.StatusOK, response)
+		return
 	}
 	candidate, stateErr := texasPokerEventStates.process(event, now)
 	if stateErr != nil {
@@ -263,6 +271,11 @@ func parseTexasPokerEvent(body []byte) (*texasPokerEvent, error) {
 	}
 	if event.Timestamp <= 0 || !eventCommandPattern.MatchString(event.Cmd) {
 		return nil, errors.New("invalid timestamp or command")
+	}
+	if event.PackageName != aapokerPackageName &&
+		event.PackageName != aapokerAlternatePackageName &&
+		event.PackageName != dpzxPackageName {
+		return nil, errors.New("invalid packageName")
 	}
 	if len(event.UUID) > 128 || (event.UUID != "" && strings.TrimSpace(event.UUID) != event.UUID) ||
 		!isSupportedDecisionProfile(event.VPIP, event.PFR) {
