@@ -326,7 +326,8 @@ func (s *aapokerTableState) apply(command string, payload []byte) error {
 			s.currentPot = total
 		}
 	case "REQ_CURRENT_ROUND_FINISH", "REQ_GAME_RECV_WINNER":
-		// 停止本手继续产生行动候选；下一次 START_INFOR 才建立新手状态。
+		// 清除当前行动位置和在途标记；此处不修改complete，
+		// 也不阻止后续ACTION更新行动位置。新手状态由START_INFOR建立。
 		s.operationSeat = -1
 		s.inFlightTurn = ""
 	}
