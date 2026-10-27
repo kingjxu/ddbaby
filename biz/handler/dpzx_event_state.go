@@ -533,21 +533,37 @@ func (s *dpzxTableState) applyCards(raw json.RawMessage) error {
 	}
 	var payload []json.RawMessage
 	if err := json.Unmarshal(raw, &payload); err != nil || len(payload) < 2 {
+		s.complete = false
 		return errors.New("invalid DPZX cards update")
 	}
 	var players []dpzxCardsUpdate
 	if err := json.Unmarshal(payload[1], &players); err != nil {
+		s.complete = false
 		return err
 	}
+	heroUpdates := 0
 	for _, item := range players {
-		if item.Index != s.heroSeat || len(item.VecCards) != 2 {
+		if item.Index != s.heroSeat {
 			continue
 		}
+		heroUpdates++
+		if heroUpdates > 1 || len(item.VecCards) != 2 {
+			s.complete = false
+			return errors.New("invalid DPZX Hero cards")
+		}
 		first, second := dpzxCard(item.VecCards[0].Value), dpzxCard(item.VecCards[1].Value)
-		if first != "" && second != "" && first != second {
-			if hero := s.players[s.heroSeat]; hero != nil {
-				hero.holeCards = []string{first, second}
+		if first == "" || second == "" || first == second {
+			s.complete = false
+			return errors.New("invalid DPZX Hero cards")
+		}
+		for _, boardCard := range s.board {
+			if first == boardCard || second == boardCard {
+				s.complete = false
+				return errors.New("duplicate DPZX Hero card")
 			}
+		}
+		if hero := s.players[s.heroSeat]; hero != nil {
+			hero.holeCards = []string{first, second}
 		}
 	}
 	return nil

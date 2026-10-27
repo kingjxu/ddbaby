@@ -224,6 +224,48 @@ func TestDPZXEventStateRejectsWatcherAndUnknownAction(t *testing.T) {
 	}
 }
 
+func TestDPZXEventStateRejectsInvalidHeroCardsAfterValidCards(t *testing.T) {
+	tests := []struct {
+		name    string
+		payload string
+	}{
+		{name: "incomplete", payload: `[false,[{"index":3,"vecCards":[{"value":12}]}]]`},
+		{name: "out of range", payload: `[false,[{"index":3,"vecCards":[{"value":12},{"value":52}]}]]`},
+		{name: "duplicate", payload: `[false,[{"index":3,"vecCards":[{"value":12},{"value":12}]}]]`},
+		{name: "malformed", payload: `[false,`},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			registry := newDPZXEventRegistry()
+			now := time.Unix(1793076600, 0)
+			apply := func(command, payload string, timestamp int64) (*aapokerDecisionCandidate, error) {
+				candidate, err := registry.process(testDPZXEvent(command, payload, timestamp), now)
+				now = now.Add(time.Millisecond)
+				return candidate, err
+			}
+			if _, err := apply("430", dpzxRealRoomSnapshot, 1793076613000); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := apply("431", dpzxRealHandStart, 1793076615000); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := apply("492", `[false,[{"index":3,"vecCards":[{"value":8},{"value":43}]}]]`, 1793076615600); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := apply("492", test.payload, 1793076615700); err == nil {
+				t.Fatal("invalid Hero cards were accepted")
+			}
+			candidate, err := apply("432", `[3,15,0,100,true]`, 1793076615800)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if candidate != nil {
+				t.Fatal("Hero prompt after invalid cards produced a decision candidate")
+			}
+		})
+	}
+}
+
 func TestTexasPokerEventRoutesDPZXThroughDecisionResponse(t *testing.T) {
 	previousRegistry := dpzxPokerEventStates
 	previousExecute := executeAAPokerDecisionForEvent
