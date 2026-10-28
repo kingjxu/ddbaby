@@ -24,3 +24,12 @@ AAPoker沿用已接入协议码及原有action=4清空后手的明确语义，�
 
 Go 1.20.14 全仓 `go test ./... -count=1`、`go test -race ./service ./biz/handler ./model . -count=1` 和 diff check 均通过。专项覆盖两协议动作与不同已有投入组合、allin目标金额及未知码阻断；现有事件去重、跨街、非法决策终止重试和decision回归继续执行。
 真实上游对allin动作标签、SQL落库及Android展示仍需真实牌局验证。当前修复只改输入动作，不改GTO输出合法性、计费和审计；数据库故障下异步审计必达限制沿用用户已接受口径。
+
+## 2026-10-28 两协议事件动作直接映射部署
+
+- 业务提交`e7b22d3`，CR对`f2feb37..e7b22d3`明确LGTM。DPZX betState与AAPoker action分别直接映射；不按金额改写动作，allin保留目标投入；截图decision链路未改。原包枚举证据与AAPoker独立枚举证据限制见`reports/event-action-protocol-20261028.md`。
+- 本地Go1.20.14全仓及service/handler/model/main race通过；服务器Go1.22.2离线全仓、相同race和构建通过。源码`/home/ubuntu/ddbaby-releases/e7b22d3-20261028`，归档SHA256`abd05f0e99047f232e22d89f6d6e1782e9875b00734a8c9ab30273f672e37b6c`。本次服务器测试输出由SSH返回，未另存专用测试日志文件。
+- 10:13:39 CST切换`577335 → 718330`，PPID=1，保留原环境、参数及工作目录。运行/构建二进制SHA256均为`bb210690420cafde875b9fc1d008f0ee4e2b98876af9ea332b8ec353ae84a1ba`，47,639,716字节，JSON pong通过。
+- 合成smoke：AAPoker与DPZX无uuid采集200、未知/缺失来源400、非JSON+query400、未激活uuid503，拒绝marker不落完整日志，当前日志未见panic。证据`/home/ubuntu/ddbaby-e7b22d3-smoke.json`；这些请求不触发真实GTO或计费，不能据此确认allin标签上游兼容性或SQL/手机展示。
+- 日志`/home/ubuntu/ddbaby/output/deploy-e7b22d3-20261028-101339.log`。回滚目录`/home/ubuntu/ddbaby-backups/20261028-101339-before-e7b22d3`保存旧78257ad二进制、私有原环境与启动参数；`sudo python3 <该目录>/rollback.py`同时核对PID718330、运行路径与二进制SHA后恢复，JSON pong检查通过才报告回滚完成。目录700、环境600、脚本700。
+- 重启清空内存牌局，需要完整新手重建；真实GTO→SQL→Android仍未验证。激活检查前置、已接受的额度耗尽回放限制及异步审计数据库故障/进程退出不保证必达口径不变。
