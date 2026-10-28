@@ -443,15 +443,17 @@ func (s *aapokerTableState) applyAction(data aapokerActionPayload) {
 	if player == nil {
 		return
 	}
-	previousMax := s.maxBet()
-	// 用更新前的全桌最高投入区分下注/跟注/加注，并限制本次扣除不超过后手。
+	// 金额仅更新筹码；动作直接使用协议action，限制本次扣除不超过后手。
 	if data.AnteNumber > player.stack {
 		data.AnteNumber = player.stack
 	}
 	player.stack -= data.AnteNumber
 	player.bet += data.AnteNumber
 	s.currentPot += data.AnteNumber
-	action := aapokerActionName(data.Action, player.bet, previousMax)
+	action := aapokerActionName(data.Action)
+	if action == "" {
+		s.complete = false
+	}
 	if action == "fold" {
 		player.active = false
 	}
@@ -591,16 +593,6 @@ func (s *aapokerTableState) orderedParticipantSeats() []int {
 	return result
 }
 
-func (s *aapokerTableState) maxBet() int {
-	max := 0
-	for _, player := range s.players {
-		if player.bet > max {
-			max = player.bet
-		}
-	}
-	return max
-}
-
 func decodeAAPokerPayload(raw []byte) ([]byte, error) {
 	payload := bytes.TrimSpace(raw)
 	if len(payload) == 0 {
@@ -651,23 +643,15 @@ func aapokerCard(cardID int) string {
 	return ranks[cardID%13] + "-" + suits[cardID/13]
 }
 
-func aapokerActionName(action, target, previousMax int) string {
+// aapokerActionName 使用AAPoker自己的action枚举，与DPZX betState不同。
+func aapokerActionName(action int) string {
 	switch action {
 	case 2:
 		return "call"
 	case 3:
-		if previousMax == 0 {
-			return "bet"
-		}
 		return "raise"
 	case 4:
-		if target <= previousMax {
-			return "call"
-		}
-		if previousMax == 0 {
-			return "bet"
-		}
-		return "raise"
+		return "allin"
 	case 5:
 		return "check"
 	case 6:
@@ -678,7 +662,7 @@ func aapokerActionName(action, target, previousMax int) string {
 }
 
 func actionAmount(action string, target int) int {
-	if action == "bet" || action == "raise" || action == "call" {
+	if action == "bet" || action == "raise" || action == "call" || action == "allin" {
 		return target
 	}
 	return 0

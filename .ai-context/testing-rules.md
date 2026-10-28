@@ -1,5 +1,5 @@
 ---
-version: "1.18"
+version: "1.19"
 last_updated: "2026-10-28"
 ---
 
@@ -24,3 +24,5 @@ last_updated: "2026-10-28"
 - 牌局状态机单测放在service包，与状态实现一起维护。禁止为测试替换决策函数而在正式handler中添加全局函数变量。HTTP重试回归在测试文件内替换标准HTTP transport使GTO失败并断言503和资格释放；通过测试GORM查询回调提供激活信息，正式代码不加测试函数变量。回放回归通过service准备结果，重复HTTP输入仍检查数据库激活但不重复调用GTO；激活过期或额度耗尽后不得回放缓存，必须覆盖最后一次额度成功计费且已缓存结果→丢弃HTTP响应→重传503的两协议回归，并证明没有再次调用GTO/计费/审计。该回归不代表真实GTO/SQL成功链路已验证。
 
 - 非法/空GTO决策在event入口终止当前行动点：返回HTTP 200、BaseResp.StatusCode=0、StatusMessage=decision_rejected，不带Result或客户端动作，不计费。可解析的非法原始响应仍异步审计，final_response为JSON null。service缓存非nil但Result为空的终止标记，沿用30分钟TTL和1024条容量；相同行动重传不重复GTO、审计或计费。后续真实行动继续推进状态，可生成下一行动点的决策。网络/上游临时错误仍返回503并释放重试资格；激活检查仍先于缓存。两协议HTTP回归覆盖拒绝、重传、同手后续行动及正常决策。
+
+- 事件动作回归：DPZX事件cmd433动作仅按betState映射：2=call、3=check、4=raise、5=allin、6=fold、13=bet；不比较betted与全桌最大投入改写动作。AAPoker事件按自己的action码映射：2=call、3=raise、4=allin、5=check、6=fold，不能套DPZX枚举。金额仅维护筹码和目标总额，allin保留当时目标投入，check/fold历史金额为0；未知动作阻断本手决策。截图decision接口保留原快照推断逻辑。 覆盖无人下注、目标低于/等于/高于已有下注、短码全下、多家全下、跨街首次action=3仍为raise，以及发送到GTO的action_taken/action_history保持一致。

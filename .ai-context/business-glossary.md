@@ -1,5 +1,5 @@
 ---
-version: "1.8"
+version: "1.9"
 last_updated: "2026-10-28"
 ---
 
@@ -19,3 +19,5 @@ last_updated: "2026-10-28"
 - **DPZX行动点**：数字cmd 432给出的下一行动座位。同一手中只有房间快照、盲注快照、Hero两张私牌和此前动作连续完整，并且cmd 432指向Hero时，才生成GTO请求。
 
 - **DPZX位置**：以startState=1/2锚定SB/BB；多人桌BTN为SB之前的实际参与者，单挑BTN兼SB。SB缺失时须有仍参与且顺序一致的bankIndex，否则停止决策；不能直接把已离座bankIndex当成空庄位。其余参与者从BB后顺时针分配普通位置。与截图/AAPoker的位置顺延规则不同，无抓盲不插入straddle；不按下注金额判断抓盲。2026-10-28用户确认DPZX startState=3/4分别表示straddle/straddle+1，以431标记为准，即使房间IsStraddle=false也有效；强制投入取标记玩家的Value，GTO的Straddle取最后一档强制投入。标记必须从BB后连续按3、4排列，不允许重复、缺档、与BTN/SB重叠或非递增投入。
+
+- DPZX事件cmd433动作仅按betState映射：2=call、3=check、4=raise、5=allin、6=fold、13=bet；不比较betted与全桌最大投入改写动作。AAPoker事件按自己的action码映射：2=call、3=raise、4=allin、5=check、6=fold，不能套DPZX枚举。金额仅维护筹码和目标总额，allin保留当时目标投入，check/fold历史金额为0；未知动作阻断本手决策。截图decision接口保留原快照推断逻辑。

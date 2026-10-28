@@ -455,8 +455,7 @@ func (s *dpzxTableState) applyAction(raw json.RawMessage) error {
 	}
 	s.expectedSeat = -1
 	s.operationSeat = -1
-	// 消费完本次提示，等待下一条432；动作类型须结合更新前的全桌最高投入判断。
-	previousMax := s.maxBet()
+	// 消费完本次提示，等待下一条432；动作只由协议betState决定。
 	previousBet := player.bet
 	if update.Betted >= previousBet {
 		player.bet = update.Betted
@@ -465,7 +464,7 @@ func (s *dpzxTableState) applyAction(raw json.RawMessage) error {
 	if player.bet > previousBet {
 		s.currentPot += player.bet - previousBet
 	}
-	action := dpzxActionName(update.BetState, player.bet, previousMax)
+	action := dpzxActionName(update.BetState)
 	if action == "" {
 		s.complete = false
 		return errors.New("unknown DPZX action state")
@@ -791,40 +790,21 @@ func (s *dpzxTableState) decisionRequest() (*model.TexasGtoDecisionReq, string) 
 	return request, turnKey
 }
 
-func (s *dpzxTableState) maxBet() int {
-	max := 0
-	for _, player := range s.players {
-		if player.bet > max {
-			max = player.bet
-		}
-	}
-	return max
-}
-
-func dpzxActionName(betState, target, previousMax int) string {
+// dpzxActionName 对应DPZX客户端betState枚举，不用金额推断或改写动作。
+func dpzxActionName(betState int) string {
 	switch betState {
 	case 2:
 		return "call"
 	case 3:
 		return "check"
-	case 4, 13:
-		if previousMax == 0 {
-			return "bet"
-		}
-		if target <= previousMax {
-			return "call"
-		}
+	case 4:
 		return "raise"
 	case 5:
-		if target <= previousMax {
-			return "call"
-		}
-		if previousMax == 0 {
-			return "bet"
-		}
-		return "raise"
+		return "allin"
 	case 6:
 		return "fold"
+	case 13:
+		return "bet"
 	default:
 		return ""
 	}

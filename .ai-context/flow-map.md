@@ -1,6 +1,6 @@
 ---
-version: "1.14"
-last_updated: "2026-10-27"
+version: "1.15"
+last_updated: "2026-10-28"
 ---
 
 # 德州扑克决策数据流
@@ -50,3 +50,5 @@ last_updated: "2026-10-27"
 - 决策审计记录GTO实际返回的所有可解析决策，包括校验拒绝的非法结果；非法结果final_response保存JSON null，仍不下发或计费。v2 记录必须包含实际线上的 `vvip/pfr`；原始响应与规范化后的最终响应分别保存。异步任务不能复用会随 HTTP 请求结束而取消的 context，也不能因写库失败影响主链路。
 
 - 非法/空GTO决策在event入口终止当前行动点：返回HTTP 200、BaseResp.StatusCode=0、StatusMessage=decision_rejected，不带Result或客户端动作，不计费。可解析的非法原始响应仍异步审计，final_response为JSON null。service缓存非nil但Result为空的终止标记，沿用30分钟TTL和1024条容量；相同行动重传不重复GTO、审计或计费。后续真实行动继续推进状态，可生成下一行动点的决策。网络/上游临时错误仍返回503并释放重试资格；激活检查仍先于缓存。两协议HTTP回归覆盖拒绝、重传、同手后续行动及正常决策。
+
+- DPZX事件cmd433动作仅按betState映射：2=call、3=check、4=raise、5=allin、6=fold、13=bet；不比较betted与全桌最大投入改写动作。AAPoker事件按自己的action码映射：2=call、3=raise、4=allin、5=check、6=fold，不能套DPZX枚举。金额仅维护筹码和目标总额，allin保留当时目标投入，check/fold历史金额为0；未知动作阻断本手决策。截图decision接口保留原快照推断逻辑。
