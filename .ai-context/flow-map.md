@@ -1,5 +1,5 @@
 ---
-version: "1.15"
+version: "1.16"
 last_updated: "2026-10-28"
 ---
 
@@ -9,7 +9,7 @@ last_updated: "2026-10-28"
 
 1. 桃园将规范化事件与当前登录账号`uuid`、VPIP/PFR一起串行上报；ddbaby先执行统一4 MiB、IDL字段绑定和来源检查，再对非空uuid复用decision的数据库激活校验；无频率限制和日志预算，激活失败在完整日志和状态更新前返回503。
 2. 服务端只消费`TABLE + ServerToClient`状态，按`uuid + AAPoker uid + dataExtra`隔离牌桌；`ENTER_ROOM/SEAT_DOWN`用内部userId确认Hero座位，旁观状态不推断Hero。
-3. `START_INFOR`建立新手，`RECV_ACTION`按`operationRound`幂等累计动作与目标下注额，`RECV_CARDS`推进街道并清零本街下注，`SHOW_SIDE_POTS`校正底池。物理座位从banker开始映射到与截图链路一致的位置名。
+3. `START_INFOR`建立新手，`RECV_ACTION`按`operationRound`幂等累计动作与目标下注额，`RECV_CARDS`推进街道并清零本街下注，`SHOW_SIDE_POTS`校正底池。物理座位从banker开始、跳过非参与空座；按本手straddlePop选择普通/单级抓盲位置，不复用截图链路固定带抓盲的位置表。
 4. `operationID`轮到Hero时，只有两张Hero手牌、对应街道公共牌、active状态和剩余后手全部有效才生成`TexasGtoDecisionReq`。同一行动点只有一个请求在途；调用失败保留资格，成功后忽略重传。
 5. 激活校验在完整日志、状态更新和缓存回放之前完成；Hero决策复用查到的激活信息，执行策略白名单、上游调用、响应合法性、all-in/free-check规范化、次数计费和`gto_decision_record`审计。带非空`Result`的响应由桃园转给现有悬浮窗。
 
@@ -52,3 +52,5 @@ last_updated: "2026-10-28"
 - 非法/空GTO决策在event入口终止当前行动点：返回HTTP 200、BaseResp.StatusCode=0、StatusMessage=decision_rejected，不带Result或客户端动作，不计费。可解析的非法原始响应仍异步审计，final_response为JSON null。service缓存非nil但Result为空的终止标记，沿用30分钟TTL和1024条容量；相同行动重传不重复GTO、审计或计费。后续真实行动继续推进状态，可生成下一行动点的决策。网络/上游临时错误仍返回503并释放重试资格；激活检查仍先于缓存。两协议HTTP回归覆盖拒绝、重传、同手后续行动及正常决策。
 
 - DPZX事件cmd433动作仅按betState映射：2=call、3=check、4=raise、5=allin、6=fold、13=bet；不比较betted与全桌最大投入改写动作。AAPoker事件按自己的action码映射：2=call、3=raise、4=allin、5=check、6=fold，不能套DPZX枚举。金额仅维护筹码和目标总额，allin保留当时目标投入，check/fold历史金额为0；未知动作阻断本手决策。截图decision接口保留原快照推断逻辑。
+
+- AAPoker事件位置由本手参与者、bankerID和straddlePop确定：没有正数抓盲标记时不插入straddle；单个标记必须属于本手且为BB之后的下一参与者，其金额高于BB。按BTN开始跨过空座排序，单挑BTN兼SB、另一人为BB。位置写入玩家并供行动历史复用，弃牌不重排；下一手重新解析，不沿用前手抓盲。多级、非连续、负金额、不属于本手或盲位上的抓盲标记，以及缺失本手BTN/不支持的人数均阻断决策，不能取最大金额猜位置。isCurStraddle数值含义尚未确认，不把它当布尔开关覆盖straddlePop。前注仍沿用已观察样本bigChip口径，本轮未确认独立字段，保留此限制。

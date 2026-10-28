@@ -1,5 +1,5 @@
 ---
-version: "1.24"
+version: "1.25"
 last_updated: "2026-10-28"
 ---
 
@@ -58,3 +58,5 @@ GTO返回可解析决策即使用与截图接口相同的 `gto_decision_record`�
 - 非法/空GTO决策在event入口终止当前行动点：返回HTTP 200、BaseResp.StatusCode=0、StatusMessage=decision_rejected，不带Result或客户端动作，不计费。可解析的非法原始响应仍异步审计，final_response为JSON null。service缓存非nil但Result为空的终止标记，沿用30分钟TTL和1024条容量；相同行动重传不重复GTO、审计或计费。后续真实行动继续推进状态，可生成下一行动点的决策。网络/上游临时错误仍返回503并释放重试资格；激活检查仍先于缓存。两协议HTTP回归覆盖拒绝、重传、同手后续行动及正常决策。
 
 - DPZX事件cmd433动作仅按betState映射：2=call、3=check、4=raise、5=allin、6=fold、13=bet；不比较betted与全桌最大投入改写动作。AAPoker事件按自己的action码映射：2=call、3=raise、4=allin、5=check、6=fold，不能套DPZX枚举。金额仅维护筹码和目标总额，allin保留当时目标投入，check/fold历史金额为0；未知动作阻断本手决策。截图decision接口保留原快照推断逻辑。
+
+- AAPoker事件位置由本手参与者、bankerID和straddlePop确定：没有正数抓盲标记时不插入straddle；单个标记必须属于本手且为BB之后的下一参与者，其金额高于BB。按BTN开始跨过空座排序，单挑BTN兼SB、另一人为BB。位置写入玩家并供行动历史复用，弃牌不重排；下一手重新解析，不沿用前手抓盲。多级、非连续、负金额、不属于本手或盲位上的抓盲标记，以及缺失本手BTN/不支持的人数均阻断决策，不能取最大金额猜位置。isCurStraddle数值含义尚未确认，不把它当布尔开关覆盖straddlePop。前注仍沿用已观察样本bigChip口径，本轮未确认独立字段，保留此限制。

@@ -380,11 +380,6 @@ func (s *aapokerTableState) applyStart(data aapokerStartPayload) error {
 	// 当前将每人的前注按bigChip映射，与已有截图决策请求口径保持一致。
 	s.ante = data.BigChip
 	s.straddle = 0
-	for _, amount := range data.Straddle {
-		if amount > s.straddle {
-			s.straddle = amount
-		}
-	}
 	s.currentPot = data.PoolChips
 	s.mushroom = data.MushroomPool / data.BigChip
 	s.operationSeat = data.OperationID
@@ -423,7 +418,10 @@ func (s *aapokerTableState) applyStart(data aapokerStartPayload) error {
 			}
 		}
 	}
-	s.assignPositions()
+	if err := s.assignPositions(data.Straddle); err != nil {
+		s.complete = false
+		return err
+	}
 	s.setHeroCards(data.FirstCards, data.SecondCards)
 	return nil
 }
@@ -526,15 +524,30 @@ func (s *aapokerTableState) setHeroCards(first, second []int) {
 	}
 }
 
-func (s *aapokerTableState) assignPositions() {
-	positions := aapokerPositions(len(s.participants))
-	ordered := make([]int, 0, len(s.participants))
-	for offset := 0; offset < s.tableSize; offset++ {
-		seat := (s.buttonSeat + offset) % s.tableSize
-		if _, ok := s.players[seat]; ok {
-			ordered = append(ordered, seat)
-		}
+// assignPositions 仅根据本手straddlePop的明确座位插入抓盲位。
+// 当前已确认单级抓盲；多级、非连续或不属于本手的标记不猜测位置。
+func (s *aapokerTableState) assignPositions(straddlePop []int) error {
+	ordered := s.orderedParticipantSeats()
+	if len(ordered) < 2 || len(ordered) > 9 || s.players[s.buttonSeat] == nil {
+		return errors.New("unsupported AAPoker button or player count")
 	}
+	straddleSeat, amount := -1, 0
+	for seat, value := range straddlePop {
+		if value < 0 {
+			return errors.New("invalid AAPoker straddle amount")
+		}
+		if value == 0 {
+			continue
+		}
+		if straddleSeat >= 0 || s.players[seat] == nil {
+			return errors.New("unsupported AAPoker straddle positions")
+		}
+		straddleSeat, amount = seat, value
+	}
+	if straddleSeat >= 0 && (len(ordered) < 4 || ordered[3] != straddleSeat || amount <= s.bigBlind) {
+		return errors.New("invalid AAPoker straddle position or amount")
+	}
+	positions := aapokerPositions(len(ordered), straddleSeat >= 0)
 	for index, seat := range ordered {
 		position := positions[index]
 		if seat == s.heroSeat {
@@ -542,6 +555,8 @@ func (s *aapokerTableState) assignPositions() {
 		}
 		s.players[seat].position = position
 	}
+	s.straddle = amount
+	return nil
 }
 
 // decisionRequest 是 apply 之后的决策门槛：完整建手、轮到 Hero 且私牌/后手有效
@@ -668,29 +683,22 @@ func actionAmount(action string, target int) int {
 	return 0
 }
 
-func aapokerPositions(playerCount int) []string {
-	switch playerCount {
-	case 9:
-		return []string{"BTN", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "MP+1", "CO"}
-	case 8:
-		return []string{"BTN", "SB", "BB", "straddle", "UTG", "UTG+1", "MP", "CO"}
-	case 7:
-		return []string{"BTN", "SB", "BB", "straddle", "UTG", "MP", "CO"}
-	case 6:
-		return []string{"BTN", "SB", "BB", "straddle", "UTG", "CO"}
-	case 5:
-		return []string{"BTN", "SB", "BB", "straddle", "CO"}
-	case 4:
-		return []string{"BTN", "SB", "BB", "straddle"}
-	case 3:
-		return []string{"BTN", "SB", "BB"}
-	case 2:
+func aapokerPositions(playerCount int, hasStraddle bool) []string {
+	if playerCount == 2 {
 		return []string{"BTN", "BB"}
-	case 1:
-		return []string{"BTN"}
-	default:
-		return []string{"BTN"}
 	}
+	positions := []string{"BTN", "SB", "BB"}
+	if hasStraddle {
+		positions = append(positions, "straddle")
+	}
+	// BB（或抓盲）之后的普通位，按本手实际参与人数分配。
+	remaining := [][]string{
+		{}, {"CO"}, {"UTG", "CO"}, {"UTG", "MP", "CO"},
+		{"UTG", "UTG+1", "MP", "CO"},
+		{"UTG", "UTG+1", "MP", "MP+1", "CO"},
+		{"UTG", "UTG+1", "UTG+2", "MP", "MP+1", "CO"},
+	}
+	return append(positions, remaining[playerCount-len(positions)]...)
 }
 
 func PokerEventHeroMaxTarget(request *model.TexasGtoDecisionReq) int {
