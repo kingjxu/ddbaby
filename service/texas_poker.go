@@ -31,12 +31,23 @@ type TexasPokerDecision struct {
 
 const recognizePokerURL = "http://127.0.0.1:5555/recognize"
 
-const (
-	gtoAPIKeyEnv   = "GTO_API_KEY"
-	gtoDecisionURL = "http://114.132.228.98/gto/decision"
+const gtoAPIKeyEnv = "GTO_API_KEY"
+
+// The decision endpoints stay overridable so ddbaby can point at the local
+// gto-solver service without changing the client contract. The defaults keep
+// the previous upstream behaviour.
+var (
 	// vvip is the field spelling defined by the upstream v2 API contract.
-	gtoDecisionV2URL = "http://114.132.228.98/gto/decision_v2"
+	gtoDecisionURL   = envOrDefault("GTO_DECISION_URL", "http://114.132.228.98/gto/decision")
+	gtoDecisionV2URL = envOrDefault("GTO_DECISION_V2_URL", "http://114.132.228.98/gto/decision_v2")
 )
+
+func envOrDefault(key, fallback string) string {
+	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
+		return value
+	}
+	return fallback
+}
 
 func GetTexasPokerDecision(ctx context.Context, images []string) (string, int32, error) {
 	req := GetCozeHttpRequestV3()

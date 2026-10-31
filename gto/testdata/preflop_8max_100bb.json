@@ -1,0 +1,52 @@
+{
+  "format": "preflop-table/v1",
+  "players": 8,
+  "stack_bb": 100,
+  "ante_bb": 1,
+  "straddle_bb": 0,
+  "positions": ["UTG", "UTG+1", "MP", "MP+1", "CO", "BTN", "SB", "BB"],
+  "source": "TEST FIXTURE ONLY - hand-written sample, not GTO data",
+  "nodes": {
+    "UTG|": {
+      "AA": {"raise": 1, "raise_to": 2.5},
+      "AKs": {"raise": 1, "raise_to": 2.5},
+      "72o": {"fold": 1}
+    },
+    "CO|": {
+      "AA": {"raise": 1, "raise_to": 2.5},
+      "KQs": {"raise": 0.9, "call": 0.1, "raise_to": 2.5},
+      "72o": {"fold": 1}
+    },
+    "BTN|": {
+      "AA": {"raise": 1, "raise_to": 2.5},
+      "KQs": {"raise": 0.8, "call": 0.2, "raise_to": 2.5},
+      "72o": {"fold": 1}
+    },
+    "SB|": {
+      "AA": {"raise": 1, "raise_to": 3},
+      "72o": {"fold": 1}
+    },
+    "BB|": {
+      "AA": {"raise": 1, "raise_to": 3},
+      "72o": {"check": 1}
+    },
+    "BTN|UTG:raise:2.5": {
+      "AA": {"raise": 1, "raise_to": 8},
+      "KQs": {"call": 0.5, "raise": 0.5, "raise_to": 8},
+      "72o": {"fold": 1}
+    },
+    "BTN|VS_OPEN_UTG": {
+      "AA": {"raise": 1, "raise_to": 8},
+      "72o": {"fold": 1}
+    },
+    "BTN|VS_OPEN_CALL_UTG": {
+      "AA": {"raise": 1, "raise_to": 10},
+      "KQs": {"call": 1},
+      "72o": {"fold": 1}
+    },
+    "CO|UTG:raise:2.5": {
+      "AA": {"raise": 1, "raise_to": 8},
+      "72o": {"fold": 1}
+    }
+  }
+}
